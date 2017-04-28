@@ -1,0 +1,398 @@
+* MAP.SBL
+
+*       Copyright 2017, David Shields
+*       Licensed under the MIT license.
+
+*       This file extends SPITBOL by adding support for creating and operating
+*       on maps.
+
+
+*       Maps: Functions
+*       --------------
+
+*       In mathematics, a map, or function, is a set of ordered pairs that define a relation between
+*       the first element of a pair, called the domain value, and the second value of the pair, called
+*       the range value.
+
+*	A _pair_ joins two values together. 
+
+        data('pair(first,second)')
+
+*       The SPITBOL datatype TABLE provides the machinery to implement maps.
+*       SPITBOL provides no way to determine the number of domain values, or size, of
+*       a map other than converting the map to an array, which is only way to iterate
+*       over a map.
+
+*       PLAYBOL represents a map using the following data structures:
+
+*       _entry_ is used to maintain a key/value pair.
+
+        data('entry(key,value)')
+
+        data('map(map.table,map.size,map.next)')
+
+*               _map.size_ is the number of entries in the table.
+
+*               _map.table_ is the table used to maintain the map by the various
+
+                _map.next_ is used to iterate over a map.
+
+*       Note that these values should not be directly altered by you, the user.
+*       You do so at your peril. However, when iterating over a map, you
+*	may read the value of _map.next_ to access the entry of the current
+*	iteration.
+
+*	For example, to obtain the number of words in a file
+
+*REVISE BELOW
+*		define('f.count(entry) ;f.count; f.count = map.size(value(words(entry))) :(return)')
+*		define('f.sum(result,entry); f.sum; f.sum = result + value(entry) :(return)')
+*		result = map.forall(map.apply(reader(filename),f.count),f.sum)
+
+
+        define('map.add(map,val)entry')                 :(map.add.end)
+
+*	NOTE: should move this to seq.sbl
+map.add
+
+	entry = (map.size(map) = map.size(map) + 1,val)
+	map.put(map,map.size(map), val))		
+	map.add = entry					:(return)
+
+map.add.end
+
+	define('map.apply(map,f)entry,pair,map.apply.result')	:(map.apply.end)
+
+*	_map.apply_ returns the map obtained by applying _f- to each entry in _map_.
+*       If _f_ is a string, it is evaluated using _eval_; otherwise _f_is called
+*       as a function.
+*	_map.apply_ returns a pair, where the first component in the new entry,
+*	and the second argument is a value defined by the previous use of apply to _f_.
+*	This allows the computation of a value defined by the iteration.
+
+map.apply
+
+	map.apply.map = map.map(map.size(map))
+	map.loop(map)
+	result =
+
+map.apply.next
+
+	entry = map.next(map)				:f(map.apply.done)
+	pair = pair(map.apply.entry(entry,result))
+	map.put(map.apply.map,first(pair), second(pair))):(map.apply.next)
+
+map.apply.done
+
+	map.apply = pair(map.apply.map,map.apply.result)	:(return)
+
+map.apply.end
+
+	define('map.apply.entry(f,entry)')		:(map.apply.entry.end)
+
+*	Return a pair entry as follows:
+
+*	If _f_ is a string, eval(f) must evaluate to a pair defining
+*	new entry.
+
+*	If _f_ is a function, then _f(entry)_ must return a pair
+*	defining the new entry.
+
+*	In either case, the first element of the pair is set to the
+*	value returned above.
+
+map.apply.entry
+
+        define(map.domain(entry)			:(map.domain.end)
+
+*       Return set with the keys in _map_.
+*	NOTE: SHould this be in set.sbl ?
+
+map.domain
+
+	map.domain = map.new(map.size(map))
+        map.loop(map)
+
+map.domain.next
+
+        entry = map.next(map)                           :f(return)
+        map.add(map.domain,ent)                         :(map.domain.next)
+
+map.domain.end
+
+        define('map.forall(f,map)entry')		:(map.forall.end)
+
+*	_map.forall_ returns a result defined by iterating over all the
+*	entries in _map_. In each step of the iteration, _map.apply.entry_
+*	is evaluatedl using the current entry and the latest value of the
+*	result. 
+*	_map_forall_ returns the last value so defined.
+*	_map.forall_ returns a new map defined by iterating over _map_
+*	and using _f_ to define each entry by calling _map.apply.entry_.
+
+*	For example, the length of the largest key of a map on strings could
+*	be found by having each call set resuslt to the length of the largest key so far seen.
+
+map.forall
+
+        map.forall = map(map.size(map))
+        map.loop(map)
+
+map.forall.next
+
+	map.put(map,map.apply.entry(f,map.next(map)))	 :s(map.forall.next)
+
+	map.forall = result				:(return)
+
+map.forall.end
+
+        define('map.foreach(map,f)entry,pair')               :(map.foreach.end)
+
+*        Returns a map defined by iterating over the entries in _map_, and applying
+*        f to the entry to define a new entry in the result.
+
+map.foreach
+
+        map.foreach = map(map.size(map))
+
+map.foreach.next
+
+        pair = first(apply(f,map.next(map)))                    :f(return)
+        map.put(map.foreach, entry.first(pair),second(pair))	:(map.foreach.next)
+
+map.foreach.end
+
+        define('map.get(key,val)')                  :(map.get.end)
+
+*       Gets the value of the key _key_ in the map _map_.
+
+map.get
+
+        map.get = map.table(map)[key]                   :(return)
+
+map.get.end
+
+	define('map.inverse)entry')			:(map.inverse.end)
+
+*	_map.inverse_ returns the inverse of a map. The inverse is
+*	a map with the keys and values of _map_ reversed. 
+*	_map.inverse_ fails if there are two instances of the same
+*	value in the range of the map.
+
+map.inverse
+
+	map.inverse = map.map(map.size(map))
+	map.loop(map)
+
+map.inverse.next
+
+	entry = map.next(map)				:f(return)
+	differ(map.get(map.inverse,value(entry)))	:s(freturn)
+	map.put(map.inverse,value(entry), key(entry))  :(map.inverse.next)
+
+map.inverse.end
+
+        define('map.loop(map,kind)')                    :(map.loop.end)
+*TODO*
+*       Returns an iterator for _map_. Use _map.next_ to retrieve
+*       the next entry in map. _map.next_ fails when no more entries remain.
+
+*       _kind_ gives the kind of loop:
+
+*               '+order'        iterate in order in which entries added. (default)
+*               '-order'        iterate in reverse order in which entries added.
+*               '+key'          iterate in incresing values of keys.
+*               '-key'          iterate in decceasing values of keys.
+*               '+val'          iterate in incresing values of values.
+*               '-key'          iterate in decreasing values of keys.
+
+*       Otherwise iterate over the keys in the order in which they were added to the map.
+
+map.loop
+
+        map.next(map) = 0
+        ident(kind)                                     :s(map.loop.order)
+        ident(kind, '+order')                           :s(map.loop.key.order.inc)
+        ident(kind, '-order')                           :s(map.loop.key.order.dec)
+        ident(kind, '+key')                             :s(map.loop.key.inc)
+        ident(kind, '-key')                             :s(map.loop.key.dec)
+        ident(kind, '+val')                             :s(map.loop.value.inc)
+        ident(kind, '-val')                             :s(map.loop.value.dec)
+
+map.loop.order.inc
+
+        map.array(map) = convert(map.table(map),'array'):(map.done)
+
+map.loop.rorder.inc
+
+        output = 'loop rorder not implemented '         :(nosuchlabel)
+        map.array(map) = convert(map.table(map),'array'):(map.done)
+
+map.loop.key.inc
+
+        map.array(map) = rsort(map.table(map),1)        :(return)
+
+map.loop.key.dec
+
+        map.array(map) = sort(map.table(map),1)         :(return)
+
+map.loop.value.inc
+
+        map.array(map) = rsort(map.table(map),2)        :(return)
+
+map.loop.value.dec
+
+        map.array(map) = sort(map.table(map),-2)        :(return)
+
+map.loop.end
+
+        define('map.new(init,n)i,key,str,valr')         :(map.new.end)
+
+*       Create a new map.
+
+*       A sequence is a list of values *  separated by spaces.
+
+*               map       _init_ is a list consisting of a list of key/value pairs,
+*			
+*                               with a colon (:) between the key and value.
+
+map.new
+
+        map.new = ident(init) map(table(128))           :s(return)
+        kind = ident(kind) 'map'
+        kind
+        output = 'enter map.new [' init ']'
+        init break(':')                                	:s(map.new.keyval)
+        map.new = map(table(i))                         :(return)
+
+map.new.keyval
+        
+        map.new = map(table(128))
+
+map.new.keyval.next
+
+        init break(':') . key ':' break(' ') . val span(' ') =	:f(return)
+        map.put(map.new,key,val)                        :(map.new.keyval.next)
+
+map.new.end
+
+        define('map.next(map)')                         :(map.next.end)
+
+*       _map.next_ returns the next entry in a map, or fails if no entries remain.
+
+map.next
+
+        le(map.next(map) = map.next(map) + 1, map.size(map)):f(freturn)
+        map.next = entry(map.array[map.next(map),1],map.array[map.next(map),2]):(return)
+
+map.next.end
+
+        define('map.range(map)')                    :(map.range.map)
+
+
+*NOTE This should be in SET
+
+*        Return set with the values in _map_.
+
+
+map.range
+
+        map.range = map.sequence()
+        map.loop(map)
+
+map.range.next
+
+        map.range.add(entry.value(map.next(map))        :f(return)s(map.range.next)
+
+map.range.end
+
+	define('map.reduce(map,f')entry,result')	:(map.reduce.end)
+
+*	_map.reduce_ returns a new map by iterating over the elements in
+*	_map_ and evaluatibg _f(entry)_ on each entry.
+*	_test_ must be the name of the functiono to be used for the test.
+*	The entry is added if the result, or is ignored otherwise.
+
+map.reduce
+
+	map.reduce = map(map.size(map))
+	map.loop(map)
+
+map.reduce.next
+
+	entry = map.next(map)
+	false((apply(test,entry)			:s(map.reduce.next)
+	map.put(map.reduce,key(entry),value(entry))	:(map.reduce.next)
+
+map.reduce.end
+
+        define('map.put(key,val)v')                 :(map.put.end)
+
+*       Sets the value of the entry for key _key_ in map _map_ to be _val_, 
+*       creating a new entry if there is no current entry for _key_.
+
+map.put
+
+*        output = 'enter map.put dt ' datatype(map) ' key [' key '] val [' val ']'
+        v = map.table(map)[key]
+        differ(v)                                       :s(map.put.value)
+
+*       Here to create new entry in map.
+
+        map.size(map) = map.size(map) + 1
+
+map.put.value
+
+        map.table(map)[key] = val                       :(return)
+
+map.put.end
+
+        define('map.test(key)')                     :(map.test.end)
+
+*       Tests if the map _map_ has an entry for _key_.
+
+map.test
+
+	map.test = (differ(map.table(map)[key]) true, false) (return)                     
+
+map.test.end
+
+*.* Note: Should probably drop this, as there is no reason for Playbol
+*.*	user to be mucking about with SPITBOL arrays, unless there
+*.*	is a need to convert the result of a function that returns an
+*.*	array into a map
+*.
+*.        define('map.array(aray)i,key')                  :(map.array.end)
+*.
+*.*	Create a map defined by an array.
+*.*	If the array has one dimension then create a sequence
+*.*	from the array values.
+*.*	If the array has two dimensions, create a map using the
+*.*	array indice as the keys, and the correspong value as the
+*.*	values.
+*.
+*.map.array
+*.
+*.        map.array = map()
+*.        i = prototype(aray)
+*.        integer(i)                                      :s(map.array.one)
+*.
+*.*       Here to initialize from two-dimensional array
+*.
+*.map.array.next
+*.
+*.        key = aray[i = i + 1,1]                         :f(return)
+*.        map.put(map.aray,i,aray[i,2]                    :(map.array.next
+*.
+*.map.array.one
+*.
+*.*        Here to initialize map from one-dimensional array
+*.
+*.map.array.next
+*.
+*.        key = aray[i = i + 1]				:f(return)
+*.        map.add(map.array,key)                          :(map.array.next)
+*.
+*.
+*.map.array.end
+*.

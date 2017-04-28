@@ -1,0 +1,179 @@
+*       Copyright 2017, David Shields
+*       Licensed under the MIT license.
+
+*       This file extends SPITBOL by adding support for providing additional
+*	functions and constants for working with strings.
+*       on strings..
+
+        define('spaces.spaces(line)c')                         :(spaces.spaces.end)
+
+*       Returns string which has ' ' in position _i_ if the _i_-th
+*	characer in _string_ is a space (' '), or '*' otherwise.
+
+*SPACES*
+spaces.spaces
+
+	line len(1) . c					:f(return)
+	spaces.spaces = spaces.spaces (ident(c,' ') ' ', '*')		:(spaces.spaces)
+
+spaces.spaces.end
+
+        define('spaces(line)c')                         :(spaces.end)
+
+*       Returns string which has ' ' in position _i_ if the _i_-th
+*	characer in _string_ is a space (' '), or '*' otherwise.
+
+spaces
+
+	line len(1) . c					:f(return)
+	spaces = spaces (ident(c,' ') ' ', '*')		:(spaces)
+
+spaces.end
+
+	define('string.slice(str,first,last)')		:(string.slice.end)
+
+string.slice
+
+	string.slice = substr(str,first,last)		:(return)
+
+string.slice.end
+
+        define('words(str)word')                        :(words.end)
+
+*       Return sequence of the words in str, fail if no words.
+
+*WORDS*
+words
+
+        words = map()
+        str = ' str ' '
+
+words.next
+
+        str break(' ') . word ' ' =                     :f(return)
+        map.add(words,word)                             :(words.next)
+
+words.end
+
+        define('append(str,w,ch)')                      :(append.end)
+
+*	_append_ appends _ch_, or ' ' if _ch_ is null, to _str_
+*	and then appends _w_.
+
+*APPEND*
+append
+
+        append = (ident(str) w, str (ident(ch) ' ' , ch) w):(return)
+
+append.end
+
+        define('lcase(s)')                              :(lcase.end)
+
+*       Convert argument to lower case.
+
+*LCASE*
+lcase
+
+        lcase = replace(s,&ucase,&lcase)                :(return)
+
+lcase.end
+
+        define('less(str,sub)before,after')             :(less.end)
+
+**      Less removes the first instance of each character in SUB from *str*,
+**      where SUB is a substring of *str*.
+
+*LESS*
+less
+        ident(str)                                      :s(return)
+        less = str
+
+less.ch
+        sub len(1) . ch =                               :f(return)
+        less break(ch) . before  ch rem . after
+        less = before after                             :(less.ch)
+
+less.end
+
+        define('ucase(s)')                              :(ucase.end)
+
+*       Convert argument to upper case.
+
+*UCASE*
+ucase
+
+        ucase = replace(s,&lcase,&ucase)                :(return)
+
+ucase.end
+
+        define('ucase(s)')                              :(ucase.end)
+
+*       Convert argument to upper case.
+
+*UCASE*
+ucase
+
+        ucase = replace(s,&lcase,&ucase)                :(return)
+
+ucase.end
+
+        define('prefix(str,pre)word')                   :(prefix.end)
+
+*       Prefix takes a list of space-separated words str and prefixes each
+*       with the string pre.
+
+*PREFIX*
+prefix
+
+        str = str ' ';* so each word followed by space
+
+prefix.1
+
+        str break(' ') . word span(' ')  =              :f(return)
+        add1(.prefixcount)
+        prefix = append(prefix, pre word,'A')           :(prefix.1)
+
+prefix.end
+
+
+        define('ucase(s)')                              :(ucase.end)
+
+*       Convert argument to upper case.
+
+*UCASE*
+ucase
+
+        ucase = replace(s,&lcase,&ucase)                :(return)
+
+ucase.end
+
+        define('ucase(s)')                              :(ucase.end)
+
+*       Convert argument to upper case.
+
+*UCASE*
+ucase
+
+        ucase = replace(s,&lcase,&ucase)                :(return)
+
+ucase.end
+
+        define('prefix(str,pre)word')                   :(prefix.end)
+
+*       Prefix takes a list of space-separated words str and prefixes each
+*       with the string pre.
+
+*PREFIX*
+prefix
+
+        str = str ' ';* so each word followed by space
+
+prefix.1
+
+        str break(' ') . word span(' ')  =              :f(return)
+        add1(.prefixcount)
+        prefix = append(prefix, pre word,'A')           :(prefix.1)
+
+prefix.end
+
+

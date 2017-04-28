@@ -1,0 +1,8 @@
+	define('string.slice(str,first,last)')		:(string.slice.end)
+
+string.slice
+
+	string.slice = substr(str,first,last)		:(return)
+
+string.slice.end
+

@@ -1,0 +1,71 @@
+* INTEGER.SBL
+
+*       Copyright 2017, David Shields
+*       Licensed under the MIT license.
+
+*       This file extends SPITBOL by adding support for creating and operating
+*       on sets and other collections of positive integers.
+
+*
+*       The positive integers are the integers in the set 1..n.
+
+*       Basic Functions on Integers
+*       ---------------------------
+
+                integer.even(n)         true iff n is even.
+                integer.odd(n)          true iff n is odd.
+                integer.prime(n)        true iff n is a prime number
+                integer.factorial(n)    returns the value of n! = n * (n - 1) * ... * 
+
+
+        define('integer.even(n)                                  :(integer.even.end)
+
+*       Returns true iff n is even.
+
+integer.even
+
+        integer.even = (eq(remdr(n,2)) true,false)               :(integer.even.end)
+
+integer.even.end
+
+        define('integer.odd(n)                                  :(integer.odd.end)
+
+*       Returns true iff n is odd.
+
+integer.odd
+
+        integer.odd = (ne(remdr(n,2)) true,false)               :(integer.odd.end)
+
+integer.odd.end
+
+        define('integer.prime(n)                                :(integer.prime.end)
+
+*       Returns true iff n is prime.
+
+integer.prime
+
+        terminal = 'integer.prime not implemented')             :(error)
+        integer.prime = (eq(remdr(n,2)) true,false)             :(integer.prime.end)
+
+integer.prime.end
+
+        define('integer.factorial(n)                            :(integer.even.end)
+
+*       Returns true iff n is factorial.
+
+integer.factorial
+
+        integer.factorial = 1
+
+integer.factorial.loop
+
+        integer.factorial = (gt(n = n - 1) integer.factorial * n        :f(return)s(integer.factorial.loop)
+
+integer.factorial.end
+
+        define('integer(n)')                                    :(integer.end)
+
+*       Returns set of integers in the range 1 ... n
+
+integer
+

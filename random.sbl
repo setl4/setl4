@@ -1,0 +1,49 @@
+*       Copyright 2017, David Shields
+*       Licensed under the MIT license.
+
+*       This file extends SPITBOL by adding support for creating and operating
+*       on maps.
+
+        define('random(n)')                             :(random.end)
+
+*       Return integer uniformly distributed in 1,2,...,n.
+*       If n=0 returns real uniformly distributed in the interval [0,1].
+*       The Algorithm is based on that in section 16.1 of "Algorithms in SNOBOL4,"
+*       James F. Gimpel, John Wiley and Sons, 1976.
+
+*RANDOM*
+random
+
+        g.random_var = remdr(g.random_var * 4676, 414971)
+        random  = g.random_var / 414971.0
+        random = ne(n) convert(random * n,'integer') + 1
+                                                        :(return)
+random.end
+
+        define('random.seed()s,c')                       :(random.seed.end)
+
+*       Compute seed for random number generator from date and time.
+
+*RANDOMSEED*
+random.seed
+        g.random_var =
+        s = g.date
+        s = replace(s,'/:-','   ')
+
+*       Get all the digits in s.
+
+random.seed.loop
+
+        s len(1) . c =                                  :f(random.seed.done)
+        ident(c,' ')                                    :s(random.seed.loop)
+        g.random_var = g.random_var c                   :(random.seed.loop)
+
+random.seed.done
+
+*       Reverse the seed so digits depending on time come first.
+
+        g.random_var = +reverse(g.random_var    )
+                                                        :(return)
+
+random.seed.end
+

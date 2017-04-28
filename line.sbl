@@ -1,0 +1,85 @@
+* LINE.SBL
+
+*       Copyright 2017, David Shields
+*       Licensed under the MIT license.
+
+*       This file extends SPITBOL by adding support for creating and operating
+*       on lines.
+
+        define('reader(filename)'       )               :(reader.end)
+
+*       Return a sequence of the lines in the file specified by _filename_.
+
+*READER*
+reader
+
+        differ(filename) input(.file,g.channel.temp,filename):s(reader.opened)
+        out('unable to open reader file ' filename '.') :(freturn)
+
+reader.opened
+
+        reader = map(1024)
+
+reader.next
+
+        map.add(map, (ident(filename) input, file))     :f(reader.eof)s(reader.next)
+
+reader.eof
+
+*       Here at end of file; close temporary file if one was needed.
+
+        differ(filename) endfile(g.channel.temp)        :(return)
+
+reader.end
+
+	define('reader.string(str,delim)line')			:(reader.string.end)
+
+*	Returns a sequence of the lines in _str_,
+*	where the delimiter character _delim_ is used to mark 
+*	the end of a line. One intended use of _reader.string_ 
+*	is to assist in the construction of test programs.
+
+reader.string
+
+	delim = ident(delim) '/'
+	reader.string = map.sequence()
+
+reader.string.next
+
+	str break(delim) . line delim =			:f(return)
+	add(reader.string,line)				:(reader.string.next)
+
+reader.string.end
+
+       define('writer(lines)'       )                  :(writer.end)
+
+*       Writes a sequence of the lines in the sequence _lines_
+*	to standard output.
+
+writer
+
+	lines = copy(lines)
+	map.loop(lines)
+
+writer.next
+	
+	output = map.next(lines)				:f(return)s(writer.next)
+
+writer.end
+
+        define('empty(line)')                           :(empty.end)
+
+*       Test if line is empty (null or all spaces).
+
+*EMPTY*
+empty
+
+*       In most cases, the first character in line is not null.
+
+        ident(line)                                     :s(return)
+        differ(substr(line,1,1),' ')                    :s(freturn)
+        line span(' ') =
+        ident(line)                                     :s(return)f(freturn)
+
+empty.end
+

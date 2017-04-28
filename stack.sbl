@@ -1,0 +1,73 @@
+*       Copyright 2017, David Shields
+*       Licensed under the MIT license.
+
+
+*       This file extends SPITBOL by adding support for creating and operating
+*       on stacks.
+
+
+*       Stacks
+*       ------
+
+*       A stack is a sequence with a limited set of operations.
+
+        data('stack(stack.table,stack.size')
+
+*               _stack.table_   is the table used to maintain the stack.
+
+*               _stack.size_    is the number of entries in the stack.
+
+        define('stack.new()')                           :(stack.new.end)
+
+*       _stack_ returns a new empty stack.
+
+stack
+
+        stack = stack(table(16))                        :(return)
+
+stack.new.end
+
+        define('stack.empty(stack)')                    :(stack.empty.end)
+
+*       _stack.empty_ tests if the stack is empty.
+
+stack.empty
+
+        ne(stack.size(stack))                             :s(return)f(freturn)
+
+stack.empty.end
+
+        define('stack.pop(stack)')                      :(stack.pop.end)
+
+*       _stack.pop_ pops the top of the stack and returns its value,
+*       unless the stack is empty in which case stack.pop fails
+
+stack.pop
+
+        eq(stack.size(stack))                             :s(freturn)
+        stack.pop = stack.top(stack)                    :f(freturn)
+        stack.put(stack,stack.size(stack),'')
+        stack.size(stack) = stack.size(stack) - 1           :(return)
+
+stack.pop.end
+
+
+        define('stack.push(stack,val)'                  :(stack.push.end)
+
+*       _stack.push' pushes _val_ on to the stack.
+
+stack.push
+
+        stack.add(stack,val)                              :(return)
+
+stack.push.end
+
+        define('stack.top(stack)')                      :(stack.top.end)
+
+*       _stack.top_ returns the top entry in the stack.
+
+stack.top
+
+        stack.top = stack.get(stack,stack.size(stack))      :(return)
+
+stack.top.end
