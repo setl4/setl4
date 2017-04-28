@@ -12,56 +12,55 @@
 *       Basic Functions on Integers
 *       ---------------------------
 
-                integer.even(n)         true iff n is even.
-                integer.odd(n)          true iff n is odd.
-                integer.prime(n)        true iff n is a prime number
-                integer.factorial(n)    returns the value of n! = n * (n - 1) * ... * 
+                even(n)         true iff n is even.
+                odd(n)          true iff n is odd.
+                prime(n)        true iff n is a prime number
+                factorial(n)    returns the value of n! = n * (n - 1) * ... * 
 
 
-        define('integer.even(n)                                  :(integer.even.end)
+        define('even(n)                                  :(even.end)
 
 *       Returns true iff n is even.
 
-integer.even
+even
 
-        integer.even = (eq(remdr(n,2)) true,false)               :(integer.even.end)
+        even = (eq(remdr(n,2)) true,false)               :(even.end)
 
-integer.even.end
+even.end
 
-        define('integer.odd(n)                                  :(integer.odd.end)
+        define('odd(n)                                  :(odd.end)
 
 *       Returns true iff n is odd.
 
-integer.odd
+odd
 
-        integer.odd = (ne(remdr(n,2)) true,false)               :(integer.odd.end)
+        odd = (ne(remdr(n,2)) true,false)               :(odd.end)
 
-integer.odd.end
+odd.end
 
-        define('integer.prime(n)                                :(integer.prime.end)
+        define('prime(n)                                :(prime.end)
 
 *       Returns true iff n is prime.
 
-integer.prime
+prime
 
-        terminal = 'integer.prime not implemented')             :(error)
-        integer.prime = (eq(remdr(n,2)) true,false)             :(integer.prime.end)
+        terminal = 'prime not implemented')             :(error)
+        prime = (eq(remdr(n,2)) true,false)             :(prime.end)
 
-integer.prime.end
+prime.end
 
-        define('integer.factorial(n)                            :(integer.even.end)
+        define('factorial(n)                            :(even.end)
 
 *       Returns true iff n is factorial.
 
-integer.factorial
+factorial
 
-        integer.factorial = 1
 
-integer.factorial.loop
+factorial.loop
 
-        integer.factorial = (gt(n = n - 1) integer.factorial * n        :f(return)s(integer.factorial.loop)
+        factorial = (gt(n = n - 1) factorial * n        :f(return)s(factorial.loop)
 
-integer.factorial.end
+factorial.end
 
         define('integer(n)')                                    :(integer.end)
 
@@ -69,3 +68,4 @@ integer.factorial.end
 
 integer
 
+integer.end

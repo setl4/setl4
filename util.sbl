@@ -17,33 +17,6 @@ error
                                                         :(end)
 error.end
         
-
-        define('traceoff()')                            :(traceoff.end)
-
-*       Initiate tracing.
-
-*TRACEOFF*
-traceoff
-        &ftrace = &trace =
-
-        g.scoring = g.tracing = 0
-        out('stop TRACING ')
-
-traceoff.end
-
-        define('traceon()')                             :(traceon.end)
-
-*       Initiate tracing.
-
-*TRACEON*
-traceon
-
-        out('start TRACING')
-*       &ftrace = &trace = 1500000
-        g.scoring = g.tracing = 1
-                                                        :(return)
-traceon.end
-
         define('datename(date)s')                       :(datename.end)
 
 *       Convert date to form with no spaces, just dashes, to be
@@ -112,4 +85,31 @@ out.ok
         output = text1 ' [' text2 ']' text3  	:(return)
 
 out.end
+
+
+        define('traceoff()')                            :(traceoff.end)
+
+*       Initiate tracing.
+
+*TRACEOFF*
+traceoff
+        &ftrace = &trace =
+
+        g.scoring = g.tracing = 0
+        out('stop TRACING ')
+
+traceoff.end
+
+        define('traceon()')                             :(traceon.end)
+
+*       Initiate tracing.
+
+*TRACEON*
+traceon
+
+        out('start TRACING')
+*       &ftrace = &trace = 1500000
+        g.scoring = g.tracing = 1
+                                                        :(return)
+traceon.end
 

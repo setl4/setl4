@@ -5,6 +5,14 @@
 *	functions and constants for working with strings.
 *       on strings..
 
+	define('string.slice(str,first,last)')		:(string.slice.end)
+
+string.slice
+
+	string.slice = substr(str,first,last)		:(return)
+
+string.slice.end
+
         define('spaces.spaces(line)c')                         :(spaces.spaces.end)
 
 *       Returns string which has ' ' in position _i_ if the _i_-th
@@ -29,31 +37,6 @@ spaces
 	spaces = spaces (ident(c,' ') ' ', '*')		:(spaces)
 
 spaces.end
-
-	define('string.slice(str,first,last)')		:(string.slice.end)
-
-string.slice
-
-	string.slice = substr(str,first,last)		:(return)
-
-string.slice.end
-
-        define('words(str)word')                        :(words.end)
-
-*       Return sequence of the words in str, fail if no words.
-
-*WORDS*
-words
-
-        words = map()
-        str = ' str ' '
-
-words.next
-
-        str break(' ') . word ' ' =                     :f(return)
-        map.add(words,word)                             :(words.next)
-
-words.end
 
         define('append(str,w,ch)')                      :(append.end)
 

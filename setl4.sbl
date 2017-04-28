@@ -5,11 +5,16 @@
 *       The following files collectively define PLAYBOL, an extension of SPITBOL
 *       based on the primitives of SETL programming language.
 
+-include         "ascii.sbl"
 -include         "boolean.sbl"
 -include         "integer.sbl"
+-include         "line.sbl"
 -include         "map.sbl"
+-include         "random.sbl"
 -include         "sequence.sbl"
 -include         "set.sbl"
--include         "stack.sbl"
 *-include        "show.sbl"
+*-include        "slice.sbl"
+-include         "stack.sbl"
+-include        "string.sbl"
 -include         "util.sbl"

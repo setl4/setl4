@@ -37,20 +37,57 @@ stack.empty
 
 stack.empty.end
 
+	define('stack.peek(stack,i)val')		:(stack.peek.end)
+
+*	Returns value of entry at offset _i_ from the top of the
+*	stack, of fails if _i_ is not a valid stack index.
+*	The top of the stack has index 0, the entry below it has offset 1,
+*	and so forth.
+
+stack.peek
+	
+	lt(i,0) gt(i,stack.size(stack))			:s(freturn)
+	stack.peek = stack.
         define('stack.pop(stack)')                      :(stack.pop.end)
 
 *       _stack.pop_ pops the top of the stack and returns its value,
-*       unless the stack is empty in which case stack.pop fails
+*       unless the stack is empty in which case stack.pop fails.
+
+stack.peek
+
+        eq(stack.size(stack))                             :s(freturn)
+        stack.pop = stack.table(stack)[stack.size(stack.table(stack) - offset]	:(return)
+
+stack.peek.end
+
+	define('stack.poke(stack,val)')			:(stack.poke.end)
+
+*	Sets value of entry at offset _i_ from the top of the
+*	stack to have vaulue _val_, of fails if _i_ is not a valid stack index.
+*	The top of the stack has index 0, the entry below it has offset 1,
+*	and so forth.
+*	_Stack.poke_ returns _val_.
+
+stack.poke
+	
+	lt(i,0) gt(i,stack.size(stack))			:s(freturn)
+        eq(stack.size(stack))                        	:s(freturn)
+	stack.table[stack.size(stack) - i] =  val;	:(return)
+
+stack.poke.end
+
+        define('stack.pop(stack)')                      :(stack.pop.end)
+
+*       _stack.pop_ pops the top of the stack and returns its value,
+*       unless the stack is empty in which case stack.pop fails.
 
 stack.pop
 
-        eq(stack.size(stack))                             :s(freturn)
-        stack.pop = stack.top(stack)                    :f(freturn)
+	stack.pop = stack.table(stack)[stack.size(stack)]
         stack.put(stack,stack.size(stack),'')
         stack.size(stack) = stack.size(stack) - 1           :(return)
 
 stack.pop.end
-
 
         define('stack.push(stack,val)'                  :(stack.push.end)
 
