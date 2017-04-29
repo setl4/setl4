@@ -120,6 +120,34 @@ map.domain.next
 
 map.domain.end
 
+
+	define(map.equal(map,omap)pair,')		:(map.equal.end)
+*HERE*
+
+*	Test two maps for equality. 
+
+*	Two maps are equal if they have the same size and the value 
+*	of the first map for each element in its domain is the same 
+*	as the value of the second map for the corresponding element.
+
+map.equal
+
+	eq(map.size(map),map.size(omap))		:f(return)
+	map.loop(map)
+
+map.equal.next
+
+	entry = map.next(map)				:f(map.equal.done)
+	key = key(entry)
+	valu = val(entry)
+	ident(value(map.get(map,key(entry)),value(map.get(omap,key(entry))) :s(map.equal.next)f(return)
+
+map.equal.done
+
+	map.equal = true				:(return)
+
+map.equal.end
+	
         define('map.forall(f,map)entry')		:(map.forall.end)
 
 *	_map.forall_ returns a result defined by iterating over all the
@@ -129,6 +157,7 @@ map.domain.end
 *	_map_forall_ returns the last value so defined.
 *	_map.forall_ returns a new map defined by iterating over _map_
 *	and using _f_ to define each entry by calling _map.apply.entry_.
+
 
 *	For example, the length of the largest key of a map on strings could
 *	be found by having each call set resuslt to the length of the largest key so far seen.
@@ -356,43 +385,3 @@ map.test
 	map.test = (differ(map.table(map)[key]) true, false) (return)                     
 
 map.test.end
-
-*.* Note: Should probably drop this, as there is no reason for Playbol
-*.*	user to be mucking about with SPITBOL arrays, unless there
-*.*	is a need to convert the result of a function that returns an
-*.*	array into a map
-*.
-*.        define('map.array(aray)i,key')                  :(map.array.end)
-*.
-*.*	Create a map defined by an array.
-*.*	If the array has one dimension then create a sequence
-*.*	from the array values.
-*.*	If the array has two dimensions, create a map using the
-*.*	array indice as the keys, and the correspong value as the
-*.*	values.
-*.
-*.map.array
-*.
-*.        map.array = map()
-*.        i = prototype(aray)
-*.        integer(i)                                      :s(map.array.one)
-*.
-*.*       Here to initialize from two-dimensional array
-*.
-*.map.array.next
-*.
-*.        key = aray[i = i + 1,1]                         :f(return)
-*.        map.put(map.aray,i,aray[i,2]                    :(map.array.next
-*.
-*.map.array.one
-*.
-*.*        Here to initialize map from one-dimensional array
-*.
-*.map.array.next
-*.
-*.        key = aray[i = i + 1]				:f(return)
-*.        map.add(map.array,key)                          :(map.array.next)
-*.
-*.
-*.map.array.end
-*.

@@ -5,158 +5,119 @@
 *	functions and constants for working with strings.
 *       on strings..
 
+        define('string.append(str,w,ch)')                      :(string.append.end)
+
+*	_string.append_ string.appends _ch_, or ' ' if _ch_ is null, to _str_
+*	and then string.appends _w_.
+
+*STRING.APPEND*
+string.append
+
+        string.append = (ident(str) w, str (ident(ch) ' ' , ch) w):(return)
+
+string.append.end
+
+        define('string.lower(s)')                              :(string.lower.end)
+
+*       Convert argument to lower case.
+
+*STRING.LOWER*
+string.lower
+
+        string.lower = replace(s,&ucase,&lcase)                :(return)
+
+string.lower.end
+
+        define('spaces(line)c')                         :(string.spaces.end)
+
+*       Returns string which has ' ' in position _i_ if the _i_-th
+*	characer in _string_ is a space (' '), or '*' otherwise.
+
+        define('string.spaces(line)c')                         :(string.spaces.end)
+
+
+*STRING.SPACES*
+string.spaces
+
+	line len(1) . c					:f(return)
+	string.spaces = string.spaces (ident(c,' ') ' ', '*')		:(string.spaces)
+
+string.spaces
+
+	line len(1) . c					:f(return)
+	spaces = spaces (ident(c,' ') ' ', '*')		:(string.spaces)
+
+string.spaces.end
+
+        define('string.less(str,sub)before,after')             :(less.end)
+
+**      Less removes the first instance of each character in SUB from *str*,
+**      where SUB is a substring of *str*.
+
+*LESS*
+string.less
+        ident(str)                                      :s(return)
+        string.less = str
+
+string.less.ch
+        sub len(1) . ch =                               :f(return)
+        string.less break(ch) . before  ch rem . after
+        string.less = before after                             :(string.less.ch)
+
+string.less.end
+
+        define('string.prefix(str,pre)word')                   :(string.prefix.end)
+
+*       Prefix takes a list of space-separated words str and string.prefixes each
+*       with the string pre.
+
+*STRING.PREFIX*
+string.prefix
+
+        str = str ' ';* so each word followed by space
+
+string.prefix.1
+
+        str break(' ') . word span(' ')  =              :f(return)
+        add1(.string.prefixcount)
+        string.prefix = append(string.prefix, pre word,'A')           :(string.prefix.1)
+
+string.prefix.end
+
 	define('string.slice(str,first,last)')		:(string.slice.end)
 
+*STRING.SLICE*
 string.slice
 
 	string.slice = substr(str,first,last)		:(return)
 
 string.slice.end
 
-        define('spaces.spaces(line)c')                         :(spaces.spaces.end)
-
-*       Returns string which has ' ' in position _i_ if the _i_-th
-*	characer in _string_ is a space (' '), or '*' otherwise.
-
-*SPACES*
-spaces.spaces
-
-	line len(1) . c					:f(return)
-	spaces.spaces = spaces.spaces (ident(c,' ') ' ', '*')		:(spaces.spaces)
-
-spaces.spaces.end
-
-        define('spaces(line)c')                         :(spaces.end)
-
-*       Returns string which has ' ' in position _i_ if the _i_-th
-*	characer in _string_ is a space (' '), or '*' otherwise.
-
-spaces
-
-	line len(1) . c					:f(return)
-	spaces = spaces (ident(c,' ') ' ', '*')		:(spaces)
-
-spaces.end
-
-        define('append(str,w,ch)')                      :(append.end)
-
-*	_append_ appends _ch_, or ' ' if _ch_ is null, to _str_
-*	and then appends _w_.
-
-*APPEND*
-append
-
-        append = (ident(str) w, str (ident(ch) ' ' , ch) w):(return)
-
-append.end
-
-        define('lcase(s)')                              :(lcase.end)
-
-*       Convert argument to lower case.
-
-*LCASE*
-lcase
-
-        lcase = replace(s,&ucase,&lcase)                :(return)
-
-lcase.end
-
-        define('less(str,sub)before,after')             :(less.end)
-
-**      Less removes the first instance of each character in SUB from *str*,
-**      where SUB is a substring of *str*.
-
-*LESS*
-less
-        ident(str)                                      :s(return)
-        less = str
-
-less.ch
-        sub len(1) . ch =                               :f(return)
-        less break(ch) . before  ch rem . after
-        less = before after                             :(less.ch)
-
-less.end
-
-        define('ucase(s)')                              :(ucase.end)
+        define('string.upper(s)')                              :(string.upper.end)
 
 *       Convert argument to upper case.
 
-*UCASE*
-ucase
+*STRING.UPPER*
+string.upper
 
-        ucase = replace(s,&lcase,&ucase)                :(return)
+        string.upper = replace(s,&lcase,&ucase)                :(return)
 
-ucase.end
-
-        define('ucase(s)')                              :(ucase.end)
-
-*       Convert argument to upper case.
-
-*UCASE*
-ucase
-
-        ucase = replace(s,&lcase,&ucase)                :(return)
-
-ucase.end
-
-        define('prefix(str,pre)word')                   :(prefix.end)
-
-*       Prefix takes a list of space-separated words str and prefixes each
-*       with the string pre.
-
-*PREFIX*
-prefix
-
-        str = str ' ';* so each word followed by space
-
-prefix.1
-
-        str break(' ') . word span(' ')  =              :f(return)
-        add1(.prefixcount)
-        prefix = append(prefix, pre word,'A')           :(prefix.1)
-
-prefix.end
+string.upper.end
 
 
-        define('ucase(s)')                              :(ucase.end)
+	define('string.frequency(string)')		:(string.frequency.end)
 
-*       Convert argument to upper case.
+*	Return map from the characters in a string to the number of times
+*	each occurs in the string.
 
-*UCASE*
-ucase
+string.frequency
+	
+	string.frequency = map(50)
 
-        ucase = replace(s,&lcase,&ucase)                :(return)
+string.frequency.next
 
-ucase.end
+	string len(1) . c = 				:f(string.frequency.end)
+	map.put(string.frequency,c,map.get(string.frequency,c) + 1)	:(string.frequency.next)
 
-        define('ucase(s)')                              :(ucase.end)
-
-*       Convert argument to upper case.
-
-*UCASE*
-ucase
-
-        ucase = replace(s,&lcase,&ucase)                :(return)
-
-ucase.end
-
-        define('prefix(str,pre)word')                   :(prefix.end)
-
-*       Prefix takes a list of space-separated words str and prefixes each
-*       with the string pre.
-
-*PREFIX*
-prefix
-
-        str = str ' ';* so each word followed by space
-
-prefix.1
-
-        str break(' ') . word span(' ')  =              :f(return)
-        add1(.prefixcount)
-        prefix = append(prefix, pre word,'A')           :(prefix.1)
-
-prefix.end
-
+string.frequency.end
 

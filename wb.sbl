@@ -1,0 +1,33 @@
+*	program to play wordwizard (ww)
+*	Use host(0) to give the signature of the puzzle.
+
+	define('mark(line)')		:(mark.end)
+
+*	skip words with wrong length
+*	skip words with signature that differs from
+*	that of the puzzle.
+
+mark
+	ne(size(line),size(g.puzzle))	:s(freturn)
+	sig = signature(line)
+	differ(signature(line),puzzle.signature) 	:s(return)
+	mark = pair(,line)		:(return)
+mark.end
+
+	define('signature(word)')	:(signature.end)
+
+*	The signature of a consists of all the characters
+*	that occur in the word sorted into alphabetical order
+*	with each character followed by an integer giving the number
+*	of times the character occurs in the word.
+
+signature
+
+	signature = string.frequency(word)	:(return)
+
+end
+
+	g.puzzle = 'spot'
+	g.signature = string.frequency(g.puzzle)
+
+	

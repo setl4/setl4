@@ -4,21 +4,28 @@
         
 
 *       A set is a collection of values, in no particular order.
-*       PLAYBOL implements a set as a map for which the value
+*       SETL4  implements a set as a map for which the value
 *       of the elements of the set is "true."
+
+
+	data('set(set.table,set.size,set.next)')
+
+	define('set.add(set,elem')			:(set.add.end)
+
+*	Add _elem_ to set, unless already present.
 
 
 set.add
 
-	entry = (set.size(set) = set.size(set) + 1,val)
-	set.put(set,set.size(set), val))		
-	set.add = entry					:(return)
+	elem = (set.size(set) = set.size(set) + 1,val)
+	set.add(set,set.size(set), val))		
+	set.add = elem					:(return)
 
 set.add.end
 
-	define('set.apply(set,f)entry,entry.new')	:(set.apply.end)
+	define('set.apply(set,f)elem,elem.new')	:(set.apply.end)
 
-*	_set.apply_ returns the set obtained by applying _f- to each entry in _set_.
+*	_set.apply_ returns the set obtained by applying _f- to each elem in _set_.
 *       If _f_ is a string, it is evaluated using _eval_; otherwise _f_is called
 *       as a function.
 
@@ -29,10 +36,10 @@ set.apply
 
 set.apply.next
 
-	entry = set.next(set)				:f(return)
-        entry.new = ident(datatype(f,'string)  apply(f,entry)
-        entry.new = ident(datatype(f,'code')  apply(f,entry)
-	set.put(set.apply,key(entry.new), value(entry.new)):(set.apply.next)
+	elem = set.next(set)				:f(return)
+        elem.new = ident(datatype(f,'string)  apply(f,elem)
+        elem.new = ident(datatype(f,'code')  apply(f,elem)
+	set.put(set.apply,key(elem.new), value(elem.new)):(set.apply.next)
 
 set.apply.end
 
@@ -84,11 +91,36 @@ set.domain
 
 set.domain.end
 
+	define('set.equal(set,oset)x')			:(set.equal.end)
+
+*	Tests if two sets are equal.
+
+set.equal
+
+	set.equal = false
+	ne(set.size(set),set.size(oset))		:s(return)
+
+*	Here if same size, so test if all elements in one
+*	set are in the other.
+
+	set.loop(set)
+
+seq.equal.next
+
+	x = set.next(set)				:f(set.equal.done)
+	seq.equal = set.member(oset,x)			:s(set.equal.next)f(return)
+
+set.equal.done
+
+	set.equal = true				:(return)
+
+set.equal.end
+
         define(‘set.forall(set’)                    :(set.forall.end)
 
-*        Returns set defined as follows:
-*        Iterare over _set_. For each entry _ent_, invoke f(ent) and use the
-*        result to define a new entry in the result.
+*       Returns set defined as follows:
+*       Iterare over _set_. For each entry _ent_, invoke f(ent) and use the
+*       result to define a new entry in the result.
 
 set.forall
 
@@ -118,89 +150,99 @@ set.foreach.next
 
 set.foreach.end
 
-        define('set.get(key,val)')                  :(set.get.end)
+        define('set.in(set,,ele)')                  :(set.in.end)
 
-*       Gets the value of the key _key_ in the set _set_.
+*       Tests if _elem_ is a member of set _set_.
 
-set.get
+set.in
 
-        set.get = set.table(set)[key]                   :(return)
+        set.in = (differ(set.table(set)[key]) true ,false)                  :(return)
 
-set.get.end
+set.in.end
 
-	define('set.inverse)entry')			:(set.inverse.end)
+	define('set.in(set,elem)')				:(set.in.end)
 
-*	_set.inverse_ returns the inverse of a set. The inverse is
-*	a set with the keys and values of _set_ reversed. 
-*	_set.inverse_ fails if there are two instances of the same
-*	value in the range of the set.
+*	Test if _elem_ is a member of set _set_.
 
-set.inverse
+set.in
 
-	set.inverse = set.set(set.size(set))
-	set.loop(set)
+        set.in = (differ(set.table[elem) true, false)             :(return)
 
-set.inverse.next
+set.in.end
 
-	entry = set.next(set)				:f(return)
-	differ(set.get(set.inverse,value(entry)))	:f(freturn)
-	set.put(set.inverse,value(entry), key(entry))  :(set.inverse.next)
+        define('set.intersection(a,b)elem')                                   :(set.or.end)
 
-set.inverse.end
+*       Returns intersection of sets _a_ and _b_.
 
-        define('set.loop(set,kind)')                    :(set.loop.end)
+set.intersection
+
+*	Arrange so set a is the smaller set.
+
+	le(set.size(a),set.size(b))				:s(set.intersection.a)
+	set.intersection = a 
+	a = b
+	b = set.intersection
+
+set.intersection.a
+
+*	Make copy of set _a_ by making copy of _a_'s table.
+
+	set.intersection = set.new(,set.size(a))
+	set.table(set.intersection) = copy(set.table(a))
+
+	set.loop(b)
+
+set.intersection.b
+
+	elem = set.next(b)					:f(return)
+
+*	Skip this entry if not in set _a_.
+	
+	set.notin(a,elem)					:s(set.intersection.b)
+	set.add(set.intersection,elem)				:(set.intersection.b)
+	
+set.intersection.end
+
+	define('set.less(a,b)elem')			:(set.less.end)
+
+*	Returns set define by set of elements of _a_ that are not in _b_.
+
+set.less
+
+	set.less = set.new()
+	set.loop(a)
+
+set.less.a
+
+	elem = set.next(a)				:f(return) notin(b,elem)						
+	set.add(set.less,elem)				:s(set.less.a)
+
+set.less.end
+
+        define('set.loop(set)')                    :(set.loop.end)
 
 *       Returns an iterator for _set_. Use _set.next_ to retrieve
 *       the next entry in set. _set.next_ fails when no more entries remain.
 
-*       _kind_ gives the kind of loop:
-
-*               '+order'        iterate in order in which entries added. (default)
-*               '-order'        iterate in reverse order in which entries added.
-*               '+key'          iterate in incresing values of keys.
-*               '-key'          iterate in decceasing values of keys.
-*               '+val'          iterate in incresing values of values.
-*               '-key'          iterate in decreasing values of keys.
-
-*       Otherwise iterate over the keys in the order in which they were added to the set.
-
 set.loop
 
         set.index(set) = 0
-        ident(kind)                                     :s(set.loop.order)
-        ident(kind, '+order')                           :s(set.loop.key.order.inc)
-        ident(kind, '-order')                           :s(set.loop.key.order.dec)
-        ident(kind, '+key')                             :s(set.loop.key.inc)
-        ident(kind, '-key')                             :s(set.loop.key.dec)
-        ident(kind, '+val')                             :s(set.loop.value.inc)
-        ident(kind, '-val')                             :s(set.loop.value.dec)
 
 set.loop.order.inc
 
         set.array(set) = convert(set.table(set),'array'):(set.done)
 
-set.loop.rorder.inc
-
-        output = 'loop rorder not implemented '         :(nosuchlabel)
-        set.array(set) = convert(set.table(set),'array'):(set.done)
-
-set.loop.key.inc
-
-        set.array(set) = rsort(set.table(set),1)        :(return)
-
-set.loop.key.dec
-
-        set.array(set) = sort(set.table(set),1)         :(return)
-
-set.loop.value.inc
-
-        set.array(set) = rsort(set.table(set),2)        :(return)
-
-set.loop.value.dec
-
-        set.array(set) = sort(set.table(set),-2)        :(return)
-
 set.loop.end
+
+        define('set.notin(set,,ele)')                  :(set.notin.end)
+
+*       Tests if _elem_ is not a member of set _set_.
+
+set.notin
+
+        set.notin = (differ(set.table(set)[key]) false ,true)                  :(return)
+
+set.notin.end
 
         define('set.new(init,n)i,key,str,valr')         :(set.new.end)
 
@@ -242,83 +284,6 @@ set.next
 
 set.next.end
 
-        define(‘set.range(set)’)                    :(set.range.set)
-
-
-*        Return set with the values in _set_.
-
-
-set.range
-
-        set.range = set.set()
-        set.loop(set)
-
-set.range.next
-
-        set.range.add(entry.value(set.next(set))        :f(return)s(set.range.next)
-
-set.range.end
-
-	define('set.reduce(set,test')entry')		:(set.reduce.end)
-
-*	_set.reduce_ returns a new set by iterating over the elements in
-*	_set_ and appling the function _test_ on each entry.
-*	If _test_ succeeds, then the entry is added to the new set,
-*	otherwise it is ignored.
-*	_test_ must be the name of the functiono to be used for the test.
-
-set.range
-
-	set.range = set(set.size(set))
-	set.loop(set)
-
-set.range.next
-
-	entry = set.next(set)
-	apply(test,entry)				:f(set.range.next)
-	set.put(set.range,key(entry),value(entry)) :(set.range.next)
-
-set.range.end
-
-
-        define('set.put(key,val)v')                 :(set.put.end)
-
-*       Sets the value of the entry for key _key_ in set _set_ to be _val_, 
-*       creating a new entry if there is no current entry for _key_.
-
-set.put
-
-        output = 'enter set.put dt ' datatype(set) ' key [' key '] val [' val ']'
-        v = set.table(set)[key]
-        differ(v)                                       :s(set.put.value)
-
-*       Here to create new entry in set.
-
-        set.size(set) = set.size(set) + 1
-
-set.put.value
-
-        set.table(set)[key] = val                       :(return)
-
-set.put.end
-
-        define('set.test(key)')                     :(set.test.end)
-
-*       Tests if the set _set_ has an entry for _key_.
-
-set.test
-
-        differ(set.table(set)[key])                     :s(return)f(freturn)
-
-set.test.end
-
-
-smet.in
-
-        set.in = (differ(set.table[x]) true, false)             :(return)
-
-set.in.end
-
         define('set.notin(x,s)')                               :(set.notin.end)
 
 *       Returns _true_ iff _x_ is is not element in _s_.
@@ -337,30 +302,32 @@ set.size
 
 set.size.end
 
-        define('set.union(a,b)')                                   :(set.or.end)
+        define('set.union(a,b)elem')                                   :(set.or.end)
 
 *       Returns union of sets _a_ and _b_.
 
 set.union
 
-        gt(set.size(b),set.size(a))                             :s(set.union.b)
+*	Arrange so set a is the larger set.
 
-*       Here if _a_ is the larget set, so copy it and then add
-*       in the elements of _b_.
-
-        set.union = set.apply(f,a)
-        set.loop(b)
+	ge(set.size(a),set.size(b))				:s(set.union.a)
+	set.union = a 
+	a = b
+	b = set.union
 
 set.union.a
 
-        set.add(set.union,set.next(b))                          :freturn)f(return)
+*	Make copy of a by making copy of a's table.
+
+	set.union = set.new(,set.size(a))
+	set.table(set.union) = copy(set.table(a))
+
+	set.loop(b)
 
 set.union.b
 
-*       Here if _b_ is the larget set, so copy it and then add in
-*       the elements of _a_.
-
-        set.union = set.apply(f,b)
-        set.loop(b)
-
+	elem = set.next(b)					:f(return)
+	set.add(set.union,elem)					:(set.union.b)
+	
 set.union.end
+
