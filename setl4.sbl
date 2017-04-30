@@ -100,7 +100,7 @@ ascii.init
 .       '12:FF 28:FS  44:,:60 < 76:L 92:\ 108:l 124:| '
 .       '13:CR 29:GS  45:-:61 = 77:M 93:] 109:m 125:} '
 .       '14:SO 30:RS  46:.:62 > 78:N 94:^ 110:n 126:~ '
-.       '15:SI 31:US  47:/:63 ? 79:O 95:_ 111:o 127:DEL ' 
+.       '15:SI 31:US  47:/:63 ? 79:O 95:_ 111:o 127:DEL ') 
 
         g.ascii.name = map.map(128)
         g.ascii.val = map.map(128)
@@ -111,7 +111,7 @@ ascii.init
 ascii.init.next
 
 	ent = map.next(ascii.init)			:(ascii.init.finis)
-	g.ascii.name[substr(&alphabet,+v + 1,1] = name
+	g.ascii.name[substr(&alphabet,+v + 1,1)] = name
 	g.ascii.val[name] = +val			:(ascii.init.next)
 
 
@@ -229,18 +229,6 @@ or
         or = false                                       :(return)
 
 or.end
-
- define('f(x)')	:(f.end)
-f
-	f = x + x - 1 :(return)
-f.end
-
-	output = eval('6 + 20')
-	output = eval('dupl("dave",5)')
-	 output = eval('f(6)')
-end
-
-
 * INTEGER.SBL
 
 *       Copyright 2017, David Shields
@@ -255,13 +243,13 @@ end
 *       Basic Functions on Integers
 *       ---------------------------
 
-                even(n)         true iff n is even.
-                odd(n)          true iff n is odd.
-                prime(n)        true iff n is a prime number
-                factorial(n)    returns the value of n! = n * (n - 1) * ... * 
+*                even(n)         true iff n is even.
+*                odd(n)          true iff n is odd.
+*                prime(n)        true iff n is a prime number
+*                factorial(n)    returns the value of n! = n * (n - 1) * ... * 
 
 
-        define('even(n)                                  :(even.end)
+        define('even(n)')                                  :(even.end)
 
 *       Returns true iff n is even.
 
@@ -271,7 +259,7 @@ even
 
 even.end
 
-        define('odd(n)                                  :(odd.end)
+        define('odd(n)')                                  :(odd.end)
 
 *       Returns true iff n is odd.
 
@@ -281,29 +269,16 @@ odd
 
 odd.end
 
-        define('prime(n)                                :(prime.end)
+        define('prime(n)')                                :(prime.end)
 
 *       Returns true iff n is prime.
 
 prime
 
-        terminal = 'prime not implemented')             :(error)
+        terminal = 'prime not implemented'             :(error)
         prime = (eq(remdr(n,2)) true,false)             :(prime.end)
 
 prime.end
-
-        define('factorial(n)                            :(even.end)
-
-*       Returns true iff n is factorial.
-
-factorial
-
-
-factorial.loop
-
-        factorial = (gt(n = n - 1) factorial * n        :f(return)s(factorial.loop)
-
-factorial.end
 
         define('integer(n)')                                    :(integer.end)
 
@@ -399,7 +374,7 @@ reader.string.end
 
 *       Each token is represented as an instance of the datatype _token_ as follows:
 
-        data('token(lineno,pos,type,text)'
+        data('token(lineno,pos,type,text)')
 
 *       where:
 *               _lineno_        is the line number within the file;
@@ -415,7 +390,7 @@ reader.string.end
 *               'l'             left opener, one of '(<[{'
 *               'p'             punctation, one of '.;,?!', or single quote ('), or double quote ("),
 *               'o'             other printable character, one of '~@#$%^&*_-+=`'.
-                'q'             quoted string, starting witn '"', and continuing to the next instance of the opening quote character.
+*                'q'             quoted string, starting witn '"', and continuing to the next instance of the opening quote character.
 *               'r'             right closer, one of ')>]}'
 *               's'             space, consistine of one or more spaces (spaces)
 *               't'             tab character
@@ -449,7 +424,7 @@ tokens.next
         line any('(<[{')                                :s(tokens.left)
         line any('.;,?!')                               :s(tokens.punctuation)
         line '"'                                        :s(tokens.quote)
-        line any('~@#$%^&*_-+=')                                        :s(tokens.other
+        line any('~@#$%^&*_-+=')                                        :s(tokens.other)
         line any(')>]}')                                :s(tokens.right)
         line char(9)                                    :s(tokens.tab)
         line any(&lcase &ucase)                         :s(tokens.word)
@@ -497,7 +472,7 @@ tokens.word
 
 *FIX*
         type = 'w'
-        line span(&ucase &lcase "_" "'"))) . text =      :(tokens.new)
+        line span(&ucase &lcase "_" "'") . text =      :(tokens.new)
 
 map.sbl:1okens.tab
 
@@ -523,7 +498,7 @@ tokens.end
 words
 
         words = map()
-        line = ' line ' '
+        line =  line ' '
 
 words.next
 
@@ -585,7 +560,7 @@ writer.end
 
 *               _map.table_ is the table used to maintain the map by the various
 
-                _map.next_ is used to iterate over a map.
+*                _map.next_ is used to iterate over a map.
 
 *       Note that these values should not be directly altered by you, the user.
 *       You do so at your peril. However, when iterating over a map, you
@@ -606,7 +581,7 @@ writer.end
 map.add
 
 	entry = (map.size(map) = map.size(map) + 1,val)
-	map.put(map,map.size(map), val))		
+	map.put(map,map.size(map), val)		
 	map.add = entry					:(return)
 
 map.add.end
@@ -630,7 +605,7 @@ map.apply.next
 
 	entry = map.next(map)				:f(map.apply.done)
 	pair = pair(map.apply.entry(entry,result))
-	map.put(map.apply.map,first(pair), second(pair))):(map.apply.next)
+	map.put(map.apply.map,first(pair), second(pair)):(map.apply.next)
 
 map.apply.done
 
@@ -653,7 +628,7 @@ map.apply.end
 
 map.apply.entry
 
-        define(map.domain(entry)			:(map.domain.end)
+        define('map.domain(entry)')			:(map.domain.end)
 
 *       Return set with the keys in _map_.
 *	NOTE: SHould this be in set.sbl ?
@@ -671,8 +646,7 @@ map.domain.next
 map.domain.end
 
 
-	define(map.equal(map,omap)pair,')		:(map.equal.end)
-*HERE*
+	define(map.equal(map,omap)pair')		:(map.equal.end)
 
 *	Test two maps for equality. 
 
@@ -690,7 +664,7 @@ map.equal.next
 	entry = map.next(map)				:f(map.equal.done)
 	key = key(entry)
 	valu = val(entry)
-	ident(value(map.get(map,key(entry)),value(map.get(omap,key(entry))) :s(map.equal.next)f(return)
+	ident(value(map.get(map,key(entry),value(map.get(omap,key(entry)) :s(map.equal.next)f(return)
 
 map.equal.done
 
@@ -881,11 +855,11 @@ map.range
 
 map.range.next
 
-        map.range.add(entry.value(map.next(map))        :f(return)s(map.range.next)
+        map.range.add(entry.value(map.next(map)))        :f(return)s(map.range.next)
 
 map.range.end
 
-	define('map.reduce(map,f')entry,result')	:(map.reduce.end)
+	define('map.reduce(map,f)entry,result')	:(map.reduce.end)
 
 *	_map.reduce_ returns a new map by iterating over the elements in
 *	_map_ and evaluatibg _f(entry)_ on each entry.
@@ -899,8 +873,9 @@ map.reduce
 
 map.reduce.next
 
+*HERE??*
 	entry = map.next(map)
-	false((apply(test,entry)			:s(map.reduce.next)
+*	false(apply(test,entry)			:s(map.reduce.next)
 	map.put(map.reduce,key(entry),value(entry))	:(map.reduce.next)
 
 map.reduce.end
@@ -1040,7 +1015,7 @@ random.seed.end
 
 *       A sequence is a map defined on the positive integers: 1,2, ... ,n.
 
-        data('sequence(sequence.table,sequence.next,sequence.size)
+        data('sequence(sequence.table,sequence.next,sequence.size)')
 
 *               _sequence.size_ is the length of the sequence.
 
@@ -1055,7 +1030,7 @@ random.seed.end
 sequence.add
 
 	entry = (sequence.size(sequence) = sequence.size(sequence) + 1,val)
-	sequence.put(sequence,sequence.size(sequence), val))		
+	sequence.put(sequence,sequence.size(sequence), val)
 	sequence.add = entry					:(return)
 
 sequence.add.end
@@ -1074,13 +1049,13 @@ sequence.apply
 sequence.apply.next
 
 	entry = sequence.next(sequence)				:f(return)
-        entry.new = ident(datatype(f,'string)  apply(f,entry)
-        entry.new = ident(datatype(f,'code')  apply(f,entry)
+        entry.new = ident(datatype(f),'string')  apply(f,entry)
+        entry.new = ident(datatype(f),'code')  apply(f,entry)
 	sequence.put(sequence.apply,key(entry.new), value(entry.new)):(sequence.apply.next)
 
 sequence.apply.end
 
-        define(‘sequence.forall(sequence’)                    :(sequence.forall.end)
+        define(‘sequence.forall(sequence)’)    :(sequence.forall.end)
 
 *        Returns sequence defined as follows:
 *        Iterare over _sequence_. For each entry _ent_, invoke f(ent) and use the
@@ -1218,7 +1193,7 @@ sequence.next
 
 sequence.next.end
 
-        define(‘sequence.range(sequence)’)                    :(sequence.range.sequence)
+        define('sequence.range(sequence)')                    :(sequence.range.sequence)
 
 
 *        Return map with the values in _sequence_ as its members.
@@ -1234,28 +1209,6 @@ sequence.range.next
         sequence.range.add(entry.value(sequence.next(sequence))        :f(return)s(sequence.range.next)
 
 sequence.range.end
-
-	define('sequence.reduce(sequence,test')entry')		:(sequence.reduce.end)
-
-*	_sequence.reduce_ returns a new sequence by iterating over the elements in
-*	_sequence_ and appling the function _test_ on each entry.
-*	If _test_ succeeds, then the entry is added to the new sequence,
-*	otherwise it is ignored.
-*	_test_ must be the name of the functiono to be used for the test.
-
-sequence.range
-
-	sequence.range = sequence(sequence.size(sequence))
-	sequence.loop(sequence)
-
-sequence.range.next
-
-	entry = sequence.next(sequence)
-	apply(test,entry)				:f(sequence.range.next)
-	sequence.put(sequence.range,key(entry),value(entry)) :(sequence.range.next)
-
-sequence.range.end
-
 
         define('sequence.put(sequence,i,val)v')                 :(sequence.put.end)
 
@@ -1295,7 +1248,7 @@ sequence.put.end
 
 set.add
 
-	elem = (set.size(set) = set.size(set) + 1,val)
+	elem = pair(set.size(set) = set.size(set) + 1,val)
 	set.add(set,set.size(set), val))		
 	set.add = elem					:(return)
 
@@ -1316,7 +1269,7 @@ set.apply.next
 
 	elem = set.next(set)				:f(return)
         elem.new = ident(datatype(f,'string)  apply(f,elem)
-        elem.new = ident(datatype(f,'code')  apply(f,elem)
+        elem.new = ident(datatype(f,'code')  apply(f,elem))
 	set.put(set.apply,key(elem.new), value(elem.new)):(set.apply.next)
 
 set.apply.end
@@ -1342,7 +1295,7 @@ set.array
 set.array.next
 
         key = aray[i = i + 1,1]                         :f(return)
-        set.put(set.aray,i,aray[i,2]                    :(set.array.next
+        set.put(set.aray,i,aray[i,2])                    :(set.array.next
 
 set.array.one
 
@@ -1356,7 +1309,7 @@ set.array.next
 
 set.array.end
 
-        define(‘set.domain(entry’)			:(set.domain.end)
+        define(‘set.domain(set)entry’)			:(set.domain.end)
 
 *       Return set with the keys in _set_.
 
@@ -1407,7 +1360,8 @@ set.forall
 
 set.forall.next
 
-set.forall = apply(f,set.forall,set.next(set))          :f(return)s(set.forall.next)
+	set.forall = apply(f,set.forall,set.next(set))          
+.	:f(return)s(set.forall.next)
 
 
 set.forall.end
@@ -1428,23 +1382,13 @@ set.foreach.next
 
 set.foreach.end
 
-        define('set.in(set,,ele)')                  :(set.in.end)
-
-*       Tests if _elem_ is a member of set _set_.
-
-set.in
-
-        set.in = (differ(set.table(set)[key]) true ,false)                  :(return)
-
-set.in.end
-
 	define('set.in(set,elem)')				:(set.in.end)
 
 *	Test if _elem_ is a member of set _set_.
 
 set.in
 
-        set.in = (differ(set.table[elem) true, false)             :(return)
+        set.in = (differ(set.table[elem] true, false)             :(return)
 
 set.in.end
 
@@ -1492,7 +1436,8 @@ set.less
 
 set.less.a
 
-	elem = set.next(a)				:f(return) notin(b,elem)						
+	elem = set.next(a)				:f(return)
+	set.in(b,elem)					:s(set.less.a)
 	set.add(set.less,elem)				:s(set.less.a)
 
 set.less.end
@@ -1511,16 +1456,6 @@ set.loop.order.inc
         set.array(set) = convert(set.table(set),'array'):(set.done)
 
 set.loop.end
-
-        define('set.notin(set,,ele)')                  :(set.notin.end)
-
-*       Tests if _elem_ is not a member of set _set_.
-
-set.notin
-
-        set.notin = (differ(set.table(set)[key]) false ,true)                  :(return)
-
-set.notin.end
 
         define('set.new(init,n)i,key,str,valr')         :(set.new.end)
 
@@ -1655,7 +1590,7 @@ show.value.type.string
 
 show.value.string.quote
 
-	show.value = '"'  v '"')			:(show.value.done)
+	show.value = '"'  v '"'			:(show.value.done)
 
 show.value.done
 							:(return)
@@ -1843,7 +1778,10 @@ stack.empty.end
 stack.peek
 	
 	lt(i,0) gt(i,stack.size(stack))			:s(freturn)
-	stack.peek = stack.
+	stack.peek = stack.table(stack)[stack.size(stack) = i] :(return)
+
+stack.peek.end
+
         define('stack.pop(stack)')                      :(stack.pop.end)
 
 *       _stack.pop_ pops the top of the stack and returns its value,
@@ -1852,7 +1790,7 @@ stack.peek
 stack.peek
 
         eq(stack.size(stack))                             :s(freturn)
-        stack.pop = stack.table(stack)[stack.size(stack.table(stack) - offset]	:(return)
+        stack.pop = stack.table(stack)[stack.size(stack) - offset]	:(return)
 
 stack.peek.end
 
@@ -1885,7 +1823,7 @@ stack.pop
 
 stack.pop.end
 
-        define('stack.push(stack,val)'                  :(stack.push.end)
+        define('stack.push(stack,val)')                  :(stack.push.end)
 
 *       _stack.push' pushes _val_ on to the stack.
 
@@ -1947,11 +1885,6 @@ string.spaces
 
 	line len(1) . c					:f(return)
 	string.spaces = string.spaces (ident(c,' ') ' ', '*')		:(string.spaces)
-
-string.spaces
-
-	line len(1) . c					:f(return)
-	spaces = spaces (ident(c,' ') ' ', '*')		:(string.spaces)
 
 string.spaces.end
 
@@ -2169,9 +2102,10 @@ signature
 
 	signature = string.frequency(word)	:(return)
 
-end
+	outut = 'dave, complete code for signature()'
 
 	g.puzzle = 'spot'
 	g.signature = string.frequency(g.puzzle)
+	:(return)
+signaure.end
 
-	
