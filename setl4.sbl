@@ -1,527 +1,319 @@
 *       Copyright 2017, David Shields
 *       Licensed under the MIT license.
 
-*       This file extends SPITBOL by adding support for creating and operating
-*       on maps.
-
-*	Defines:	ascii(line)
-*	Defines:	ascii.init(init)
-
-*	Uses:		Map
-        define('ascii(line)c,n,name,nul,num,pos')       :(ascii.end)
-
-*       Return the text of line with every ascii character identified.
-
-*ASCII*
-ascii
-        nul = substr(&alphabet,1,1)
-
-ascii.next
-        
-*       Add space after previous character if result not null.
-
-        ascii = differ(ascii) ascii ' '
-        c = substr(line,1,1)                            :f(ascii.done)
-        ident(c,nul)                                    :s(ascii.null)
-*       output = 'ascii c[' c ']'
-        line any('0123456789')                          :s(ascii.integer)
-        line any(&lcase &ucase)                         :s(ascii.letter)
-        line ' '                                        :s(ascii.space)
-
-*       Check for control character (code <=26)
-
-        &alphabet break(c) . pos                        :f(ascii.other)
-        pos = size(pos) 
-*       output = 'pos of [' c '] is [' pos ']'
-        gt(pos,26)                                      :s(ascii.other)
-        ascii = ascii g.ascii.name[c] '(^'  substr('ABCDEFGHIJKLMNOPQRSTUVWXYZ',pos,1) ')' 
-        line len(1) =                                   :(ascii.next)
-
-ascii.integer
-
-        line span('0123456789') . text =
-*       output = 'ascii num [' text ']'
-        ascii = ascii  text                             :(ascii.next)
-
-ascii.letter
-
-        line span(&lcase &ucase) . text =
-*       output = 'ascii letter [' text ']'
-        ascii = ascii  text                             :(ascii.next)
-
-ascii.null
-
-        ascii = ascii 'NUL'                             :(ascii.next)
-
-ascii.other
-                
-*       Here if none of the other cases apply, so just list the ascii name.
-
-        ascii = ascii g.ascii.name[c]                   
-        line = substr(line,2)                           :(ascii.next)
-
-ascii.space
-
-        line span(' ') . text =
-*       output = 'ascii space [' text ']'
-        
-        ascii =  ascii 'SPC'
-        ascii = gt(size(text),1) ascii 'SPC*' size(text)
-        ascii = ascii 
-                                                        :(ascii.next)
-ascii.done
-
-        ascii = trim(ascii)                             :(return)
-
-ascii.end
-
-        define('ascii.init(init)name,val')              :(ascii.init.end)
-
-*       Initialize maps for use by _ascii_.
-*       Since space (ascii 32) prints as space, use the name SPC for 32.
-
-*ASCII.INIT*
-ascii.init
-
-
-        ascii.init = map.map(
-.       '0:NUL 16:DLE 48:0 64:@ 80:P 96:`:112:p '
-.       '1:SOH 17:DC1 33:! 49:1 65:A 81:Q  97:a 113:q '
-.       '2:STX 18:DC2 34:" 50:2 66:B 82:R  98:b 114:r '
-.       '3:ETX 19:DC3 35:# 51:3 67:C 83:S  99:c 115:s '
-.       '4:EOT 20 DC4 36:$ 52:4 68:D 84:T 100:d 116:t '
-.       '5:ENQ 21:NAK 37:% 53:5 69:E 85:U 101:e 117:u '
-.       '6:ACK 22:SYN 38:& 54:6 70:F 86:V 102:f 118:v '
-.       "7:BEL 23:ETB 39:' 55:7 71:G 87:W 103:g 119:w "
-.       '8:BS  24:CAN 40:( 56:8 72:H 88:X 104:h 120:x '
-.       '9:HT  25:EM  41:) 57:9 73:I 89:Y 105:i 121:y '
-.       '10:LF 26:SUB 42:*:58 : 74:J 90:Z 106:j 122:z '
-.       '11:VT 27:ESC 43:+:59 ; 75:K 91:[ 107:k 123:{ '
-.       '12:FF 28:FS  44:,:60 < 76:L 92:\ 108:l 124:| '
-.       '13:CR 29:GS  45:-:61 = 77:M 93:] 109:m 125:} '
-.       '14:SO 30:RS  46:.:62 > 78:N 94:^ 110:n 126:~ '
-.       '15:SI 31:US  47:/:63 ? 79:O 95:_ 111:o 127:DEL ') 
-
-        g.ascii.name = map.map(128)
-        g.ascii.val = map.map(128)
+*       Sets
+*       ____
         
 
-	map.loop(ascii.init)
-
-ascii.init.next
-
-	ent = map.next(ascii.init)			:(ascii.init.finis)
-	g.ascii.name[substr(&alphabet,+v + 1,1)] = name
-	g.ascii.val[name] = +val			:(ascii.init.next)
+*       A set is a collection of values, in no particular order.
+*       SETL4  implements a set as a map for which the value
+*       of the elements of the set is "true."
 
 
-*       Correct entry for 32 to be SPC, the space character
-*       Correct entry for 0 to be NUL, the NUL character
+	data('set(set.table,set.size,set.next)')
 
-        g.ascii.name[] = 'NUL'
-        g.ascii.val['NUL'] = 0  
-        g.ascii.name[' '] = 'SPC'
-        g.ascii.val['SPC'] = 32                         :(return)
-        
-ascii.init.end
+	define('set.add(set,elem)')			:(set.add.end)
 
-*       Copyright 2017, David Shields
-*       Licensed under the MIT license.
-
-*       This file extends SPITBOL by adding support for booleans and operations
-*       on booleans.
+*	Add _elem_ to set, unless already present.
 
 
-*       Boolean Logic
-*       -------------
+set.add
 
-*       Boolean logic is a form of algebra with just two values: true and false.
+	elem = pair(set.size(set) = set.size(set) + 1,val)
+	set.add(set, val)
+	set.add = elem					:(return)
 
-*       In SPITBOL, the algebra is defined on strings: the null string is "false"
-*       and all other strings are "true."
-*       IDENT is used to test for false, DIFFER for true. Both signal their
-*       results by success (true) or failure (false).
+set.add.end
 
-*       In PLAYBOL, the algebra is defined on the integers: zero is "false"
-*       and all integers are "true."
-*       _eq_ is used to test for false, _ne_ for true.
+	define('set.apply(set,f)elem,elem.new')	:(set.apply.end)
+
+*	_set.apply_ returns the set obtained by applying _f- to each elem in _set_.
+*       If _f_ is a string, it is evaluated using _eval_; otherwise _f_is called
+*       as a function.
+
+set.apply
+
+	set.apply = set.set(set.size(set))
+	set.loop(set)
+
+set.apply.next
+
+	elem = set.next(set)				:f(return)
+        elem.new = ident(datatype(f),'string')  apply(f,elem)
+        elem.new = ident(datatype(f,'code')  apply(f,elem))
+	set.put(set.apply,key(elem.new), value(elem.new)):(set.apply.next)
+
+set.apply.end
 
 
-        false = 0
-        true = 1
-
-        define('false(e)')                              :(false.end)
-
-*       Returns true if its argument is false, or false if the argument is true.
-
-false
-
-        false = (eq(e) true, false)                     :(return)
-
-false.end
-
-        define('true(e)')                              :(true.end)
-
-*       Returns true if its argument is true, or false if the argument is false.
-
-true
-
-        true = e					:(return)
-
-true.end
-
-        define('and(b1,b2,b3,b4,b5,b6)')                :(and.end)
-
-*       Returns true iff (if and only if) all the non-null arguments are true.
-*       And returns after encountering the first argument that is null or false.
-*       or on encountering a null argument.
-
-and
-
-        and = ident(b1)                                 :s(return)
-        and = false(b1) false                           :s(return)
-
-        and = ident(b2)                                 :s(return)
-        and = false(b2) false                           :s(return)
-
-        and = ident(b3)                                 :s(return)
-        and = false(b3) false                           :s(return)
-
-        and = ident(b4)                                 :s(return)
-        and = false(b4) false                           :s(return)
-
-        and = ident(b5)                                 :s(return)
-        and = false(b5) false                           :s(return)
-
-        and = ident(b6)                                 :s(return)
-        and = false(b6) false                           :s(return)
-        
-        and = true                                      :(return)
-
-and.end
-
-        define('or(b1,b2,b3,b4,b5,b6)')                 :(or.end)
-
-*       Returns true iff (if and only if) at least one non-null argument is true.
-*       Or returns after encountering an argument that is true or null.
-*       or on encountering a null argument.
-
-or
-
-        ident(b1)                                       :s(return)
-        or = true(b1) true                              :s(return)
-
-        ident(b2)                                       :s(return)
-        or = true(b2) true                              :s(return)
-
-        ident(b3)                                       :s(return)
-        or = true(b3) true                              :s(return)
-
-        ident(b4)                                       :s(return)
-        or = true(b4) true                              :s(return)
-
-        ident(b5)                                       :s(return)
-        or = true(b5) true                              :s(return)
-
-        ident(b6)                                       :s(return)
-        or = true(b6) true                              :s(return)
-           
-        or = false                                       :(return)
-
-or.end
-* INTEGER.SBL
-
-*       Copyright 2017, David Shields
-*       Licensed under the MIT license.
-
-*       This file extends SPITBOL by adding support for creating and operating
-*       on sets and other collections of positive integers.
-
+*        define('set.array(aray)i,key')                  :(set.array.end)
 *
-*       The positive integers are the integers in the set 1..n.
+**	Create a set defined by an array.
+**	If the array has one dimension then create a set
+**	from the array values.
+**	If the array has two dimensions, create a set using the
+**	array indice as the keys, and the correspong value as the
+**	values.
+*
+*set.array
+*
+*        set.array = set()
+*        i = prototype(aray)
+*        integer(i)                                      :s(set.array.one)
+*
+**       Here to initialize from two-dimensional array
+*
+*set.array.next
+*
+*        key = aray[i = i + 1,1]                         :f(return)
+*        set.put(set.aray,i,aray[i,2])                    :(set.array.next
+*
+*set.array.one
+*
+**        Here to initialize set from one-dimensional array
+*
+*set.array.next
+*
+*        key = aray[i = i + 1]				:f(return)
+*        set.add(set.array,key)                          :(set.array.next)
+*
+*
+*set.array.end
 
-*       Basic Functions on Integers
-*       ---------------------------
+        define('set.domain(set)entry')			:(set.domain.end)
 
-*                even(n)         true iff n is even.
-*                odd(n)          true iff n is odd.
-*                prime(n)        true iff n is a prime number
-*                factorial(n)    returns the value of n! = n * (n - 1) * ... * 
+*       Return set with the keys in _set_.
 
+        set.loop(set)
 
-        define('even(n)')                                  :(even.end)
+set.domain
 
-*       Returns true iff n is even.
+        entry = set.next(set)                           :f(return)
+        set.add(set.domain,ent)                         :(set.domain)
 
-even
+set.domain.end
 
-        even = (eq(remdr(n,2)) true,false)               :(even.end)
+	define('set.equal(set,oset)x')			:(set.equal.end)
 
-even.end
+*	Tests if two sets are equal.
 
-        define('odd(n)')                                  :(odd.end)
+set.equal
 
-*       Returns true iff n is odd.
+	set.equal = false
+	ne(set.size(set),set.size(oset))		:s(return)
 
-odd
+*	Here if same size, so test if all elements in one
+*	set are in the other.
 
-        odd = (ne(remdr(n,2)) true,false)               :(odd.end)
+	set.loop(set)
 
-odd.end
+seq.equal.next
 
-        define('prime(n)')                                :(prime.end)
+	x = set.next(set)				:f(set.equal.done)
+	seq.equal = set.member(oset,x)			:s(set.equal.next)f(return)
 
-*       Returns true iff n is prime.
+set.equal.done
 
-prime
+	set.equal = true				:(return)
 
-        terminal = 'prime not implemented'             :(error)
-        prime = (eq(remdr(n,2)) true,false)             :(prime.end)
+set.equal.end
 
-prime.end
+        define('set.forall(set')                    :(set.forall.end)
 
-        define('integer(n)')                                    :(integer.end)
+*       Returns set defined as follows:
+*       Iterare over _set_. For each entry _ent_, invoke f(ent) and use the
+*       result to define a new entry in the result.
 
-*       Returns set of integers in the range 1 ... n
+set.forall
 
-integer
+        set.forall = set()
+        set.loop(set)
 
-integer.end
-* LINE.SBL
+set.forall.next
 
-*       Copyright 2017, David Shields
-*       Licensed under the MIT license.
+	set.forall = apply(f,set.forall,set.next(set))          
+.	:f(return)s(set.forall.next)
 
-*       This file extends SPITBOL by adding support for creating and operating
-*       on lines.
 
-*	Lines can be just strings or, in some cases, a line is represented by a pair:
+set.forall.end
 
-	data('line(mark,text')
+        define('set.foreach(set,f)entry')               :(set.foreach.end)
 
-*	where
+*        Returns a set defined by iterating over the entries in _set_, and applying
+*        f to the entry to define a new entry in the result.
 
-*		_mark_ is defined by the value returned by an instance
-*		of the _eval_ function ...
+set.foreach
 
-*		_text_ is the text of the line.
+        set.foreach = set()
 
-        define('reader(filename,expr)line,makr')               :(reader.end)
+set.foreach.next
 
+        entry = apply(f,set.next(set))                    :f(return)
+        set.put(set.foreach, entry.key(ent), entry.value(ent)):(set.foreach.next)
 
+set.foreach.end
 
+	define('set.in(set,elem)')				:(set.in.end)
 
-*       Return a sequence of the lines in the file specified by _filename_.
-*	If _expr_ is not null, then _eval_ is called just
-*	after each line is read, with the variable _pair_ set to
-*	the associated pair. If _eval_ fails the line is skipped. 
-*	Otherwise returns a new pair to be entered in the input 
-*	sequence.
+*	Test if _elem_ is a member of set _set_.
 
+set.in
 
-*READER*
-reader
+        set.in = (differ(set.table[elem]) true, false)             :(return)
 
-        differ(filename) input(.file,g.channel.temp,filename):s(reader.opened)
-        out('unable to open reader file ' filename '.') :(freturn)
+set.in.end
 
-reader.opened
+        define('set.intersection(a,b)elem')                                   :(set.or.end)
 
-        reader = map(1024)
+*       Returns intersection of sets _a_ and _b_.
 
-reader.next
+set.intersection
 
-        map.add(map, (ident(filename) input, file))     :f(reader.eof)s(reader.next)
+*	Arrange so set a is the smaller set.
 
-reader.eof
+	le(set.size(a),set.size(b))				:s(set.intersection.a)
+	set.intersection = a 
+	a = b
+	b = set.intersection
 
-*       Here at end of file; close temporary file if one was needed.
+set.intersection.a
 
-        differ(filename) endfile(g.channel.temp)        :(return)
+*	Make copy of set _a_ by making copy of _a_'s table.
 
-reader.end
+	set.intersection = set.new(,set.size(a))
+	set.table(set.intersection) = copy(set.table(a))
 
-	define('reader.string(str,delim)line')			:(reader.string.end)
+	set.loop(b)
 
-*	Returns a sequence of the lines in _str_,
-*	where the delimiter character _delim_ is used to mark 
-*	the end of a line. One intended use of _reader.string_ 
-*	is to assist in the construction of test programs.
+set.intersection.b
 
-reader.string
+	elem = set.next(b)					:f(return)
 
-	delim = ident(delim) '/'
-	reader.string = map.sequence()
-
-reader.string.next
-
-	str break(delim) . line delim =			:f(return)
-	add(reader.string,line)				:(reader.string.next)
-
-reader.string.end
-
-        define('tokens(line)type,pos,text,lineno')                     (tokens.end)
-
-
-*       Tokens scans _line_ and returns a table of the tokens in the line.
-*       The table has keys from 1..n, where _n_ is the number of tokens found. The
-*       key '#' gives the number of entries in the table, and is used for no other purpose.
-*       For example, a scan of an empty line results in tokens['#'] having the value zero.
-
-*       This function is an instance of what is called a tokensical scanner, or tokenizer,
-*        which is the first stage in a programming language compiler, or for any program 
-*       that processes text files with a specified structure.
-
-*       Each token is represented as an instance of the datatype _token_ as follows:
-
-        data('token(lineno,pos,type,text)')
-
-*       where:
-*               _lineno_        is the line number within the file;
-*               _pos_           is the position of the first character of the token in the line;
-*               _type_          is the token's type, as described below; and
-*               _text_          is the text of the token.
-
-*       The type is represented by a single character, as follows:
-
-*               'c'             comment, indicated by asterisk (*) in the first column.
-*                               The text consists of the entire line.
-*               'i'             integer, consisting of one or more digits ('0123456789')
-*               'l'             left opener, one of '(<[{'
-*               'p'             punctation, one of '.;,?!', or single quote ('), or double quote ("),
-*               'o'             other printable character, one of '~@#$%^&*_-+=`'.
-*                'q'             quoted string, starting witn '"', and continuing to the next instance of the opening quote character.
-*               'r'             right closer, one of ')>]}'
-*               's'             space, consistine of one or more spaces (spaces)
-*               't'             tab character
-*               'u'             unprintable character, for example control-k
-*               'w'             word, consisting of one of more letters in upper or lower case or
-*                               "'" or "_".
-
-*       The longest possible string meeting the rules is used when building a token.
-*       For example, 'abc' is just the word 'abc', not 'a' followed by 'bc', and so forth.
-
-*       It is recommended that the tab character NOT be used as an abbreviation for one or more spaces
-*       in the input file. If tabs are used, then _pos_ is ill-defined. If tabs are not used, then _pos_
-*       indicates the true position in the line of the first character of the token, and so error messages
-*       and references to the token will be exact. For example, _pos_ could be used to indicate where to
-*       give emphasis to a token by underlining it, or enclosing it in '_' to generate markdown format, and so forth.
-
-
-
-tokens  
-
-        tokens = map.sequence()
-        line '*'                                        :f(tokens.next)
-        type = 'c'
-        text = line                                                             
-        line =                                          :(tokens.new)
-
-tokens.next
-
-        line ' '                                        :s(tokens.space)
-        line any('0123456789')                          :s(tokens.integer)
-        line any('(<[{')                                :s(tokens.left)
-        line any('.;,?!')                               :s(tokens.punctuation)
-        line '"'                                        :s(tokens.quote)
-        line any('~@#$%^&*_-+=')                                        :s(tokens.other)
-        line any(')>]}')                                :s(tokens.right)
-        line char(9)                                    :s(tokens.tab)
-        line any(&lcase &ucase)                         :s(tokens.word)
-
-*       Here for unprintable
-                                                        :(tokens.unprintable)
-
-tokens.integer
-
-        type = 'i'
-        line span('0123456789') . text =                :(tokens.new)
-
-tokens.punctuation 
-
-        type = 'p'                                       :(tokens.character)
-
-tokens.other
-
-        type = 'o'                                      :(tokens.character)
-
-*tokens.other
-
-        type = 'o'                                      :(tokens.character)
-
-tokens.quote
-
-        type = 'q'
-        line '"' break('"') . text '"' =        
-        text = '"' text '"'                             :(tokens.new)
-
-tokens.right
-
-        type = 'r'                                      :(tokens.character)
-
-tokens.space
-
-        type = 's'
-        line span(' ')  . text =                        :(tokens.new)
-
-tokens.tab
-
-        type = 't'                                      :(tokens.character)
-
-tokens.word
-
-*FIX*
-        type = 'w'
-        line span(&ucase &lcase "_" "'") . text =      :(tokens.new)
-
-map.sbl:1okens.tab
-
-        type = 't'                                      :(tokens.character)
-
-tokens.character
-
-*       Here if token is single character.
-
-        line len(1) . text                              :(tokens.new)
-
-tokens.new
-
-        map.add(tokens,token(lineno,pos,type,text))     :(tokens.next)
-
-tokens.end
-
-        define('words(line)word')                        :(words.end)
-
-*       Return sequence of the words in line, fail if no words.
-
-*WORDS*
-words
-
-        words = map()
-        line =  line ' '
-
-words.next
-
-        line break(' ') . word ' ' =                     :f(return)
-        map.add(words,word)                             :(words.next)
-
-words.end
-
-       define('writer(lines)'       )                  :(writer.end)
-
-*       Writes a sequence of the lines in the sequence _lines_
-*	to standard output.
-
-writer
-
-	lines = copy(lines)
-	map.loop(lines)
-
-writer.next
+*	Skip this entry if not in set _a_.
 	
-	output = map.next(lines)				:f(return)s(writer.next)
+	set.notin(a,elem)					:s(set.intersection.b)
+	set.add(set.intersection,elem)				:(set.intersection.b)
+	
+set.intersection.end
 
-writer.end
+	define('set.less(a,b)elem')			:(set.less.end)
+
+*	Returns set define by set of elements of _a_ that are not in _b_.
+
+set.less
+
+	set.less = set.new()
+	set.loop(a)
+
+set.less.a
+
+	elem = set.next(a)				:f(return)
+	set.in(b,elem)					:s(set.less.a)
+	set.add(set.less,elem)				:s(set.less.a)
+
+set.less.end
+
+        define('set.loop(set)')                    :(set.loop.end)
+
+*       Returns an iterator for _set_. Use _set.next_ to retrieve
+*       the next entry in set. _set.next_ fails when no more entries remain.
+
+set.loop
+
+        set.index(set) = 0
+
+set.loop.order.inc
+
+        set.array(set) = convert(set.table(set),'array'):(set.done)
+
+set.loop.end
+
+        define('set.new(init,n)i,key,str,valr')         :(set.new.end)
+
+*       Create a new set.
+
+*       A set is a list of values *  separated by spaces.
+
+*               set       _init_ is a list consisting of a list of key/value pairs,
+*                               with a colon (:) between the key and value.
+
+set.new
+
+        set.new = ident(init) set(table(128))           :s(return)
+        kind = ident(kind) 'set'
+        kind
+        output = 'enter set.new [' init ']'
+        init break(':')                                	:s(set.new.keyval)
+        set.new = set(table(i))                         :(return)
+
+set.new.keyval
+        
+        set.new = set(table(128))
+
+set.new.keyval.next
+
+        init break(':') . key ':' break(' ') . val ' ' =	:f(return)
+        set.put(set.new,key,val)                        :(set.new.keyval.next)
+
+set.new.end
+
+        define('set.next(set)')                         :(set.next.end)
+
+*       _set.next_ returns the next entry in a set, or fails if no entries remain.
+
+set.next
+
+        le(set.index(set) = set.index(set) + 1, set.size(set)):f(freturn)
+        set.next = entry(set.array[set.index(set),1],set.array[set.index(set),2]):(return)
+
+set.next.end
+
+        define('set.notin(x,s)')                               :(set.notin.end)
+
+*       Returns _true_ iff _x_ is is not element in _s_.
+
+set.notin
+
+        set.notin = (ident(set.table[x]) true, false)             :(return)
+
+set.notin.end
+
+        define('set.size(set)')                                 :(set.size.end)
+
+set.size
+
+        set.size = set.num(set)                                 :(return)
+
+set.size.end
+
+        define('set.union(a,b)elem')                                   :(set.or.end)
+
+*       Returns union of sets _a_ and _b_.
+
+set.union
+
+*	Arrange so set a is the larger set.
+
+	ge(set.size(a),set.size(b))				:s(set.union.a)
+	set.union = a 
+	a = b
+	b = set.union
+
+set.union.a
+
+*	Make copy of a by making copy of a's table.
+
+	set.union = set.new(,set.size(a))
+	set.table(set.union) = copy(set.table(a))
+
+	set.loop(b)
+
+set.union.b
+
+	elem = set.next(b)					:f(return)
+	set.add(set.union,elem)					:(set.union.b)
+	
+set.union.end
 
 * MAP.SBL
 
@@ -646,7 +438,7 @@ map.domain.next
 map.domain.end
 
 
-	define(map.equal(map,omap)pair')		:(map.equal.end)
+	define('map.equal(map,omap)pair')		:(map.equal.end)
 
 *	Test two maps for equality. 
 
@@ -664,7 +456,8 @@ map.equal.next
 	entry = map.next(map)				:f(map.equal.done)
 	key = key(entry)
 	valu = val(entry)
-	ident(value(map.get(map,key(entry),value(map.get(omap,key(entry)) :s(map.equal.next)f(return)
+	ident(value(map.get(map,key(entry))),
+.         value(map.get(omap,key(entry)))) :s(map.equal.next)f(return)
 
 map.equal.done
 
@@ -910,104 +703,6 @@ map.test
 	map.test = (differ(map.table(map)[key]) true, false) (return)                     
 
 map.test.end
-* NUMBER.SBL
-
-*       Copyright 2017, David Shields
-*       Licensed under the MIT license.
-
-*       This file extends SPITBOL by adding support for creating and operating
-*       on maps.
-
-        define('number.cardinal(n,word)')                      :(number.cardinal.end)
-
-*       If N is one, returns 'one' followed by WORD.
-*       Otherwise returns NUMBER(N) followed by WORD and 'S'.
-
-number.cardinal
-
-        number.cardinal = (eq(n,1) 'one ' word, number(n) ' '  word 's'):(return)
-
-number.cardinal.end
-
-
-        define('number.number(n)')                             :(number.end)
-
-**      If N can be represented as a string of one or two words
-**      then return that string. Otherwise return N.
-
-number.number
-        number.number = eq(n) 'zero'                           :s(return)
-        number.number = g.numbers[n]
-        differ(number.number)                                  :s(return)
-        number.number = n                                      :(return)
-number.number.end
-
-        define('number.thousands(s)n')                         :(number.thousands.end)
-
-*       Format s with comma's every three digits from right.
-
-*THOUSANDS*
-number.thousands
-
-        n = size(s)
-        number.thousands = le(n,3) s                           :s(return)
-        number.thousands = number.thousands(substr(s,1,n - 3)) ',' substr(s, n - 2, 3):(return)
-
-number.thousands.end 
-*       Copyright 2017, David Shields
-*       Licensed under the MIT license.
-
-*       This file extends SPITBOL by adding support for creating and operating
-*       on maps.
-
-        define('random(n)')                             :(random.end)
-
-*       Return integer uniformly distributed in 1,2,...,n.
-*       If n=0 returns real uniformly distributed in the interval [0,1].
-*       The Algorithm is based on that in section 16.1 of "Algorithms in SNOBOL4,"
-*       James F. Gimpel, John Wiley and Sons, 1976.
-
-*RANDOM*
-random
-
-        g.random_var = remdr(g.random_var * 4676, 414971)
-        random  = g.random_var / 414971.0
-        random = ne(n) convert(random * n,'integer') + 1
-                                                        :(return)
-random.end
-
-        define('random.seed()s,c')                       :(random.seed.end)
-
-*       Compute seed for random number generator from date and time.
-
-*RANDOMSEED*
-random.seed
-        g.random_var =
-        s = g.date
-        s = replace(s,'/:-','   ')
-
-*       Get all the digits in s.
-
-random.seed.loop
-
-        s len(1) . c =                                  :f(random.seed.done)
-        ident(c,' ')                                    :s(random.seed.loop)
-        g.random_var = g.random_var c                   :(random.seed.loop)
-
-random.seed.done
-
-*       Reverse the seed so digits depending on time come first.
-
-        g.random_var = +reverse(g.random_var    )
-                                                        :(return)
-
-random.seed.end
-
-*       Copyright 2017, David Shields
-*       Licensed under the MIT license.
-
-*       This file extends SPITBOL by adding support for creating and operating
-*       on sequences.
 
 
 *       Sequences.
@@ -1055,39 +750,38 @@ sequence.apply.next
 
 sequence.apply.end
 
-        define(‘sequence.forall(sequence)’)    :(sequence.forall.end)
+*        define(‘sequence.forall(sequence)’)    :(sequence.forall.end)
+*
+**        Returns sequence defined as follows:
+**        Iterare over _sequence_. For each entry _ent_, invoke f(ent) and use the
+**        result to define a new entry in the result.
+*
+*sequence.forall
+*
+*        sequence.forall = sequence()
+*        sequence.loop(sequence)
+*
+*sequence.forall.next
+*
+*sequence.forall = apply(f,sequence.forall,sequence.next(sequence))          :f(return)s(sequence.forall.next)
+*
+*sequence.forall.end
 
-*        Returns sequence defined as follows:
-*        Iterare over _sequence_. For each entry _ent_, invoke f(ent) and use the
-*        result to define a new entry in the result.
-
-sequence.forall
-
-        sequence.forall = sequence()
-        sequence.loop(sequence)
-
-sequence.forall.next
-
-sequence.forall = apply(f,sequence.forall,sequence.next(sequence))          :f(return)s(sequence.forall.next)
-
-
-sequence.forall.end
-
-        define(‘sequence.foreach(sequence,f)entry’)               :(sequence.foreach.end)
-
-*        Returns a sequence defined by iterating over the entries in _sequence_, and applying
-*        f to the entry to define a new entry in the result.
-
-sequence.foreach
-
-        sequence.foreach = sequence()
-
-sequence.foreach.next
-
-        entry = apply(f,sequence.next(sequence))                    :f(return)
-        sequence.put(sequence.foreach, entry.key(ent), entry.value(ent)):(sequence.foreach.next)
-
-sequence.foreach.end
+*        define(‘sequence.foreach(sequence,f)entry’)               :(sequence.foreach.end)
+*
+**        Returns a sequence defined by iterating over the entries in _sequence_, and applying
+**        f to the entry to define a new entry in the result.
+*
+*sequence.foreach
+*
+*        sequence.foreach = sequence()
+*
+*sequence.foreach.next
+*
+*        entry = apply(f,sequence.next(sequence))                    :f(return)
+*        sequence.put(sequence.foreach, entry.key(ent), entry.value(ent)):(sequence.foreach.next)
+*
+*sequence.foreach.end
 
         define('sequence.get(i)')                                  :(sequence.get.end)
 
@@ -1206,7 +900,7 @@ sequence.range
 
 sequence.range.next
 
-        sequence.range.add(entry.value(sequence.next(sequence))        :f(return)s(sequence.range.next)
+        sequence.range.add(entry.value(sequence.next(sequence)))        :f(return)s(sequence.range.next)
 
 sequence.range.end
 
@@ -1230,319 +924,830 @@ sequence.put.value
 
 sequence.put.end
 
-*       Sets
-*       ____
+
+*       This file extends SPITBOL by adding support for creating and operating
+*       on stacks.
+
+
+*       Stacks
+*       ------
+
+*       A stack is a sequence with a limited set of operations.
+
+        data('stack(stack.table,stack.size')
+
+*               _stack.table_   is the table used to maintain the stack.
+
+*               _stack.size_    is the number of entries in the stack.
+
+        define('stack.new()')                           :(stack.new.end)
+
+*       _stack_ returns a new empty stack.
+
+stack
+
+        stack = stack(table(16))                        :(return)
+
+stack.new.end
+
+        define('stack.empty(stack)')                    :(stack.empty.end)
+
+*       _stack.empty_ tests if the stack is empty.
+
+stack.empty
+
+        ne(stack.size(stack))                             :s(return)f(freturn)
+
+stack.empty.end
+
+	define('stack.peek(stack,i)val')		:(stack.peek.end)
+
+*	Returns value of entry at offset _i_ from the top of the
+*	stack, of fails if _i_ is not a valid stack index.
+*	The top of the stack has index 0, the entry below it has offset 1,
+*	and so forth.
+
+stack.peek
+	
+	lt(i,0) gt(i,stack.size(stack))			:s(freturn)
+	stack.peek = stack.table(stack)[stack.size(stack) = i] :(return)
+
+stack.peek.end
+
+	define('stack.poke(stack,val)')			:(stack.poke.end)
+
+*	Sets value of entry at offset _i_ from the top of the
+*	stack to have vaulue _val_, of fails if _i_ is not a valid stack index.
+*	The top of the stack has index 0, the entry below it has offset 1,
+*	and so forth.
+*	_Stack.poke_ returns _val_.
+
+stack.poke
+	
+	lt(i,0) gt(i,stack.size(stack))			:s(freturn)
+        eq(stack.size(stack))                        	:s(freturn)
+	stack.table[stack.size(stack) - i] =  val;	:(return)
+
+stack.poke.end
+
+        define('stack.pop(stack)')                      :(stack.pop.end)
+
+*       _stack.pop_ pops the top of the stack and returns its value,
+*       unless the stack is empty in which case stack.pop fails.
+
+stack.pop
+
+	stack.pop = stack.table(stack)[stack.size(stack)]
+        stack.put(stack,stack.size(stack),'')
+        stack.size(stack) = stack.size(stack) - 1           :(return)
+
+stack.pop.end
+
+        define('stack.push(stack,val)')                  :(stack.push.end)
+
+*       _stack.push' pushes _val_ on to the stack.
+
+stack.push
+
+        stack.add(stack,val)                              :(return)
+
+stack.push.end
+
+        define('stack.top(stack)')                      :(stack.top.end)
+
+*       _stack.top_ returns the top entry in the stack.
+
+stack.top
+
+        stack.top = stack.get(stack,stack.size(stack))      :(return)
+
+stack.top.end
+
+*       Boolean Logic
+*       -------------
+
+*       Boolean logic is a form of algebra with just two values: true and false.
+
+*       In SPITBOL, the algebra is defined on strings: the null string is "false"
+*       and all other strings are "true."
+*       IDENT is used to test for false, DIFFER for true. Both signal their
+*       results by success (true) or failure (false).
+
+*       In PLAYBOL, the algebra is defined on the integers: zero is "false"
+*       and all integers are "true."
+*       _eq_ is used to test for false, _ne_ for true.
+
+
+        false = 0
+        true = 1
+
+        define('false(e)')                              :(false.end)
+
+*       Returns true if its argument is false, or false if the argument is true.
+
+false
+
+        false = (eq(e) true, false)                     :(return)
+
+false.end
+
+        define('true(e)')                              :(true.end)
+
+*       Returns true if its argument is true, or false if the argument is false.
+
+true
+
+        true = e					:(return)
+
+true.end
+
+        define('and(b1,b2,b3,b4,b5,b6)')                :(and.end)
+
+*       Returns true iff (if and only if) all the non-null arguments are true.
+*       And returns after encountering the first argument that is null or false.
+*       or on encountering a null argument.
+
+and
+
+        and = ident(b1)                                 :s(return)
+        and = false(b1) false                           :s(return)
+
+        and = ident(b2)                                 :s(return)
+        and = false(b2) false                           :s(return)
+
+        and = ident(b3)                                 :s(return)
+        and = false(b3) false                           :s(return)
+
+        and = ident(b4)                                 :s(return)
+        and = false(b4) false                           :s(return)
+
+        and = ident(b5)                                 :s(return)
+        and = false(b5) false                           :s(return)
+
+        and = ident(b6)                                 :s(return)
+        and = false(b6) false                           :s(return)
+        
+        and = true                                      :(return)
+
+and.end
+
+        define('or(b1,b2,b3,b4,b5,b6)')                 :(or.end)
+
+*       Returns true iff (if and only if) at least one non-null argument is true.
+*       Or returns after encountering an argument that is true or null.
+*       or on encountering a null argument.
+
+or
+
+        ident(b1)                                       :s(return)
+        or = true(b1) true                              :s(return)
+
+        ident(b2)                                       :s(return)
+        or = true(b2) true                              :s(return)
+
+        ident(b3)                                       :s(return)
+        or = true(b3) true                              :s(return)
+
+        ident(b4)                                       :s(return)
+        or = true(b4) true                              :s(return)
+
+        ident(b5)                                       :s(return)
+        or = true(b5) true                              :s(return)
+
+        ident(b6)                                       :s(return)
+        or = true(b6) true                              :s(return)
+           
+        or = false                                       :(return)
+
+or.end
+
+
+
+* INTEGER.SBL
+
+*       Copyright 2017, David Shields
+*       Licensed under the MIT license.
+
+*       This file extends SPITBOL by adding support for creating and operating
+*       on sets and other collections of positive integers.
+
+*
+*       The positive integers are the integers in the set 1..n.
+
+*       Basic Functions on Integers
+*       ---------------------------
+
+*                even(n)         true iff n is even.
+*                odd(n)          true iff n is odd.
+*                prime(n)        true iff n is a prime number
+*                factorial(n)    returns the value of n! = n * (n - 1) * ... * 
+
+
+        define('even(n)')                                  :(even.end)
+
+*       Returns true iff n is even.
+
+even
+
+        even = (eq(remdr(n,2)) true,false)               :(even.end)
+
+even.end
+
+        define('odd(n)')                                  :(odd.end)
+
+*       Returns true iff n is odd.
+
+odd
+
+        odd = (ne(remdr(n,2)) true,false)               :(odd.end)
+
+odd.end
+
+        define('prime(n)')                                :(prime.end)
+
+*       Returns true iff n is prime.
+
+prime
+
+        terminal = 'prime not implemented'             :(error)
+        prime = (eq(remdr(n,2)) true,false)             :(prime.end)
+
+prime.end
+
+        define('integer(n)')                                    :(integer.end)
+
+*       Returns set of integers in the range 1 ... n
+
+integer
+
+integer.end
+
+
+*       This file extends SPITBOL by adding support for providing additional
+*	functions and constants for working with strings.
+*       on strings..
+
+        define('string.append(str,w,ch)')                      :(string.append.end)
+
+*	_string.append_ string.appends _ch_, or ' ' if _ch_ is null, to _str_
+*	and then string.appends _w_.
+
+*STRING.APPEND*
+string.append
+
+        string.append = (ident(str) w, str (ident(ch) ' ' , ch) w):(return)
+
+string.append.end
+
+        define('string.lower(s)')                              :(string.lower.end)
+
+*       Convert argument to lower case.
+
+*STRING.LOWER*
+string.lower
+
+        string.lower = replace(s,&ucase,&lcase)                :(return)
+
+string.lower.end
+
+        define('spaces(line)c')                         :(string.spaces.end)
+
+*       Returns string which has ' ' in position _i_ if the _i_-th
+*	characer in _string_ is a space (' '), or '*' otherwise.
+
+        define('string.spaces(line)c')                         :(string.spaces.end)
+
+
+*STRING.SPACES*
+string.spaces
+
+	line len(1) . c					:f(return)
+	string.spaces = string.spaces (ident(c,' ') ' ', '*')		:(string.spaces)
+
+string.spaces.end
+
+        define('string.less(str,sub)before,after')             :(less.end)
+
+**      Less removes the first instance of each character in SUB from *str*,
+**      where SUB is a substring of *str*.
+
+*LESS*
+string.less
+        ident(str)                                      :s(return)
+        string.less = str
+
+string.less.ch
+        sub len(1) . ch =                               :f(return)
+        string.less break(ch) . before  ch rem . after
+        string.less = before after                             :(string.less.ch)
+
+string.less.end
+
+        define('string.prefix(str,pre)word')                   :(string.prefix.end)
+
+*       Prefix takes a list of space-separated words str and string.prefixes each
+*       with the string pre.
+
+*STRING.PREFIX*
+string.prefix
+
+        str = str ' ';* so each word followed by space
+
+string.prefix.1
+
+        str break(' ') . word span(' ')  =              :f(return)
+        add1(.string.prefixcount)
+        string.prefix = append(string.prefix, pre word,'A')           :(string.prefix.1)
+
+string.prefix.end
+
+	define('string.slice(str,first,last)')		:(string.slice.end)
+
+*STRING.SLICE*
+string.slice
+
+	string.slice = substr(str,first,last)		:(return)
+
+string.slice.end
+
+        define('string.upper(s)')                              :(string.upper.end)
+
+*       Convert argument to upper case.
+
+*STRING.UPPER*
+string.upper
+
+        string.upper = replace(s,&lcase,&ucase)                :(return)
+
+string.upper.end
+
+
+	define('string.frequency(string)')		:(string.frequency.end)
+
+*	Return map from the characters in a string to the number of times
+*	each occurs in the string.
+
+string.frequency
+	
+	string.frequency = map(50)
+
+string.frequency.next
+
+	string len(1) . c = 				:f(string.frequency.end)
+	map.put(string.frequency,c,map.get(string.frequency,c) + 1)	:(string.frequency.next)
+
+string.frequency.end
+
+*       This file extends SPITBOL by adding support for creating and operating
+*       on ASCII
+
+*	Defines:	ascii(line)
+*	Defines:	ascii.init(init)
+
+*	Uses:		Map
+        define('ascii(line)c,n,name,nul,num,pos')       :(ascii.end)
+
+*       Return the text of line with every ascii character identified.
+
+*ASCII*
+ascii
+        nul = substr(&alphabet,1,1)
+
+ascii.next
+        
+*       Add space after previous character if result not null.
+
+        ascii = differ(ascii) ascii ' '
+        c = substr(line,1,1)                            :f(ascii.done)
+        ident(c,nul)                                    :s(ascii.null)
+*       output = 'ascii c[' c ']'
+        line any('0123456789')                          :s(ascii.integer)
+        line any(&lcase &ucase)                         :s(ascii.letter)
+        line ' '                                        :s(ascii.space)
+
+*       Check for control character (code <=26)
+
+        &alphabet break(c) . pos                        :f(ascii.other)
+        pos = size(pos) 
+*       output = 'pos of [' c '] is [' pos ']'
+        gt(pos,26)                                      :s(ascii.other)
+        ascii = ascii g.ascii.name[c] '(^'  substr('ABCDEFGHIJKLMNOPQRSTUVWXYZ',pos,1) ')' 
+        line len(1) =                                   :(ascii.next)
+
+ascii.integer
+
+        line span('0123456789') . text =
+*       output = 'ascii num [' text ']'
+        ascii = ascii  text                             :(ascii.next)
+
+ascii.letter
+
+        line span(&lcase &ucase) . text =
+*       output = 'ascii letter [' text ']'
+        ascii = ascii  text                             :(ascii.next)
+
+ascii.null
+
+        ascii = ascii 'NUL'                             :(ascii.next)
+
+ascii.other
+                
+*       Here if none of the other cases apply, so just list the ascii name.
+
+        ascii = ascii g.ascii.name[c]                   
+        line = substr(line,2)                           :(ascii.next)
+
+ascii.space
+
+        line span(' ') . text =
+*       output = 'ascii space [' text ']'
+        
+        ascii =  ascii 'SPC'
+        ascii = gt(size(text),1) ascii 'SPC*' size(text)
+        ascii = ascii 
+                                                        :(ascii.next)
+ascii.done
+
+        ascii = trim(ascii)                             :(return)
+
+ascii.end
+
+        define('ascii.init(init)name,val')              :(ascii.init.end)
+
+*       Initialize maps for use by _ascii_.
+*       Since space (ascii 32) prints as space, use the name SPC for 32.
+
+*ASCII.INIT*
+ascii.init
+
+
+        ascii.init = map.map(
+.       '0:NUL 16:DLE 48:0 64:@ 80:P 96:`:112:p '
+.       '1:SOH 17:DC1 33:! 49:1 65:A 81:Q  97:a 113:q '
+.       '2:STX 18:DC2 34:" 50:2 66:B 82:R  98:b 114:r '
+.       '3:ETX 19:DC3 35:# 51:3 67:C 83:S  99:c 115:s '
+.       '4:EOT 20 DC4 36:$ 52:4 68:D 84:T 100:d 116:t '
+.       '5:ENQ 21:NAK 37:% 53:5 69:E 85:U 101:e 117:u '
+.       '6:ACK 22:SYN 38:& 54:6 70:F 86:V 102:f 118:v '
+.       "7:BEL 23:ETB 39:' 55:7 71:G 87:W 103:g 119:w "
+.       '8:BS  24:CAN 40:( 56:8 72:H 88:X 104:h 120:x '
+.       '9:HT  25:EM  41:) 57:9 73:I 89:Y 105:i 121:y '
+.       '10:LF 26:SUB 42:*:58 : 74:J 90:Z 106:j 122:z '
+.       '11:VT 27:ESC 43:+:59 ; 75:K 91:[ 107:k 123:{ '
+.       '12:FF 28:FS  44:,:60 < 76:L 92:\ 108:l 124:| '
+.       '13:CR 29:GS  45:-:61 = 77:M 93:] 109:m 125:} '
+.       '14:SO 30:RS  46:.:62 > 78:N 94:^ 110:n 126:~ '
+.       '15:SI 31:US  47:/:63 ? 79:O 95:_ 111:o 127:DEL ') 
+
+        g.ascii.name = map.map(128)
+        g.ascii.val = map.map(128)
         
 
-*       A set is a collection of values, in no particular order.
-*       SETL4  implements a set as a map for which the value
-*       of the elements of the set is "true."
+	map.loop(ascii.init)
 
+ascii.init.next
 
-	data('set(set.table,set.size,set.next)')
+	ent = map.next(ascii.init)			:(ascii.init.finis)
+	g.ascii.name[substr(&alphabet,+v + 1,1)] = name
+	g.ascii.val[name] = +val			:(ascii.init.next)
 
-	define('set.add(set,elem')			:(set.add.end)
 
-*	Add _elem_ to set, unless already present.
+*       Correct entry for 32 to be SPC, the space character
+*       Correct entry for 0 to be NUL, the NUL character
 
-
-set.add
-
-	elem = pair(set.size(set) = set.size(set) + 1,val)
-	set.add(set,set.size(set), val))		
-	set.add = elem					:(return)
-
-set.add.end
-
-	define('set.apply(set,f)elem,elem.new')	:(set.apply.end)
-
-*	_set.apply_ returns the set obtained by applying _f- to each elem in _set_.
-*       If _f_ is a string, it is evaluated using _eval_; otherwise _f_is called
-*       as a function.
-
-set.apply
-
-	set.apply = set.set(set.size(set))
-	set.loop(set)
-
-set.apply.next
-
-	elem = set.next(set)				:f(return)
-        elem.new = ident(datatype(f,'string)  apply(f,elem)
-        elem.new = ident(datatype(f,'code')  apply(f,elem))
-	set.put(set.apply,key(elem.new), value(elem.new)):(set.apply.next)
-
-set.apply.end
-
-
-        define('set.array(aray)i,key')                  :(set.array.end)
-
-*	Create a set defined by an array.
-*	If the array has one dimension then create a set
-*	from the array values.
-*	If the array has two dimensions, create a set using the
-*	array indice as the keys, and the correspong value as the
-*	values.
-
-set.array
-
-        set.array = set()
-        i = prototype(aray)
-        integer(i)                                      :s(set.array.one)
-
-*       Here to initialize from two-dimensional array
-
-set.array.next
-
-        key = aray[i = i + 1,1]                         :f(return)
-        set.put(set.aray,i,aray[i,2])                    :(set.array.next
-
-set.array.one
-
-*        Here to initialize set from one-dimensional array
-
-set.array.next
-
-        key = aray[i = i + 1]				:f(return)
-        set.add(set.array,key)                          :(set.array.next)
-
-
-set.array.end
-
-        define(‘set.domain(set)entry’)			:(set.domain.end)
-
-*       Return set with the keys in _set_.
-
-        set.loop(set)
-
-set.domain
-
-        entry = set.next(set)                           :f(return)
-        set.add(set.domain,ent)                         :(set.domain)
-
-set.domain.end
-
-	define('set.equal(set,oset)x')			:(set.equal.end)
-
-*	Tests if two sets are equal.
-
-set.equal
-
-	set.equal = false
-	ne(set.size(set),set.size(oset))		:s(return)
-
-*	Here if same size, so test if all elements in one
-*	set are in the other.
-
-	set.loop(set)
-
-seq.equal.next
-
-	x = set.next(set)				:f(set.equal.done)
-	seq.equal = set.member(oset,x)			:s(set.equal.next)f(return)
-
-set.equal.done
-
-	set.equal = true				:(return)
-
-set.equal.end
-
-        define(‘set.forall(set’)                    :(set.forall.end)
-
-*       Returns set defined as follows:
-*       Iterare over _set_. For each entry _ent_, invoke f(ent) and use the
-*       result to define a new entry in the result.
-
-set.forall
-
-        set.forall = set()
-        set.loop(set)
-
-set.forall.next
-
-	set.forall = apply(f,set.forall,set.next(set))          
-.	:f(return)s(set.forall.next)
-
-
-set.forall.end
-
-        define(‘set.foreach(set,f)entry’)               :(set.foreach.end)
-
-*        Returns a set defined by iterating over the entries in _set_, and applying
-*        f to the entry to define a new entry in the result.
-
-set.foreach
-
-        set.foreach = set()
-
-set.foreach.next
-
-        entry = apply(f,set.next(set))                    :f(return)
-        set.put(set.foreach, entry.key(ent), entry.value(ent)):(set.foreach.next)
-
-set.foreach.end
-
-	define('set.in(set,elem)')				:(set.in.end)
-
-*	Test if _elem_ is a member of set _set_.
-
-set.in
-
-        set.in = (differ(set.table[elem] true, false)             :(return)
-
-set.in.end
-
-        define('set.intersection(a,b)elem')                                   :(set.or.end)
-
-*       Returns intersection of sets _a_ and _b_.
-
-set.intersection
-
-*	Arrange so set a is the smaller set.
-
-	le(set.size(a),set.size(b))				:s(set.intersection.a)
-	set.intersection = a 
-	a = b
-	b = set.intersection
-
-set.intersection.a
-
-*	Make copy of set _a_ by making copy of _a_'s table.
-
-	set.intersection = set.new(,set.size(a))
-	set.table(set.intersection) = copy(set.table(a))
-
-	set.loop(b)
-
-set.intersection.b
-
-	elem = set.next(b)					:f(return)
-
-*	Skip this entry if not in set _a_.
-	
-	set.notin(a,elem)					:s(set.intersection.b)
-	set.add(set.intersection,elem)				:(set.intersection.b)
-	
-set.intersection.end
-
-	define('set.less(a,b)elem')			:(set.less.end)
-
-*	Returns set define by set of elements of _a_ that are not in _b_.
-
-set.less
-
-	set.less = set.new()
-	set.loop(a)
-
-set.less.a
-
-	elem = set.next(a)				:f(return)
-	set.in(b,elem)					:s(set.less.a)
-	set.add(set.less,elem)				:s(set.less.a)
-
-set.less.end
-
-        define('set.loop(set)')                    :(set.loop.end)
-
-*       Returns an iterator for _set_. Use _set.next_ to retrieve
-*       the next entry in set. _set.next_ fails when no more entries remain.
-
-set.loop
-
-        set.index(set) = 0
-
-set.loop.order.inc
-
-        set.array(set) = convert(set.table(set),'array'):(set.done)
-
-set.loop.end
-
-        define('set.new(init,n)i,key,str,valr')         :(set.new.end)
-
-*       Create a new set.
-
-*       A set is a list of values *  separated by spaces.
-
-*               set       _init_ is a list consisting of a list of key/value pairs,
-*                               with a colon (:) between the key and value.
-
-set.new
-
-        set.new = ident(init) set(table(128))           :s(return)
-        kind = ident(kind) 'set'
-        kind
-        output = 'enter set.new [' init ']'
-        init break(':')                                	:s(set.new.keyval)
-        set.new = set(table(i))                         :(return)
-
-set.new.keyval
+        g.ascii.name[] = 'NUL'
+        g.ascii.val['NUL'] = 0  
+        g.ascii.name[' '] = 'SPC'
+        g.ascii.val['SPC'] = 32                         :(return)
         
-        set.new = set(table(128))
+ascii.init.end
 
-set.new.keyval.next
+* LINE.SBL
 
-        init break(':') . key ':' break(' ') . val ' ' =	:f(return)
-        set.put(set.new,key,val)                        :(set.new.keyval.next)
+*	Lines can be just strings or, in some cases, a line is represented by a pair:
 
-set.new.end
+	data('line(mark,text')
 
-        define('set.next(set)')                         :(set.next.end)
+*	where
 
-*       _set.next_ returns the next entry in a set, or fails if no entries remain.
+*		_mark_ is defined by the value returned by an instance
+*		of the _eval_ function ...
 
-set.next
+*		_text_ is the text of the line.
 
-        le(set.index(set) = set.index(set) + 1, set.size(set)):f(freturn)
-        set.next = entry(set.array[set.index(set),1],set.array[set.index(set),2]):(return)
+        define('reader(filename,expr)line,makr')               :(reader.end)
 
-set.next.end
+*       Return a sequence of the lines in the file specified by _filename_.
+*	If _expr_ is not null, then _eval_ is called just
+*	after each line is read, with the variable _pair_ set to
+*	the associated pair. If _eval_ fails the line is skipped. 
+*	Otherwise returns a new pair to be entered in the input 
+*	sequence.
 
-        define('set.notin(x,s)')                               :(set.notin.end)
 
-*       Returns _true_ iff _x_ is is not element in _s_.
+*READER*
+reader
 
-set.notin
+        differ(filename) input(.file,g.channel.temp,filename):s(reader.opened)
+        out('unable to open reader file ' filename '.') :(freturn)
 
-        set.notin = (ident(set.table[x]) true, false)             :(return)
+reader.opened
 
-set.notin.end
+        reader = map(1024)
 
-        define('set.size(set)')                                 :(set.size.end)
+reader.next
 
-set.size
+        map.add(map, (ident(filename) input, file))     :f(reader.eof)s(reader.next)
 
-        set.size = set.num(set)                                 :(return)
+reader.eof
 
-set.size.end
+*       Here at end of file; close temporary file if one was needed.
 
-        define('set.union(a,b)elem')                                   :(set.or.end)
+        differ(filename) endfile(g.channel.temp)        :(return)
 
-*       Returns union of sets _a_ and _b_.
+reader.end
 
-set.union
+	define('reader.string(str,delim)line')			:(reader.string.end)
 
-*	Arrange so set a is the larger set.
+*	Returns a sequence of the lines in _str_,
+*	where the delimiter character _delim_ is used to mark 
+*	the end of a line. One intended use of _reader.string_ 
+*	is to assist in the construction of test programs.
 
-	ge(set.size(a),set.size(b))				:s(set.union.a)
-	set.union = a 
-	a = b
-	b = set.union
+reader.string
 
-set.union.a
+	delim = ident(delim) '/'
+	reader.string = map.sequence()
 
-*	Make copy of a by making copy of a's table.
+reader.string.next
 
-	set.union = set.new(,set.size(a))
-	set.table(set.union) = copy(set.table(a))
+	str break(delim) . line delim =			:f(return)
+	add(reader.string,line)				:(reader.string.next)
 
-	set.loop(b)
+reader.string.end
 
-set.union.b
+        define('tokens(line)type,pos,text,lineno')                     (tokens.end)
 
-	elem = set.next(b)					:f(return)
-	set.add(set.union,elem)					:(set.union.b)
+
+*       Tokens scans _line_ and returns a table of the tokens in the line.
+*       The table has keys from 1..n, where _n_ is the number of tokens found. The
+*       key '#' gives the number of entries in the table, and is used for no other purpose.
+*       For example, a scan of an empty line results in tokens['#'] having the value zero.
+
+*       This function is an instance of what is called a tokensical scanner, or tokenizer,
+*        which is the first stage in a programming language compiler, or for any program 
+*       that processes text files with a specified structure.
+
+*       Each token is represented as an instance of the datatype _token_ as follows:
+
+        data('token(lineno,pos,type,text)')
+
+*       where:
+*               _lineno_        is the line number within the file;
+*               _pos_           is the position of the first character of the token in the line;
+*               _type_          is the token's type, as described below; and
+*               _text_          is the text of the token.
+
+*       The type is represented by a single character, as follows:
+
+*               'c'             comment, indicated by asterisk (*) in the first column.
+*                               The text consists of the entire line.
+*               'i'             integer, consisting of one or more digits ('0123456789')
+*               'l'             left opener, one of '(<[{'
+*               'p'             punctation, one of '.;,?!', or single quote ('), or double quote ("),
+*               'o'             other printable character, one of '~@#$%^&*_-+=`'.
+*                'q'             quoted string, starting witn '"', and continuing to the next instance of the opening quote character.
+*               'r'             right closer, one of ')>]}'
+*               's'             space, consistine of one or more spaces (spaces)
+*               't'             tab character
+*               'u'             unprintable character, for example control-k
+*               'w'             word, consisting of one of more letters in upper or lower case or
+*                               "'" or "_".
+
+*       The longest possible string meeting the rules is used when building a token.
+*       For example, 'abc' is just the word 'abc', not 'a' followed by 'bc', and so forth.
+
+*       It is recommended that the tab character NOT be used as an abbreviation for one or more spaces
+*       in the input file. If tabs are used, then _pos_ is ill-defined. If tabs are not used, then _pos_
+*       indicates the true position in the line of the first character of the token, and so error messages
+*       and references to the token will be exact. For example, _pos_ could be used to indicate where to
+*       give emphasis to a token by underlining it, or enclosing it in '_' to generate markdown format, and so forth.
+
+
+
+tokens  
+
+        tokens = map.sequence()
+        line '*'                                        :f(tokens.next)
+        type = 'c'
+        text = line                                                             
+        line =                                          :(tokens.new)
+
+tokens.next
+
+        line ' '                                        :s(tokens.space)
+        line any('0123456789')                          :s(tokens.integer)
+        line any('(<[{')                                :s(tokens.left)
+        line any('.;,?!')                               :s(tokens.punctuation)
+        line '"'                                        :s(tokens.quote)
+        line any('~@#$%^&*_-+=')                                        :s(tokens.other)
+        line any(')>]}')                                :s(tokens.right)
+        line char(9)                                    :s(tokens.tab)
+        line any(&lcase &ucase)                         :s(tokens.word)
+
+*       Here for unprintable
+                                                        :(tokens.unprintable)
+
+tokens.integer
+
+        type = 'i'
+        line span('0123456789') . text =                :(tokens.new)
+
+tokens.punctuation 
+
+        type = 'p'                                       :(tokens.character)
+
+tokens.other
+
+        type = 'o'                                      :(tokens.character)
+
+*tokens.other
+
+        type = 'o'                                      :(tokens.character)
+
+tokens.quote
+
+        type = 'q'
+        line '"' break('"') . text '"' =        
+        text = '"' text '"'                             :(tokens.new)
+
+tokens.right
+
+        type = 'r'                                      :(tokens.character)
+
+tokens.space
+
+        type = 's'
+        line span(' ')  . text =                        :(tokens.new)
+
+tokens.tab
+
+        type = 't'                                      :(tokens.character)
+
+tokens.word
+
+*FIX*
+        type = 'w'
+        line span(&ucase &lcase "_" "'") . text =      :(tokens.new)
+
+map.sbl:1okens.tab
+
+        type = 't'                                      :(tokens.character)
+
+tokens.character
+
+*       Here if token is single character.
+
+        line len(1) . text                              :(tokens.new)
+
+tokens.new
+
+        map.add(tokens,token(lineno,pos,type,text))     :(tokens.next)
+
+tokens.end
+
+        define('words(line)word')                        :(words.end)
+
+*       Return sequence of the words in line, fail if no words.
+
+*WORDS*
+words
+
+        words = map()
+        line =  line ' '
+
+words.next
+
+        line break(' ') . word ' ' =                     :f(return)
+        map.add(words,word)                             :(words.next)
+
+words.end
+
+       define('writer(lines)'       )                  :(writer.end)
+
+*       Writes a sequence of the lines in the sequence _lines_
+*	to standard output.
+
+writer
+
+	lines = copy(lines)
+	map.loop(lines)
+
+writer.next
 	
-set.union.end
+	output = map.next(lines)				:f(return)s(writer.next)
+
+writer.end
+
+* NUMBER.SBL
+
+*       Copyright 2017, David Shields
+*       Licensed under the MIT license.
+
+*       This file extends SPITBOL by adding support for creating and operating
+*       on maps.
+
+        define('number.cardinal(n,word)')                      :(number.cardinal.end)
+
+*       If N is one, returns 'one' followed by WORD.
+*       Otherwise returns NUMBER(N) followed by WORD and 'S'.
+
+number.cardinal
+
+        number.cardinal = (eq(n,1) 'one ' word, number(n) ' '  word 's'):(return)
+
+number.cardinal.end
+
+
+        define('number.number(n)')                             :(number.end)
+
+**      If N can be represented as a string of one or two words
+**      then return that string. Otherwise return N.
+
+number.number
+        number.number = eq(n) 'zero'                           :s(return)
+        number.number = g.numbers[n]
+        differ(number.number)                                  :s(return)
+        number.number = n                                      :(return)
+number.number.end
+
+        define('number.thousands(s)n')                         :(number.thousands.end)
+
+*       Format s with comma's every three digits from right.
+
+*THOUSANDS*
+number.thousands
+
+        n = size(s)
+        number.thousands = le(n,3) s                           :s(return)
+        number.thousands = number.thousands(substr(s,1,n - 3)) ',' substr(s, n - 2, 3):(return)
+
+number.thousands.end 
+*       Copyright 2017, David Shields
+*       Licensed under the MIT license.
+
+*       This file extends SPITBOL by adding support for creating and operating
+*       on maps.
+
+        define('random(n)')                             :(random.end)
+
+*       Return integer uniformly distributed in 1,2,...,n.
+*       If n=0 returns real uniformly distributed in the interval [0,1].
+*       The Algorithm is based on that in section 16.1 of "Algorithms in SNOBOL4,"
+*       James F. Gimpel, John Wiley and Sons, 1976.
+
+*RANDOM*
+random
+
+        g.random_var = remdr(g.random_var * 4676, 414971)
+        random  = g.random_var / 414971.0
+        random = ne(n) convert(random * n,'integer') + 1
+                                                        :(return)
+random.end
+
+        define('random.seed()s,c')                       :(random.seed.end)
+
+*       Compute seed for random number generator from date and time.
+
+*RANDOMSEED*
+random.seed
+        g.random_var =
+        s = g.date
+        s = replace(s,'/:-','   ')
+
+*       Get all the digits in s.
+
+random.seed.loop
+
+        s len(1) . c =                                  :f(random.seed.done)
+        ident(c,' ')                                    :s(random.seed.loop)
+        g.random_var = g.random_var c                   :(random.seed.loop)
+
+random.seed.done
+
+*       Reverse the seed so digits depending on time come first.
+
+        g.random_var = +reverse(g.random_var    )
+                                                        :(return)
+
+random.seed.end
+
+*       Copyright 2017, David Shields
+*       Licensed under the MIT license.
+
+*       This file extends SPITBOL by adding support for creating and operating
+*       on sequences.
+
 
 *       Copyright 2017, David Shields
 *       Licensed under the MIT license.
@@ -1733,232 +1938,9 @@ array.slice.end
 *       Licensed under the MIT license.
 
 
-*       This file extends SPITBOL by adding support for creating and operating
-*       on stacks.
 
-
-*       Stacks
-*       ------
-
-*       A stack is a sequence with a limited set of operations.
-
-        data('stack(stack.table,stack.size')
-
-*               _stack.table_   is the table used to maintain the stack.
-
-*               _stack.size_    is the number of entries in the stack.
-
-        define('stack.new()')                           :(stack.new.end)
-
-*       _stack_ returns a new empty stack.
-
-stack
-
-        stack = stack(table(16))                        :(return)
-
-stack.new.end
-
-        define('stack.empty(stack)')                    :(stack.empty.end)
-
-*       _stack.empty_ tests if the stack is empty.
-
-stack.empty
-
-        ne(stack.size(stack))                             :s(return)f(freturn)
-
-stack.empty.end
-
-	define('stack.peek(stack,i)val')		:(stack.peek.end)
-
-*	Returns value of entry at offset _i_ from the top of the
-*	stack, of fails if _i_ is not a valid stack index.
-*	The top of the stack has index 0, the entry below it has offset 1,
-*	and so forth.
-
-stack.peek
-	
-	lt(i,0) gt(i,stack.size(stack))			:s(freturn)
-	stack.peek = stack.table(stack)[stack.size(stack) = i] :(return)
-
-stack.peek.end
-
-        define('stack.pop(stack)')                      :(stack.pop.end)
-
-*       _stack.pop_ pops the top of the stack and returns its value,
-*       unless the stack is empty in which case stack.pop fails.
-
-stack.peek
-
-        eq(stack.size(stack))                             :s(freturn)
-        stack.pop = stack.table(stack)[stack.size(stack) - offset]	:(return)
-
-stack.peek.end
-
-	define('stack.poke(stack,val)')			:(stack.poke.end)
-
-*	Sets value of entry at offset _i_ from the top of the
-*	stack to have vaulue _val_, of fails if _i_ is not a valid stack index.
-*	The top of the stack has index 0, the entry below it has offset 1,
-*	and so forth.
-*	_Stack.poke_ returns _val_.
-
-stack.poke
-	
-	lt(i,0) gt(i,stack.size(stack))			:s(freturn)
-        eq(stack.size(stack))                        	:s(freturn)
-	stack.table[stack.size(stack) - i] =  val;	:(return)
-
-stack.poke.end
-
-        define('stack.pop(stack)')                      :(stack.pop.end)
-
-*       _stack.pop_ pops the top of the stack and returns its value,
-*       unless the stack is empty in which case stack.pop fails.
-
-stack.pop
-
-	stack.pop = stack.table(stack)[stack.size(stack)]
-        stack.put(stack,stack.size(stack),'')
-        stack.size(stack) = stack.size(stack) - 1           :(return)
-
-stack.pop.end
-
-        define('stack.push(stack,val)')                  :(stack.push.end)
-
-*       _stack.push' pushes _val_ on to the stack.
-
-stack.push
-
-        stack.add(stack,val)                              :(return)
-
-stack.push.end
-
-        define('stack.top(stack)')                      :(stack.top.end)
-
-*       _stack.top_ returns the top entry in the stack.
-
-stack.top
-
-        stack.top = stack.get(stack,stack.size(stack))      :(return)
-
-stack.top.end
 *       Copyright 2017, David Shields
 *       Licensed under the MIT license.
-
-*       This file extends SPITBOL by adding support for providing additional
-*	functions and constants for working with strings.
-*       on strings..
-
-        define('string.append(str,w,ch)')                      :(string.append.end)
-
-*	_string.append_ string.appends _ch_, or ' ' if _ch_ is null, to _str_
-*	and then string.appends _w_.
-
-*STRING.APPEND*
-string.append
-
-        string.append = (ident(str) w, str (ident(ch) ' ' , ch) w):(return)
-
-string.append.end
-
-        define('string.lower(s)')                              :(string.lower.end)
-
-*       Convert argument to lower case.
-
-*STRING.LOWER*
-string.lower
-
-        string.lower = replace(s,&ucase,&lcase)                :(return)
-
-string.lower.end
-
-        define('spaces(line)c')                         :(string.spaces.end)
-
-*       Returns string which has ' ' in position _i_ if the _i_-th
-*	characer in _string_ is a space (' '), or '*' otherwise.
-
-        define('string.spaces(line)c')                         :(string.spaces.end)
-
-
-*STRING.SPACES*
-string.spaces
-
-	line len(1) . c					:f(return)
-	string.spaces = string.spaces (ident(c,' ') ' ', '*')		:(string.spaces)
-
-string.spaces.end
-
-        define('string.less(str,sub)before,after')             :(less.end)
-
-**      Less removes the first instance of each character in SUB from *str*,
-**      where SUB is a substring of *str*.
-
-*LESS*
-string.less
-        ident(str)                                      :s(return)
-        string.less = str
-
-string.less.ch
-        sub len(1) . ch =                               :f(return)
-        string.less break(ch) . before  ch rem . after
-        string.less = before after                             :(string.less.ch)
-
-string.less.end
-
-        define('string.prefix(str,pre)word')                   :(string.prefix.end)
-
-*       Prefix takes a list of space-separated words str and string.prefixes each
-*       with the string pre.
-
-*STRING.PREFIX*
-string.prefix
-
-        str = str ' ';* so each word followed by space
-
-string.prefix.1
-
-        str break(' ') . word span(' ')  =              :f(return)
-        add1(.string.prefixcount)
-        string.prefix = append(string.prefix, pre word,'A')           :(string.prefix.1)
-
-string.prefix.end
-
-	define('string.slice(str,first,last)')		:(string.slice.end)
-
-*STRING.SLICE*
-string.slice
-
-	string.slice = substr(str,first,last)		:(return)
-
-string.slice.end
-
-        define('string.upper(s)')                              :(string.upper.end)
-
-*       Convert argument to upper case.
-
-*STRING.UPPER*
-string.upper
-
-        string.upper = replace(s,&lcase,&ucase)                :(return)
-
-string.upper.end
-
-
-	define('string.frequency(string)')		:(string.frequency.end)
-
-*	Return map from the characters in a string to the number of times
-*	each occurs in the string.
-
-string.frequency
-	
-	string.frequency = map(50)
-
-string.frequency.next
-
-	string len(1) . c = 				:f(string.frequency.end)
-	map.put(string.frequency,c,map.get(string.frequency,c) + 1)	:(string.frequency.next)
-
-string.frequency.end
 
 * UTIL.STL
 
