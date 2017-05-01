@@ -1,6 +1,29 @@
 *       Copyright 2017, David Shields
 *       Licensed under the MIT license.
 
+
+*	Define '#' as unary operator that returns size of its operand.
+
+
+	define('setl4.size(s)dt')			:(setl4.size.end)
+
+*	Return size of operand.
+
+
+setl4.size
+	
+	dt = datatype(s)
+
+	output = 'enter setl4.size ' dt
+	setl4.size = ident(dt,'string') size(s)			:s(return)
+	setl4.size = ident(dt,'set') set.size(s)		:s(return)
+	setl4.size = ident(dt,'sequence') sequence.size(s)	:s(return)
+	output = 'setl4.size unknown type ' dt :(end)
+
+setl4.size.end
+
+	opsyn('#','setl4.size',1)
+
 *       Sets
 *       ____
         
@@ -118,7 +141,7 @@ set.equal.done
 
 set.equal.end
 
-        define('set.forall(set')                    :(set.forall.end)
+        define('set.forall(set)')                    :(set.forall.end)
 
 *       Returns set defined as follows:
 *       Iterare over _set_. For each entry _ent_, invoke f(ent) and use the
@@ -163,7 +186,7 @@ set.in
 
 set.in.end
 
-        define('set.intersection(a,b)elem')                                   :(set.or.end)
+        define('set.intersection(a,b)elem')                                   :(set.intersection.end)
 
 *       Returns intersection of sets _a_ and _b_.
 
@@ -286,7 +309,7 @@ set.size
 
 set.size.end
 
-        define('set.union(a,b)elem')                                   :(set.or.end)
+        define('set.union(a,b)elem')                                   :(set.union.end)
 
 *       Returns union of sets _a_ and _b_.
 
@@ -419,6 +442,7 @@ map.apply.end
 *	value returned above.
 
 map.apply.entry
+map.apply.entry.end
 
         define('map.domain(entry)')			:(map.domain.end)
 
@@ -518,7 +542,7 @@ map.get
 
 map.get.end
 
-	define('map.inverse)entry')			:(map.inverse.end)
+	define('map.inverse(map)entry')			:(map.inverse.end)
 
 *	_map.inverse_ returns the inverse of a map. The inverse is
 *	a map with the keys and values of _map_ reversed. 
@@ -633,7 +657,7 @@ map.next
 
 map.next.end
 
-        define('map.range(map)')                    :(map.range.map)
+        define('map.range(map)')                    :(map.range.end)
 
 
 *NOTE This should be in SET
@@ -887,7 +911,7 @@ sequence.next
 
 sequence.next.end
 
-        define('sequence.range(sequence)')                    :(sequence.range.sequence)
+        define('sequence.range(sequence)')                    :(sequence.range.end)
 
 
 *        Return map with the values in _sequence_ as its members.
@@ -934,7 +958,7 @@ sequence.put.end
 
 *       A stack is a sequence with a limited set of operations.
 
-        data('stack(stack.table,stack.size')
+        data('stack(stack.table,stack.size)')
 
 *               _stack.table_   is the table used to maintain the stack.
 
@@ -1174,13 +1198,13 @@ prime
 
 prime.end
 
-        define('integer(n)')                                    :(integer.end)
-
-*       Returns set of integers in the range 1 ... n
-
-integer
-
-integer.end
+*        define('integer(n)')                                    :(integer.end)
+*
+**       Returns set of integers in the range 1 ... n
+*
+*integer
+*
+*integer.end
 
 
 *       This file extends SPITBOL by adding support for providing additional
@@ -1226,7 +1250,7 @@ string.spaces
 
 string.spaces.end
 
-        define('string.less(str,sub)before,after')             :(less.end)
+        define('string.less(str,sub)before,after')             :(string.less.end)
 
 **      Less removes the first instance of each character in SUB from *str*,
 **      where SUB is a substring of *str*.
@@ -1426,7 +1450,7 @@ ascii.init.end
 
 *	Lines can be just strings or, in some cases, a line is represented by a pair:
 
-	data('line(mark,text')
+	data('line(mark,text)')
 
 *	where
 
@@ -1500,11 +1524,11 @@ reader.string.end
 
 *       Each token is represented as an instance of the datatype _token_ as follows:
 
-        data('token(lineno,pos,type,text)')
+        data('token(lineno,ndx,type,text)')
 
 *       where:
 *               _lineno_        is the line number within the file;
-*               _pos_           is the position of the first character of the token in the line;
+*               _ndx_           is the ndxition of the first character of the token in the line;
 *               _type_          is the token's type, as described below; and
 *               _text_          is the text of the token.
 
