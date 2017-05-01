@@ -1510,7 +1510,7 @@ reader.string.next
 
 reader.string.end
 
-        define('tokens(line)type,pos,text,lineno')                     (tokens.end)
+        define('tokens(line)type,pos,text,lineno')                     :(tokens.end)
 
 
 *       Tokens scans _line_ and returns a table of the tokens in the line.
@@ -1693,7 +1693,7 @@ number.cardinal
 number.cardinal.end
 
 
-        define('number.number(n)')                             :(number.end)
+        define('number.number(n)')                             :(number.number.end)
 
 **      If N can be represented as a string of one or two words
 **      then return that string. Otherwise return N.
@@ -2113,5 +2113,5 @@ signature
 	g.puzzle = 'spot'
 	g.signature = string.frequency(g.puzzle)
 	:(return)
-signaure.end
+signature.end
 
