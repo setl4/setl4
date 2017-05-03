@@ -23,6 +23,86 @@
         false = 0
         true = 1
 
+*       Sets
+*       ____
+        
+
+*       A set is a collection of values, in no particular order.
+*       SETL4  implements a set as a map for which the value
+*       of the elements of the set is "true."
+
+
+	data('set(set.table,set.size,set.next)')
+
+	define('set.add(set,elem)')			:(set.add.end)
+
+*	Add _elem_ to set, unless already present.
+
+
+*       Maps: Functions
+*       --------------
+
+*       In mathematics, a map, or function, is a set of ordered pairs that define a relation between
+*       the first element of a pair, called the domain value, and the second value of the pair, called
+*       the range value.
+
+*	A _pair_ joins two values together. 
+
+        data('pair(first,second)')
+
+*       The SPITBOL datatype TABLE provides the machinery to implement maps.
+*       SPITBOL provides no way to determine the number of domain values, or size, of
+*       a map other than converting the map to an array, which is only way to iterate
+*       over a map.
+
+*       SETL4 represents a map using the following data structures:
+
+*       _entry_ is used to maintain a key/value pair.
+
+        data('entry(key,value)')
+
+*       Sequences.
+*       ----------
+
+*       A sequence is a map defined on the positive integers: 1,2, ... ,n.
+
+        data('sequence(sequence.table,sequence.next,sequence.size)')
+
+*               _sequence.size_ is the length of the sequence.
+
+*               _sequence.table_ is the map representing the sequence.
+
+*               _sequence.next_ is used to iterate over the sequence.
+
+
+*       Stacks
+*       ------
+
+*       A stack is a sequence with a limited set of operations.
+
+        data('stack(stack.table,stack.size)')
+
+*               _stack.table_   is the table used to maintain the stack.
+
+*               _stack.size_    is the number of entries in the stack.
+
+
+*	Lines
+*	-----
+
+*	Lines can be just strings or, in some cases, a line is represented by a pair:
+
+	data('line(mark,text)')
+
+*	where
+
+*		_mark_ is defined by the value returned by an instance
+*		of the _eval_ function ...
+
+*		_text_ is the text of the line.
+
+*	For example, the _reader_ function reads a file and returns a sequence of _lines_.
+
         define('false(e)')                              :(false.end)
 
 *       Returns true if its argument is false, or else false.
@@ -94,7 +174,13 @@ even.end
 
 *	Returns n! = n*(n-1)*(n-2) ... 1
 
-        define('odd(n)')                                  :(odd.end)
+factorial
+
+	factorial = (eq(n,1) 1, n * factorial(n -1))	:(return)
+
+factorial.end
+
+        define('odd(n)')                           	:(odd.end)
 
 *       Returns true iff n is odd.
 
@@ -594,10 +680,10 @@ map.loop.end
 *                               with a colon (:) between the key and value.
 
 map.new
+	ouput = 'enter map.new'
 
         map.new = ident(init) map(table(128))           :s(return)
         kind = ident(kind) 'map'
-        kind
         output = 'enter map.new [' init ']'
         init break(':')                                	:s(map.new.keyval)
         map.new = map(table(i))                         :(return)
@@ -1695,18 +1781,6 @@ stack.top
 
 stack.top.end
 
-        define('tokens(line)type,pos,text,lineno')                     :(tokens.end)
-
-
-*       Tokens scans _line_ and returns a table of the tokens in the line.
-*       The table has keys from 1..n, where _n_ is the number of tokens found. The
-*       key '#' gives the number of entries in the table, and is used for no other purpose.
-*       For example, a scan of an empty line results in tokens['#'] having the value zero.
-
-*       This function is an instance of what is called a tokensical scanner, or tokenizer,
-*        which is the first stage in a programming language compiler, or for any program 
-*       that processes text files with a specified structure.
-
 *       Each token is represented as an instance of the datatype _token_ as follows:
 
         data('token(lineno,ndx,type,text)')
@@ -1721,29 +1795,55 @@ stack.top.end
 
 *               'c'             comment, indicated by asterisk (*) in the first column.
 *                               The text consists of the entire line.
+
 *               'i'             integer, consisting of one or more digits ('0123456789')
+
 *               'l'             left opener, one of '(<[{'
+
 *               'p'             punctation, one of '.;,?!', or single quote ('), or double quote ("),
+
 *               'o'             other printable character, one of '~@#$%^&*_-+=`'.
-*                'q'             quoted string, starting witn '"', and continuing to the next instance of the opening quote character.
+
+*                'q'            quoted string, starting witn '"', and continuing 
+*				to the next instance of the opening quote character.
+
 *               'r'             right closer, one of ')>]}'
+
 *               's'             space, consistine of one or more spaces (spaces)
+
 *               't'             tab character
+
 *               'u'             unprintable character, for example control-k
-*               'w'             word, consisting of one of more letters in upper or lower case or
-*                               "'" or "_".
+
+*               'w'             word, consisting of one of more letters in 
+*				upper or lower case or "'" or "_".
 
 *       The longest possible string meeting the rules is used when building a token.
 *       For example, 'abc' is just the word 'abc', not 'a' followed by 'bc', and so forth.
 
-*       It is recommended that the tab character NOT be used as an abbreviation for one or more spaces
-*       in the input file. If tabs are used, then _pos_ is ill-defined. If tabs are not used, then _pos_
-*       indicates the true position in the line of the first character of the token, and so error messages
-*       and references to the token will be exact. For example, _pos_ could be used to indicate where to
-*       give emphasis to a token by underlining it, or enclosing it in '_' to generate markdown format, and so forth.
+*       It is recommended that the tab character NOT be used as an 
+*	abbreviation for one or more spaces in the input file. If tabs 
+*	are used, then _pos_ is ill-defined. If tabs are not used, then 
+*	_pos_ indicates the true position in the line of the first character 
+*	of the token, and so error messages and references to the 
+*	token will be exact.  For example, _pos_ could be used to indicate 
+*	where to give emphasis to a token by underlining it, or enclosing 
+*	it in '_' to generate markdown format, and so forth.
 
 
+        define('tokens(line)type,pos,text,lineno')                     :(tokens.end)
 
+
+*       Tokens scans _line_ and returns a table of the tokens in the line.
+*       The table has keys from 1..n, where _n_ is the number of tokens found. The
+*       key '#' gives the number of entries in the table, and is used for no other purpose.
+*       For example, a scan of an empty line results in tokens['#'] having the value zero.
+
+*       This function is an instance of what is called a tokensical scanner, or tokenizer,
+*        which is the first stage in a programming language compiler, or for any program 
+*       that processes text files with a specified structure.
+
+*TOKENS*
 tokens  
 
         tokens = map.sequence()
@@ -1778,7 +1878,7 @@ tokens.punctuation
 
 tokens.other
 
-        type = 'o'                                      :(tokens.character)i
+        type = 'o'                                      :(tokens.character)
 
 *tokens.other
 
@@ -1866,4 +1966,3 @@ error
 *       &dump = 3
                                                         :(end)
 error.end
-        
