@@ -1,10 +1,6 @@
 *       Copyright 2017, David Shields
 *       Licensed under the MIT license.
 
-*	Define '#' as unary operator that returns size of its operand.
-
-	opsyn('#','setl4.size',1)
-
 *       Boolean Logic
 *       -------------
 
@@ -32,12 +28,7 @@
 *       of the elements of the set is "true."
 
 
-	data('set(set.table,set.size,set.next)')
-
-	define('set.add(set,elem)')			:(set.add.end)
-
-*	Add _elem_ to set, unless already present.
-
+	data('set(set.table,set.count,set.next)')
 
 *       Maps: Functions
 *       --------------
@@ -45,6 +36,7 @@
 *       In mathematics, a map, or function, is a set of ordered pairs that define a relation between
 *       the first element of a pair, called the domain value, and the second value of the pair, called
 *       the range value.
+
 
 *	A _pair_ joins two values together. 
 
@@ -61,14 +53,25 @@
 
         data('entry(key,value)')
 
+	data('map(map.table,map.count,map.next)')
+
+*	where
+
+*		_map.table_ is the table used to maintain the key/value pairs of the map.
+
+*		_map.count_ is the current size of the map.
+
+*		_map.next_ is used when iterating over the map.
+
+
 *       Sequences.
 *       ----------
 
 *       A sequence is a map defined on the positive integers: 1,2, ... ,n.
 
-        data('sequence(sequence.table,sequence.next,sequence.size)')
+        data('sequence(sequence.table,sequence.next,sequence.count)')
 
-*               _sequence.size_ is the length of the sequence.
+*               _sequence.count_ is the length of the sequence.
 
 *               _sequence.table_ is the map representing the sequence.
 
@@ -443,79 +446,23 @@ string.upper
 
 string.upper.end
 
-        define('map.add(map,val)entry')                 :(map.add.end)
-
-*	NOTE: should move this to seq.sbl
-map.add
-
-	entry = (map.size(map) = map.size(map) + 1,val)
-	map.put(map,map.size(map), val)		
-	map.add = entry					:(return)
-
-map.add.end
-
-	define('map.apply(map,f)entry,pair,map.apply.result')	:(map.apply.end)
-
-*	_map.apply_ returns the map obtained by applying _f- to each entry in _map_.
-*       If _f_ is a string, it is evaluated using _eval_; otherwise _f_is called
-*       as a function.
-*	_map.apply_ returns a pair, where the first component in the new entry,
-*	and the second argument is a value defined by the previous use of apply to _f_.
-*	This allows the computation of a value defined by the iteration.
-
-map.apply
-
-	map.apply.map = map.map(map.size(map))
-	map.loop(map)
-	result =
-
-map.apply.next
-
-	entry = map.next(map)				:f(map.apply.done)
-	pair = pair(map.apply.entry(entry,result))
-	map.put(map.apply.map,first(pair), second(pair)):(map.apply.next)
-
-map.apply.done
-
-	map.apply = pair(map.apply.map,map.apply.result)	:(return)
-
-map.apply.end
-
-	define('map.apply.entry(f,entry)')		:(map.apply.entry.end)
-
-*	Return a pair entry as follows:
-
-*	If _f_ is a string, eval(f) must evaluate to a pair defining
-*	new entry.
-
-*	If _f_ is a function, then _f(entry)_ must return a pair
-*	defining the new entry.
-
-*	In either case, the first element of the pair is set to the
-*	value returned above.
-
-map.apply.entry
-map.apply.entry.end
-
-        define('map.domain(entry)')			:(map.domain.end)
+        define('map.domain(map)entry)')			:(map.domain.end)
 
 *       Return set with the keys in _map_.
-*	NOTE: SHould this be in set.sbl ?
 
 map.domain
 
-	map.domain = map.new(map.size(map))
+	map.domain = set.new(#map)
         map.loop(map)
 
 map.domain.next
 
         entry = map.next(map)                           :f(return)
-        map.add(map.domain,ent)                         :(map.domain.next)
+        set.add(map.domain,key(entry))               	:(map.domain.next)
 
 map.domain.end
 
-
-	define('map.equal(map,omap)pair')		:(map.equal.end)
+	define('map.equal(a,b)entry,key,value')		:(map.equal.end)
 
 *	Test two maps for equality. 
 
@@ -525,14 +472,14 @@ map.domain.end
 
 map.equal
 
-	eq(map.size(map),map.size(omap))		:f(return)
+	map.equal = ne(#a,#b) false			:s(return)
 	map.loop(map)
 
 map.equal.next
 
 	entry = map.next(map)				:f(map.equal.done)
 	key = key(entry)
-	valu = val(entry)
+	value = value(entry)
 	ident(value(map.get(map,key(entry))),
 .         value(map.get(omap,key(entry)))) :s(map.equal.next)f(return)
 
@@ -542,12 +489,36 @@ map.equal.done
 
 map.equal.end
 	
-        define('map.forall(f,map)entry')		:(map.forall.end)
+	define('map.eval(map,s)entry,pair,map.apply.result')	:(map.eval.end)
 
+*	_map.eval returns the map obtained by evaluating _eval(s)_ for each
+*	pair in the map. The expression _s_ may use _pair_ to reference this pair.
+*	_eval(s) should return a pair; it is used to construct the next entry in the
+*	result map. The entry is ignore if the call to _eval_ fails.
+
+map.eval
+
+	map.eval = map.new(#map)
+	map.loop(map)
+	result =
+
+map.eval.next
+
+	entry = map.next(map)				:f(return)
+	pair = eval(s)					:f(map.eval.next)
+	map.put(map.eval,first(pair), second(pair))	:(map.eval.next)
+
+map.eval.end
+
+        define('map.forall(s,map)entry')		:(map.forall.end)
+
+* TODO
+* NEED TO RETHINK THIS.
 *	_map.forall_ returns a result defined by iterating over all the
-*	entries in _map_. In each step of the iteration, _map.apply.entry_
-*	is evaluatedl using the current entry and the latest value of the
-*	result. 
+*	entries in _map_. In each step of the iteration, _eval_ 
+*	is evaluated using _eval_, with the variable _entry_ being set
+*	to the current entry of the iteration.
+
 *	_map_forall_ returns the last value so defined.
 *	_map.forall_ returns a new map defined by iterating over _map_
 *	and using _f_ to define each entry by calling _map.apply.entry_.
@@ -558,7 +529,7 @@ map.equal.end
 
 map.forall
 
-        map.forall = map(map.size(map))
+        map.forall = map.new(#map)
         map.loop(map)
 
 map.forall.next
@@ -576,7 +547,7 @@ map.forall.end
 
 map.foreach
 
-        map.foreach = map(map.size(map))
+        map.foreach = map.new(#map)
 
 map.foreach.next
 
@@ -599,12 +570,10 @@ map.get.end
 
 *	_map.inverse_ returns the inverse of a map. The inverse is
 *	a map with the keys and values of _map_ reversed. 
-*	_map.inverse_ fails if there are two instances of the same
-*	value in the range of the map.
 
 map.inverse
 
-	map.inverse = map.map(map.size(map))
+	map.inverse = map.new(#map)
 	map.loop(map)
 
 map.inverse.next
@@ -705,12 +674,12 @@ map.new.end
 
 map.next
 
-        le(map.next(map) = map.next(map) + 1, map.size(map)):f(freturn)
+        le(map.next(map) = map.next(map) + 1, #map)	:f(freturn)
         map.next = entry(map.array[map.next(map),1],map.array[map.next(map),2]):(return)
 
 map.next.end
 
-        define('map.range(map)')                    :(map.range.end)
+        define('map.range(map)')                    	:(map.range.end)
 
 
 *NOTE This should be in SET
@@ -738,12 +707,11 @@ map.range.end
 
 map.reduce
 
-	map.reduce = map(map.size(map))
+	map.reduce = map(#map)
 	map.loop(map)
 
 map.reduce.next
 
-*HERE??*
 	entry = map.next(map)
 *	false(apply(test,entry)			:s(map.reduce.next)
 	map.put(map.reduce,key(entry),value(entry))	:(map.reduce.next)
@@ -763,7 +731,7 @@ map.put
 
 *       Here to create new entry in map.
 
-        map.size(map) = map.size(map) + 1
+        map.count(map) = #map + 1
 
 map.put.value
 
@@ -771,7 +739,17 @@ map.put.value
 
 map.put.end
 
-        define('map.test(key)')                     :(map.test.end)
+	define('map.size(map)')				:(map.size.end)
+
+*	Returns number of entries in map _map_.
+
+map.size
+
+	map.size = #map					:(return)
+
+map.size.end
+
+        define('map.test(key)')                     	:(map.test.end)
 
 *       Tests if the map _map_ has an entry for _key_.
 
@@ -952,7 +930,7 @@ reader.eof
 
 reader.end
 
-	define('reader.string(str,delim)line')			:(reader.string.end)
+	define('reader.string(str,delim)line')		:(reader.string.end)
 
 *	Returns a sequence of the lines in _str_,
 *	where the delimiter character _delim_ is used to mark 
@@ -971,35 +949,33 @@ reader.string.next
 
 reader.string.end
 
-        define('sequence.add(sequence,val)entry')                 :(sequence.add.end)
+        define('sequence.add(sequence,val)')		:(sequence.add.end)
 
 sequence.add
 
-	entry = (sequence.size(sequence) = sequence.size(sequence) + 1,val)
-	sequence.put(sequence,sequence.size(sequence), val)
-	sequence.add = entry					:(return)
+	entry = (sequence.count(sequence) = #sequence + 1,val)
+	sequence.put(sequence,#sequence, val) :(return)
 
 sequence.add.end
 
-	define('sequence.apply(sequence,f)entry,entry.new')	:(sequence.apply.end)
+	define('sequence.eval(sequence,s)value')	:(sequence.eval.end)
 
-*	_sequence.apply_ returns the sequence obtained by applying _f- to each entry in _sequence_.
-*       If _f_ is a string, it is evaluated using _eval_; otherwise _f_is called
-*       as a function.
+*	_sequence.eval_ returns the sequence obtained by calling _eval_ with argument _s_
+*	for each value in the sequence. If _eval_ does not fail, the value returned defines
+*	the next entry in the new sequence.
 
-sequence.apply
+sequence.eval
 
-	sequence.apply = sequence.sequence(sequence.size(sequence))
+	sequence.eval = sequence.new(#sequence)
 	sequence.loop(sequence)
 
-sequence.apply.next
+sequence.eval.next
 
-	entry = sequence.next(sequence)				:f(return)
-        entry.new = ident(datatype(f),'string')  apply(f,entry)
-        entry.new = ident(datatype(f),'code')  apply(f,entry)
-	sequence.put(sequence.apply,key(entry.new), value(entry.new)):(sequence.apply.next)
-
-sequence.apply.end
+	user.value = sequence.next(sequence)				:f(return)
+	value = eval(s)							:f(sequence.eval.next)
+	sequence.add(sequence.eval,value)				:(sequence.eval.next)
+	
+sequence.eval.end
 
 *        define(‘sequence.forall(sequence)’)    :(sequence.forall.end)
 *
@@ -1040,7 +1016,8 @@ sequence.apply.end
 
 sequence.get
 
-        sequence.get = sequence.table(sequence)[i]                   :(return)
+	gt(i,0) le(i,#sequence)					:f(freturn)
+        sequence.get = sequence.table(sequence)[i]
 
 sequence.get.end
 
@@ -1133,7 +1110,7 @@ sequence.new.end
 
 sequence.next
 
-        le(sequence.index(sequence) = sequence.index(sequence) + 1, sequence.size(sequence)):f(freturn)
+        le(sequence.index(sequence) = sequence.index(sequence) + 1, #sequence):f(freturn)
         sequence.next = entry(sequence.array[sequence.index(sequence),1],sequence.array[sequence.index(sequence),2]):(return)
 
 sequence.next.end
@@ -1141,17 +1118,17 @@ sequence.next.end
         define('sequence.range(sequence)')                    :(sequence.range.end)
 
 
-*        Return map with the values in _sequence_ as its members.
+*        Return set with the values in _sequence_ as its members.
 
 
 sequence.range
 
-        sequence.range = sequence.sequence()
+        sequence.range = seq.new(#sequence)
         sequence.loop(sequence)
 
 sequence.range.next
 
-        sequence.range.add(entry.value(sequence.next(sequence)))        :f(return)s(sequence.range.next)
+        sequence.range.add(value(sequence.next(sequence)))        :f(return)s(sequence.range.next)
 
 sequence.range.end
 
@@ -1167,139 +1144,109 @@ sequence.put
 
 *       Here to create new entry in sequence.
 
-        sequence.size(sequence) = sequence.size(sequence) + 1
+        sequence.count(sequence) = #sequence + 1
 
 sequence.put.value
 
-        sequence.table(sequence)[i] = val                       :(return)
+        sequence.table(sequence)[i] = val              	:(return)
 
 sequence.put.end
 
+	define('sequence.size(sequence)')		:(sequence.size.end)
 
-        define('traceoff()')                            :(traceoff.end)
+*	Returns number of entries in sequence _sequence_.
 
-*       Initiate tracing.
+sequence.size
 
-*TRACEOFF*
-traceoff
-        &ftrace = &trace =
+	sequence.size = #sequence			:(return)
 
-        g.scoring = g.tracing = 0
-        out('stop TRACING ')
+sequence.size.end
 
-traceoff.end
-
-        define('traceon()')                             :(traceon.end)
-
-*       Initiate tracing.
-
-*TRACEON*
-traceon
-
-        out('start TRACING')
-*       &ftrace = &trace = 1500000
-        g.scoring = g.tracing = 1
-                                                        :(return)
-traceon.end
 	define('set.add(set,elem)')			:(set.add.end)
 
 *	Add _elem_ to set, unless already present.
 
-
 set.add
 
-	elem = pair(set.size(set) = set.size(set) + 1,val)
-	set.add(set, val)
-	set.add = elem					:(return)
+	elem = set.table(set)[elem]			
+	differ(elem)					:s(return)
+	set.count(set) = #set + 1
+	set.table(set)[elem] = elem			:(return)
 
 set.add.end
 
-	define('set.apply(set,f)elem,elem.new')	:(set.apply.end)
+	define('set.apply(set,s)elem,elem.new')	:(set.apply.end)
 
-*	_set.apply_ returns the set obtained by applying _f- to each elem in _set_.
-*       If _f_ is a string, it is evaluated using _eval_; otherwise _f_is called
-*       as a function.
+*	_set.apply_ returns the set defined by calling _eval(s)_ for every
+*	element of _set_, using the result to define the elements of the
+*	result. No new element is added if the call to _eval_ fails.
 
 set.apply
 
-	set.apply = set.set(set.size(set))
+	set.apply = set.new(#set)
 	set.loop(set)
 
 set.apply.next
 
 	elem = set.next(set)				:f(return)
-        elem.new = ident(datatype(f),'string')  apply(f,elem)
-        elem.new = ident(datatype(f,'code')  apply(f,elem))
-	set.put(set.apply,key(elem.new), value(elem.new)):(set.apply.next)
+	elem.new = eval(s)				:f(set.apply.next)
+	set.add(set.apply,elem.new)			:(set.apply.next)
 
 set.apply.end
 
+        define('set.array(aray)i,key')                  :(set.array.end)
 
-*        define('set.array(aray)i,key')                  :(set.array.end)
-*
-**	Create a set defined by an array.
-**	If the array has one dimension then create a set
-**	from the array values.
-**	If the array has two dimensions, create a set using the
-**	array indice as the keys, and the correspong value as the
-**	values.
-*
-*set.array
-*
-*        set.array = set()
-*        i = prototype(aray)
-*        integer(i)                                      :s(set.array.one)
-*
-**       Here to initialize from two-dimensional array
-*
-*set.array.next
-*
-*        key = aray[i = i + 1,1]                         :f(return)
-*        set.put(set.aray,i,aray[i,2])                    :(set.array.next
-*
-*set.array.one
-*
-**        Here to initialize set from one-dimensional array
-*
-*set.array.next
-*
-*        key = aray[i = i + 1]				:f(return)
-*        set.add(set.array,key)                          :(set.array.next)
-*
-*
-*set.array.end
+*	Create a set defined by an array.
+*	If the array has one dimension then create a set
+*	from the array values.
+*	If the array has two dimensions, create a set of pairs
+*	consisting of the indices and corresponding values.
 
-        define('set.domain(set)entry')			:(set.domain.end)
+set.array
 
-*       Return set with the keys in _set_.
+        set.array = set()
+        i = prototype(aray)
+        integer(i)                                      :s(set.array.one)
 
-        set.loop(set)
+*       Here to initialize from two-dimensional array
 
-set.domain
+	i = 0
 
-        entry = set.next(set)                           :f(return)
-        set.add(set.domain,ent)                         :(set.domain)
+set.array.two.next
 
-set.domain.end
+	set.add(set.array,pair(ara[i = i + 1,1],ara[i,2])) :f(return)s(set.array.two.next)
 
-	define('set.equal(set,oset)x')			:(set.equal.end)
+set.array.one
+
+*        Here to initialize set from one-dimensional array
+
+	i = 0
+
+set.array.one.next
+
+        key = aray[i = i + 1]				:f(return)
+        set.add(set.array,aray[i = i + 1])              :f(return)s(set.array.next)
+
+set.array.end
+
+	define('set.equal(a,b)x')			:(set.equal.end)
 
 *	Tests if two sets are equal.
 
 set.equal
 
 	set.equal = false
-	ne(set.size(set),set.size(oset))		:s(return)
+	ne(#a,#b)					:s(return)
 
 *	Here if same size, so test if all elements in one
 *	set are in the other.
 
-	set.loop(set)
+	set.loop(a)
 
 seq.equal.next
 
-	x = set.next(set)				:f(set.equal.done)
-	seq.equal = set.member(oset,x)			:s(set.equal.next)f(return)
+	x = set.next(a)					:f(set.equal.done)
+	set.equal = set.member(b,x)			:s(set.equal.next)f(return)
 
 set.equal.done
 
@@ -1348,11 +1295,11 @@ set.foreach.end
 
 set.in
 
-        set.in = (differ(set.table[elem]) true, false)             :(return)
+        set.in = (differ(set.table[elem]) true, false)       	:(return)
 
 set.in.end
 
-        define('set.intersection(a,b)elem')                                   :(set.intersection.end)
+        define('set.intersection(a,b)elem')                    	:(set.intersection.end)
 
 *       Returns intersection of sets _a_ and _b_.
 
@@ -1360,7 +1307,7 @@ set.intersection
 
 *	Arrange so set a is the smaller set.
 
-	le(set.size(a),set.size(b))				:s(set.intersection.a)
+	le(#a,#b)						:s(set.intersection.a)
 	set.intersection = a 
 	a = b
 	b = set.intersection
@@ -1369,7 +1316,7 @@ set.intersection.a
 
 *	Make copy of set _a_ by making copy of _a_'s table.
 
-	set.intersection = set.new(,set.size(a))
+	set.intersection = set.new(,#a)
 	set.table(set.intersection) = copy(set.table(a))
 
 	set.loop(b)
@@ -1417,6 +1364,16 @@ set.loop.order.inc
 
 set.loop.end
 
+	define('set.member(set,elem)')			:(set.member.end)
+
+*	Tests if _elem_ is an element of set _set_.
+
+set.member
+
+	set.member = (set.member(set,elem) true, false)	:(return)
+
+set.member.end
+
         define('set.new(init,n)i,key,str,valr')         :(set.new.end)
 
 *       Create a new set.
@@ -1452,30 +1409,32 @@ set.new.end
 
 set.next
 
-        le(set.index(set) = set.index(set) + 1, set.size(set)):f(freturn)
+        le(set.index(set) = set.index(set) + 1, #set)	:f(freturn)
         set.next = entry(set.array[set.index(set),1],set.array[set.index(set),2]):(return)
 
 set.next.end
 
-        define('set.notin(x,s)')                               :(set.notin.end)
+        define('set.notin(x,s)')                      	:(set.notin.end)
 
 *       Returns _true_ iff _x_ is is not element in _s_.
 
 set.notin
 
-        set.notin = (ident(set.table[x]) true, false)             :(return)
+        set.notin = (ident(set.table[x]) true, false)	:(return)
 
 set.notin.end
 
-        define('set.size(set)')                                 :(set.size.end)
+	define('set.size(set)')				:(set.size.end)
+
+*	Returns number of entries in set _set_.
 
 set.size
 
-        set.size = set.num(set)                                 :(return)
+	set.size = #set					:(return)
 
 set.size.end
 
-        define('set.union(a,b)elem')                                   :(set.union.end)
+        define('set.union(a,b)elem')                   	:(set.union.end)
 
 *       Returns union of sets _a_ and _b_.
 
@@ -1483,7 +1442,7 @@ set.union
 
 *	Arrange so set a is the larger set.
 
-	ge(set.size(a),set.size(b))				:s(set.union.a)
+	ge(#a,#b)					:s(set.union.a)
 	set.union = a 
 	a = b
 	b = set.union
@@ -1492,7 +1451,7 @@ set.union.a
 
 *	Make copy of a by making copy of a's table.
 
-	set.union = set.new(,set.size(a))
+	set.union = set.new(,#a)
 	set.table(set.union) = copy(set.table(a))
 
 	set.loop(b)
@@ -1509,13 +1468,14 @@ set.union.end
 *	Return size of operand.
 
 setl4.size
+	output = 'enter setl4.size'
 	
 	dt = datatype(s)
 
 	output = 'enter setl4.size ' dt
 	setl4.size = ident(dt,'string') size(s)			:s(return)
-	setl4.size = ident(dt,'set') set.size(s)		:s(return)
-	setl4.size = ident(dt,'sequence') sequence.size(s)	:s(return)
+	setl4.size = ident(dt,'set') set.count(s)		:s(return)
+	setl4.size = ident(dt,'sequence') sequence.count(s)	:s(return)
 	output = 'setl4.size unknown type ' dt :(end)
 
 setl4.size.end
@@ -1909,10 +1869,6 @@ tokens.word
         type = 'w'
         line span(&ucase &lcase "_" "'") . text =      :(tokens.new)
 
-map.sbl:1okens.tab
-
-        type = 't'                                      :(tokens.character)
-
 tokens.character
 
 *       Here if token is single character.
@@ -1924,6 +1880,33 @@ tokens.new
         map.add(tokens,token(lineno,pos,type,text))     :(tokens.next)
 
 tokens.end
+
+
+        define('traceoff()')                            :(traceoff.end)
+
+*       Initiate tracing.
+
+*TRACEOFF*
+traceoff
+        &ftrace = &trace =
+
+        g.scoring = g.tracing = 0
+        out('stop TRACING ')
+
+traceoff.end
+
+        define('traceon()')                             :(traceon.end)
+
+*       Initiate tracing.
+
+*TRACEON*
+traceon
+
+        out('start TRACING')
+*       &ftrace = &trace = 1500000
+        g.scoring = g.tracing = 1
+                                                        :(return)
+traceon.end
 
         define('words(line)word')                        :(words.end)
 
@@ -1966,3 +1949,9 @@ error
 *       &dump = 3
                                                         :(end)
 error.end
+
+*	Define '#' as unary operator that returns size of its operand.
+
+	output = 'calling opsyn '
+	opsyn('#','setl4.size',1)
+
