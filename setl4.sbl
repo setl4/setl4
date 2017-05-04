@@ -1305,7 +1305,7 @@ set.in
 
 set.in.end
 
-	define('set.integers(n)')			:(set.integers.end)
+	define('set.integers(n)i')			:(set.integers.end)
 
 *	Returns set of integers in the range 1 .. _n_.
 
@@ -1315,8 +1315,8 @@ set.integers
 
 set.integers.next
 
-	set.add(set.integers,n)
-	gt(n = n - 1)					:s(set.integers.next)f(return)
+	set.add(set.integers,i = i + 1)
+	lt(i,n)					:s(set.integers.next)f(return)
 
 set.integers.end
 
@@ -1427,6 +1427,8 @@ set.new.end
 
 set.next
 
+*	output = 'set.next dt ' datatype(set)
+
         set.index(set) = set.index(set) + 1
         gt(set.index(set), #set)			:s(freturn)
 	set.next = set.array(set)[set.index(set),1]	:(return)
@@ -1472,9 +1474,10 @@ set.union.b
 	
 set.union.end
 
-	define('show(v)i,ent,type,line,hdr')		:(show.end)
+	define('show(v,lvl)i,ent,type,line,hdr')		:(show.end)
 
-*	Show the value of an expression.
+*	Show the value of expression _v_.
+*	_lev_ is non-zero when called to list member or element of compound object.
 
 *SHOW*
 show
@@ -1484,7 +1487,6 @@ show
 
 show.array
 
-	output =
 	proto = prototype(ara)
 	proto break(',')				:s(show.array.2)
 
@@ -1500,7 +1502,7 @@ show.array.2
 
 show.integer
 
-	output = convert(v,'string')			:(show.done)
+	show = v					:(show.done)
 
 show.map
 
@@ -1508,41 +1510,59 @@ show.map
 
 show.map.next
 
-	element = map.next(map)				:f(show.done)
-	show(element)				:(show.map.next)
+	member = map.next(map)				:f(show.done)
+	show(member)				:(show.map.next)
 
 show.pair
 
-	output = '{' lineid(num(pair)) ',' "'"
+	show = '{' lineid(num(pair)) ',' "'"
 .			replace(line(pair),' ','.') "'" '}'	:(show.done)
 
 show.sequence
 
+	show = '['
+	sequence.loop(v)
 	sequence.loop(sequence)
 
 show.sequence.next
 
-	element = sequence.next(sequence)				:f(show.done)
-	show(element)				:(show.sequence.next)
+	member = sequence.next(sequence)		:f(show.sequence.done)
+
+	show = show ' ' show(member,1)				
+	lt(#show,100)					:s(show.sequence.next)
+	output = show
+	show =						:(show.sequence.next)
+
+show.sequence.done
+
+	show = show ' ]'
+							:(show.done)
 
 show.set
 
-	output = '{'
+	
+	show =
 	set.loop(v)
 
 show.set.next
 
-	element = set.next(v)				:f(show.set.done)
-	show(element)					:(show.set.next)
+	member = set.next(v)				:f(show.set.done)
+	
+	show = (ident(show) '{ ', show ',') show(member,1)					
+	lt(#show,100)					:s(show.set.next)
+	output = show ','
+	show =						:(show.set.next)
 
 show.set.done
-	output = '}'
+
+*	output = 'show.set.done dt member ' datatype(member)
+	show = show ' }'
 							:(show.done)
 show.string
 
 	v break('"')					:s(show.string.quote)
 
-	output = "'" string "'"			:(show.done)
+	show = "'" v "'"			:(show.done)
 
 show.table
 	
@@ -1558,11 +1578,13 @@ show.table.next
 
 show.string.quote
 
-	output = '"'  v '"'				:(show.done)
+	show = '"'  v '"'				:(show.done)
 
 show.done
 
-							:(return)
+	output = eq(lvl) show
+						:(return)
+
 show.end
 
 	define('show.line(line)')			:(show.line.end)
