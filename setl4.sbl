@@ -1,6 +1,90 @@
 *       Copyright 2017, David Shields
 *       Licensed under the MIT license.
 
+*	Operator Extensions
+*	-------------------
+
+*	Setl4 uses the _opsyn_ extension feature of SPITBOL to:
+
+*	 define '#' as a unary operator that returns the size of its operand, and 
+
+*	define '%' as a binary operator 'obj % expr' that computes the 
+*	'reduction' of the compound object _obj_ to only those components 
+*	for which _eval(expr)_ is true.
+
+*	Define '#' as unary operator that returns size of its operand.
+
+	define('setl4.size(s)dt')			:(setl4.size.end)
+
+*	Return size of operand.
+
+setl4.size
+	
+	dt = datatype(s)
+	setl4.size = ident(dt,'string') size(s)			:s(return)
+	setl4.size = ident(dt,'set') set.size(s)		:s(return)
+	setl4.size = ident(dt,'sequence') sequence.size(s)	:s(return)
+	output = 'setl4.size unknown type ' dt :(end)
+
+setl4.size.end
+
+	opsyn('#','setl4.size',1)
+
+*	Define '%' as binary operator that reduces compound object to
+*	members for which a specified expression is true.
+
+	define('setl4.reduce(obj,expr)member')		:(setl4.reduce.end)
+
+*	Returns that part of compound object _obj_ for which _expr_ is true.
+
+setl4.reduce
+
+	member = datatype(obj)
+	ident(member,'string')				:s(setl4.reduce.string)
+	ident(member,'set')				:s(setl4.reduce.set)
+	ident(member,'sequence')			:s(setl4.reduce.sequence)
+	ident(member,'map')				:s(setl4.reduce.map)
+
+setl4.reduce.map
+	setl4.reduce = map.new(#obj)
+	map.loop(obj)
+
+setl4.reduce.map.next
+
+	member = map.next(#obj)				:f(return)
+	member = eval(expr)				:f(setl4.reduce.map.next)
+	eq(member)					:s(setl4.reduce.map.next)
+	map.add(setl4.reduce,member)			:(setl4.reduce.map.next)
+
+setl4.reduce.set
+
+	member = set.next(#obj)				:f(return)
+	member = eval(expr)				:f(setl4.reduce.set.next)
+	eq(member)					:s(setl4.reduce.set.next)
+	set.add(setl4.reduce,member)			:(setl4.reduce.set.next)
+
+setl4.reduce.sequence
+
+	member = sequence.next(#obj)			:f(return)
+	member = eval(expr)				:f(sequencel4.reduce.sequence.next)
+	eq(member)					:s(sequencel4.reduce.sequence.next)
+	sequence.add(sequencel4.reduce,member)		:(sequencel4.reduce.sequence.next)
+
+setl4.reduce.string
+
+	obj len(1) . member =				:f(return)
+	member = eval(expr)				:f(setl4.reduce.string)
+	eq(member)					:s(setl4.reduce.string)
+
+*	Append c to result.
+
+	setl4.reduce = setl4.reduce  c			:(setl4.reduce.string)
+
+setl4.reduce.end
+
+	opsyn('%','setl4.reduce',2)
+
+
 *       Boolean Logic
 *       -------------
 
@@ -28,7 +112,7 @@
 *       of the elements of the set is "true."
 
 
-	data('set(set.table,set.count,set.next)')
+	data('set(set.table,set.size,set.index,set.array)')
 
 *       Maps: Functions
 *       --------------
@@ -53,13 +137,13 @@
 
         data('entry(key,value)')
 
-	data('map(map.table,map.count,map.next)')
+	data('map(map.table,map.size,map.next,map.array)')
 
 *	where
 
 *		_map.table_ is the table used to maintain the key/value pairs of the map.
 
-*		_map.count_ is the current size of the map.
+*		_map.size_ is the current size of the map.
 
 *		_map.next_ is used when iterating over the map.
 
@@ -69,9 +153,9 @@
 
 *       A sequence is a map defined on the positive integers: 1,2, ... ,n.
 
-        data('sequence(sequence.table,sequence.next,sequence.count)')
+        data('sequence(sequence.table,sequence.size,sequence.index)')
 
-*               _sequence.count_ is the length of the sequence.
+*               _sequence.size_ is the length of the sequence.
 
 *               _sequence.table_ is the map representing the sequence.
 
@@ -83,7 +167,7 @@
 
 *       A stack is a sequence with a limited set of operations.
 
-        data('stack(stack.table,stack.size,stack,index)')
+        data('stack(stack.table,stack.size)')
 
 *               _stack.table_   is the table used to maintain the stack.
 
@@ -666,7 +750,8 @@ map.new.end
 
 map.next
 
-        le(map.next(map) = map.next(map) + 1, #map)	:f(freturn)
+        map.next(map) = map.next(map) + 1
+        gt(map.next(map), #map)				:s(freturn)
         map.next = entry(map.array[map.next(map),1],map.array[map.next(map),2]):(return)
 
 map.next.end
@@ -703,23 +788,13 @@ map.put
 
 *       Here to create new entry in map.
 
-        map.count(map) = #map + 1
+        map.size(map) = #map + 1
 
 map.put.value
 
         map.table(map)[key] = val                       :(return)
 
 map.put.end
-
-	define('map.size(map)')				:(map.size.end)
-
-*	Returns number of entries in map _map_.
-
-map.size
-
-	map.size = #map					:(return)
-
-map.size.end
 
         define('map.test(key)')                     	:(map.test.end)
 
@@ -925,7 +1000,7 @@ reader.string.end
 
 sequence.add
 
-	entry = (sequence.count(sequence) = #sequence + 1,val)
+	entry = (sequence.size(sequence) = #sequence + 1,val)
 	sequence.put(sequence,#sequence, val) :(return)
 
 sequence.add.end
@@ -1067,7 +1142,6 @@ sequence.new
         sequence.new = ident(init) sequence(table(128))           :s(return)
         kind = ident(kind) 'sequence'
         kind
-        output = 'enter sequence.new [' init ']'
         init break(':')                                	:s(sequence.new.keyval)
         sequence.new = sequence(table(i))                         :(return)
 
@@ -1116,13 +1190,13 @@ sequence.range.end
 
 sequence.put
 
-        output = 'enter sequence.put dt ' datatype(sequence) ' i [' i '] val [' val ']'
+*        output = 'enter sequence.put dt ' datatype(sequence) ' i [' i '] val [' val ']'
         v = sequence.table(sequence)[i]
         differ(v)                                       :s(sequence.put.value)
 
 *       Here to create new entry in sequence.
 
-        sequence.count(sequence) = #sequence + 1
+        sequence.size(sequence) = #sequence + 1
 
 sequence.put.value
 
@@ -1130,27 +1204,15 @@ sequence.put.value
 
 sequence.put.end
 
-	define('sequence.size(sequence)')		:(sequence.size.end)
-
-*	Returns number of entries in sequence _sequence_.
-
-sequence.size
-
-	sequence.size = #sequence			:(return)
-
-sequence.size.end
-
 	define('set.add(set,elem)')			:(set.add.end)
 
 *	Add _elem_ to set, unless already present.
 
 set.add
 
-	elem = set.table(set)[elem]			
-	differ(elem)					:s(return)
-	set.count(set) = #set + 1
-	set.table(set)[elem] = elem			:(return)
-
+	differ(set.table(set)[elem])			:s(return)
+	set.size(set) = #set + 1
+	set.table(set)[elem] = elem			:(return) 
 set.add.end
 
 *        define('set.array(set)i,key')                  :(set.array.end)
@@ -1159,7 +1221,7 @@ set.add.end
 *
 *set.array
 *
-*	set.array = array(set.count(set))
+*	set.array = array(set.size(set))
 *	set.loop(set)
 *
 *set.array.next
@@ -1243,6 +1305,21 @@ set.in
 
 set.in.end
 
+	define('set.integers(n)')			:(set.integers.end)
+
+*	Returns set of integers in the range 1 .. _n_.
+
+set.integers
+
+	set.integers = set.new(n)
+
+set.integers.next
+
+	set.add(set.integers,n)
+	gt(n = n - 1)					:s(set.integers.next)f(return)
+
+set.integers.end
+
         define('set.intersection(a,b)elem')                    	:(set.intersection.end)
 
 *       Returns intersection of sets _a_ and _b_.
@@ -1300,11 +1377,10 @@ set.less.end
 
 set.loop
 
+*	output = 'enter set.loop dt ' datatype(set)
+	ident(set)					:s(return)
         set.index(set) = 0
-
-set.loop.order.inc
-
-        set.array(set) = convert(set.table(set),'array'):(set.done)
+        set.array(set) = convert(set.table(set),'array'):(return)
 
 set.loop.end
 
@@ -1328,10 +1404,8 @@ set.member.end
 *	values separated by spaces.
 
 set.new
-
-        set.new = ident(init) set(table(128))           :s(return)
-	j
-	set.new  = convert(init,'integer') set(table(convert(init,'integer'))) :s(return)
+	ident(init)					:s(set.new.int)
+	i = convert(init,'integer')			:s(set.new.int)
 	set.new = set(table(128))
 	init = init ' ' 
 
@@ -1339,6 +1413,11 @@ set.new.init
 
 	init break(' ') . element ' ' =			:f(return)
 	set.add(set.new,element)			:(set.new.init)
+
+set.new.int
+
+	i = ident(init) 128
+	set.new = set(table(i))				:(return)
 
 set.new.end
 
@@ -1348,8 +1427,9 @@ set.new.end
 
 set.next
 
-        le(set.index(set) = set.index(set) + 1, #set)	:f(freturn)
-        set.next = entry(set.array[set.index(set),1],set.array[set.index(set),2]):(return)
+        set.index(set) = set.index(set) + 1
+        gt(set.index(set), #set)			:s(freturn)
+	set.next = set.array(set)[set.index(set),1]	:(return)
 
 set.next.end
 
@@ -1362,17 +1442,6 @@ set.notin
         set.notin = (ident(set.table[x]) true, false)	:(return)
 
 set.notin.end
-
-	define('set.size(set)')				:(set.size.end)
-
-*	Returns number of entries in set _set_.
-
-set.size
-
-	set.size = #set					:(return)
-
-set.size.end
-
 
         define('set.union(a,b)elem')                   	:(set.union.end)
 
@@ -1398,63 +1467,25 @@ set.union.a
 
 set.union.b
 
-	elem = set.next(b)					:f(return)
-	set.add(set.union,elem)					:(set.union.b)
+	elem = set.next(b)				:f(return)
+	set.add(set.union,elem)				:(set.union.b)
 	
 set.union.end
 
-	define('show.value(v)i,ent,type')			:(show.value.end)
+	define('show(v)i,ent,type,line,hdr')		:(show.end)
 
 *	Show the value of an expression.
 
 *SHOW*
-show.value
-	typ = dt(v)
-						:($('show.value.type.' typ))
-
-show.value.type.array
-
-	show = show.array(v)				:(show.value.done)
-
-show.value.type.integer
-
-	show = convert(v,'string')			:(show.value.done)
-
-show.value.type.move
-
-	show = show.move(v)				:(show.value.done)
-
-show.value.type.pair
-
-	show = show.pair(v)				:(show.value.done)
-
-show.value.type.table
-
-	show = show.table(v)				:(show.value.done)
-
-show.value.type.string
-
-	v break('"')					:s(show.value.string.quote)
-
-	show.value = "'" string "'"			:(show.value.done)
-
-show.value.string.quote
-
-	show.value = '"'  v '"'			:(show.value.done)
-
-show.value.done
-							:(return)
-show.value.end
-
-	define('show.array(ara)i,first,proto,second')	:(show.array.end)
-
-*	Show an array. Fribble uses only one and two dimensional arrays
+show
+	typ = datatype(v)
+*	output = 'enter show dt ' typ
+							:($('show.' typ))
 
 show.array
 
-	out('show.array dt(ara)',dt(ara))
+	output =
 	proto = prototype(ara)
-	out('show.array prototype ' proto)
 	proto break(',')				:s(show.array.2)
 
 *	Here for one dimensional array.
@@ -1467,11 +1498,72 @@ show.array.2
 	first = ara[add1(.i),1]		       	  :f(show.array.done)
 	out(lpad(i,3) tab show(first) tab show(ara[i,2])) :(show.array.2)
 
-show.array.done
+show.integer
 
-	out()						:(return)
+	output = convert(v,'string')			:(show.done)
 
-show.array.end
+show.map
+
+	map.loop(map)
+
+show.map.next
+
+	element = map.next(map)				:f(show.done)
+	show(element)				:(show.map.next)
+
+show.pair
+
+	output = '{' lineid(num(pair)) ',' "'"
+.			replace(line(pair),' ','.') "'" '}'	:(show.done)
+
+show.sequence
+
+	sequence.loop(sequence)
+
+show.sequence.next
+
+	element = sequence.next(sequence)				:f(show.done)
+	show(element)				:(show.sequence.next)
+
+show.set
+
+	output = '{'
+	set.loop(v)
+
+show.set.next
+
+	element = set.next(v)				:f(show.set.done)
+	show(element)					:(show.set.next)
+
+show.set.done
+	output = '}'
+							:(show.done)
+show.string
+
+	v break('"')					:s(show.string.quote)
+
+	output = "'" string "'"			:(show.done)
+
+show.table
+	
+	t = convert(v,'array')
+
+show.table.next
+
+	key = t[i = i + 1,1]				:f(show.done)
+	value = t[i,2]
+
+	output = tab show(key)    ' -> ' show(value)
+							:(show.table.next)
+
+show.string.quote
+
+	output = '"'  v '"'				:(show.done)
+
+show.done
+
+							:(return)
+show.end
 
 	define('show.line(line)')			:(show.line.end)
 
@@ -1512,44 +1604,6 @@ show.lines.titled
 	out(lpad(lineid(i),2) ' ' replace(line,' ','.')) :(show.lines.n)
 
 show.lines.end
-
-	define('show.pair(pair)')			:(show.pair.end)
-
-*	Show paired item.
-
-*SHOW.PAIR*
-show.pair
-
-	show.pair = '{' lineid(num(pair)) ',' "'"
-.			replace(line(pair),' ','.') "'" '}'	:(return)
-
-show.pair.end
-
-
-	define('show.table(tbl,col)ara,i,key')		:(show.table.end)
-
-*	Show a table.
-
-*SHOW.TABLE*
-show.table
-
-	ara = sort(tbl,col)
-
-show.table.next
-
-*	loop:	Get the next tbl key.
-
-	key = ara[add1(.i),1]				:f(show.table.done)
-
-*	Show the entry and continue back to loop.
-
-	out(lpad(show(key),8) ' -> ' show(ara[i,2]))
-							:(show.table.next)
-show.table.done
-	out()						:(return)
-
-show.table.end
-
 
 	define('show.words(words)i,pos')		:(show.words.end)
 
@@ -1873,83 +1927,3 @@ error
 error.end
 
 
-*	Operator Extensions
-*	-------------------
-
-*	Setl4 uses the _opsyn_ extension feature of SPITBOL to define '#' as
-*	a unary operator that returns the size of its operand, and '%' as
-*	a binary operator 'obj % expr' that computes the 'reduction' of
-*	the compound object _obj_ to only those components for which _eval(expr)_
-*	is true.
-
-*	Define '#' as unary operator that returns size of its operand.
-
-	define('setl4.size(s)dt')			:(setl4.size.end)
-
-*	Return size of operand.
-
-setl4.size
-	
-	dt = datatype(s)
-	setl4.size = ident(dt,'string') size(s)			:s(return)
-	setl4.size = ident(dt,'set') set.count(s)		:s(return)
-	setl4.size = ident(dt,'sequence') sequence.count(s)	:s(return)
-	output = 'setl4.size unknown type ' dt :(end)
-
-setl4.size.end
-
-	opsyn('#','setl4.size',1)
-
-*	Define '%' as binary operator that reduces compound object to
-*	members for which a specified expression is true.
-
-	define('setl4.reduce(obj,expr)member')		:(setl4.reduce.end)
-
-*	Returns that part of compound object _obj_ for which _expr_ is true.
-
-setl4.reduce
-
-	member = datatype(obj)
-	ident(member,'string')				:s(setl4.reduce.string)
-	ident(member,'set')				:s(setl4.reduce.set)
-	ident(member,'sequence')			:s(setl4.reduce.sequence)
-	ident(member,'map')				:s(setl4.reduce.map)
-
-setl4.reduce.map
-	setl4.reduce = map.new(#obj)
-	map.loop(obj)
-
-setl4.reduce.map.next
-
-	member = map.next(#obj)				:f(return)
-	member = eval(expr)				:f(setl4.reduce.map.next)
-	eq(member)					:s(setl4.reduce.map.next)
-	map.add(setl4.reduce,member)			:(setl4.reduce.map.next)
-
-setl4.reduce.set
-
-	member = set.next(#obj)				:f(return)
-	member = eval(expr)				:f(setl4.reduce.set.next)
-	eq(member)					:s(setl4.reduce.set.next)
-	set.add(setl4.reduce,member)			:(setl4.reduce.set.next)
-
-setl4.reduce.sequence
-
-	member = sequence.next(#obj)			:f(return)
-	member = eval(expr)				:f(sequencel4.reduce.sequence.next)
-	eq(member)					:s(sequencel4.reduce.sequence.next)
-	sequence.add(sequencel4.reduce,member)		:(sequencel4.reduce.sequence.next)
-
-setl4.reduce.string
-
-	obj len(1) . member =				:f(return)
-	member = eval(expr)				:f(setl4.reduce.string)
-	eq(member)					:s(setl4.reduce.string)
-
-*	Append c to result.
-
-	setl4.reduce = setl4.reduce  c			:(setl4.reduce.string)
-
-setl4.reduce.end
-
-	opsyn('%','setl4.reduce',2)
