@@ -21,6 +21,7 @@
 setl4.size
 	
 	dt = datatype(s)
+	setl4.size = ident(dt,'map') map.size(s)		:s(return)
 	setl4.size = ident(dt,'string') size(s)			:s(return)
 	setl4.size = ident(dt,'set') set.size(s)		:s(return)
 	setl4.size = ident(dt,'sequence') sequence.size(s)	:s(return)
@@ -29,6 +30,19 @@ setl4.size
 setl4.size.end
 
 	opsyn('#','setl4.size',1)
+
+*	According to Paul Halmos, in his book "Naive
+*	Set Theory," a major principle of set theory, often
+*	referred to by its German name _Aussonderungsaxiom_,
+*	is the Axiom of Specification:
+
+*	To every set _A_ and every condition _S(x)_ there corresponds
+*	a set _B_ whose elements are exactly those elements _x_ of _A_
+*	for which _S(x)_ holds.
+
+*	In SETL4 we say that the expression '_A_ % _S_' "reduces"
+*	_A_ by _S_. This can also be read as 
+*		"the subset of _A_ such that _S_ is true"
 
 *	Define '%' as binary operator that reduces compound object to
 *	members for which a specified expression is true.
@@ -112,7 +126,7 @@ setl4.reduce.end
 *       of the elements of the set is "true."
 
 
-	data('set(set.table,set.size,set.index,set.array)')
+	data('set(set.table,set.name,set.size,set.index,set.array)')
 
 *       Maps: Functions
 *       --------------
@@ -137,7 +151,7 @@ setl4.reduce.end
 
         data('entry(key,value)')
 
-	data('map(map.table,map.size,map.next,map.array)')
+	data('map(map.table,map.name,map.size,map.next,map.array)')
 
 *	where
 
@@ -153,7 +167,7 @@ setl4.reduce.end
 
 *       A sequence is a map defined on the positive integers: 1,2, ... ,n.
 
-        data('sequence(sequence.table,sequence.size,sequence.index)')
+        data('sequence(sequence.table,sequence.name,sequence.size,sequence.index)')
 
 *               _sequence.size_ is the length of the sequence.
 
@@ -167,7 +181,7 @@ setl4.reduce.end
 
 *       A stack is a sequence with a limited set of operations.
 
-        data('stack(stack.table,stack.size)')
+        data('stack(stack.table,stack.name,stack.size)')
 
 *               _stack.table_   is the table used to maintain the stack.
 
@@ -679,6 +693,7 @@ map.inverse.end
 map.loop
 
         map.next(map) = 0
+ :(map.loop.order)
         ident(kind)                                     :s(map.loop.order)
         ident(kind, '+order')                           :s(map.loop.key.order.inc)
         ident(kind, '-order')                           :s(map.loop.key.order.dec)
@@ -714,7 +729,7 @@ map.loop.value.dec
 
 map.loop.end
 
-        define('map.new(init,n)i,key,str,valr')         :(map.new.end)
+        define('map.new(init,name)i,key,str,valr')         :(map.new.end)
 
 *       Create a new map.
 
@@ -731,11 +746,11 @@ map.new
         kind = ident(kind) 'map'
         output = 'enter map.new [' init ']'
         init break(':')                                	:s(map.new.keyval)
-        map.new = map(table(i))                         :(return)
+        map.new = map(table(i),name)                  	:(return)
 
 map.new.keyval
         
-        map.new = map(table(128))
+        map.new = map(table(128),name)
 
 map.new.keyval.next
 
@@ -744,15 +759,16 @@ map.new.keyval.next
 
 map.new.end
 
-        define('map.next(map)')                         :(map.next.end)
+        define('map.next(map)i')                         :(map.next.end)
 
 *       _map.next_ returns the next entry in a map, or fails if no entries remain.
 
 map.next
 
         map.next(map) = map.next(map) + 1
-        gt(map.next(map), #map)				:s(freturn)
-        map.next = entry(map.array[map.next(map),1],map.array[map.next(map),2]):(return)
+	i = map.next(map)
+        gt(i, #map)					:s(freturn)
+        map.next = entry(map.array(map)[i,1],map.array(map)[i,2]):(return)
 
 map.next.end
 
@@ -775,13 +791,14 @@ map.range.next
 
 map.range.end
 
-        define('map.put(key,val)v')                 :(map.put.end)
+        define('map.put(map,key,val)v')                 :(map.put.end)
 
 *       Sets the value of the entry for key _key_ in map _map_ to be _val_, 
 *       creating a new entry if there is no current entry for _key_.
 
 map.put
 
+	output = 'map.put dt ' datatype(map)
 *        output = 'enter map.put dt ' datatype(map) ' key [' key '] val [' val ']'
         v = map.table(map)[key]
         differ(v)                                       :s(map.put.value)
@@ -1128,7 +1145,7 @@ sequence.loop.value.dec
 
 sequence.loop.end
 
-        define('sequence.new(init,n)i,key,str,valr')         :(sequence.new.end)
+        define('sequence.new(init,name)i,key,str,valr')         :(sequence.new.end)
 
 *       Create a new sequence.
 
@@ -1139,15 +1156,14 @@ sequence.loop.end
 
 sequence.new
 
-        sequence.new = ident(init) sequence(table(128))           :s(return)
+        sequence.new = ident(init) sequence(table(128),name)           :s(return)
         kind = ident(kind) 'sequence'
-        kind
         init break(':')                                	:s(sequence.new.keyval)
-        sequence.new = sequence(table(i))                         :(return)
+        sequence.new = sequence(table(i),name)                         :(return)
 
 sequence.new.keyval
         
-        sequence.new = sequence(table(128))
+        sequence.new = sequence(table(128),name)
 
 sequence.new.keyval.next
 
@@ -1156,14 +1172,16 @@ sequence.new.keyval.next
 
 sequence.new.end
 
-        define('sequence.next(sequence)')                         :(sequence.next.end)
+        define('sequence.next(sequence)')                     	:(sequence.next.end)
 
 *       _sequence.next_ returns the next entry in a sequence, or fails if no entries remain.
 
 sequence.next
 
-        le(sequence.index(sequence) = sequence.index(sequence) + 1, #sequence):f(freturn)
-        sequence.next = entry(sequence.array[sequence.index(sequence),1],sequence.array[sequence.index(sequence),2]):(return)
+        sequence.index(sequence) = sequence.index(sequence) + 1
+	i = sequence.index(sequence)
+        le(i, #sequence)					:f(freturn)
+        sequence.next = entry(sequence.array(sequence)[i,1],sequence.array(sequence)[i,2]) :(return)
 
 sequence.next.end
 
@@ -1305,13 +1323,13 @@ set.in
 
 set.in.end
 
-	define('set.integers(n)i')			:(set.integers.end)
+	define('set.integers(n,name)i')			:(set.integers.end)
 
 *	Returns set of integers in the range 1 .. _n_.
 
 set.integers
 
-	set.integers = set.new(n)
+	set.integers = set.new(n,name)
 
 set.integers.next
 
@@ -1394,7 +1412,7 @@ set.member
 
 set.member.end
 
-        define('set.new(init)i,key,str,valr')         :(set.new.end)
+        define('set.new(init,name)i,key,str,valr')         :(set.new.end)
 
 *       Create a new set.
 
@@ -1404,9 +1422,10 @@ set.member.end
 *	values separated by spaces.
 
 set.new
+	output = 'set.new ' init ' name ' name '.'
 	ident(init)					:s(set.new.int)
 	i = convert(init,'integer')			:s(set.new.int)
-	set.new = set(table(128))
+	set.new = set(table(128),name)
 	init = init ' ' 
 
 set.new.init
@@ -1417,11 +1436,11 @@ set.new.init
 set.new.int
 
 	i = ident(init) 128
-	set.new = set(table(i))				:(return)
+	set.new = set(table(i),name)			:(return)
 
 set.new.end
 
-        define('set.next(set)')                         :(set.next.end)
+        define('set.next(set)i')                         :(set.next.end)
 
 *       _set.next_ returns the next entry in a set, or fails if no entries remain.
 
@@ -1430,8 +1449,9 @@ set.next
 *	output = 'set.next dt ' datatype(set)
 
         set.index(set) = set.index(set) + 1
-        gt(set.index(set), #set)			:s(freturn)
-	set.next = set.array(set)[set.index(set),1]	:(return)
+	i = set.index(set)
+        gt(i, #set)					:s(freturn)
+	set.next = set.array(set)[i,1]			:(return)
 
 set.next.end
 
@@ -1506,12 +1526,18 @@ show.integer
 
 show.map
 
-	map.loop(map)
+	map.loop(v)
+	show = (differ(map.name(v)) map.name(v), '') ' {'
 
 show.map.next
 
-	member = map.next(map)				:f(show.done)
-	show(member)				:(show.map.next)
+	member = map.next(v)				:f(show.done)
+	output = 'dt show.map.next ' datatype(member)
+	show = ' ' show(member,1)					
+	show = show ' ' show(member,1)				
+	lt(#show,100)					:s(show.map.next)
+	output = show ' '
+	show =						:(show.map.next)
 
 show.pair
 
@@ -1520,17 +1546,17 @@ show.pair
 
 show.sequence
 
-	show = '['
 	sequence.loop(v)
-	sequence.loop(sequence)
+	show = (differ(sequence.name(v)) sequence.name(v), '') ' ['
 
 show.sequence.next
 
 	member = sequence.next(sequence)		:f(show.sequence.done)
 
+	show = (ident(show) '[ ', show ' ') show(member,1)					
 	show = show ' ' show(member,1)				
 	lt(#show,100)					:s(show.sequence.next)
-	output = show
+	output = show ' '
 	show =						:(show.sequence.next)
 
 show.sequence.done
@@ -1539,23 +1565,23 @@ show.sequence.done
 							:(show.done)
 
 show.set
-
 	
-	show =
+	output = 'show.set datatype ' datatype(v)
+	show = (differ(set.name(v)) set.name(v), '') ' {'
 	set.loop(v)
 
 show.set.next
 
 	member = set.next(v)				:f(show.set.done)
 	
-	show = (ident(show) '{ ', show ',') show(member,1)					
+*	show = (ident(show,'{') '{ ', show ' ') show(member,1)					
+	show = show ' '  show(member,1)					
 	lt(#show,100)					:s(show.set.next)
-	output = show ','
+	output = show 
 	show =						:(show.set.next)
 
 show.set.done
 
-*	output = 'show.set.done dt member ' datatype(member)
 	show = show ' }'
 							:(show.done)
 show.string
