@@ -1,103 +1,6 @@
 *       Copyright 2017, David Shields
 *       Licensed under the MIT license.
 
-*	Operator Extensions
-*	-------------------
-
-*	Setl4 uses the _opsyn_ extension feature of SPITBOL to:
-
-*	 define '#' as a unary operator that returns the size of its operand, and 
-
-*	define '%' as a binary operator 'obj % expr' that computes the 
-*	'reduction' of the compound object _obj_ to only those components 
-*	for which _eval(expr)_ is true.
-
-*	Define '#' as unary operator that returns size of its operand.
-
-	define('setl4.size(s)dt')			:(setl4.size.end)
-
-*	Return size of operand.
-
-setl4.size
-	
-	dt = datatype(s)
-	setl4.size = ident(dt,'map') map.size(s)		:s(return)
-	setl4.size = ident(dt,'string') size(s)			:s(return)
-	setl4.size = ident(dt,'set') set.size(s)		:s(return)
-	setl4.size = ident(dt,'sequence') sequence.size(s)	:s(return)
-	output = 'setl4.size unknown type ' dt :(end)
-
-setl4.size.end
-
-	opsyn('#','setl4.size',1)
-
-*	According to Paul Halmos, in his book "Naive
-*	Set Theory," a major principle of set theory, often
-*	referred to by its German name _Aussonderungsaxiom_,
-*	is the Axiom of Specification:
-
-*	To every set _A_ and every condition _S(x)_ there corresponds
-*	a set _B_ whose elements are exactly those elements _x_ of _A_
-*	for which _S(x)_ holds.
-
-*	In SETL4 we say that the expression '_A_ % _S_' "reduces"
-*	_A_ by _S_. This can also be read as 
-*		"the subset of _A_ such that _S_ is true"
-
-*	Define '%' as binary operator that reduces compound object to
-*	members for which a specified expression is true.
-
-	define('setl4.reduce(obj,expr)member')		:(setl4.reduce.end)
-
-*	Returns that part of compound object _obj_ for which _expr_ is true.
-
-setl4.reduce
-
-	member = datatype(obj)
-	ident(member,'string')				:s(setl4.reduce.string)
-	ident(member,'set')				:s(setl4.reduce.set)
-	ident(member,'sequence')			:s(setl4.reduce.sequence)
-	ident(member,'map')				:s(setl4.reduce.map)
-
-setl4.reduce.map
-	setl4.reduce = map.new(#obj)
-	map.loop(obj)
-
-setl4.reduce.map.next
-
-	member = map.next(#obj)				:f(return)
-	member = eval(expr)				:f(setl4.reduce.map.next)
-	eq(member)					:s(setl4.reduce.map.next)
-	map.add(setl4.reduce,member)			:(setl4.reduce.map.next)
-
-setl4.reduce.set
-
-	member = set.next(#obj)				:f(return)
-	member = eval(expr)				:f(setl4.reduce.set.next)
-	eq(member)					:s(setl4.reduce.set.next)
-	set.add(setl4.reduce,member)			:(setl4.reduce.set.next)
-
-setl4.reduce.sequence
-
-	member = sequence.next(#obj)			:f(return)
-	member = eval(expr)				:f(sequencel4.reduce.sequence.next)
-	eq(member)					:s(sequencel4.reduce.sequence.next)
-	sequence.add(sequencel4.reduce,member)		:(sequencel4.reduce.sequence.next)
-
-setl4.reduce.string
-
-	obj len(1) . member =				:f(return)
-	member = eval(expr)				:f(setl4.reduce.string)
-	eq(member)					:s(setl4.reduce.string)
-
-*	Append c to result.
-
-	setl4.reduce = setl4.reduce  c			:(setl4.reduce.string)
-
-setl4.reduce.end
-
-	opsyn('%','setl4.reduce',2)
-
 
 *       Boolean Logic
 *       -------------
@@ -117,6 +20,100 @@ setl4.reduce.end
         false = 0
         true = 1
 
+
+*	Compound Datatypes
+*	------------------
+
+*	SETL4 extends SPITBOL by adding the datatype _set_ to represent finite sets.
+*	Several additional datatypes based on sets are also provided; each is identified by its kind.
+
+
+	data('set(set.kind,set.table,set.name,set.size,set.index,set.array)')
+
+*	where
+
+*	kind is _set_, _map_, _sequence_, or _stack_.
+
+	setl.kind.map		= 'map'
+	setl.kind.sequence	= 'sequence'
+	setl.kind.set		= 'set'
+	setl.kind.stack		= 'stack'
+	setl.kind.string	= 'string'
+
+*	where the fields are as follows:
+
+*		_name_		a string that may be specified when a compound object
+*				is created, and which will then be listed when the
+*				object is displayed.
+
+*		_table_		a SPITBOL table used to maintain the members of the object.
+
+*		_size_		the current number of members.
+
+*		_next_		an index used when iterating over the object.
+
+*		_array_		a SPITBOL array created as needed when iterating over the object.
+*				Map and sets require the array; other types don't.
+
+*
+
+*	data('map(map.table,map.name,map.size,map.next,map.array)')
+*       data('sequence(sequence.table,sequence.name,sequence.size,sequence.index)')
+*       data('stack(stack.table,stack.name,stack.size)')
+
+*	New instances of compound objects are created by set.new
+
+*		set.new(init,name)
+
+*	where
+
+*		_type_ is the compound type: set, map, etc.
+
+*		_init_ is an initialization value, usually an integer or string
+
+*		_name_ is a string that is displayed when showing the object.
+
+	define('exists(obj,expr)member')		:(exists.end)
+
+*	Determines if there is an element in _obj_ such that _eval(expr)_ is true.
+*	If found, exists succeeds and returns the element found. 
+*	Otherwise, exists fails.
+
+exists
+
+	loop(obj)
+
+exists.loop
+
+	element = next(obj)				:f(freturn)
+	false(eval(expr))				:s(exists.loop)
+	exists = element				:(return)
+
+exists.end
+
+	define('forall(obj,expr)member')		:(forall.end)
+
+*	Determines if _expr_ is true for all the members of _obj_.
+*	Returns true if so. Otherwise fails and returns the element
+*	found for which _expr_ was not true as the value.
+
+forall
+
+	loop(obj)
+
+forall.loop
+
+	forall = next(obj)				:f(forall.done)
+	true(eval(expr))				:s(forall.loop)
+	forall = element				:(freturn)
+
+forall.done
+	
+	forall = true					:(return)
+
+forall.end
+
+
 *       Sets
 *       ____
         
@@ -126,7 +123,6 @@ setl4.reduce.end
 *       of the elements of the set is "true."
 
 
-	data('set(set.table,set.name,set.size,set.index,set.array)')
 
 *       Maps: Functions
 *       --------------
@@ -134,7 +130,6 @@ setl4.reduce.end
 *       In mathematics, a map, or function, is a set of ordered pairs that define a relation between
 *       the first element of a pair, called the domain value, and the second value of the pair, called
 *       the range value.
-
 
 *	A _pair_ joins two values together. 
 
@@ -145,21 +140,11 @@ setl4.reduce.end
 *       a map other than converting the map to an array, which is only way to iterate
 *       over a map.
 
-*       SETL4 represents a map using the following data structures:
-
-*       _entry_ is used to maintain a key/value pair.
+*       SETL4 represents a map entry as follows:
 
         data('entry(key,value)')
 
-	data('map(map.table,map.name,map.size,map.next,map.array)')
-
-*	where
-
-*		_map.table_ is the table used to maintain the key/value pairs of the map.
-
-*		_map.size_ is the current size of the map.
-
-*		_map.next_ is used when iterating over the map.
+*	where _key_ is the key, and _value_ is the value of the map for _key_.
 
 
 *       Sequences.
@@ -167,25 +152,11 @@ setl4.reduce.end
 
 *       A sequence is a map defined on the positive integers: 1,2, ... ,n.
 
-        data('sequence(sequence.table,sequence.name,sequence.size,sequence.index)')
-
-*               _sequence.size_ is the length of the sequence.
-
-*               _sequence.table_ is the map representing the sequence.
-
-*               _sequence.next_ is used to iterate over the sequence.
-
 
 *       Stacks
 *       ------
 
 *       A stack is a sequence with a limited set of operations.
-
-        data('stack(stack.table,stack.name,stack.size)')
-
-*               _stack.table_   is the table used to maintain the stack.
-
-*               _stack.size_    is the number of entries in the stack.
 
 
 *	Lines
@@ -255,9 +226,10 @@ or.end
 *       ---------------------------
 
 *                even(n)         true iff n is even.
+*                factorial(n)    returns the value of n! = n * (n - 1) * ... * 
 *                odd(n)          true iff n is odd.
 *                prime(n)        true iff n is a prime number
-*                factorial(n)    returns the value of n! = n * (n - 1) * ... * 
+*		 square.root	 square root rounded up to next integer.
 
 
         define('even(n)')                                  :(even.end)
@@ -305,6 +277,119 @@ prime
         prime = (eq(remdr(n,2)) true,false)             :(prime.end)
 
 prime.end
+
+	define('square.root(n)')			:(square.root.end)
+
+*	Returns square root of integer _n_, rounded up.
+
+square.root
+
+	square.root = convert(sqrt(convert(n,'real')),'integer') + 1 :(return)
+
+square.root.end
+
+*	Operator Extensions
+*	-------------------
+
+*	Setl4 uses the _opsyn_ extension feature of SPITBOL to:
+
+*	 define '#' as a unary operator that returns the size of its operand, and 
+
+*	define '%' as a binary operator 'obj % expr' that computes the 
+*	'reduction' of the compound object _obj_ to only those components 
+*	for which _eval(expr)_ is true.
+
+*	Define '#' as unary operator that returns size of its operand.
+
+	define('setl4.size(s)dt')			:(setl4.size.end)
+
+*	Return size of operand.
+
+setl4.size
+	
+	dt = datatype(s)
+	setl4.size = ident(dt,'map') map.size(s)		:s(return)
+	setl4.size = ident(dt,'string') size(s)			:s(return)
+	setl4.size = ident(dt,'set') set.size(s)		:s(return)
+	setl4.size = ident(dt,'sequence') sequence.size(s)	:s(return)
+	output = 'setl4.size unknown type ' dt :(end)
+
+setl4.size.end
+
+	opsyn('#','setl4.size',1)
+
+*	According to Paul Halmos, in his book "Naive
+*	Set Theory," a major principle of set theory, often
+*	referred to by its German name _Aussonderungsaxiom_,
+*	is the Axiom of Specification:
+
+*	To every set _A_ and every condition _S(x)_ there corresponds
+*	a set _B_ whose elements are exactly those elements _x_ of _A_
+*	for which _S(x)_ holds.
+
+*	In SETL4 we say that the expression '_A_ @ _S_' "reduces"
+*	_A_ by _S_. This can also be read as 
+*		"the subset of _A_ such that _S_ is true"
+*	or
+*		"that part of _A_ AT which _S_ is true"
+
+*	Define '@' as binary operator that reduces compound object to
+*	members for which a specified expression is true.
+
+	define('setl4.reduce(obj,expr)member')		:(setl4.reduce.end)
+
+*	Returns that part of compound object _obj_ for which _expr_ is true.
+
+setl4.reduce
+
+	member = datatype(obj)
+	ident(member,'string')				:s(setl4.reduce.string)
+	ident(member,'set')				:s(setl4.reduce.set)
+	ident(member,'sequence')			:s(setl4.reduce.sequence)
+	ident(member,'map')				:s(setl4.reduce.map)
+
+setl4.reduce.map
+	setl4.reduce = set.new('map',#obj)
+	loop(obj)
+
+setl4.reduce.map.next
+
+	member = next(#obj)				:f(return)
+	member = eval(expr)				:f(setl4.reduce.map.next)
+	eq(member)					:s(setl4.reduce.map.next)
+	map.add(setl4.reduce,member)			:(setl4.reduce.map.next)
+
+setl4.reduce.set
+
+	member = next(#obj)				:f(return)
+	member = eval(expr)				:f(setl4.reduce.set.next)
+	eq(member)					:s(setl4.reduce.set.next)
+	set.add(setl4.reduce,member)			:(setl4.reduce.set.next)
+
+setl4.reduce.sequence
+
+	member = next(#obj)			:f(return)
+	member = eval(expr)				:f(sequencel4.reduce.sequence.next)
+	eq(member)					:s(sequencel4.reduce.sequence.next)
+	sequence.add(sequencel4.reduce,member)		:(sequencel4.reduce.sequence.next)
+
+setl4.reduce.string
+
+	obj len(1) . member =				:f(return)
+	member = eval(expr)				:f(setl4.reduce.string)
+	eq(member)					:s(setl4.reduce.string)
+
+*	Append c to result.
+
+	setl4.reduce = setl4.reduce  c			:(setl4.reduce.string)
+
+setl4.reduce.end
+
+	opsyn('@','setl4.reduce',2)
+
+*TODO : use '&' for 'and', and '|' for or, after not allowing '|' for exponentiation
+*tODO	use  unary '=' for iteration, eg '=s' for next element in s.
+*TODO;	Use  x ~ S for x is member of S.
 
         define('string.append(str,w,ch)')                      :(string.append.end)
 
@@ -416,7 +501,7 @@ string.ascii.init
         g.string.ascii.val = map.map(128)
         
 
-	map.loop(string.ascii.init)
+	loop(string.ascii.init)
 
 string.ascii.init.next
 
@@ -544,19 +629,18 @@ string.upper
 
 string.upper.end
 
-        define('map.domain(map)entry)')			:(map.domain.end)
+        define('map.domain(map))')			:(map.domain.end)
 
 *       Return set with the keys in _map_.
 
 map.domain
 
-	map.domain = set.new(#map)
-        map.loop(map)
+	map.domain = set.new('set',#map,map.name(map))
+        loop(map)
 
 map.domain.next
 
-        entry = map.next(map)                           :f(return)
-        set.add(map.domain,key(entry))               	:(map.domain.next)
+        set.add(map.domain,key(map.next(map)))		:s(map.domain.next)f(return)
 
 map.domain.end
 
@@ -571,7 +655,7 @@ map.domain.end
 map.equal
 
 	map.equal = ne(#a,#b) false			:s(return)
-	map.loop(map)
+	loop(map)
 
 map.equal.next
 
@@ -596,8 +680,8 @@ map.equal.end
 
 map.eval
 
-	map.eval = map.new(#map)
-	map.loop(map)
+	map.eval = set.new('map',#map)
+	loop(map)
 	result =
 
 map.eval.next
@@ -607,44 +691,6 @@ map.eval.next
 	map.put(map.eval,first(pair), second(pair))	:(map.eval.next)
 
 map.eval.end
-
-        define('map.exists(map,expr)')			:(map.exists.end)
-
-*	Tests each entry _entry in map _map_ and calls _eval(entry)_.
-*	If the call succeeds, _map.exists_ returns _entry and succeeds; otherwise
-*	_map.exists_ fails.
-
-map.exists
-
-        map.exists = true
-        map.loop(map)
-
-map.exists.next
-
-	entry = map.next(map)				:f(freturn)
-	eval(exp)					:s(map.exists.next)
-	map.exists = entry				:(return)
-
-map.exists.end
-
-        define('map.forall(map,expr)')			:(map.forall.end)
-
-*	Tests each entry _entry map _map_ and calls _eval(expr)_.
-*	If the call fails, _map.forall_ returns _entry and fails; otherwise
-*	_map.forall_ returns true.
-
-map.forall
-
-        map.forall = true
-        map.loop(map)
-
-map.forall.next
-
-	entry = map.next(map)				:f(return)
-	eval(exp)					:s(map.forall.next)
-	map.forall = entry				:(freturn)
-
-map.forall.end
 
         define('map.get(key,val)')                  :(map.get.end)
 
@@ -663,8 +709,8 @@ map.get.end
 
 map.inverse
 
-	map.inverse = map.new(#map)
-	map.loop(map)
+	map.inverse = set.new('map',#map)
+	loop(map)
 
 map.inverse.next
 
@@ -674,62 +720,7 @@ map.inverse.next
 
 map.inverse.end
 
-        define('map.loop(map,kind)')                    :(map.loop.end)
-*TODO*
-*       Returns an iterator for _map_. Use _map.next_ to retrieve
-*       the next entry in map. _map.next_ fails when no more entries remain.
-
-*       _kind_ gives the kind of loop:
-
-*               '+order'        iterate in order in which entries added. (default)
-*               '-order'        iterate in reverse order in which entries added.
-*               '+key'          iterate in incresing values of keys.
-*               '-key'          iterate in decceasing values of keys.
-*               '+val'          iterate in incresing values of values.
-*               '-key'          iterate in decreasing values of keys.
-
-*       Otherwise iterate over the keys in the order in which they were added to the map.
-
-map.loop
-
-        map.next(map) = 0
- :(map.loop.order)
-        ident(kind)                                     :s(map.loop.order)
-        ident(kind, '+order')                           :s(map.loop.key.order.inc)
-        ident(kind, '-order')                           :s(map.loop.key.order.dec)
-        ident(kind, '+key')                             :s(map.loop.key.inc)
-        ident(kind, '-key')                             :s(map.loop.key.dec)
-        ident(kind, '+val')                             :s(map.loop.value.inc)
-        ident(kind, '-val')                             :s(map.loop.value.dec)
-
-map.loop.order.inc
-
-        map.array(map) = convert(map.table(map),'array'):(map.done)
-
-map.loop.rorder.inc
-
-        output = 'loop rorder not implemented '         :(nosuchlabel)
-        map.array(map) = convert(map.table(map),'array'):(map.done)
-
-map.loop.key.inc
-
-        map.array(map) = rsort(map.table(map),1)        :(return)
-
-map.loop.key.dec
-
-        map.array(map) = sort(map.table(map),1)         :(return)
-
-map.loop.value.inc
-
-        map.array(map) = rsort(map.table(map),2)        :(return)
-
-map.loop.value.dec
-
-        map.array(map) = sort(map.table(map),-2)        :(return)
-
-map.loop.end
-
-        define('map.new(init,name)i,key,str,valr')         :(map.new.end)
+        define('set.new(kind,init,name)i,key,str,valr')         :(map.new.end)
 
 *       Create a new map.
 
@@ -759,19 +750,6 @@ map.new.keyval.next
 
 map.new.end
 
-        define('map.next(map)i')                         :(map.next.end)
-
-*       _map.next_ returns the next entry in a map, or fails if no entries remain.
-
-map.next
-
-        map.next(map) = map.next(map) + 1
-	i = map.next(map)
-        gt(i, #map)					:s(freturn)
-        map.next = entry(map.array(map)[i,1],map.array(map)[i,2]):(return)
-
-map.next.end
-
         define('map.range(map)')                    	:(map.range.end)
 
 
@@ -783,7 +761,7 @@ map.next.end
 map.range
 
         map.range = map.sequence()
-        map.loop(map)
+        loop(map)
 
 map.range.next
 
@@ -1030,8 +1008,8 @@ sequence.add.end
 
 sequence.eval
 
-	sequence.eval = sequence.new(#sequence)
-	sequence.loop(sequence)
+	sequence.eval = set.new('sequence',#sequence)
+	loop(sequence)
 
 sequence.eval.next
 
@@ -1040,45 +1018,6 @@ sequence.eval.next
 	sequence.add(sequence.eval,value)				:(sequence.eval.next)
 	
 sequence.eval.end
-
-        define('sequence.exists(sequence,expr)')			:(sequence.exists.end)
-
-*	Tests each element _element_ in sequence _sequence_ and calls _eval(expr)_.
-*	If the call succeeds, _sequence.exists_ returns _element_ and succeeds; otherwise
-*	_sequence.exists_ fails.
-
-sequence.exists
-
-        sequence.exists = true
-        sequence.loop(sequence)
-
-sequence.exists.next
-
-	element = sequence.next(sequence)				:f(freturn)
-	eval(exp)					:s(sequence.exists.next)
-	sequence.exists = element				:(return)
-
-sequence.exists.end
-
-        define('sequence.forall(sequence,expr)')			:(sequence.forall.end)
-
-*	Tests each element _element__in sequence _sequence_ and calls _eval(expr)_.
-*	If the call fails, _sequence.forall_ returns _element_ and fails; otherwise
-*	_sequence.forall_ returns true.
-
-sequence.forall
-
-        sequence.forall = true
-        sequence.loop(sequence)
-
-sequence.forall.next
-
-	element = sequence.next(sequence)				:f(return)
-	eval(exp)					:s(sequence.forall.next)
-	sequence.forall = element				:(freturn)
-
-sequence.forall.end
-
 
         define('sequence.get(i)')                                  :(sequence.get.end)
 
@@ -1091,59 +1030,20 @@ sequence.get
 
 sequence.get.end
 
-        define('sequence.loop(sequence,kind)')                    :(sequence.loop.end)
+	define('sequence.integers(n)i')				:(sequence.integers.end)
 
-*       Returns an iterator for _sequence_. Use _sequence.next_ to retrieve
-*       the next entry in sequence. _sequence.next_ fails when no more entries remain.
+*	Returns sequence of integers 1 ... _n_
 
-*       _kind_ gives the kind of loop:
+sequence.integers
 
-*               '+order'        iterate in order in which entries added. (default)
-*               '-order'        iterate in reverse order in which entries added.
-*               '+key'          iterate in incresing values of keys.
-*               '-key'          iterate in decceasing values of keys.
-*               '+val'          iterate in incresing values of values.
-*               '-key'          iterate in decreasing values of keys.
+	sequence.integers = set.new('sequence',100)
 
-*       Otherwise iterate over the keys in the order in which they were added to the sequence.
+setuence.integers.next
 
-sequence.loop
+	gt(i = i + 1, n)				:s(return)
+	sequence.add(sequence.integers,i)		:(sequence.integers.next)
 
-        sequence.index(sequence) = 0
-        ident(kind)                                     :s(sequence.loop.order)
-        ident(kind, '+order')                           :s(sequence.loop.key.order.inc)
-        ident(kind, '-order')                           :s(sequence.loop.key.order.dec)
-        ident(kind, '+key')                             :s(sequence.loop.key.inc)
-        ident(kind, '-key')                             :s(sequence.loop.key.dec)
-        ident(kind, '+val')                             :s(sequence.loop.value.inc)
-        ident(kind, '-val')                             :s(sequence.loop.value.dec)
-
-sequence.loop.order.inc
-
-        sequence.array(sequence) = convert(sequence.table(sequence),'array'):(sequence.done)
-
-sequence.loop.rorder.inc
-
-        output = 'loop rorder not implemented '         :(nosuchlabel)
-        sequence.array(sequence) = convert(sequence.table(sequence),'array'):(sequence.done)
-
-sequence.loop.key.inc
-
-        sequence.array(sequence) = rsort(sequence.table(sequence),1)        :(return)
-
-sequence.loop.key.dec
-
-        sequence.array(sequence) = sort(sequence.table(sequence),1)         :(return)
-
-sequence.loop.value.inc
-
-        sequence.array(sequence) = rsort(sequence.table(sequence),2)        :(return)
-
-sequence.loop.value.dec
-
-        sequence.array(sequence) = sort(sequence.table(sequence),-2)        :(return)
-
-sequence.loop.end
+sequence.integers.end
 
         define('sequence.new(init,name)i,key,str,valr')         :(sequence.new.end)
 
@@ -1172,19 +1072,6 @@ sequence.new.keyval.next
 
 sequence.new.end
 
-        define('sequence.next(sequence)')                     	:(sequence.next.end)
-
-*       _sequence.next_ returns the next entry in a sequence, or fails if no entries remain.
-
-sequence.next
-
-        sequence.index(sequence) = sequence.index(sequence) + 1
-	i = sequence.index(sequence)
-        le(i, #sequence)					:f(freturn)
-        sequence.next = entry(sequence.array(sequence)[i,1],sequence.array(sequence)[i,2]) :(return)
-
-sequence.next.end
-
         define('sequence.range(sequence)')                    :(sequence.range.end)
 
 
@@ -1193,8 +1080,8 @@ sequence.next.end
 
 sequence.range
 
-        sequence.range = seq.new(#sequence)
-        sequence.loop(sequence)
+        sequence.range = set.new('sequence',#sequence)
+        loop(sequence)
 
 sequence.range.next
 
@@ -1250,70 +1137,18 @@ set.add.end
 *
 *set.array.end
 
-	define('set.equal(a,b)x')			:(set.equal.end)
+	define('set.equal(a,b)')			:(set.equal.end)
 
 *	Tests if two sets are equal.
+*	Two sets are equal iff each is a subset of the other.
 
 set.equal
 
-	set.equal = false
-	ne(#a,#b)					:s(return)
-
-*	Here if same size, so test if all elements in one
-*	set are in the other.
-
-	set.loop(a)
-
-seq.equal.next
-
-	x = set.next(a)					:f(set.equal.done)
-	set.equal = set.member(b,x)			:s(set.equal.next)f(return)
-
-set.equal.done
-
-	set.equal = true				:(return)
+	set.equal = and(set.subset(a,b),set.subset(b,a))	:(return)
 
 set.equal.end
 
-        define('set.exists(set,expr)')			:(set.exists.end)
-
-*	Tests each element _element__in set _set_ and calls _eval(expr)_.
-*	If the call succeeds, _set.exists_ returns _element_ and succeeds; otherwise
-*	_set.exists_ fails.
-
-set.exists
-
-        set.exists = true
-        set.loop(set)
-
-set.exists.next
-
-	element = set.next(set)				:f(freturn)
-	eval(exp)					:s(set.exists.next)
-	set.exists = element				:(return)
-
-set.exists.end
-
-        define('set.forall(set,expr)')			:(set.forall.end)
-
-*	Tests each element _element__in set _set_ and calls _eval(expr)_.
-*	If the call fails, _set.forall_ returns _element_ and fails; otherwise
-*	_set.forall_ returns true.
-
-set.forall
-
-        set.forall = true
-        set.loop(set)
-
-set.forall.next
-
-	element = set.next(set)				:f(return)
-	eval(exp)					:s(set.forall.next)
-	set.forall = element				:(freturn)
-
-set.forall.end
-
-	define('set.in(set,elem)')				:(set.in.end)
+	define('set.in(elem,set)')				:(set.in.end)
 
 *	Test if _elem_ is a member of set _set_.
 
@@ -1329,7 +1164,7 @@ set.in.end
 
 set.integers
 
-	set.integers = set.new(n,name)
+	set.integers = set.new('set','set',n,name)
 
 set.integers.next
 
@@ -1355,10 +1190,10 @@ set.intersection.a
 
 *	Make copy of set _a_ by making copy of _a_'s table.
 
-	set.intersection = set.new(,#a)
+	set.intersection = set.new('set',,#a)
 	set.table(set.intersection) = copy(set.table(a))
 
-	set.loop(b)
+	loop(b)
 
 set.intersection.b
 
@@ -1377,8 +1212,8 @@ set.intersection.end
 
 set.less
 
-	set.less = set.new()
-	set.loop(a)
+	set.less = set.new('set',)
+	loop(a)
 
 set.less.a
 
@@ -1387,20 +1222,6 @@ set.less.a
 	set.add(set.less,elem)				:s(set.less.a)
 
 set.less.end
-
-        define('set.loop(set)')                    :(set.loop.end)
-
-*       Returns an iterator for _set_. Use _set.next_ to retrieve
-*       the next entry in set. _set.next_ fails when no more entries remain.
-
-set.loop
-
-*	output = 'enter set.loop dt ' datatype(set)
-	ident(set)					:s(return)
-        set.index(set) = 0
-        set.array(set) = convert(set.table(set),'array'):(return)
-
-set.loop.end
 
 	define('set.member(set,elem)')			:(set.member.end)
 
@@ -1412,7 +1233,7 @@ set.member
 
 set.member.end
 
-        define('set.new(init,name)i,key,str,valr')         :(set.new.end)
+        define('set.new(kind,init,name)i,key,str,valr')         :(set.new.end)
 
 *       Create a new set.
 
@@ -1440,22 +1261,7 @@ set.new.int
 
 set.new.end
 
-        define('set.next(set)i')                         :(set.next.end)
-
-*       _set.next_ returns the next entry in a set, or fails if no entries remain.
-
-set.next
-
-*	output = 'set.next dt ' datatype(set)
-
-        set.index(set) = set.index(set) + 1
-	i = set.index(set)
-        gt(i, #set)					:s(freturn)
-	set.next = set.array(set)[i,1]			:(return)
-
-set.next.end
-
-        define('set.notin(x,s)')                      	:(set.notin.end)
+        define('set.notin(s,x)')                      	:(set.notin.end)
 
 *       Returns _true_ iff _x_ is is not element in _s_.
 
@@ -1464,6 +1270,26 @@ set.notin
         set.notin = (ident(set.table[x]) true, false)	:(return)
 
 set.notin.end
+
+	define('set.subset(a,b)member')			:(set.subset.end)
+
+*	Tests if _b_ is a subset of _a_.
+
+set.subset
+
+	gt(#b,#a)					:s(return)
+	loop(b)
+
+set.subset.next
+
+	member = set.next(b)				:f(set.subset.done)
+	set.in(member,a)				:s(set.subset.next)f(return)
+
+set.subset.done
+
+	set.subset = true				:(return)
+
+set.subset.end
 
         define('set.union(a,b)elem')                   	:(set.union.end)
 
@@ -1482,10 +1308,10 @@ set.union.a
 
 *	Make copy of a by making copy of a's table.
 
-	set.union = set.new(,#a)
+	set.union = set.new('set',,#a)
 	set.table(set.union) = copy(set.table(a))
 
-	set.loop(b)
+	loop(b)
 
 set.union.b
 
@@ -1526,7 +1352,7 @@ show.integer
 
 show.map
 
-	map.loop(v)
+	loop(v)
 	show = (differ(map.name(v)) map.name(v), '') ' {'
 
 show.map.next
@@ -1546,7 +1372,7 @@ show.pair
 
 show.sequence
 
-	sequence.loop(v)
+	loop(v)
 	show = (differ(sequence.name(v)) sequence.name(v), '') ' ['
 
 show.sequence.next
@@ -1568,7 +1394,7 @@ show.set
 	
 	output = 'show.set datatype ' datatype(v)
 	show = (differ(set.name(v)) set.name(v), '') ' {'
-	set.loop(v)
+	loop(v)
 
 show.set.next
 
@@ -1957,7 +1783,7 @@ words.end
 writer
 
 	lines = copy(lines)
-	map.loop(lines)
+	loop(lines)
 
 writer.next
 	
@@ -1974,4 +1800,100 @@ error
                                                         :(end)
 error.end
 
+	define('loop(set)kind')			:(loop.end)
 
+*	Returns iterator over compound object _obj_.
+
+loop
+
+        set.index(set) = 0
+	kind = set.kind(set)
+	ident(kind,'map')		:s(loop.map) 
+	ident(kind,'sequence')		:s(loop.map) 
+	ident(kind,'set')		:s(loop.map) 
+	ident(kind,'string')		:s(loop.map) 
+	output = 'unsupported datatype ' kind ' for loop, quitting' :(end)
+
+loop.map
+loop.set
+        set.array(set) = convert(set.table(set),'array'):(return)
+
+loop.sequence	
+						:(return)
+
+loop.string
+
+	output = 'loop on sring not supported ' :(end)
+
+*        define('map.loop(map,kind)')                    :(map.loop.end)
+*TODO*
+*       Returns an iterator for _map_. Use _map.next_ to retrieve
+*       the next entry in map. _map.next_ fails when no more entries remain.
+
+*       _kind_ gives the kind of loop:
+
+*               '+order'        iterate in order in which entries added. (default)
+*               '-order'        iterate in reverse order in which entries added.
+*               '+key'          iterate in incresing values of keys.
+*               '-key'          iterate in decceasing values of keys.
+*               '+val'          iterate in incresing values of values.
+*               '-key'          iterate in decreasing values of keys.
+
+*       Otherwise iterate over the keys in the order in which they were added to the map.
+
+*map.loop
+*
+*        map.next(map) = 0
+* :(map.loop.order)
+*        ident(kind)                                     :s(map.loop.order)
+*        ident(kind, '+order')                           :s(map.loop.key.order.inc)
+*        ident(kind, '-order')                           :s(map.loop.key.order.dec)
+*        ident(kind, '+key')                             :s(map.loop.key.inc)
+*        ident(kind, '-key')                             :s(map.loop.key.dec)
+*        ident(kind, '+val')                             :s(map.loop.value.inc)
+*        ident(kind, '-val')                             :s(map.loop.value.dec)
+*
+*map.loop.order.inc
+*
+*        map.array(map) = convert(map.table(map),'array'):(map.done)
+*
+*map.loop.rorder.inc
+*
+*        output = 'loop rorder not implemented '         :(nosuchlabel)
+*        map.array(map) = convert(map.table(map),'array'):(map.done)
+*
+*map.loop.key.inc
+*
+*        map.array(map) = rsort(map.table(map),1)        :(return)
+*
+*map.loop.key.dec
+*
+*        map.array(map) = sort(map.table(map),1)         :(return)
+*
+*map.loop.value.inc
+*
+*        map.array(map) = rsort(map.table(map),2)        :(return)
+*
+*map.loop.value.dec
+*
+*        map.array(map) = sort(map.table(map),-2)        :(return)
+*
+*map.loop.end
+
+loop.end
+
+	define('next(set)kind')				:(next.end)
+
+*	Returns next member in interation over compound object _obj_.
+
+next
+
+	kind = set.kind(set)
+	ident(kind,'map')				:(next.map)
+	ident(kind,'set')				:(next.set)
+	ident(kind,'sequence')				:(next.sequence)
+	ident(kind,'string')				:(next.string)
+
+	output = 'unsupported kind for next ' kind ', quitting.' :(end)
+
+next.end
