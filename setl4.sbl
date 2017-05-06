@@ -21,160 +21,6 @@
         true = 1
 
 
-*	Compound Datatypes
-*	------------------
-
-*	SETL4 extends SPITBOL by adding the datatype _set_ to represent finite sets.
-*	Several additional datatypes based on sets are also provided; each is identified by its kind.
-
-
-	data('set(set.kind,set.table,set.name,set.size,set.index,set.array)')
-
-*	where
-
-*	kind is _set_, _map_, _sequence_, or _stack_.
-
-	setl.kind.map		= 'map'
-	setl.kind.sequence	= 'sequence'
-	setl.kind.set		= 'set'
-	setl.kind.stack		= 'stack'
-	setl.kind.string	= 'string'
-
-*	where the fields are as follows:
-
-*		_name_		a string that may be specified when a compound object
-*				is created, and which will then be listed when the
-*				object is displayed.
-
-*		_table_		a SPITBOL table used to maintain the members of the object.
-
-*		_size_		the current number of members.
-
-*		_next_		an index used when iterating over the object.
-
-*		_array_		a SPITBOL array created as needed when iterating over the object.
-*				Map and sets require the array; other types don't.
-
-*
-
-*	data('map(map.table,map.name,map.size,map.next,map.array)')
-*       data('sequence(sequence.table,sequence.name,sequence.size,sequence.index)')
-*       data('stack(stack.table,stack.name,stack.size)')
-
-*	New instances of compound objects are created by set.new
-
-*		set.new(init,name)
-
-*	where
-
-*		_type_ is the compound type: set, map, etc.
-
-*		_init_ is an initialization value, usually an integer or string
-
-*		_name_ is a string that is displayed when showing the object.
-
-	define('exists(obj,expr)member')		:(exists.end)
-
-*	Determines if there is an element in _obj_ such that _eval(expr)_ is true.
-*	If found, exists succeeds and returns the element found. 
-*	Otherwise, exists fails.
-
-exists
-
-	loop(obj)
-
-exists.loop
-
-	element = next(obj)				:f(freturn)
-	false(eval(expr))				:s(exists.loop)
-	exists = element				:(return)
-
-exists.end
-
-	define('forall(obj,expr)member')		:(forall.end)
-
-*	Determines if _expr_ is true for all the members of _obj_.
-*	Returns true if so. Otherwise fails and returns the element
-*	found for which _expr_ was not true as the value.
-
-forall
-
-	loop(obj)
-
-forall.loop
-
-	forall = next(obj)				:f(forall.done)
-	true(eval(expr))				:s(forall.loop)
-	forall = element				:(freturn)
-
-forall.done
-	
-	forall = true					:(return)
-
-forall.end
-
-
-*       Sets
-*       ____
-        
-
-*       A set is a collection of values, in no particular order.
-*       SETL4  implements a set as a map for which the value
-*       of the elements of the set is "true."
-
-
-
-*       Maps: Functions
-*       --------------
-
-*       In mathematics, a map, or function, is a set of ordered pairs that define a relation between
-*       the first element of a pair, called the domain value, and the second value of the pair, called
-*       the range value.
-
-*	A _pair_ joins two values together. 
-
-        data('pair(first,second)')
-
-*       The SPITBOL datatype TABLE provides the machinery to implement maps.
-*       SPITBOL provides no way to determine the number of domain values, or size, of
-*       a map other than converting the map to an array, which is only way to iterate
-*       over a map.
-
-*       SETL4 represents a map entry as follows:
-
-        data('entry(key,value)')
-
-*	where _key_ is the key, and _value_ is the value of the map for _key_.
-
-
-*       Sequences.
-*       ----------
-
-*       A sequence is a map defined on the positive integers: 1,2, ... ,n.
-
-
-*       Stacks
-*       ------
-
-*       A stack is a sequence with a limited set of operations.
-
-
-*	Lines
-*	-----
-
-*	Lines can be just strings or, in some cases, a line is represented by a pair:
-
-	data('line(mark,text)')
-
-*	where
-
-*		_mark_ is defined by the value returned by an instance
-*		of the _eval_ function ...
-
-*		_text_ is the text of the line.
-
-*	For example, the _reader_ function reads a file and returns a sequence of _lines_.
-
         define('false(e)')                              :(false.end)
 
 *       Returns true if its argument is false, or else false.
@@ -219,11 +65,11 @@ or
 
 or.end
 
-*
-*       The positive integers are the integers in the set 1..n.
+*       Integer Functions
+*       -----------------
 
-*       Basic Functions on Integers
-*       ---------------------------
+*	SETL4 extends the integer operations provided by SPITBOL by
+*	providing the following integer functions:
 
 *                even(n)         true iff n is even.
 *                factorial(n)    returns the value of n! = n * (n - 1) * ... * 
@@ -288,6 +134,171 @@ square.root
 
 square.root.end
 
+
+*       Sets
+*       ____
+        
+
+*	SETL4 extends SPITBOL by adding the datatype _set_ to represent finite sets.
+*	Several additional datatypes based on sets are also provided; each is identified by its kind.
+
+*	A set is defined by the following datatype:
+
+	data('set(set.kind,set.name,set.index,set.key,set.size,set.max,set.next)')
+
+*	where
+
+*	kind is one of the following
+*	A string may also be viewed as a sequence of characters.
+
+	setl.kind.map		= 'map'
+	setl.kind.set		= 'set'
+	setl.kind.string	= 'string'
+
+*	where the fields are as follows:
+
+*		_name_		a string that may be specified when a compound object
+*				is created, and which will then be listed when the
+*				object is displayed.
+
+*		_index_		a SPITBOL table used to map the integer id assigned each element
+*				to the value of the element.
+
+*		_key_		a SPITBOL table, used only for maps, to permit iteration 
+*				and other set operations, in constant time.
+
+*		_size_		the current number of members.
+
+*		_max_		the maximum id assigned an element of the set.
+
+*		_next_		the last value returned by the _next_ primitive when iterating
+*				over a set.
+
+*	Note that the null value is not allowed as an element of a set, or the value of a map entry,
+*	but can be used as the value of an element in a sequence.
+
+*	The _key_ table is needed to provide constant time bounds for iterating over a set, in
+*	all of its forms.
+
+*	Sets of kind 'sequence' are currently implemented using SPITBOL arrays, extending
+*	the array length dynamically as needed.
+
+*	New elements can be added to a sequence using the 'push' primitive, and the most
+*	recent element can be deleted using the 'pop' primitive.
+
+
+*	New instances of compound objects are created by set.new
+
+*		set.new(init,name)
+
+*	where
+
+*		_type_ is the compound type: set, map, etc.
+
+*		_init_ is an initialization value, usually an integer or string
+
+*		_name_ is a string that is displayed when showing the object.
+
+
+*	Sequences
+*	---------
+
+*	SETL4 provides a kind of set known as a sequence.
+*	A sequence of length _n_ is a map on the integers from 1..n.
+*	SETL4 sequences are implemented using SPITBOL arrays, with the array
+*	length being adjusted as necessary.
+
+	data('sequence(sequence.size,sequence.array,sequence.next)')
+
+	define('exists(obj,expr)member')		:(exists.end)
+
+*	Determines if there is an element in _obj_ such that _eval(expr)_ is true.
+*	If found, exists succeeds and returns the element found. 
+*	Otherwise, exists fails.
+
+exists
+
+	loop(obj)
+
+exists.loop
+
+	element = next(obj)				:f(freturn)
+	false(eval(expr))				:s(exists.loop)
+	exists = element				:(return)
+
+exists.end
+
+	define('forall(obj,expr)member')		:(forall.end)
+
+*	Determines if _expr_ is true for all the members of _obj_.
+*	Returns true if so. Otherwise fails and returns the element
+*	found for which _expr_ was not true as the value.
+
+forall
+
+	loop(obj)
+
+forall.loop
+
+	forall = next(obj)				:f(forall.done)
+	true(eval(expr))				:s(forall.loop)
+	forall = element				:(freturn)
+
+forall.done
+	
+	forall = true					:(return)
+
+forall.end
+
+
+
+*       Maps: Functions
+*       --------------
+
+*       In mathematics, a map, or function, is a set of ordered pairs that define a relation between
+*       the first element of a pair, called the domain value, and the second value of the pair, called
+*       the range value.
+
+*	A _pair_ joins two values together. 
+
+        data('pair(first,second)')
+
+*       The SPITBOL datatype TABLE provides the machinery to implement maps.
+*       SPITBOL provides no way to determine the number of domain values, or size, of
+*       a map other than converting the map to an array, which is only way to iterate
+*       over a map.
+
+*       SETL4 represents a map entry as follows:
+
+        data('entry(key,value)')
+
+*	where _key_ is the key, and _value_ is the value of the map for _key_.
+
+
+*       Sequences.
+*       ----------
+
+*       A sequence is a map defined on the positive integers: 1,2, ... ,n.
+*	Sequences are implemented using SPITBOL arrays, which are grown in size
+*	when adding a new element for which no remains in the array.
+
+
+*	Lines
+*	-----
+
+*	Lines can be just strings or, in some cases, a line is represented by a pair:
+
+	data('line(mark,text)')
+
+*	where
+
+*		_mark_ is defined by the value returned by an instance
+*		of the _eval_ function ...
+
+*		_text_ is the text of the line.
+
+*	For example, the _reader_ function reads a file and returns a sequence of _lines_.
+
 *	Operator Extensions
 *	-------------------
 
@@ -295,9 +306,10 @@ square.root.end
 
 *	 define '#' as a unary operator that returns the size of its operand, and 
 
-*	define '%' as a binary operator 'obj % expr' that computes the 
-*	'reduction' of the compound object _obj_ to only those components 
-*	for which _eval(expr)_ is true.
+*	define '@' as a binary operator 'obj @ expr' that computes the 
+*	'reduction' of the compound object _obj_ to only those members 
+*	for which _eval(expr)_ is true, that is, the members such
+*	that _eval(expr)_ is true.
 
 *	Define '#' as unary operator that returns size of its operand.
 
@@ -308,10 +320,10 @@ square.root.end
 setl4.size
 	
 	dt = datatype(s)
-	setl4.size = ident(dt,'map') map.size(s)		:s(return)
-	setl4.size = ident(dt,'string') size(s)			:s(return)
-	setl4.size = ident(dt,'set') set.size(s)		:s(return)
+	setl4.size = ident(dt,'map')	  set.size(s)		:s(return)
 	setl4.size = ident(dt,'sequence') sequence.size(s)	:s(return)
+	setl4.size = ident(dt,'set')	  set.size(s)		:s(return)
+	setl4.size = ident(dt,'string')	  size(s)		:s(return)
 	output = 'setl4.size unknown type ' dt :(end)
 
 setl4.size.end
@@ -390,6 +402,88 @@ setl4.reduce.end
 *TODO : use '&' for 'and', and '|' for or, after not allowing '|' for exponentiation
 *tODO	use  unary '=' for iteration, eg '=s' for next element in s.
 *TODO;	Use  x ~ S for x is member of S.
+
+
+	define('setl4.member(x,s)dt')			:(setl4.member.end)
+
+*	Tests if _x_ is a member of _s_, where _s_ is set, map, or string.
+
+setl4.member
+
+	dt = datatype(s)
+	eq(dt,'map')					:s(setl4.member.map)
+	eq(dt,'set')					:s(setl4.member.set)
+	eq(dt,'string')					:s(setl4.member.string)
+	output = 'setl4.member unsupported datatype ' dt ', quitting.' :(end)
+
+setl4.member.map
+
+	output = "'x in map' not yet supported, quitting." :(end)
+
+setl4.member.set
+
+	setl4.member = set.in(x,s.)			:(return)
+
+setl4.member.string
+
+	differ(datatype(x),'string')			:s(return)
+
+*	Though could allow _x_ to be more than one character, and so
+*	look for substring of s, for now required that _x_ be single character.
+
+	gt(size(x),1)					:s(return)
+	s break(x)					:f(return)
+	setl4.member = true				:(return)
+
+setl4.member.end
+
+	opsyn('~','setl4.member',2)
+
+
+	define('setl4.next(set)dt,kind')				:(setl4.next.end)
+
+*	Returns next member in interation over compound object _obj_.
+
+setl4.next
+
+	dt = datatype(set)
+	ident(dt,'sequence')				:(setl4.next.sequence)
+	kind = set.kind(set)
+	ident(kind,'map')				:(setl4.next.map)
+	ident(kind,'set')				:(setl4.next.set)
+	ident(kind,'sequence')				:(setl4.next.sequence)
+	ident(kind,'string')				:(setl4.next.string)
+
+	output = 'unsupported kind for setl4.next ' kind ', quitting.' :(end)
+
+setl4.next.sequence
+
+	sequence.next(set) = sequence.next(set) + 1
+	gt(sequence.next(set),sequence.size(sequence))	:s(freturn)
+	setl4.next = sequence.next(set)			:(return)
+
+setl4.next.set
+
+	set.next(set) = set.next(set) + 1
+	gt(set.next(set),set.max(set))	:s(freturn)
+
+*	need to account for gaps due to deletion in s
+
+	setl4.next = set.index(set)[set.next(set)] 
+	ident(setl4.next)				:s(setl4.next.set)f(return)
+
+
+setl4.next.string
+	
+	output = 'next on strings not yet supported, quitting.' :(end)
+
+setl4.next.end
+
+*	Use = as unary operator to yield value of next when iterating.
+
+	opsyn('=','setl4.next',1)
+
+*
 
         define('string.append(str,w,ch)')                      :(string.append.end)
 
@@ -805,16 +899,16 @@ map.test.end
 	define('mark(line)')		:(mark.end)
 
 *	program to play wordwizard (ww)
-*	Use host(0) to give the signature of the puzzle.
+*	Use host(0) to give the rank of the puzzle.
 
 *	skip words with wrong length
-*	skip words with signature that differs from
+*	skip words with rank that differs from
 *	that of the puzzle.
 
 mark
 	ne(size(line),size(g.puzzle))	:s(freturn)
-	sig = signature(line)
-	differ(signature(line),puzzle.signature) 	:s(return)
+	sig = rank(line)
+	differ(rank(line),puzzle.rank) 	:s(return)
 	mark = pair(,line)		:(return)
 mark.end
 
@@ -991,12 +1085,40 @@ reader.string.next
 
 reader.string.end
 
-        define('sequence.add(sequence,val)')		:(sequence.add.end)
+
+*	Sequences:
+*	----------
+
+*	data('sequence(sequence.array,sequence.length,sequence.name,sequence.size,sequence.next')
+
+*	where
+
+*		_array_		is the SPITBOL array used to maintain the sequnce.
+
+*		_length_	is the length of _array_
+
+*		_name_		is string that is listed when sequence is shown (displayed).
+
+*		_size_		gives the number of elements used in _array_
+
+*		_next_		is array index used for iteration.
+
+
+        define('sequence.add(sequence,val)ara,len')		:(sequence.add.end)
 
 sequence.add
+	
+	len = sequence.length(sequence)
+	lt(sequence.size(sequence),len)				:s(sequence.add.room)
 
-	entry = (sequence.size(sequence) = #sequence + 1,val)
-	sequence.put(sequence,#sequence, val) :(return)
+*	Here to extend length of array by fifty per cent.
+
+	sequence.extend(sequence,(3 * len) / 2)
+
+sequence.add.room
+
+	sequence.size(sequence) = #sequence + 1
+	sequence.array(sequence)[#sequence] = val		:(return)
 
 sequence.add.end
 
@@ -1019,6 +1141,27 @@ sequence.eval.next
 	
 sequence.eval.end
 
+	define('sequence.extend(sequence,len)ara,i')	:(sequence.extend.end)
+
+*	Increase length of sequence to be _len_.
+
+sequence.extend
+
+	ara = array(len)
+
+sequence.extend.copy
+
+	gt(i = i + 1, sequence,length(sequence))	:s(sequence.extend.done)
+	ara[i] = sequence.array(sequence)[i]		:(sequence.extend.copy)
+
+sequence.extend.done
+
+	sequence.length(sequence) = len
+	sequence.array(sequence) = ara
+							:(return)
+
+sequence.extend.end
+
         define('sequence.get(i)')                                  :(sequence.get.end)
 
 *       Gets the value of element _i_ in the sequence _sequence_
@@ -1026,49 +1169,34 @@ sequence.eval.end
 sequence.get
 
 	gt(i,0) le(i,#sequence)					:f(freturn)
-        sequence.get = sequence.table(sequence)[i]
+        sequence.get = sequence.array(sequence)[i]		:f(freturn)s(return)
 
 sequence.get.end
 
-	define('sequence.integers(n)i')				:(sequence.integers.end)
+	define('sequence.integers(n,name)i')			:(sequence.integers.end)
 
-*	Returns sequence of integers 1 ... _n_
+*	Returns sequence of integers in the range 1 .. _n_.
 
 sequence.integers
 
-	sequence.integers = set.new('sequence',100)
+	sequence.integers = sequence.new('sequence','sequence',n,name)
 
-setuence.integers.next
+sequence.integers.next
 
-	gt(i = i + 1, n)				:s(return)
-	sequence.add(sequence.integers,i)		:(sequence.integers.next)
+	sequence.add(sequence.integers,i = i + 1)
+	lt(i,n)					:s(sequence.integers.next)f(return)
 
 sequence.integers.end
 
-        define('sequence.new(init,name)i,key,str,valr')         :(sequence.new.end)
+        define('sequence.new(n,name)i,len') 	        :(sequence.new.end)
 
-*       Create a new sequence.
+*       Create a new sequence of length _n_.
 
-*       A sequence is a list of values *  separated by spaces.
-
-*               sequence       _init_ is a list consisting of a list of key/value pairs,
-*                               with a colon (:) between the key and value.
 
 sequence.new
 
-        sequence.new = ident(init) sequence(table(128),name)           :s(return)
-        kind = ident(kind) 'sequence'
-        init break(':')                                	:s(sequence.new.keyval)
-        sequence.new = sequence(table(i),name)                         :(return)
-
-sequence.new.keyval
-        
-        sequence.new = sequence(table(128),name)
-
-sequence.new.keyval.next
-
-        init break(':') . key ':' break(' ') . val ' ' =	:f(return)
-        sequence.put(sequence.new,key,val)                        :(sequence.new.keyval.next)
+	n = ident(n) 128
+	sequence.new = sequence(array(n),n,name)	:(return)
 
 sequence.new.end
 
@@ -1089,14 +1217,15 @@ sequence.range.next
 
 sequence.range.end
 
-        define('sequence.put(sequence,i,val)v')                 :(sequence.put.end)
+        define('sequence.put(sequence,i,val)v,len')                 :(sequence.put.end)
 
 *       Sets the value of element _i_ in the sequence _sequence_ to be _val_.
 
 sequence.put
 
 *        output = 'enter sequence.put dt ' datatype(sequence) ' i [' i '] val [' val ']'
-        v = sequence.table(sequence)[i]
+	gt(n,sequence.length(sequence)) extend(sequence,n + 100)
+        v = sequence.array(sequence)[i]
         differ(v)                                       :s(sequence.put.value)
 
 *       Here to create new entry in sequence.
@@ -1105,37 +1234,33 @@ sequence.put
 
 sequence.put.value
 
-        sequence.table(sequence)[i] = val              	:(return)
+        sequence.array(sequence)[i] = val              	:(return)
 
 sequence.put.end
 
-	define('set.add(set,elem)')			:(set.add.end)
+	define('set.add(set,elem)max')			:(set.add.end)
 
 *	Add _elem_ to set, unless already present.
 
 set.add
 
-	differ(set.table(set)[elem])			:s(return)
-	set.size(set) = #set + 1
-	set.table(set)[elem] = elem			:(return) 
+	differ(set.key(set)[elem])			:s(return)
+	set.max(set) = set.max(set) + 1
+	max = set.max(set)
+	set.index(set)[max] = elem
+	set.key(set)[elem] = max			:(return) 
+
 set.add.end
 
-*        define('set.array(set)i,key')                  :(set.array.end)
-*
-**	Returns an array of one dimension consisting of the elements of the set.
-*
-*set.array
-*
-*	set.array = array(set.size(set))
-*	set.loop(set)
-*
-*set.array.next
-*
-*        set.array = set()
-*        i = prototype(aray)
-*        integer(i)                                      :s(set.array.one)
-*
-*set.array.end
+	define('set.difference(a,b)elem')			:(set.difference.end)
+
+*	Returns set defined by set of elements of _a_ that are not in _b_.
+
+set.difference
+	
+	set.difference = a @ 'set.notin(=a,b)'		:(return)
+
+set.difference.end
 
 	define('set.equal(a,b)')			:(set.equal.end)
 
@@ -1154,24 +1279,9 @@ set.equal.end
 
 set.in
 
-        set.in = (differ(set.table[elem]) true, false)       	:(return)
+        set.in = (differ(set.key(set)[elem]) true, false)       	:(return)
 
 set.in.end
-
-	define('set.integers(n,name)i')			:(set.integers.end)
-
-*	Returns set of integers in the range 1 .. _n_.
-
-set.integers
-
-	set.integers = set.new('set','set',n,name)
-
-set.integers.next
-
-	set.add(set.integers,i = i + 1)
-	lt(i,n)					:s(set.integers.next)f(return)
-
-set.integers.end
 
         define('set.intersection(a,b)elem')                    	:(set.intersection.end)
 
@@ -1179,59 +1289,30 @@ set.integers.end
 
 set.intersection
 
-*	Arrange so set a is the smaller set.
-
-	le(#a,#b)						:s(set.intersection.a)
-	set.intersection = a 
-	a = b
-	b = set.intersection
-
-set.intersection.a
-
-*	Make copy of set _a_ by making copy of _a_'s table.
-
-	set.intersection = set.new('set',,#a)
-	set.table(set.intersection) = copy(set.table(a))
-
-	loop(b)
-
-set.intersection.b
-
-	elem = set.next(b)					:f(return)
-
-*	Skip this entry if not in set _a_.
-	
-	set.notin(a,elem)					:s(set.intersection.b)
-	set.add(set.intersection,elem)				:(set.intersection.b)
+	set.intersection = a @ 'set.in(=a,b)'		:(return)
 	
 set.intersection.end
 
-	define('set.less(a,b)elem')			:(set.less.end)
+	define('set.less(set,elem)index,key')			:(set.add.end)
 
-*	Returns set define by set of elements of _a_ that are not in _b_.
+*	Remove _elem_ from set if it is in the set,
+*	otherwise do nothing.
 
 set.less
 
-	set.less = set.new('set',)
-	loop(a)
+*	Do nothing if element not in set.
 
-set.less.a
+	ident(set.key(set)[elem])			:s(return)
 
-	elem = set.next(a)				:f(return)
-	set.in(b,elem)					:s(set.less.a)
-	set.add(set.less,elem)				:s(set.less.a)
+*	Here to remove element from set.
+
+	index = set.key(set)[elem]
+	set.index(set)[index] =
+	set.index(set)[max] = elem
+	set.size(set) = set.size(set) - 1
+							:(return) 
 
 set.less.end
-
-	define('set.member(set,elem)')			:(set.member.end)
-
-*	Tests if _elem_ is an element of set _set_.
-
-set.member
-
-	set.member = (set.member(set,elem) true, false)	:(return)
-
-set.member.end
 
         define('set.new(kind,init,name)i,key,str,valr')         :(set.new.end)
 
@@ -1267,7 +1348,7 @@ set.new.end
 
 set.notin
 
-        set.notin = (ident(set.table[x]) true, false)	:(return)
+        set.notin = (ident(set.key(set)[elem]) true, false)       	:(return)
 
 set.notin.end
 
@@ -1490,106 +1571,23 @@ show.words
 
 show.words.end
 
-	define('signature(word)')	:(signature.end)
+	define('rank(word)')	:(rank.end)
 
-*	The signature of a consists of all the characters
+*	The rank of a word consists of all the characters
 *	that occur in the word sorted into alphabetical order
 *	with each character followed by an integer giving the number
 *	of times the character occurs in the word.
 
-signature
+rank
 
-	signature = string.frequency(word)	:(return)
+	rank = string.frequency(word)	:(return)
 
-	outut = 'dave, complete code for signature()'
+	outut = 'dave, complete code for rank()'
 
 	g.puzzle = 'spot'
-	g.signature = string.frequency(g.puzzle)
+	g.rank = string.frequency(g.puzzle)
 	:(return)
-signature.end
-
-        define('stack.new()')                           :(stack.new.end)
-
-*       _stack_ returns a new empty stack.
-
-stack
-
-        stack = stack(table(16))                        :(return)
-
-stack.new.end
-
-        define('stack.empty(stack)')                    :(stack.empty.end)
-
-*       _stack.empty_ tests if the stack is empty.
-
-stack.empty
-
-        stack.empty = (ne(#stack) true, false) 		:s(return)f(freturn)
-
-stack.empty.end
-
-	define('stack.peek(stack,i)val')		:(stack.peek.end)
-
-*	Returns value of entry at offset _i_ from the top of the
-*	stack, of fails if _i_ is not a valid stack index.
-*	The top of the stack has index 0, the entry below it has offset 1,
-*	and so forth.
-
-stack.peek
-	
-	lt(i,0) gt(i,#stack)				:s(freturn)
-	stack.peek = stack.table(stack)[#stack - i]	:(return)
-
-stack.peek.end
-
-	define('stack.poke(stack,i,val)')		:(stack.poke.end)
-
-*	Sets value of entry at offset _i_ from the top of the
-*	stack to have vaulue _val_, of fails if _i_ is not a valid stack index.
-*	The top of the stack has index 0, the entry below it has offset 1,
-*	and so forth.
-*	_Stack.poke_ returns _val_.
-
-stack.poke
-	
-	lt(i,0) gt(i,#stack)				:s(freturn)
-        eq(#stack)	                        	:s(freturn)
-	stack.table[#stack - i] =  val;			:(return)
-
-stack.poke.end
-
-        define('stack.pop(stack)')                      :(stack.pop.end)
-
-*       _stack.pop_ pops the top of the stack and returns its value,
-*       unless the stack is empty in which case stack.pop fails.
-
-stack.pop
-
-	stack.pop = stack.table(stack)[#stack]
-	stack.size(stack) = #stack - 1
-        stack.put(stack,#stack,'')			:(return)
-
-stack.pop.end
-
-        define('stack.push(stack,val)')                  :(stack.push.end)
-
-*       _stack.push' pushes _val_ on to the stack.
-
-stack.push
-
-	stack.table[stack.size(stack) = #stack + 1] = val	:s(return)f(freturn)
-
-stack.push.end
-
-        define('stack.top(stack)')                      :(stack.top.end)
-
-*       _stack.top_ returns the top entry in the stack.
-
-stack.top
-
-        stack.top = stack.peke(stack,0)			:(return)
-
-stack.top.end
+rank.end
 
 *       Each token is represented as an instance of the datatype _token_ as follows:
 
@@ -1810,6 +1808,7 @@ loop
 	kind = set.kind(set)
 	ident(kind,'map')		:s(loop.map) 
 	ident(kind,'sequence')		:s(loop.map) 
+
 	ident(kind,'set')		:s(loop.map) 
 	ident(kind,'string')		:s(loop.map) 
 	output = 'unsupported datatype ' kind ' for loop, quitting' :(end)
@@ -1881,19 +1880,18 @@ loop.string
 *map.loop.end
 
 loop.end
-
-	define('next(set)kind')				:(next.end)
-
-*	Returns next member in interation over compound object _obj_.
-
-next
-
-	kind = set.kind(set)
-	ident(kind,'map')				:(next.map)
-	ident(kind,'set')				:(next.set)
-	ident(kind,'sequence')				:(next.sequence)
-	ident(kind,'string')				:(next.string)
-
-	output = 'unsupported kind for next ' kind ', quitting.' :(end)
-
-next.end
+*	define('sequence.integers(n)i')				:(sequence.integers.end)
+*
+**	Returns sequence of integers 1 ... _n_
+*
+*sequence.integers
+*
+*	sequence.integers = set.new('sequence',100)
+*
+*setuence.integers.next
+*
+*	gt(i = i + 1, n)				:s(return)
+*	sequence.add(sequence.integers,i)		:(sequence.integers.next)
+*
+*sequence.integers.end
+*
