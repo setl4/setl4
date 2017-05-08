@@ -630,7 +630,7 @@ forall.done
 
 forall.end
 
-	define('int.new(low,high)')			:(int.new.end)
+	define('integers(low,high)')			:(integers.new.end)
 
 *	Define new set of consecutive integers.
 *	If _high_ is not specified, the set contains 1 ... _low_.
@@ -639,17 +639,17 @@ forall.end
 
 ********	data('int(int.low,int.high,int.size,int.next)')
 
-int.new
+integers.new
 
-	differ(high)					:s(int.new.both)
+	differ(high)					:s(integers.new.both)
 	int.new = int(1, +low, +low)			:(return)
 
 
-int.new.both
+integers.new.both
 
 	int.new = int(+low,+high, +high - +low + 1)	:(return)
 
-int.new.end
+integers.new.end
 
 
 	define('map.equal(a,b)entry,key,value')		:(map.equal.end)
