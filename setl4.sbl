@@ -589,6 +589,25 @@ exists.loop
 
 exists.end
 
+	define('exists.not(obj,expr)member')		:(exists.not.end)
+
+*	Determines if there is no element in _obj_ such 
+*	that _eval(expr)_ is true. If none found, exists.not 
+*	succeeds. Otherwise, exists.not fails and returns 
+*	the element found.
+
+exists.not
+
+	loop(obj)
+
+exists.not.loop
+
+	element = next(obj)				:f(freturn)
+	false(eval(expr))				:s(exists.not.loop)
+	exists.not = element				:(return)
+
+exists.not.end
+
 	define('forall(obj,expr)member')		:(forall.end)
 
 *	Determines if _expr_ is true for all the members of _obj_.
