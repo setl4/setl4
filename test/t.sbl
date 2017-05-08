@@ -1,0 +1,6 @@
+-include "setl4.sbl"
+
+	s = set.new(10)
+	set.add(s,'dave')
+end
+end

@@ -1,0 +1,8 @@
+-include "setl4.sbl"
+ t = true
+ f = false
+ output = and(t,f)
+ output = t & f
+ output = or(t,f)
+ output = t ^ f
+end

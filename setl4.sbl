@@ -60,7 +60,6 @@ false.end
 *TRUE*
 true
 
-	output = 'true ' datatype(e)
 	true = integer(e) (ne(+e) true, false)		:s(return)
 	true = ident(e)					:s(return)
 	true = 1					:(return)
@@ -94,8 +93,8 @@ or.end
 
 *	Define '&' as synonym for 'and' and '^' as synonym for 'or'.
 
-*	opsyn('&','and',2)
-*	opsyn('^','or',2)
+	opsyn('&','and',2)
+	opsyn('^','or',2)
 
 *       Integer Functions
 *       -----------------
@@ -418,7 +417,7 @@ set4.reduce.str.next
 
 setl4.reduce.end
 
-	opsyn('@','setl4.reduce',2)
+	opsyn('!','setl4.reduce',2)
 
 *TODO : use '&' for 'and', and '|' for or, after not allowing '|' for exponentiation
 *tODO	use  unary '=' for iteration, eg '=s' for next element in s.
@@ -431,19 +430,20 @@ setl4.reduce.end
 
 setl4.member
 
+	setl4.member = false
 	dt = datatype(s)
-	eq(dt,'seq')					:s(setl4.member.seq)
-	eq(dt,'set')					:s(setl4.member.set)
-	eq(dt,'str')					:s(setl4.member.str)
+	ident(dt,'seq')					:s(setl4.member.seq)
+	ident(dt,'set')					:s(setl4.member.set)
+	ident(dt,'str')					:s(setl4.member.str)
 	output = 'setl4.member unsupported datatype ' dt ', quitting.' :(end)
 
 setl4.member.seq
 
-	setl4.member = seq.in(x,s.)			:(return)
+	setl4.member = seq.in(x,s)			:(return)
 
 setl4.member.set
 
-	setl4.member = set.in(x,s.)			:(return)
+	setl4.member = set.in(x,s)			:(return)
 
 setl4.member.str
 
@@ -465,8 +465,6 @@ next
 	next = setl4.next(obj)				:s(return)f(freturn)
 
 next.end
-
-*	opsyn('~','setl4.member',2)
 
 	define('setl4.next(obj)dt,kind')				:(setl4.next.end)
 
@@ -518,6 +516,8 @@ setl4.next.str
 	output = "next on str's not yet supported, quitting." :(end)
 
 setl4.next.end
+
+	opsyn('~','setl4.member',2)
 
 	define('setl4.loop(obj)dt,kind')				:(setl4.loop.end)
 

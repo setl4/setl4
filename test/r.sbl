@@ -1,0 +1,7 @@
+-include "setl4.sbl"
+
+ output = square.root(10)
+ output = square.root(99)
+ output = square.root(100)
+end
+

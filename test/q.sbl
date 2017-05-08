@@ -1,0 +1,8 @@
+-include "setl4.sbl"
+
+	seq = sequence.new(10)
+	sequence.add(seq,1)
+	sequence.add(seq,3)
+	sequence.add(seq,5)
+	show(seq)
+end

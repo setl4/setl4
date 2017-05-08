@@ -1,0 +1,11 @@
+ define('f(x)')	:(f.end)
+f
+	f = x + x - 1 :(return)
+f.end
+
+	output = eval('6 + 20')
+	output = eval('dupl("dave",5)')
+	 output = eval('f(6)')
+end
+
+
