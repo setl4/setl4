@@ -220,6 +220,13 @@ square.root.end
 
 *		_name_ is a string that is displayed when showing the object.
 
+*	Integers
+*       --------
+
+*	SETL4 provides a data structure for iterating over a sequence of consecutive
+*	integers:
+
+	data('int(int.low,int.high,int.size,int.next)')
 
 *	Sequences
 *	---------
@@ -311,6 +318,7 @@ square.root.end
 setl4.size
 	
 	dt = datatype(s)
+	setl4.size = ident(dt,'int')	  int.size(s)	:s(return)
 	setl4.size = ident(dt,'map')	  set.size(s)	:s(return)
 	setl4.size = ident(dt,'seq')	  seq.size(s)	:s(return)
 	setl4.size = ident(dt,'set')	  set.size(s)	:s(return)
@@ -341,6 +349,7 @@ setl4.size.end
 setl4.reduce
 
 	member = datatype(obj)
+	ident(member,'int')				:s(setl4.reduce.int)
 	ident(member,'map')				:s(setl4.reduce.map)
 	ident(member,'seq')				:s(setl4.reduce.seq)
 	ident(member,'set')				:s(setl4.reduce.set)
@@ -466,6 +475,7 @@ next.end
 setl4.next
 
 	dt = datatype(obj)
+	ident(dt,'int')					:s(setl4.next.int)
 	ident(dt,'map')					:s(setl4.next.map)
 	ident(dt,'seq')					:s(setl4.next.seq)
 	ident(dt,'set')					:s(setl4.next.set)
@@ -475,6 +485,12 @@ setl4.next
 *	When iterating over a set or map, previous deletions may have mapped some
 *	entries in the index to null. Such entries must be skipped when looking for
 *	next member in iteration.
+
+setl4.next.int
+
+	int.next(obj) = int.next(obj) + 1
+	gt(int.next(obj),int.high(obj))			:s(freturn)
+	setl4.next = int.next(obj)			:(return)
 
 setl4.next.map
 
@@ -502,6 +518,54 @@ setl4.next.str
 	output = "next on str's not yet supported, quitting." :(end)
 
 setl4.next.end
+
+	define('setl4.loop(obj)dt,kind')				:(setl4.loop.end)
+
+*	Returns loop member in interation over compound object _obj_.
+
+setl4.loop
+
+	dt = datatype(obj)
+	ident(dt,'int')					:s(setl4.loop.int)
+	ident(dt,'map')					:s(setl4.loop.map)
+	ident(dt,'seq')					:s(setl4.loop.seq)
+	ident(dt,'set')					:s(setl4.loop.set)
+	ident(dt,'str')					:s(setl4.loop.str)
+	output = 'unsupported kind for setl4.loop ' kind ', quitting.' :(end)
+
+setl4.loop.int
+
+	int.next(obj) = int.low(obj)			:(return)
+
+
+setl4.loop.map
+
+	map.next(obj) = 0				:(return)
+
+
+setl4.loop.seq
+
+	seq.next(obj) = 0				:(return)
+
+setl4.loop.set
+
+	set.next(obj) = 0				:(return)
+setl4.loop.str
+	
+	str.next(obj) = 0				:(return)
+
+setl4.loop.end
+	
+	define('loop(obj)')				:(loop.end)
+
+*	Set up for loop.
+
+loop
+
+	setl4.loop(obj)					:s(return)f(freturn)
+
+loop.end
+
 
 *	Use = as unary operator to yield value of next when iterating.
 
@@ -542,70 +606,32 @@ forall.loop
 	forall = element				:(freturn)
 
 forall.done
-e
+
 	forall = true					:(return)
 
 forall.end
 
-	define('loop(obj)dt')				:(loop.end)
+	define('int.new(low,high)')			:(int.new.end)
 
-*	Prepare for iteration over compound object _obj_.
+*	Define new set of consecutive integers.
+*	If _high_ is not specified, the set contains 1 ... _low_.
+*	If both _low_ and _high_ are specified, the _high_ must be not
+*	less than _low, and the set consists of the integers _low_ ... _high_
 
-loop
+********	data('int(int.low,int.high,int.size,int.next)')
 
-	dt = datatype(obj)
-	ident(dt,'map')					:s(loop.map)
-	ident(dt,'seq')					:s(loop.seq)
-	ident(dt,'set')					:s(loop.set)
-	ident(dt,'str')					:s(loop.str)
-        set.index(set) = 0
-	output = 'unsupported datatype ' kind ' for loop, quitting' :(end)
+int.new
 
-loop.map
+	differ(high)					:s(int.new.both)
+	int.new = int(1, +low, +low)			:(return)
 
-	map.next(obj) = 0				:(return)
 
-loop.seq
+int.new.both
 
-	seq.next(obj) = 0				:(return)
+	int.new = int(+low,+high, +high - +low + 1)	:(return)
 
-loop.set
+int.new.end
 
-	set.next(obj) = 0				:(return)
-
-loop.str
-
-	str.next(obj) = 0				:(return)
-
-loop.end
-
-	define('map.copy(map)')				:(map.copy.end)
-
-*	Returns a copy of a map. Both the fields and the
-*	tables in the map are copied.
-
-map.copy
-
-	map.copy = copy(map)
-	map.index(map.copy) = copy(max.index(map))
-	map.key(map.copy) = copy(max.key(map))		:(return)
-
-map.copy.end
-
-        define('map.domain(map))')			:(map.domain.end)
-
-*       Return set with the keys in _map_.
-
-map.domain
-
-	map.domain = set.new(#map)
-        loop(map)
-
-map.domain.next
-
-        set.add(map.domain,key(map.next(map)))		:s(map.domain.next)f(return)
-
-map.domain.end
 
 	define('map.equal(a,b)entry,key,value')		:(map.equal.end)
 
