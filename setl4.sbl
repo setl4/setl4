@@ -2,6 +2,27 @@
 *       Licensed under the MIT license.
 
 
+	define('assert.dt(obj,typ)')			:(assert.dt.end)
+
+*	Verify that _obj_ has datatype _typ_, end execution if not.
+
+assert.dt
+
+	assert(ident(datatype(obj),typ))		:(return)
+
+assert.dt.end
+
+	define('assert(expr)')				:(assert.end)
+
+*	Verify that _expr_ is true, end execution otherwise.
+
+assert
+
+	eq(expr)					:(return)
+	output = 'assertion failed, quitting' :(end)
+
+assert.end
+
 *       Boolean Logic
 *       -------------
 
@@ -73,8 +94,8 @@ or.end
 
 *	Define '&' as synonym for 'and' and '^' as synonym for 'or'.
 
-	opsyn('&','and',2)
-	opsyn('^','or',2)
+*	opsyn('&','and',2)
+*	opsyn('^','or',2)
 
 *       Integer Functions
 *       -----------------
@@ -147,7 +168,7 @@ square.root.end
 *	Strings (TBSL)
 *	-------
 
-*	data('str(str.name,str.index,str.key,str.size,str.max,str.next,str.text)')
+*	data('str(str.size,str.index,str.key,str.max,str.next,str.text)')
 
 *       Sets
 *       ____
@@ -158,19 +179,14 @@ square.root.end
 
 *	A set is defined by the following datatype:
 
-	data('set(set.name,set.index,set.key,set.size,set.max,set.next)')
+	data('set(set.index,set.key,set.size,set.max,set.next)')
 
 *	where
-
-*		_name_		a string that may be specified when a compound object
-*				is created, and which will then be listed when the
-*				object is displayed.
 
 *		_index_		a SPITBOL table used to map the integer id assigned each element
 *				to the value of the element.
 
 *		_key_		a SPITBOL table, used only for maps, to permit iteration 
-*				and other set operations, in constant time.
 
 *		_size_		the current number of members.
 
@@ -213,7 +229,7 @@ square.root.end
 *	SETL4 sequences are implemented using SPITBOL arrays, with the array
 *	length being adjusted as necessary.
 
-	data('seq(seq.name,seq.array,seq.size,seq.max,seq.next)')
+	data('seq(seq.array,seq.size,seq.max,seq.next)')
 
 *	Pairs
 *	-----
@@ -236,7 +252,7 @@ square.root.end
 
 *	where _key_ is the key, and _value_ is the value of the map for _key_.
 
-	data('map(map.name,map.index,map.key,map.size,map.max,map.next)')
+	data('map(map.index,map.key,map.size,map.max,map.next)')
 
 *       The SPITBOL datatype TABLE provides the machinery to implement maps.
 *       SPITBOL provides no way to determine the number of domain values, or size, of
@@ -288,13 +304,6 @@ square.root.end
 *	that _eval(expr)_ is true.
 
 *	Define '#' as unary operator that returns size of its operand.
-	define('z.size(obj)') :(z.size.end)
-z.size
-
-	z.size = setl4.size(obj)			:s(return)f(freturn)
-
-z.size.end
-
 	define('setl4.size(s)dt')			:(setl4.size.end)
 
 *	Return size of operand.
@@ -312,8 +321,6 @@ setl4.size
 setl4.size.end
 
 	opsyn('#','setl4.size',1)
-
-	output ='opsyn # done'
 
 *	According to Paul Halmos, in his book "Naive Set Theory," 
 *	a major principle of set theory, often referred to by its 
@@ -340,24 +347,24 @@ setl4.reduce
 	ident(member,'str')				:s(setl4.reduce.str)
 
 setl4.reduce.map
-	setl4.reduce = map.new(z.size(obj))
+	setl4.reduce = map.new(#obj)
 	loop(obj)
 
 setl4.reduce.map.next
 
-	member = next(z.size(obj))			:f(return)
+	member = next(#obj)			:f(return)
 	member = eval(expr)				:f(setl4.reduce.map.next)
 	eq(member)					:s(setl4.reduce.map.next)
 	map.add(setl4.reduce,member)			:(setl4.reduce.map.next)
 
 setl4.reduce.set
 
-	setl4.reduce = set.new(z.size(obj))
+	setl4.reduce = set.new(#obj)
 	loop(obj)
 
 set4.reduce.set.next
 
-	member = next(z.size(obj))			:f(return)
+	member = next(#obj)			:f(return)
 	member = eval(expr)				:f(setl4.reduce.set.next)
 	eq(member)					:s(setl4.reduce.set.next)
 	set.add(setl4.reduce,member)			:(setl4.reduce.set.next)
@@ -365,26 +372,26 @@ set4.reduce.set.next
 
 setl4.reduce.seq
 
-	setl4.reduce = seq.new(z.size(obj))
+	setl4.reduce = seq.new(#obj)
 	loop(obj)
 
 
 set4.reduce.seq.next
 
-	member = next(z.size(obj))			:f(return)
+	member = next(#obj)			:f(return)
 	member = eval(expr)				:f(seql4.reduce.seq.next)
 	eq(member)					:s(seql4.reduce.seq.next)
 	seq.add(setl4.reduce,member)			:(setl4.reduce.seq.next)
 
 setl4.reduce.str
 
-	setl4.reduce = str.new(z.size(obj))
+	setl4.reduce = str.new(#obj)
 	text = str.text(obj)
 
 
 set4.reduce.str.next
 
-	member = next(z.size(obj))
+	member = next(#obj)
 	text len (1) . member =				:f(return)
 	member = eval(expr)				:f(strl4.reduce.str.next)
 	eq(member)					:s(strl4.reduce.str.next)
@@ -402,7 +409,7 @@ set4.reduce.str.next
 
 setl4.reduce.end
 
-	opsyn('!','setl4.reduce',2)
+	opsyn('@','setl4.reduce',2)
 
 *TODO : use '&' for 'and', and '|' for or, after not allowing '|' for exponentiation
 *tODO	use  unary '=' for iteration, eg '=s' for next element in s.
@@ -591,7 +598,7 @@ map.copy.end
 
 map.domain
 
-	map.domain = set.new(map.name(map),z.size(map))
+	map.domain = set.new(#map)
         loop(map)
 
 map.domain.next
@@ -610,7 +617,7 @@ map.domain.end
 
 map.equal
 
-	map.equal = ne(z.size(a),z.size(b)) false	:s(return)
+	map.equal = ne(#a,#b) false			:s(return)
 
 *	Two maps are equal iff each is a subset of the other.
 
@@ -627,7 +634,7 @@ map.equal.end
 
 map.apply
 
-	map.apply = map.new(map.name(map),z.size(map))
+	map.apply = map.new(#map)
 	loop(map)
 	result =
 
@@ -658,7 +665,7 @@ map.get.end
 *
 *map.inverse
 *
-*	map.inverse = set.new('map',z.size(map))
+*	map.inverse = set.new('map',#map)
 *	loop(map)
 *
 *map.inverse.next
@@ -669,7 +676,7 @@ map.get.end
 *
 *map.inverse.end
 
-	define('map.new(name,init)i,key,str,valr')     	:(map.new.end)
+	define('map.new(init)i,key,str,valr')     	:(map.new.end)
 
 *       Create a new map.
 
@@ -681,17 +688,17 @@ map.get.end
 
 map.new
 
-*	data('map(map.name,map.index,map.key,map.size,map.max,map.next)')
+*	data('map(map.index,map.key,map.size,map.max,map.next)')
 
 	ouput = 'enter map.new'
 
-        map.new = ident(init) map(name,table(128))     	:s(return)
-	key = convert(init,'integer')				:f(map.new.keyval)
-	map.new = map(name,table(key))			:(return)
+        map.new = ident(init) map(table(128),table(128)) :s(return)
+	key = convert(init,'integer')			:f(map.new.keyval)
+	map.new = map(table(key),table(key))	:(return)
 
 map.new.keyval
         
-        map.new = map(name,table(128))
+        map.new = map(table(128),table(128))
 
 map.new.keyval.next
 
@@ -727,7 +734,7 @@ map.put.end
 
 map.range
 
-	map.range = set.new(map.name(map),z.size(map))
+	map.range = set.new(#map)
         loop(map)
 
 map.range.next
@@ -892,7 +899,7 @@ random.seed.end
 
 seq.add
 
-	seq.add = seq.push(val)				:(return)
+	seq.add = seq.push(seq,val)			:(return)
 
 seq.add.end
 
@@ -904,14 +911,14 @@ seq.add.end
 
 seq.apply
 
-	seq.apply = seq.new(seq.name(seq),z.size(seq))
+	seq.apply = seq.new(#seq)
 	loop(seq)
 
 seq.apply.next
 
-	next(seq)				:f(return)
-	value = eval(s)				:f(seq.apply.next)
-	seq.add(seq.apply,value)	:(seq.apply.next)
+	next(seq)					:f(return)
+	value = eval(s)					:f(seq.apply.next)
+	seq.add(seq.apply,value)			:(seq.apply.next)
 	
 seq.apply.end
 
@@ -946,13 +953,13 @@ seq.get
 
 seq.get.end
 
-	define('seq.integers(name,n)i')			:(seq.integers.end)
+	define('seq.integers(n)i')			:(seq.integers.end)
 
 *	Returns sequence of integers in the range 1 .. _n_.
 
 seq.integers
 
-	seq.integers = seq.new(name,n)
+	seq.integers = seq.new(n)
 
 seq.integers.next
 
@@ -961,16 +968,18 @@ seq.integers.next
 
 seq.integers.end
 
-        define('seq.new(name,n)i,len') 	        	:(seq.new.end)
+        define('seq.new(n)i,len') 	        	:(seq.new.end)
 
 *       Create a new sequence of length _n_.
 
 
 seq.new
 
-	output = 'seq.new name ' name ',  dt n ' datatype(n)
+	assert.dt(seq,'seq')
 	n = ident(n) 128
-	seq.new = seq(name,array(n))
+	n = integer(n) +n
+	output = 'seq.new n ' n '.'
+	seq.new = seq(array(n))
 	seq.max(seq.new) = n				:(return)
 
 seq.new.end
@@ -979,6 +988,7 @@ seq.new.end
 
 seq.push
 	
+	assert.dt(seq,'seq')
 	len = seq.size(seq)
 	lt(len,seq.max(seq))				:s(seq.push.room)
 
@@ -988,8 +998,8 @@ seq.push
 
 seq.push.room
 
-	seq.size(seq) = z.size(seq) + 1
-	seq.array(seq)[z.size(seq)] = val		:(return)
+	seq.size(seq) = #seq + 1
+	seq.array(seq)[#seq] = val		:(return)
 
 seq.push.end
 
@@ -1001,7 +1011,8 @@ seq.push.end
 
 seq.range
 
-        seq.range = set.new('seq',z.size(seq))
+	assert.dt(seq,'seq')
+        seq.range = set.new('seq',#seq)
         loop(seq)
 
 seq.range.next
@@ -1016,6 +1027,7 @@ seq.range.end
 
 seq.put
 
+	assert.dt(seq,'seq')
 	seq.array(seq)[i] = val				:(return)
 
 seq.put.end
@@ -1026,8 +1038,12 @@ seq.put.end
 
 set.add
 
+	assert.dt(set,'set')
 	differ(set.key(set)[elem])			:s(return)
+	output = 'set.add set.max ' set.max(set)
 	set.max(set) = set.max(set) + 1
+	output = 'datatype set.size ' datatype(set.size(set))
+	output = 'set.add set.size ' +set.size(set)
 	set.size(set) = set.size(set) + 1
 	max = set.max(set)
 	set.index(set)[max] = elem
@@ -1052,6 +1068,8 @@ set.difference.end
 
 set.equal
 
+	assert.dt(a,'set')
+	assert.dt(b,'set')
 	set.equal = and(set.subset(a,b),set.subset(b,a)) :(return)
 
 set.equal.end
@@ -1062,6 +1080,7 @@ set.equal.end
 
 set.in
 
+	assert.dt(set,'set')
         set.in = (differ(set.key(set)[elem]) true, false) :(return)
 
 set.in.end
@@ -1085,6 +1104,7 @@ set.less
 
 *	Do nothing if element not in set.
 
+	assert.dt(set,'set')
 	ident(set.key(set)[elem])			:s(return)
 
 *	Here to remove element from set.
@@ -1097,9 +1117,9 @@ set.less
 
 set.less.end
 
-        define('set.new(name,initi)key,str,valr')     	:(set.new.end)
+        define('set.new(initi)key,str,valr')     	:(set.new.end)
 
-*	data('set(set.name,set.index,set.key,set.size,set.max,set.next)')
+*	data('set(set.index,set.key,set.size,set.max,set.next)')
 
 *       Create a new set.
 
@@ -1109,10 +1129,10 @@ set.less.end
 *	values separated by spaces.
 
 set.new
-	output = 'set.new ' init ' name ' name '.'
+	output = 'set.new ' init 
 	ident(init)					:s(set.new.int)
 	i = convert(init,'integer')			:s(set.new.int)
-	set.new = set(name,table(128),table(128))
+	set.new = set(table(128),table(128))
 	init = init ' ' 
 
 set.new.init
@@ -1123,7 +1143,7 @@ set.new.init
 set.new.int
 
 	i = ident(init) 128
-	set.new = set(name,table(i),table(i))		:(return)
+	set.new = set(table(i),table(i))		:(return)
 
 set.new.end
 
@@ -1133,6 +1153,7 @@ set.new.end
 
 set.notin
 
+	assert.dt(set,'set')
         set.notin = (ident(set.key(set)[elem]) true, false) :(return)
 
 set.notin.end
@@ -1143,7 +1164,7 @@ set.notin.end
 
 set.subset
 
-	gt(z.size(b),z.size(a))				:s(return)
+	gt(#b,#a)					:s(return)
 	loop(b)
 
 set.subset.next
@@ -1165,7 +1186,7 @@ set.union
 
 *	Arrange so set a is the larger set.
 
-	ge(z.size(a),z.size(b))				:s(set.union.a)
+	ge(#a,#b)					:s(set.union.a)
 	set.union = a 
 	a = b
 	b = set.union
@@ -1174,7 +1195,7 @@ set.union.a
 
 *	Make copy of a by making copy of a's table.
 
-	set.union = set.new('set',z.size(a))
+	set.union = set.new(#a)
 	set.table(set.union) = copy(set.table(a))
 
 	loop(b)
@@ -1194,7 +1215,6 @@ set.union.end
 *SHOW*
 show
 	typ = datatype(v)
-*	output = 'enter show dt ' typ
 							:($('show.' typ))
 
 show.array
@@ -1212,6 +1232,10 @@ show.array.2
 	first = ara[add1(.i),1]		       	  	:f(show.array.done)
 	out(lpad(i,3) tab show(first) tab show(ara[i,2])) :(show.array.2)
 
+show.entry
+
+	show = show ' ' show(key(v))  ':' show(value(v)) ' ' :(show.done)
+
 show.integer
 
 	show = v					:(show.done)
@@ -1219,17 +1243,21 @@ show.integer
 show.map
 
 	loop(v)
-	show = (differ(map.name(v)) map.name(v), '') ' {'
+	show = ' {'
 
 show.map.next
 
-	member = map.next(v)				:f(show.done)
-	output = 'dt show.map.next ' datatype(member)
-	show = ' ' show(member,1)					
+	member = next(v)				:f(show.map.done)
+*	output = 'dt show.map.next ' datatype(member)
 	show = show ' ' show(member,1)				
-	lt(z.size(show),100)				:s(show.map.next)
+	lt(#show,100)					:s(show.map.next)
 	output = show ' '
 	show =						:(show.map.next)
+
+show.map.done
+
+	show = show ' }'
+							:(show.done)
 
 show.pair
 
@@ -1239,13 +1267,13 @@ show.pair
 show.seq
 
 	loop(v)
-	show = (differ(seq.name(v)) seq.name(v), '') ' ['
+	show = ' ['
 
 show.seq.next
 
 	member = next(v)				:f(show.seq.done)
 	show = (ident(show) '[ ', show ' ') show(member,1)					
-	lt(z.size(show),100)				:s(show.seq.next)
+	lt(#show,100)					:s(show.seq.next)
 	output = show ' '
 	show =						:(show.seq.next)
 
@@ -1256,7 +1284,7 @@ show.seq.done
 show.set
 	
 	output = 'show.set datatype ' datatype(v)
-	show = (differ(set.name(v)) set.name(v), '') ' {'
+	show =  ' {'
 	loop(v)
 
 show.set.next
@@ -1265,7 +1293,7 @@ show.set.next
 	
 	show = (ident(show,'{') '{ ', show ' ') show(member,1)					
 *	show = show ' '  show(member,1)					
-	lt(z.size(show),100)				:s(show.set.next)
+	lt(#show,100)					:s(show.set.next)
 	output = show 
 	show =						:(show.set.next)
 
