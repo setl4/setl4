@@ -91,11 +91,6 @@ or
 
 or.end
 
-*	Define '&' as synonym for 'and' and '^' as synonym for 'or'.
-
-	opsyn('&','and',2)
-	opsyn('^','or',2)
-
 *       Integer Functions
 *       -----------------
 
@@ -327,7 +322,6 @@ setl4.size
 
 setl4.size.end
 
-	opsyn('#','setl4.size',1)
 
 *	According to Paul Halmos, in his book "Naive Set Theory," 
 *	a major principle of set theory, often referred to by its 
@@ -337,7 +331,7 @@ setl4.size.end
 *	a set _B_ whose elements are exactly those elements _x_ of _A_
 *	for which _S(x)_ holds.
 
-*	In SETL4 we say that the expression '_A_ ! _S_' "reduces"
+*	In SETL4 we say that the expression '_A_ @ _S_' "reduces"
 *	_A_ by _S_. This can also be read as 
 *		"the subset of _A_ such that _S_ is true"
 
@@ -347,8 +341,9 @@ setl4.size.end
 
 setl4.reduce
 
+	output = 'setl4.reduce expr |' expr '|'
+	output = 'enter setl4.reduce'
 	member = datatype(obj)
-	ident(member,'int')				:s(setl4.reduce.int)
 	ident(member,'map')				:s(setl4.reduce.map)
 	ident(member,'seq')				:s(setl4.reduce.seq)
 	ident(member,'set')				:s(setl4.reduce.set)
@@ -370,11 +365,16 @@ setl4.reduce.set
 	setl4.reduce = set.new(#obj)
 	loop(obj)
 
-set4.reduce.set.next
+setl4.reduce.set.next
 
-	member = next(#obj)			:f(return)
-	member = eval(expr)				:f(setl4.reduce.set.next)
+	member = next(obj)			:f(return)
+	ouput = '4.reduce|' member '|'
+	output = 'red1 ' datatype(member)
+	member = eval(expr)				:f(setl4.reduc.set.next)
+	output = 'red2 ' datatype(member)
+	output = 'red3 |' member '|'
 	eq(member)					:s(setl4.reduce.set.next)
+	output = 'red4 adding member '
 	set.add(setl4.reduce,member)			:(setl4.reduce.set.next)
 
 
@@ -384,7 +384,7 @@ setl4.reduce.seq
 	loop(obj)
 
 
-set4.reduce.seq.next
+setl4.reduce.seq.next
 
 	member = next(#obj)			:f(return)
 	member = eval(expr)				:f(seql4.reduce.seq.next)
@@ -417,7 +417,6 @@ set4.reduce.str.next
 
 setl4.reduce.end
 
-	opsyn('!','setl4.reduce',2)
 
 *TODO : use '&' for 'and', and '|' for or, after not allowing '|' for exponentiation
 *tODO	use  unary '=' for iteration, eg '=s' for next element in s.
@@ -430,6 +429,7 @@ setl4.reduce.end
 
 setl4.member
 
+	output = 'setl4.member' datatype(x) ' ' datatype(s)
 	setl4.member = false
 	dt = datatype(s)
 	ident(dt,'seq')					:s(setl4.member.seq)
@@ -478,7 +478,8 @@ setl4.next
 	ident(dt,'seq')					:s(setl4.next.seq)
 	ident(dt,'set')					:s(setl4.next.set)
 	ident(dt,'str')					:s(setl4.next.str)
-	output = 'unsupported kind for setl4.next ' kind ', quitting.' :(end)
+	output = 'unsupported dt for setl4.next: "' dt '" , quitting.'
+	output = 'show|' show(obj) '|'  :(end)
 
 *	When iterating over a set or map, previous deletions may have mapped some
 *	entries in the index to null. Such entries must be skipped when looking for
@@ -486,7 +487,9 @@ setl4.next
 
 setl4.next.int
 
-	int.next(obj) = int.next(obj) + 1
+	
+	ge(int.next(obj),int.high(obj))			:s(freturn)
+	int.next(obj) = int.next(obj) + int.step(obj)
 	gt(int.next(obj),int.high(obj))			:s(freturn)
 	setl4.next = int.next(obj)			:(return)
 
@@ -499,17 +502,18 @@ setl4.next.map
 
 setl4.next.seq
 
+	ge(seq.next(obj),seq.size(obj))			:s(freturn)
 	seq.next(obj) = seq.next(obj) + 1
-	gt(seq.next(obj),seq.size(obj))			:s(freturn)
 	setl4.next = seq.get(obj,seq.next(obj))		:(return)
 
 setl4.next.set
 
+*	output = ge(set.next(obj),set.max(obj)) 'setl4.next.set about to fail'
+	ge(set.next(obj),set.max(obj))	:s(freturn)
 	set.next(obj) = set.next(obj) + 1
-	gt(set.next(obj),set.max(obj))	:s(freturn)
 	setl4.next = set.index(obj)[set.next(obj)] 
+*	output = 'setl4.next returning ' setl4.next
 	ident(setl4.next)				:s(setl4.next.set)f(return)
-
 
 setl4.next.str
 	
@@ -517,7 +521,6 @@ setl4.next.str
 
 setl4.next.end
 
-	opsyn('~','setl4.member',2)
 
 	define('setl4.loop(obj)dt,kind')				:(setl4.loop.end)
 
@@ -531,7 +534,8 @@ setl4.loop
 	ident(dt,'seq')					:s(setl4.loop.seq)
 	ident(dt,'set')					:s(setl4.loop.set)
 	ident(dt,'str')					:s(setl4.loop.str)
-	output = 'unsupported kind for setl4.loop ' kind ', quitting.' :(end)
+	output = 'unsupported datatype for setl4.loop ' dt ', quitting.'
+	output = show(obj)  :(end)
 
 setl4.loop.int
 
@@ -549,7 +553,9 @@ setl4.loop.seq
 
 setl4.loop.set
 
+	output = 'setl4.loop.set'
 	set.next(obj) = 0				:(return)
+
 setl4.loop.str
 	
 	str.next(obj) = 0				:(return)
@@ -569,7 +575,6 @@ loop.end
 
 *	Use = as unary operator to yield value of next when iterating.
 
-*	opsyn('=','setl4.next',1)
 
 	define('exists(obj,expr)member')		:(exists.end)
 
@@ -630,26 +635,40 @@ forall.done
 
 forall.end
 
-	define('integers(low,high)')			:(integers.new.end)
+	define('integers(low,high,step)i,n')			:(integers.end)
 
-*	Define new set of consecutive integers.
-*	If _high_ is not specified, the set contains 1 ... _low_.
-*	If both _low_ and _high_ are specified, the _high_ must be not
-*	less than _low, and the set consists of the integers _low_ ... _high_
+*	Define new set of consecutive integers _n_:
+*		_low_, _low_ + _step_, ... , _high_
 
-********	data('int(int.low,int.high,int.size,int.next)')
+*	integers(low) same as integers(1,low,1)
+*	integers(low,high) same as integers(low,high,1)
 
-integers.new
+integers
 
-	differ(high)					:s(integers.new.both)
-	int.new = int(1, +low, +low)			:(return)
+	high = ident(high) low
+	low = ident(high) 1
+	step = ident(step) 1
+	integers = int(low, high, step)			:(return)
 
+integers.end
 
-integers.new.both
+	define('join.str(word)')	:(join.str.end)
 
-	int.new = int(+low,+high, +high - +low + 1)	:(return)
+*	The join.str of a word consists of all the characters
+*	that occur in the word sorted into alphabetical order
+*	with each character followed by an integer giving the number
+*	of times the character occurs in the word.
 
-integers.new.end
+join.str
+
+	join.str = string.frequency(word)		:(return)
+
+	outut = 'dave, complete code for join.str()'
+
+	g.puzzle = 'spot'
+	g.join.str = string.frequency(g.puzzle)
+	:(return)
+join.str.end
 
 
 	define('map.equal(a,b)entry,key,value')		:(map.equal.end)
@@ -691,7 +710,7 @@ map.apply.next
 
 map.apply.end
 
-        define('map.get(key,val)id')			:(map.get.end)
+        define('map.get(map,key)val)id')			:(map.get.end)
 
 *       Gets the value of the key _key_ in the map _map_.
 
@@ -788,7 +807,7 @@ map.range.next
 
 map.range.end
 
-        define('map.test(key)')                     	:(map.test.end)
+        define('map.test(map,key)')                     	:(map.test.end)
 
 *       Tests if the map _map_ has an entry for _key_.
 
@@ -802,16 +821,16 @@ map.test.end
 	define('mark(line)')		:(mark.end)
 
 *	program to play wordwizard (ww)
-*	Use host(0) to give the rank of the puzzle.
+*	Use host(0) to give the join of the puzzle.
 
 *	skip words with wrong length
-*	skip words with rank that differs from
+*	skip words with join that differs from
 *	that of the puzzle.
 
 mark
 	ne(size(line),size(g.puzzle))	:s(freturn)
-	sig = rank(line)
-	differ(rank(line),puzzle.rank) 	:s(return)
+	sig = join(line)
+	differ(join(line),puzzle.join) 	:s(return)
 	mark = pair(,line)		:(return)
 mark.end
 
@@ -1085,10 +1104,9 @@ set.add
 
 	assert.dt(set,'set')
 	differ(set.key(set)[elem])			:s(return)
-	output = 'set.add set.max ' set.max(set)
 	set.max(set) = set.max(set) + 1
-	output = 'datatype set.size ' datatype(set.size(set))
-	output = 'set.add set.size ' +set.size(set)
+*	output = 'datatype set.size ' datatype(set.size(set))
+*	output = 'set.add set.size ' +set.size(set)
 	set.size(set) = set.size(set) + 1
 	max = set.max(set)
 	set.index(set)[max] = elem
@@ -1130,6 +1148,23 @@ set.in
 
 set.in.end
 
+	define('set.integers(n)i')			:(set.integers.end)
+
+*	Return set containing integers 1 .. _n_
+
+set.integers
+
+	output = 'set.integers ' n
+	set.integers = set.new(n)
+	i = 0
+
+set.integers.next
+
+	gt(i = i + 1,n)				:s(return)
+	set.add(set.integers,i)			:(set.integers.next)
+
+set.integers.end
+
         define('set.intersection(a,b)elem')            	:(set.intersection.end)
 
 *       Returns intersection of sets _a_ and _b_.
@@ -1157,12 +1192,11 @@ set.less
 	index = set.key(set)[elem]
 	set.index(set)[index] =
 	set.index(set)[max] = elem
-	set.size(set) = set.size(set) - 1
-							:(return) 
+	set.size(set) = set.size(set) - 1	:(return) 
 
 set.less.end
 
-        define('set.new(initi)key,str,valr')     	:(set.new.end)
+        define('set.new(init)n')	     	:(set.new.end)
 
 *	data('set(set.index,set.key,set.size,set.max,set.next)')
 
@@ -1174,9 +1208,8 @@ set.less.end
 *	values separated by spaces.
 
 set.new
-	output = 'set.new ' init 
 	ident(init)					:s(set.new.int)
-	i = convert(init,'integer')			:s(set.new.int)
+	n = convert(init,'integer')			:s(set.new.int)
 	set.new = set(table(128),table(128))
 	init = init ' ' 
 
@@ -1187,8 +1220,8 @@ set.new.init
 
 set.new.int
 
-	i = ident(init) 128
-	set.new = set(table(i),table(i))		:(return)
+	n = (ident(init) 128,convert(init,'integer'))
+	set.new = set(table(n),table(n))		:(return)
 
 set.new.end
 
@@ -1260,6 +1293,7 @@ set.union.end
 *SHOW*
 show
 	typ = datatype(v)
+*	output = 'show ' typ
 							:($('show.' typ))
 
 show.array
@@ -1280,6 +1314,10 @@ show.array.2
 show.entry
 
 	show = show ' ' show(key(v))  ':' show(value(v)) ' ' :(show.done)
+
+show.int
+
+	show = 'integers(' int.low(v) '..' int.high(v) ') ' :(show.done)
 
 show.integer
 
@@ -1689,24 +1727,6 @@ str.upper
 
 str.upper.end
 
-	define('str.rank(word)')	:(str.rank.end)
-
-*	The str.rank of a word consists of all the characters
-*	that occur in the word sorted into alphabetical order
-*	with each character followed by an integer giving the number
-*	of times the character occurs in the word.
-
-str.rank
-
-	str.rank = string.frequency(word)		:(return)
-
-	outut = 'dave, complete code for str.rank()'
-
-	g.puzzle = 'spot'
-	g.str.rank = string.frequency(g.puzzle)
-	:(return)
-str.rank.end
-
         define('str.reader(filename,expr)line,mark')   	:(str.reader.end)
 
 *       Return a sequence of the lines in the file specified by _filename_.
@@ -2022,4 +2042,18 @@ error.end
 *        map.array(map) = sort(map.table(map),-2)        :(return)
 *
 *map.loop.end
+
+*	Use some of the undefined SPITBOL operators for SETL4 functions.
+
+*	These opsyn changes don't require mucking about
+*	with SBL4 scanner.
+
+	opsyn('#','setl4.size',1)
+	opsyn('@','setl4.reduce',2)
+
+* Defer other opsyn changes until later.
+*	opsyn('&','and',2)
+*	opsyn('^','or',2)
+*	opsyn('~','setl4.member',2)
+**	opsyn('=','setl4.next',1)
 
