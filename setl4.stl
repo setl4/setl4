@@ -574,6 +574,46 @@ setl4.next.str
 
 setl4.next.end
 
+	define('setl4.next.last(obj)dt,kind')				:(setl4.next.last.end)
+
+*	Returns value found in most recent call to setl4.next.
+*	This is the value returned by the unary '=' operator.
+
+setl4.next.last
+
+	dt = datatype(obj)
+	output = 'set4.next.last ' dt
+	ident(dt,'int')					:s(setl4.next.last.int)
+	ident(dt,'map')					:s(setl4.next.last.map)
+	ident(dt,'seq')					:s(setl4.next.last.seq)
+	ident(dt,'set')					:s(setl4.next.last.set)
+	ident(dt,'str')					:s(setl4.next.last.str)
+	output = 'unsupported dt for setl4.next.last: "' dt '" , quitting.'
+	output = 'show|' show(obj) '|'  :(end)
+
+setl4.next.last.int
+	
+	setl4.next.last = int.next(obj)			:(return)
+
+setl4.next.last.map
+
+	setl4.next.last = map.next(obj)			:(return)
+
+setl4.next.last.seq
+
+	setl4.next.last = seq.next(obj)			:(return)
+
+setl4.next.last.set
+
+        output = 'setl4.next.last.set ' set.next(obj)	
+	setl4.next.last = set.next(obj)		:(return)
+
+setl4.next.last.str
+	
+	output = "next on str's not yet supported, quitting." :(end)
+
+setl4.next.last.end
+
 
 	define('setl4.loop(obj)dt,kind')				:(setl4.loop.end)
 
@@ -1210,6 +1250,7 @@ set.less.end
 *	values separated by spaces.
 
 set.new
+	output = 'enter set.net ' init '.'
 	ident(init)					:s(set.new.int)
 	n = convert(init,'integer')			:s(set.new.int)
 	set.new = set(table(128),table(128))
@@ -2086,7 +2127,7 @@ error.end
 
 	opsyn('#','setl4.size',1)
 	opsyn('@','setl4.reduce',2)
-	opsyn('=','setl4.next',1)
+	opsyn('=','setl4.next.last',1)
 	opsyn('&','setl4.cat',2)
 	opsyn('~','setl4.member',2)
 
