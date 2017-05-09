@@ -73,12 +73,22 @@ true.end
 *AND*
 and
 
-	and = integer(b1) integer(b2) (gt(+b1) gt(+b2) true, false) :s(return)
-	and = ident(b1)					:s(return)
-	and = ident(b2)					:s(return)
-	and = true					:(return)
+	and = ident(b1) 0				:s(return)
+	and = integer(b1) eq(b1) 0			:s(return)
+	and = ident(b2) b1				:s(return)
+	and = (eq(b1) 0, eq(b2) 0, 1)			:(return)
 
 and.end
+
+	define('not(b)')				:(not.end)
+
+*	Returns true if and only if _b_ is false.
+
+not
+
+	not = (ne(b) 0, 1)				:(return)
+
+not.end
 
         define('or(b1,b2)')                 		:(or.end)
 
@@ -87,7 +97,7 @@ and.end
 *OR*
 or
 
-	or = (true(b1) true, true(b2) true, false)	:(return)
+	or = (ne(b1) 1, ne(b2) 1, 0)			:(return)
 
 or.end
 
@@ -304,6 +314,83 @@ square.root.end
 *	for which _eval(expr)_ is true, that is, the members such
 *	that _eval(expr)_ is true.
 
+
+	define('setl4.cat(a,b)')	:(setl4.cat.end)
+
+*	Concatenate argument strings.
+
+setl4.cat
+
+	setl4.cat = a b :(return)
+
+setl4.cat.end
+
+
+	define('setl4.member(elem,obj)dt,entry,key,value') :(setl4.member.end)
+
+*	Tests if _elem_ is 'member' of _obj_, where:
+
+*	_elem_ is member of map _obj_ if _map_ has entry _elem_.
+
+*	_elem_ is member of sequence _obj_ if _obj_ has entry _elem)
+
+*	_elem_ is member of set _obj_ if _set.in(elem,obj)_ is true.
+
+*	_elem_ is member of string _obj_ if _obj_ contains instance of _elem_.
+
+
+setl4.member
+
+
+	setl4.member = false
+	dt = datatype(obj)
+	ident(dt,'map')					:s(setl4.member.map)
+	ident(dt,'seq')					:s(setl4.member.seq)
+	ident(dt,'set')					:s(setl4.member.set)
+	ident(dt,'str')					:s(setl4.member.str)
+	ident(dt,'string')				:s(setl4.member.string)
+	ident(dt,'map')					:s(setl4.member.map)
+	ident(dt,'map')					:s(setl4.member.map)
+
+setl.4.member.map
+
+	key = key(elem)
+
+*	Cannot be member if no entry in _key_ table.
+
+	ident(map.key(obj)[key])			:s(return)
+
+*	There is entry for _key_, see if it has right value.
+
+	ident(map.index[map.key(obj)[key]],value)	:f(return)
+	setl4.member = true				:(return)
+
+setl.4.member.seq
+
+	output = 'setl4.memberon seq not yet done' :(end)
+	ident(obj.array[key,1])				:s(return)
+*	ident(value[obj],ob
+
+							:(return)
+
+setl4.member.set
+
+	setl4.member = set.in(elem,obj)			:(return)
+*        set.in = (differ(set.key(set)[elem]) true, false) :(return)
+
+setl.4.member.str
+
+	obj break(elem)					:f(return)
+	set4.member = true				:(return)
+
+setl.4.member.string
+
+
+							:(return)
+
+setl4.member.end
+
+
 *	Define '#' as unary operator that returns size of its operand.
 	define('setl4.size(s)dt')			:(setl4.size.end)
 
@@ -423,41 +510,6 @@ setl4.reduce.end
 *TODO;	Use  x ~ S for x is member of S.
 
 
-	define('setl4.member(x,s)dt')			:(setl4.member.end)
-
-*	Tests if _x_ is a member of _s_, where _s_ is a seq, set, or str.
-
-setl4.member
-
-	output = 'setl4.member' datatype(x) ' ' datatype(s)
-	setl4.member = false
-	dt = datatype(s)
-	ident(dt,'seq')					:s(setl4.member.seq)
-	ident(dt,'set')					:s(setl4.member.set)
-	ident(dt,'str')					:s(setl4.member.str)
-	output = 'setl4.member unsupported datatype ' dt ', quitting.' :(end)
-
-setl4.member.seq
-
-	setl4.member = seq.in(x,s)			:(return)
-
-setl4.member.set
-
-	setl4.member = set.in(x,s)			:(return)
-
-setl4.member.str
-
-	differ(datatype(x),'string')			:s(return)
-
-*	Though could allow _x_ to be more than one character, and so
-*	look for substring of s, for now required that _x_ be single character.
-
-	gt(size(x),1)					:s(return)
-	s break(x)					:f(return)
-	setl4.member = true				:(return)
-
-setl4.member.end
-
 	define('next(obj)')				:(next.end)
 
 next
@@ -498,6 +550,7 @@ setl4.next.map
 	map.next(obj) = map.next(obj) + 1
 	gt(map.next(obj),map.max(obj))			:s(freturn)
 	setl4.next = map.index(obj)[map.next(obj)] 
+	output = 'r.next ' setl4.next
 	ident(setl4.next)				:s(setl4.next.set)f(return)
 
 setl4.next.seq
@@ -689,27 +742,6 @@ map.equal
 
 map.equal.end
 	
-	define('map.apply(map,s)entry,pair,map.apply.result')	:(map.apply.end)
-
-*	_map.apply returns the map obtained by evaluating _eval(s)_ for each
-*	pair in the map.  _eval(s) must return a pair. 
-*	It is used to construct the next entry in the
-*	result map. The entry is ignored if the call to _eval fails.
-
-map.apply
-
-	map.apply = map.new(#map)
-	loop(map)
-	result =
-
-map.apply.next
-
-	entry = map.next(map)				:f(return)
-	pair = apply(s)					:f(map.apply.next)
-	map.put(map.apply,first(pair), second(pair))	:(map.apply.next)
-
-map.apply.end
-
         define('map.get(map,key)val)id')			:(map.get.end)
 
 *       Gets the value of the key _key_ in the map _map_.
@@ -967,25 +999,6 @@ seq.add
 
 seq.add.end
 
-	define('seq.apply(seq,s)value')	:(seq.apply.end)
-
-*	_seq.apply_ returns the sequence obtained by calling _eval_ with argument _s_
-*	for each value in the seq. If _apply_ does not fail, the value returned defines
-*	the next entry in the new seq.
-
-seq.apply
-
-	seq.apply = seq.new(#seq)
-	loop(seq)
-
-seq.apply.next
-
-	next(seq)					:f(return)
-	value = eval(s)					:f(seq.apply.next)
-	seq.add(seq.apply,value)			:(seq.apply.next)
-	
-seq.apply.end
-
 	define('seq.extend(seq,len)ara,i')		:(seq.extend.end)
 
 *	Increase length of sequence to be _len_.
@@ -1137,17 +1150,6 @@ set.equal
 
 set.equal.end
 
-	define('set.in(elem,set)')			:(set.in.end)
-
-*	Test if _elem_ is a member of set _set_.
-
-set.in
-
-	assert.dt(set,'set')
-        set.in = (differ(set.key(set)[elem]) true, false) :(return)
-
-set.in.end
-
 	define('set.integers(n)i')			:(set.integers.end)
 
 *	Return set containing integers 1 .. _n_
@@ -1225,9 +1227,20 @@ set.new.int
 
 set.new.end
 
-        define('set.notin(s,x)')                      	:(set.notin.end)
+        define('set.in(x,set)')                      	:(set.in.end)
 
-*       Returns _true_ iff _x_ is is not element in _s_.
+*       Returns _true_ iff _x_ is element of set _set_.
+
+set.in
+
+	assert.dt(set,'set')
+        set.in = (differ(set.key(set)[elem]) true, false) :(return)
+
+set.in.end
+
+        define('set.notin(x,set)')                      	:(set.notin.end)
+
+*       Returns _true_ iff _x_ is is not element in set _set_.
 
 set.notin
 
@@ -1242,6 +1255,7 @@ set.notin.end
 
 set.subset
 
+	set.subset = false
 	gt(#b,#a)					:s(return)
 	loop(b)
 
@@ -1978,6 +1992,24 @@ setl4.traceon
                                                         :(return)
 setl4.traceon.end
 
+	define('visit(obj,expr)')			:(visit.end)
+
+
+*	_visit_ loops over _obj_ and calls _eval_ with argument 
+*	_expr_  for each member so reached.
+
+visit
+
+	loop(obj)
+
+visit.next
+
+	next(obj)					:f(return)
+	output = 'next ' set.next(obj)
+	eval(expr)					:(visit.next)
+	
+visit.end
+
         :(error.end)
 error
         output = 'error lastno ' &lastno
@@ -2044,16 +2076,27 @@ error.end
 *map.loop.end
 
 *	Use some of the undefined SPITBOL operators for SETL4 functions.
+*	SPITBOL undefined operators:
+
+*	binary:  &  @  #  %  ~
+*	unary:   !  %  /  #  = |
 
 *	These opsyn changes don't require mucking about
-*	with SBL4 scanner.
+*	with SPITBOL lexical scanner.
 
 	opsyn('#','setl4.size',1)
 	opsyn('@','setl4.reduce',2)
+	opsyn('=','setl4.next',1)
+	opsyn('&','setl4.cat',2)
+	opsyn('~','setl4.member',2)
+
+* 	available ops
+*	binary:  #  %  
+*	unary:   !  %  / |
 
 * Defer other opsyn changes until later.
 *	opsyn('&','and',2)
 *	opsyn('^','or',2)
-*	opsyn('~','setl4.member',2)
-**	opsyn('=','setl4.next',1)
+
+
 

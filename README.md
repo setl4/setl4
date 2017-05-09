@@ -58,8 +58,6 @@ map.domain(map)
 
 map.equal(a,b)
 
-map.apply(map,s)
-
 map.get(map,key)
 
 map.inverst(map)
@@ -86,8 +84,6 @@ random(n)
 random.seed()
 
 seq.add(seq.val)
-
-seq.apply(seq,s)
 
 seq.extend(seq,len)
 
@@ -168,19 +164,28 @@ setl4.traceoff()
 
 setl4.traceon()
 
+visit(obj,expr) - loop over _obj_ and call _eval(expr)_ for each member.
+
 *map.loop(map,kind)
 
-*	Use some of the undefined SPITBOL operators for SETL4 functions.
 
-*	These opsyn changes don't require mucking about
-*	with SBL4 scanner.
 
-	opsyn('#','setl4.size',1)
-	opsyn('@','setl4.reduce',2)
+SETL4 assigns a meaning to a number of operator symbols not used in SPITBOL:
 
-* Defer other opsyn changes until later.
-*	opsyn('&','and',2)
-*	opsyn('^','or',2)
-*	opsyn('~','setl4.member',2)
-**	opsyn('=','setl4.next',1)
+'#' is a unary operator that returns the size of its operand.
+
+'@' is a binary operator that invokes the _reduce_ operator.
+	"obj @ expr" is same as _setl4.reduct(obj,expr)_
+
+'=' is a unary operator that returns the last iteration value
+	returned by its operand.
+
+'&' is a binary operator that concatenates its arguments. This is
+	an alternative to SPITBOL's unconventional use of a blank character 
+	to indicate concatenation.
+
+'~' is a binary operator for testing membership; 'x ~ s' is shorthand
+	for '_set.member(x,s)_'
+
+
 
