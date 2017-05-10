@@ -671,62 +671,66 @@ loop.end
 
 	define('exists(obj,expr)member')		:(exists.end)
 
-*	Determines if there is an element in _obj_ such that _eval(expr)_ is true.
-*	If found, exists succeeds and returns the element found. 
-*	Otherwise, exists fails.
+*	Tests if there is an element in _obj_ such that _eval(expr)_ is false.
 
 exists
 
+	exists = false
 	loop(obj)
 
 exists.loop
 
-	element = next(obj)				:f(freturn)
-	false(eval(expr))				:s(exists.loop)
-	exists = element				:(return)
+	element = next(obj)				:f(exists.done)
+	false(eval(expr))				:s(return)f(exists.loop)
+
+exists.done
+
+	exists = true					:(return)
 
 exists.end
 
 	define('exists.not(obj,expr)member')		:(exists.not.end)
 
-*	Determines if there is no element in _obj_ such 
-*	that _eval(expr)_ is true. If none found, exists.not 
-*	succeeds. Otherwise, exists.not fails and returns 
-*	the element found.
+*	Tests if there is not an element in _obj_ such that
+*	_eval(expr)_ is true.
 
 exists.not
 
-	loop(obj)
-
-exists.not.loop
-
-	element = next(obj)				:f(freturn)
-	false(eval(expr))				:s(exists.not.loop)
-	exists.not = element				:(return)
+	exists.not = not(exists(obj.expr))		:(return)
 
 exists.not.end
 
 	define('forall(obj,expr)member')		:(forall.end)
 
-*	Determines if _expr_ is true for all the members of _obj_.
-*	Returns true if so. Otherwise fails and returns the element
-*	found for which _expr_ was not true as the value.
+*	Tests if _expr_ is true for all the members of _obj_.
 
 forall
 
+	forall = false
 	loop(obj)
 
 forall.loop
 
 	forall = next(obj)				:f(forall.done)
-	true(eval(expr))				:s(forall.loop)
-	forall = element				:(freturn)
+	true(eval(expr))				:s(forall.loop)f(return)
 
 forall.done
 
 	forall = true					:(return)
 
 forall.end
+
+
+	define('forall1(obj,expr)')			:(forall1.end)
+
+*	Tests if _expr_ is true for all1 members of _obj_.
+
+forall1
+
+	forall1 = false
+	visit(obj,'true(eval(expr)))'
+
+forall1.end
 
 	define('integers(low,high,step)i,n')			:(integers.end)
 
