@@ -183,7 +183,7 @@ square.root.end
 
 *	A set is defined by the following datatype:
 
-	data('set(set.index,set.key,set.size,set.max,set.next)')
+	data('set(set.index,set.key,set.size,set.max,set.next,set.last)')
 
 *	where
 
@@ -422,14 +422,12 @@ setl4.size.end
 *	_A_ by _S_. This can also be read as 
 *		"the subset of _A_ such that _S_ is true"
 
-	define('setl4.reduce(obj,expr)member,text,i')	:(setl4.reduce.end)
+	define('setl4.reduce(obj,expr)member,text,i,r')	:(setl4.reduce.end)
 
 *	Returns that part of compound object _obj_ for which _expr_ is true.
 
 setl4.reduce
 
-	output = 'setl4.reduce expr |' expr '|'
-	output = 'enter setl4.reduce'
 	member = datatype(obj)
 	ident(member,'map')				:s(setl4.reduce.map)
 	ident(member,'seq')				:s(setl4.reduce.seq)
@@ -447,23 +445,6 @@ setl4.reduce.map.next
 	eq(member)					:s(setl4.reduce.map.next)
 	map.add(setl4.reduce,member)			:(setl4.reduce.map.next)
 
-setl4.reduce.set
-
-	setl4.reduce = set.new(#obj)
-	loop(obj)
-
-setl4.reduce.set.next
-
-	member = next(obj)			:f(return)
-	ouput = '4.reduce|' member '|'
-	output = 'red1 ' datatype(member)
-	member = eval(expr)				:f(setl4.reduc.set.next)
-	output = 'red2 ' datatype(member)
-	output = 'red3 |' member '|'
-	eq(member)					:s(setl4.reduce.set.next)
-	output = 'red4 adding member '
-	set.add(setl4.reduce,member)			:(setl4.reduce.set.next)
-
 
 setl4.reduce.seq
 
@@ -477,6 +458,20 @@ setl4.reduce.seq.next
 	member = eval(expr)				:f(seql4.reduce.seq.next)
 	eq(member)					:s(seql4.reduce.seq.next)
 	seq.add(setl4.reduce,member)			:(setl4.reduce.seq.next)
+
+setl4.reduce.set
+
+	setl4.reduce = set.new(#obj)
+	loop(obj)
+
+setl4.reduce.set.next
+
+	member = next(obj)			:f(return)
+
+	ouput = '4.reduce|' member '|'
+	r = eval(expr)				:f(setl4.reduce.set.next)
+	eq(r)					:s(setl4.reduce.set.next)
+	set.add(setl4.reduce,member)		:(setl4.reduce.set.next)
 
 setl4.reduce.str
 
@@ -518,9 +513,10 @@ next
 
 next.end
 
-	define('setl4.next(obj)dt,kind')				:(setl4.next.end)
+	define('setl4.next(obj)dt,kind')		:(setl4.next.end)
 
-*	Returns next member in interation over compound object _obj_.
+*	Advances iteration field 'next' and sets field 'last'
+*	to the next element of the iteration.
 
 setl4.next
 
@@ -543,30 +539,35 @@ setl4.next.int
 	ge(int.next(obj),int.high(obj))			:s(freturn)
 	int.next(obj) = int.next(obj) + int.step(obj)
 	gt(int.next(obj),int.high(obj))			:s(freturn)
-	setl4.next = int.next(obj)			:(return)
+	int.last(obj) = int.next(obj)
+	setl4.next = int.last(obj)			:(return)
 
 setl4.next.map
 
 	map.next(obj) = map.next(obj) + 1
 	gt(map.next(obj),map.max(obj))			:s(freturn)
 	setl4.next = map.index(obj)[map.next(obj)] 
-	output = 'r.next ' setl4.next
+	map.last(obj) = setl4.next
 	ident(setl4.next)				:s(setl4.next.set)f(return)
 
 setl4.next.seq
 
 	ge(seq.next(obj),seq.size(obj))			:s(freturn)
 	seq.next(obj) = seq.next(obj) + 1
-	setl4.next = seq.get(obj,seq.next(obj))		:(return)
+	setl4.next = seq.get(obj,seq.next(obj))		
+	seq.last(obj) = setl4.next
+							:(return)
 
 setl4.next.set
 
-*	output = ge(set.next(obj),set.max(obj)) 'setl4.next.set about to fail'
+*	output = 'next.set ' set.next(obj) ',  max ' set.max(obj) '.'
 	ge(set.next(obj),set.max(obj))	:s(freturn)
 	set.next(obj) = set.next(obj) + 1
 	setl4.next = set.index(obj)[set.next(obj)] 
-*	output = 'setl4.next returning ' setl4.next
-	ident(setl4.next)				:s(setl4.next.set)f(return)
+	ident(setl4.next)				:s(setl4.next.set)
+	set.last(obj) = setl4.next
+*	output = 'setl4.next.set returns ' setl4.next '.' 
+							:(return)
 
 setl4.next.str
 	
@@ -574,45 +575,43 @@ setl4.next.str
 
 setl4.next.end
 
-	define('setl4.next.last(obj)dt,kind')				:(setl4.next.last.end)
+	define('setl4.last(obj)dt,kind')				:(setl4.last.end)
 
-*	Returns value found in most recent call to setl4.next.
+*	Returns value found in most recent call to setl4.last.
 *	This is the value returned by the unary '=' operator.
 
-setl4.next.last
+setl4.last
 
 	dt = datatype(obj)
-	output = 'set4.next.last ' dt
-	ident(dt,'int')					:s(setl4.next.last.int)
-	ident(dt,'map')					:s(setl4.next.last.map)
-	ident(dt,'seq')					:s(setl4.next.last.seq)
-	ident(dt,'set')					:s(setl4.next.last.set)
-	ident(dt,'str')					:s(setl4.next.last.str)
-	output = 'unsupported dt for setl4.next.last: "' dt '" , quitting.'
+	ident(dt,'int')					:s(setl4.last.int)
+	ident(dt,'map')					:s(setl4.last.map)
+	ident(dt,'seq')					:s(setl4.last.seq)
+	ident(dt,'set')					:s(setl4.last.set)
+	ident(dt,'str')					:s(setl4.last.str)
+	output = 'unsupported dt for setl4.last: "' dt '" , quitting.'
 	output = 'show|' show(obj) '|'  :(end)
 
-setl4.next.last.int
+setl4.last.int
 	
-	setl4.next.last = int.next(obj)			:(return)
+	setl4.last = int.last(obj)			:(return)
 
-setl4.next.last.map
+setl4.last.map
 
-	setl4.next.last = map.next(obj)			:(return)
+	setl4.last = map.last(obj)			:(return)
 
-setl4.next.last.seq
+setl4.last.seq
 
-	setl4.next.last = seq.next(obj)			:(return)
+	setl4.last = seq.last(obj)			:(return)
 
-setl4.next.last.set
+setl4.last.set
 
-        output = 'setl4.next.last.set ' set.next(obj)	
-	setl4.next.last = set.next(obj)		:(return)
+	setl4.last = set.last(obj)		:(return)
 
-setl4.next.last.str
+setl4.last.str
 	
 	output = "next on str's not yet supported, quitting." :(end)
 
-setl4.next.last.end
+setl4.last.end
 
 
 	define('setl4.loop(obj)dt,kind')				:(setl4.loop.end)
@@ -646,7 +645,6 @@ setl4.loop.seq
 
 setl4.loop.set
 
-	output = 'setl4.loop.set'
 	set.next(obj) = 0				:(return)
 
 setl4.loop.str
@@ -711,7 +709,7 @@ forall
 
 forall.loop
 
-	forall = next(obj)				:f(forall.done)
+	member = next(obj)				:f(forall.done)
 	true(eval(expr))				:s(forall.loop)f(return)
 
 forall.done
@@ -728,7 +726,7 @@ forall.end
 forall1
 
 	forall1 = false
-	visit(obj,'true(eval(expr)))'
+	visit(obj,'true(eval(expr))')
 
 forall1.end
 
@@ -967,8 +965,6 @@ out.text2
 *       output = 'dt(type2) ' dt(type2)
 *       output = 'dt(type3) ' dt(type3)
         ident(datatype(text2),'string')                 :s(out.2)
-*       output = 'out second argument not integer or string,'
-*.      ' but of type ' type2
 *.                                              	:(error)
 
 out.2
@@ -979,8 +975,6 @@ out.2
 out.3
         type.ex(text3,'string')                         :s(out.ok)
         type.ex(text3,'integer')             	:s(out.ok)
-*       output = 'out third argument not integer or string,'
-*.      ' but of type ' type3
 *.                                               :(error)
 
 out.ok
@@ -1099,7 +1093,6 @@ seq.new
 	assert.dt(seq,'seq')
 	n = ident(n) 128
 	n = integer(n) +n
-	output = 'seq.new n ' n '.'
 	seq.new = seq(array(n))
 	seq.max(seq.new) = n				:(return)
 
@@ -1162,8 +1155,6 @@ set.add
 	assert.dt(set,'set')
 	differ(set.key(set)[elem])			:s(return)
 	set.max(set) = set.max(set) + 1
-*	output = 'datatype set.size ' datatype(set.size(set))
-*	output = 'set.add set.size ' +set.size(set)
 	set.size(set) = set.size(set) + 1
 	max = set.max(set)
 	set.index(set)[max] = elem
@@ -1200,7 +1191,6 @@ set.equal.end
 
 set.integers
 
-	output = 'set.integers ' n
 	set.integers = set.new(n)
 	i = 0
 
@@ -1254,7 +1244,6 @@ set.less.end
 *	values separated by spaces.
 
 set.new
-	output = 'enter set.net ' init '.'
 	ident(init)					:s(set.new.int)
 	n = convert(init,'integer')			:s(set.new.int)
 	set.new = set(table(128),table(128))
@@ -1352,7 +1341,6 @@ set.union.end
 *SHOW*
 show
 	typ = datatype(v)
-*	output = 'show ' typ
 							:($('show.' typ))
 
 show.array
@@ -1390,7 +1378,6 @@ show.map
 show.map.next
 
 	member = next(v)				:f(show.map.done)
-*	output = 'dt show.map.next ' datatype(member)
 	show = show ' ' show(member,1)				
 	lt(#show,100)					:s(show.map.next)
 	output = show ' '
@@ -1575,7 +1562,6 @@ str.ascii.next
         str.ascii = differ(str.ascii) str.ascii ' '
         c = substr(line,1,1)                            :f(str.ascii.done)
         ident(c,nul)                                    :s(str.ascii.null)
-*       output = 'str.ascii c[' c ']'
         line any('0123456789')                          :s(str.ascii.integer)
         line any(&lcase &ucase)                         :s(str.ascii.letter)
         line ' '                                        :s(str.ascii.space)
@@ -1584,7 +1570,6 @@ str.ascii.next
 
         &alphabet break(c) . pos                        :f(str.ascii.other)
         pos = size(pos) 
-*       output = 'pos of [' c '] is [' pos ']'
         gt(pos,26)                                      :s(str.ascii.other)
         str.ascii = str.ascii g.str.ascii.name[c] '(^'  substr('ABCDEFGHIJKLMNOPQRSTUVWXYZ',pos,1) ')' 
         line len(1) =                                   :(str.ascii.next)
@@ -1592,13 +1577,11 @@ str.ascii.next
 str.ascii.integer
 
         line span('0123456789') . text =
-*       output = 'str.ascii num [' text ']'
         str.ascii = str.ascii  text    			:(str.ascii.next)
 
 str.ascii.letter
 
         line span(&lcase &ucase) . text =
-*       output = 'str.ascii letter [' text ']'
         str.ascii = str.ascii  text                    	:(str.ascii.next)
 
 str.ascii.null
@@ -1615,7 +1598,6 @@ str.ascii.other
 str.ascii.space
 
         line span(' ') . text =
-*       output = 'str.ascii space [' text ']'
         
         str.ascii =  str.ascii 'SPC'
         str.ascii = gt(size(text),1) str.ascii 'SPC*' size(text)
@@ -2050,7 +2032,6 @@ visit
 visit.next
 
 	next(obj)					:f(return)
-	output = 'next ' set.next(obj)
 	eval(expr)					:(visit.next)
 	
 visit.end
@@ -2131,7 +2112,7 @@ error.end
 
 	opsyn('#','setl4.size',1)
 	opsyn('@','setl4.reduce',2)
-	opsyn('=','setl4.next.last',1)
+	opsyn('=','setl4.last',1)
 	opsyn('&','setl4.cat',2)
 	opsyn('~','setl4.member',2)
 
