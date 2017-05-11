@@ -172,7 +172,7 @@ square.root.end
 *	Strings (TBSL)
 *	-------
 
-*	data('str(str.size,str.index,str.key,str.max,str.next,str.text)')
+*	data('str(str.size,str.index,str.key,str.max,str.next,str.text,str.last)')
 
 *       Sets
 *       ____
@@ -230,7 +230,7 @@ square.root.end
 *	SETL4 provides a data structure for iterating over a sequence of consecutive
 *	integers:
 
-	data('int(int.low,int.high,int.size,int.next)')
+	data('int(int.low,int.high,int.size,int.next,int.last)')
 
 *	Sequences
 *	---------
@@ -240,7 +240,7 @@ square.root.end
 *	SETL4 sequences are implemented using SPITBOL arrays, with the array
 *	length being adjusted as necessary.
 
-	data('seq(seq.array,seq.size,seq.max,seq.next)')
+	data('seq(seq.array,seq.size,seq.max,seq.next,seq.last)')
 
 *	Pairs
 *	-----
@@ -263,7 +263,7 @@ square.root.end
 
 *	where _key_ is the key, and _value_ is the value of the map for _key_.
 
-	data('map(map.index,map.key,map.size,map.max,map.next)')
+	data('map(map.index,map.key,map.size,map.max,map.next,map.last)')
 
 *       The SPITBOL datatype TABLE provides the machinery to implement maps.
 *       SPITBOL provides no way to determine the number of domain values, or size, of
@@ -826,7 +826,7 @@ map.get.end
 
 map.new
 
-*	data('map(map.index,map.key,map.size,map.max,map.next)')
+*	data('map(map.index,map.key,map.size,map.max,map.next,map.last)')
 
 	ouput = 'enter map.new'
 
@@ -1234,7 +1234,7 @@ set.less.end
 
         define('set.new(init)n')	     	:(set.new.end)
 
-*	data('set(set.index,set.key,set.size,set.max,set.next)')
+*	data('set(set.index,set.key,set.size,set.max,set.next,set.last)')
 
 *       Create a new set.
 
