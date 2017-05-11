@@ -60,9 +60,9 @@ false.end
 *TRUE*
 true
 
-	true = ident(e) 0                               :s(return)
-	true = integer(e) (ne(e) 1, 0)         		:s(return)
-	true = (differ(e) 1, 0)                         :(return)
+	true = ident(e) false                               :s(return)
+	true = integer(e) (ne(e) true, false)         		:s(return)
+	true = (differ(e) true, false)                         :(return)
 
 true.end
 
@@ -77,13 +77,13 @@ and
 
         a = integer(a) +a
         b = integer(b) +b
-        and = integer(a) integer(b) (ne(a * b) 1, 0)    :s(return)
+        and = integer(a) integer(b) (ne(a * b) true, false)    :s(return)
 
 *       Here where at least one operand for 'and' is not integer, so
 *       use ident/differ to evaluate.
 
-        and = differ(a) differ(b) 1                     :s(return)
-        and = 0                                         :(return) 
+        and = differ(a) differ(b) true                     :s(return)
+        and = false                                         :(return) 
 
 and.end
 
@@ -92,8 +92,8 @@ and.end
 *	Returns true if and only if _a_ is false.
 
 not
-        not = integer(a) (ne(a) 1, 0)                   :s(return)
-        not = (ident(a) 1, 0)                           :(return)
+        not = integer(a) (ne(a) true, false)                   :s(return)
+        not = (ident(a) true, false)                           :(return)
 
 not.end
 
@@ -105,13 +105,13 @@ not.end
 or
         a = integer(a) +a        
         b = integer(b) +b
-        or = integer(a) integer(b) (gt(a + b) 1, 0)       :s(return)
+        or = integer(a) integer(b) (gt(a + b) true, false)       :s(return)
 
 *       Here if _or_ operands not both integers, so use ident/differ.
 
-        or = ident(a) 0                                 :s(return)
-        or = ident(b) 0                                 :s(return)
-        or = 1                                          :(return)
+        or = ident(a) false                                 :s(return)
+        or = ident(b) false                                 :s(return)
+        or = true                                          :(return)
 
 or.end
 
