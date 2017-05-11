@@ -1,19 +1,17 @@
 -include "setl4.stl"
 
 * &dump = 3
-	s = set.new(10)
-	output = 'calling set.add'
-	set.add(s,1)
-	set.add(s,3)
-	set.add(s,5)
-	set.add(s,7)
-	set.add(s,9)
-	set.add(s,11)
-	set.add(s,13)
-	r1 = forall(s,"(lt(=s,10) 1,0)")
+	s = set.new('1 3 5 7 9 11 13')
+        show(s)
+        expr = '(lt(=s,100) 1,0)'
+        output = 'expr|' expr '|'
+	r1 = forall(s,expr)
 	output = 'r1 ' r1
+        r0 = exists(s,'(eq(=s,1000) 1, 0)')
+	output = 'r0 ' r0
+end
 	show(s)
-	t = s @ "(lt(=s,10) 1,0)"
+	t = s @ "(eq(=s,5) 1,0)"
 	output = 'showing t'
 	show(t)
 end

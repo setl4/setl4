@@ -60,44 +60,58 @@ false.end
 *TRUE*
 true
 
-	true = integer(e) (ne(+e) true, false)		:s(return)
-	true = ident(e)					:s(return)
-	true = 1					:(return)
+	true = ident(e) 0                               :s(return)
+	true = integer(e) (ne(e) 1, 0)         		:s(return)
+	true = (differ(e) 1, 0)                         :(return)
 
 true.end
 
-        define('and(b1,b2)')                		:(and.end)
+        define('and(a,b)')                		:(and.end)
 
 *       Returns true iff (if and only if) both arguments are true.
 
 *AND*
 and
 
-	and = ident(b1) 0				:s(return)
-	and = integer(b1) eq(b1) 0			:s(return)
-	and = ident(b2) b1				:s(return)
-	and = (eq(b1) 0, eq(b2) 0, 1)			:(return)
+*       See if both operands are integers.
+
+        a = integer(a) +a
+        b = integer(b) +b
+        and = integer(a) integer(b) (ne(a * b) 1, 0)    :s(return)
+
+*       Here where at least one operand for 'and' is not integer, so
+*       use ident/differ to evaluate.
+
+        and = differ(a) differ(b) 1                     :s(return)
+        and = 0                                         :(return) 
 
 and.end
 
-	define('not(b)')				:(not.end)
+	define('not(a)')				:(not.end)
 
-*	Returns true if and only if _b_ is false.
+*	Returns true if and only if _a_ is false.
 
 not
-
-	not = (ne(b) 0, 1)				:(return)
+        not = integer(a) (ne(a) 1, 0)                   :s(return)
+        not = (ident(a) 1, 0)                           :(return)
 
 not.end
 
-        define('or(b1,b2)')                 		:(or.end)
+        define('or(a,b)')                 		:(or.end)
 
 *       Returns true iff (if and only if) at least one argument is true.
 
 *OR*
 or
+        a = integer(a) +a        
+        b = integer(b) +b
+        or = integer(a) integer(b) (gt(a + b) 1, 0)       :s(return)
 
-	or = (ne(b1) 1, ne(b2) 1, 0)			:(return)
+*       Here if _or_ operands not both integers, so use ident/differ.
+
+        or = ident(a) 0                                 :s(return)
+        or = ident(b) 0                                 :s(return)
+        or = 1                                          :(return)
 
 or.end
 
@@ -678,8 +692,8 @@ exists
 
 exists.loop
 
-	element = next(obj)				:f(exists.done)
-	false(eval(expr))				:s(return)f(exists.loop)
+	next(obj)				        :f(exists.done)
+        ne(eval(expr))                                  :f(return)s(exists.loop)
 
 exists.done
 
@@ -709,8 +723,11 @@ forall
 
 forall.loop
 
-	member = next(obj)				:f(forall.done)
-	true(eval(expr))				:s(forall.loop)f(return)
+	next(obj)				:f(forall.done)
+        output = '=s|' =s '|'
+        output = 'eval expr|' eval(expr) '|'
+        output = 'true(eval expr)|' true(eval(expr)) '|'
+        eq(eval(expr))                                  :s(return)f(forall.loop)
 
 forall.done
 
@@ -1412,7 +1429,6 @@ show.seq.done
 
 show.set
 	
-	output = 'show.set datatype ' datatype(v)
 	show =  ' {'
 	loop(v)
 
@@ -1436,7 +1452,11 @@ show.str
 
 show.string
 
-	show = show.quote(obj)				:(show.done)
+*       Don't quote string that is an integer.
+       
+        show = integer(v) v                             :s(show.done)
+
+	show = show.quote(v)				:(show.done)
 
 
 show.table
