@@ -1,0 +1,18 @@
+-include "setl4.stl"
+
+*	Test reduction operation
+* &dump = 3
+	s = set.new(10)
+	output = 'calling set.add'
+	set.add(s,1)
+	set.add(s,3)
+	set.add(s,5)
+	set.add(s,7)
+	set.add(s,9)
+	set.add(s,11)
+	set.add(s,13)
+	show(s)
+	t = s @ "(lt(=s,10) 1,0)"
+	output = 'showing t'
+	show(t)
+end

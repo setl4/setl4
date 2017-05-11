@@ -1,0 +1,40 @@
+-include "setl4.stl"
+
+* &dump = 3
+	s = set.new(10)
+	output = 'calling set.add'
+	set.add(s,1)
+	set.add(s,3)
+	set.add(s,5)
+	set.add(s,7)
+	set.add(s,9)
+	set.add(s,11)
+	set.add(s,13)
+	r1 = forall(s,"(lt(=s,10) 1,0)")
+	output = 'r1 ' r1
+	show(s)
+	t = s @ "(lt(=s,10) 1,0)"
+	output = 'showing t'
+	show(t)
+end
+	define('f(x)') :(f.end)
+f
+	x = =s
+	output = out3('x',x)
+	calls = calls + 1
+	output = out3('f calls ',calls)
+	fv = lt(calls,4) 
+	output = out3('fv',fv)
+	f = fv
+					:(return)
+f.end
+	visit(s,'output = =s')
+
+
+	output = 'try reduce'
+*	 t = setl4.reduce(s , 'lt(calls = calls + 1,5)')
+*	 t = s @ 'lt(calls = calls + 1,5)'
+	 t = s @ 'f()'
+	show(t)
+	output = 'tried reduce'
+end

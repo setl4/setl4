@@ -1,0 +1,25 @@
+-include "setl4.stl"
+
+	define('f()') :(f.end)
+f
+	calls = calls + 1
+	f = lt(calls,6) :(return)
+f.end
+	&dump = 3
+	s = set.new(10)
+	set.add(s,1)
+	set.add(s,3)
+	set.add(s,5)
+	set.add(s,7)
+	set.add(s,9)
+	set.add(s,11)
+	set.add(s,13)
+	show(s)
+
+	output = 'try reduce'
+*	 t = setl4.reduce(s , 'lt(calls = calls + 1,5)')
+*	 t = s @ 'lt(calls = calls + 1,5)'
+	 t = s @ 'f()'
+	show(t)
+	output = 'tried reduce'
+end
