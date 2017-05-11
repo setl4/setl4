@@ -8,7 +8,7 @@
 
 assert.dt
 
-	assert(ident(datatype(obj),typ))		:(return)
+	assert(ident(datatype(set),typ))		:(return)
 
 assert.dt.end
 
@@ -197,9 +197,11 @@ square.root.end
 
 *	A set is defined by the following datatype:
 
-	data('set(set.index,set.key,set.size,set.max,set.next,set.last)')
+	data('set(set,kind,set.index,set.key,set.size,set.max,set.next,set.last,set.loop)')
 
 *	where
+
+*		_kind_		is the kind of _set_: 'int', 'map', 'seq', 'set', or 'str'.
 
 *		_index_		a SPITBOL table used to map the integer id assigned each element
 *				to the value of the element.
@@ -212,6 +214,8 @@ square.root.end
 
 *		_next_		the last value returned by the _next_ primitive when iterating
 *				over a set.
+*		_loop_		is array needed when iterating in order other than which
+*				elements were added to the set.
 
 *	Note that the null value is not allowed as an element of a set, or the value of a map entry,
 *	but can be used as the value of an element in a seq.
@@ -226,7 +230,7 @@ square.root.end
 *	recent element can be deleted using the 'pop' primitive.
 
 
-*	New instances of compound objects are created by set.new
+*	New instances of sets are created by set.new
 
 *		set.new(init,name)
 
@@ -277,19 +281,19 @@ square.root.end
 
 *	where _key_ is the key, and _value_ is the value of the map for _key_.
 
-	data('map(map.index,map.key,map.size,map.max,map.next,map.last)')
+	data('map(set.index,set.key,set.size,set.max,set.next,set.last)')
 
 *       The SPITBOL datatype TABLE provides the machinery to implement maps.
 *       SPITBOL provides no way to determine the number of domain values, or size, of
 *       a map other than converting the map to an array, which is only way to iterate
-*       over a map.
+*       over a set.
 
 *	Each new entry added to a map is given an integer id, starting with one.
-*	The field _map.index_ maps the id's to the associated entries.
+*	The field _set.index_ maps the id's to the associated entries.
 
-*	The field _map.key_ maps the keys used in entries to their associated id's, and
+*	The field _set.key_ maps the keys used in entries to their associated id's, and
 *	is needed to allow constant-time access to map entries, both when retrieving
-*	values and when iterating over the map.
+*	values and when iterating over the set.
 
 
 *       Sequences.
@@ -329,42 +333,57 @@ square.root.end
 *	that _eval(expr)_ is true.
 
 
-	define('setl4.cat(a,b)')	:(setl4.cat.end)
+	define('setl4.concatenate(a,b)')	:(setl4.concatenate.end)
 
 *	Concatenate argument strings.
 
-setl4.cat
+setl4.concatenate
 
-	setl4.cat = a b :(return)
+	setl4.concatenate = a b :(return)
 
-setl4.cat.end
+setl4.concatenate.end
 
+	define('setl4.kind(set,kind1,kind2,kind3,kind3,kind4)kind')	:(setl4.kind.end)
 
-	define('setl4.member(elem,obj)dt,entry,key,value') :(setl4.member.end)
+*	Tests if the kind of _set_ is one of kind1, kind2, .... Returns true if so,
+*	false otherwise.
 
-*	Tests if _elem_ is 'member' of _obj_, where:
+setl4.kind
 
-*	_elem_ is member of map _obj_ if _map_ has entry _elem_.
+	kind = set.kind(set)
+	setl4.kind = differ(kind1) ident(kind1,kind) true	:s(return)
+	setl4.kind = differ(kind2) ident(kind2,kind) true	:s(return)
+	setl4.kind = differ(kind3) ident(kind3,kind) true	:s(return)
+	setl4.kind = differ(kind4) ident(kind4,kind) true	:s(return)
+	setl4.kind = false					:(return)
 
-*	_elem_ is member of sequence _obj_ if _obj_ has entry _elem)
+setl4.kind.end
 
-*	_elem_ is member of set _obj_ if _set.in(elem,obj)_ is true.
+	define('setl4.member(elem,set)kind,entry,key,value') :(setl4.member.end)
 
-*	_elem_ is member of string _obj_ if _obj_ contains instance of _elem_.
+*	Tests if _elem_ is 'member' of _set, where:
+
+*	_elem_ is member of map _set if _map_ has entry _elem_.
+
+*	_elem_ is member of sequence _set if _set has entry _elem)
+
+*	_elem_ is member of set _set if _set.in(elem,set)_ is true.
+
+*	_elem_ is member of string _set if _set contains instance of _elem_.
 
 
 setl4.member
 
 
+	kind = set.kind(set)
 	setl4.member = false
-	dt = datatype(obj)
-	ident(dt,'map')					:s(setl4.member.map)
-	ident(dt,'seq')					:s(setl4.member.seq)
-	ident(dt,'set')					:s(setl4.member.set)
-	ident(dt,'str')					:s(setl4.member.str)
-	ident(dt,'string')				:s(setl4.member.string)
-	ident(dt,'map')					:s(setl4.member.map)
-	ident(dt,'map')					:s(setl4.member.map)
+	setl4.kind(kind,'map')					:s(setl4.member.map)
+	setl4.kind(kind,'seq')					:s(setl4.member.seq)
+	setl4.kind(kind,'set')					:s(setl4.member.set)
+	setl4.kind(kind,'str')					:s(setl4.member.str)
+	setl4.kind(kind,'string')				:s(setl4.member.string)
+	setl4.kind(kind,'map')					:s(setl4.member.map)
+	setl4.kind(kind,'map')					:s(setl4.member.map)
 
 setl.4.member.map
 
@@ -372,29 +391,29 @@ setl.4.member.map
 
 *	Cannot be member if no entry in _key_ table.
 
-	ident(map.key(obj)[key])			:s(return)
+	ident(set.key(set)[key])			:s(return)
 
 *	There is entry for _key_, see if it has right value.
 
-	ident(map.index[map.key(obj)[key]],value)	:f(return)
+	ident(set.index[set.key(set)[key]],value)	:f(return)
 	setl4.member = true				:(return)
 
 setl.4.member.seq
 
 	output = 'setl4.memberon seq not yet done' :(end)
-	ident(obj.array[key,1])				:s(return)
-*	ident(value[obj],ob
+	ident(set.array[key,1])				:s(return)
+*	ident(value[set],ob
 
 							:(return)
 
 setl4.member.set
 
-	setl4.member = set.in(elem,obj)			:(return)
+	setl4.member = set.in(elem,set)			:(return)
 *        set.in = (differ(set.key(set)[elem]) true, false) :(return)
 
 setl.4.member.str
 
-	obj break(elem)					:f(return)
+	set break(elem)					:f(return)
 	set4.member = true				:(return)
 
 setl.4.member.string
@@ -404,21 +423,32 @@ setl.4.member.string
 
 setl4.member.end
 
+	define('setl4.not(expr)')			:(setl4.not.end)
+
+*	Returns not of boolean expression.
+
+setl4.not
+
+	expr = integer(expr) +expr
+	setl4.not = integer(expr) (ne(expr) false, true)	:(return)
+setl4.not.end
 
 *	Define '#' as unary operator that returns size of its operand.
-	define('setl4.size(s)dt')			:(setl4.size.end)
+	define('setl4.size(set)kind')			:(setl4.size.end)
 
 *	Return size of operand.
 
 setl4.size
 	
-	dt = datatype(s)
-	setl4.size = ident(dt,'int')	  int.size(s)	:s(return)
-	setl4.size = ident(dt,'map')	  set.size(s)	:s(return)
-	setl4.size = ident(dt,'seq')	  seq.size(s)	:s(return)
-	setl4.size = ident(dt,'set')	  set.size(s)	:s(return)
-	setl4.size = ident(dt,'str')	  str.size(s)	:s(return)
-	setl4.size = ident(dt,'string')	  size(s)	:s(return)
+	kind = set.kind(set)
+	setl4.size = setl4.kind(ki:w
+
+	setl4.size = setl4.kind(kind,'int')	  int.size(s)	:s(return)
+	setl4.size = setl4.kind(kind,'map')	  set.size(s)	:s(return)
+	setl4.size = setl4.kind(kind,'seq')	  seq.size(s)	:s(return)
+	setl4.size = setl4.kind(kind,'set')	  set.size(s)	:s(return)
+	setl4.size = setl4.kind(kind,'str')	  str.size(s)	:s(return)
+	setl4.size = setl4.kind(kind,'string')	  size(s)	:s(return)
 	output = 'setl4.size unknown type ' dt :(end)
 
 setl4.size.end
@@ -436,51 +466,51 @@ setl4.size.end
 *	_A_ by _S_. This can also be read as 
 *		"the subset of _A_ such that _S_ is true"
 
-	define('setl4.reduce(obj,expr)member,text,i,r')	:(setl4.reduce.end)
+	define('setl4.reduce(set,expr)kind,member,text,i,r')	:(setl4.reduce.end)
 
-*	Returns that part of compound object _obj_ for which _expr_ is true.
+*	Returns that part of compound object _set for which _expr_ is true.
 
 setl4.reduce
 
-	member = datatype(obj)
-	ident(member,'map')				:s(setl4.reduce.map)
-	ident(member,'seq')				:s(setl4.reduce.seq)
-	ident(member,'set')				:s(setl4.reduce.set)
-	ident(member,'str')				:s(setl4.reduce.str)
+	member = datatype(set)
+	setl4.kind(kind,'map')				:s(setl4.reduce.map)
+	setl4.kind(kind,'seq')				:s(setl4.reduce.seq)
+	setl4.kind(kind,'set')				:s(setl4.reduce.set)
+	setl4.kind(kind,'str')				:s(setl4.reduce.str)
 
 setl4.reduce.map
-	setl4.reduce = map.new(#obj)
-	loop(obj)
+	setl4.reduce = set.new(#set)
+	loop(set)
 
-setl4.reduce.map.next
+setl4.reduce.set.next
 
-	member = next(#obj)			:f(return)
-	member = eval(expr)				:f(setl4.reduce.map.next)
-	eq(member)					:s(setl4.reduce.map.next)
-	map.add(setl4.reduce,member)			:(setl4.reduce.map.next)
+	member = next(#set)			:f(return)
+	member = eval(expr)				:f(setl4.reduce.set.next)
+	eq(member)					:s(setl4.reduce.set.next)
+	set.add(setl4.reduce,member)			:(setl4.reduce.set.next)
 
 
 setl4.reduce.seq
 
-	setl4.reduce = seq.new(#obj)
-	loop(obj)
+	setl4.reduce = seq.new(#set)
+	loop(set)
 
 
 setl4.reduce.seq.next
 
-	member = next(#obj)			:f(return)
+	member = next(#set)			:f(return)
 	member = eval(expr)				:f(seql4.reduce.seq.next)
 	eq(member)					:s(seql4.reduce.seq.next)
 	seq.add(setl4.reduce,member)			:(setl4.reduce.seq.next)
 
 setl4.reduce.set
 
-	setl4.reduce = set.new(#obj)
-	loop(obj)
+	setl4.reduce = set.new(#set)
+	loop(set)
 
 setl4.reduce.set.next
 
-	member = next(obj)			:f(return)
+	member = next(set)			:f(return)
 
 	ouput = '4.reduce|' member '|'
 	r = eval(expr)				:f(setl4.reduce.set.next)
@@ -489,13 +519,13 @@ setl4.reduce.set.next
 
 setl4.reduce.str
 
-	setl4.reduce = str.new(#obj)
-	text = str.text(obj)
+	setl4.reduce = str.new(#set)
+	text = str.text(set)
 
 
 set4.reduce.str.next
 
-	member = next(#obj)
+	member = next(#set)
 	text len (1) . member =				:f(return)
 	member = eval(expr)				:f(strl4.reduce.str.next)
 	eq(member)					:s(strl4.reduce.str.next)
@@ -503,7 +533,7 @@ set4.reduce.str.next
 
 *setl4.reduce.str (orig. form)
 
-	obj len(1) . member =				:f(return)
+	set len(1) . member =				:f(return)
 	member = eval(expr)				:f(setl4.reduce.string)
 	eq(member)					:s(setl4.reduce.string)
 	setl4.reduce = setl4.reduce  c			:(setl4.reduce.string)
@@ -519,29 +549,29 @@ setl4.reduce.end
 *TODO;	Use  x ~ S for x is member of S.
 
 
-	define('next(obj)')				:(next.end)
+	define('next(set)')				:(next.end)
 
 next
 
-	next = setl4.next(obj)				:s(return)f(freturn)
+	next = setl4.next(set)				:s(return)f(freturn)
 
 next.end
 
-	define('setl4.next(obj)dt,kind')		:(setl4.next.end)
+	define('setl4.next(set)dt,kind')		:(setl4.next.end)
 
 *	Advances iteration field 'next' and sets field 'last'
 *	to the next element of the iteration.
 
 setl4.next
 
-	dt = datatype(obj)
-	ident(dt,'int')					:s(setl4.next.int)
-	ident(dt,'map')					:s(setl4.next.map)
-	ident(dt,'seq')					:s(setl4.next.seq)
-	ident(dt,'set')					:s(setl4.next.set)
-	ident(dt,'str')					:s(setl4.next.str)
+	kiind = set.kind(set)
+	setl4.kind(kind,'int')					:s(setl4.next.int)
+	setl4.kind(kind,'map')					:s(setl4.next.map)
+	setl4.kind(kind,'seq')					:s(setl4.next.seq)
+	setl4.kind(kind,'set')					:s(setl4.next.set)
+	setl4.kind(kind,'str')					:s(setl4.next.str)
 	output = 'unsupported dt for setl4.next: "' dt '" , quitting.'
-	output = 'show|' show(obj) '|'  :(end)
+	output = 'show|' show(set) '|'  :(end)
 
 *	When iterating over a set or map, previous deletions may have mapped some
 *	entries in the index to null. Such entries must be skipped when looking for
@@ -550,36 +580,36 @@ setl4.next
 setl4.next.int
 
 	
-	ge(int.next(obj),int.high(obj))			:s(freturn)
-	int.next(obj) = int.next(obj) + int.step(obj)
-	gt(int.next(obj),int.high(obj))			:s(freturn)
-	int.last(obj) = int.next(obj)
-	setl4.next = int.last(obj)			:(return)
+	ge(int.next(set),int.high(set))			:s(freturn)
+	int.next(set) = int.next(set) + int.step(set)
+	gt(int.next(set),int.high(set))			:s(freturn)
+	int.last(set) = int.next(set)
+	setl4.next = int.last(set)			:(return)
 
 setl4.next.map
 
-	map.next(obj) = map.next(obj) + 1
-	gt(map.next(obj),map.max(obj))			:s(freturn)
-	setl4.next = map.index(obj)[map.next(obj)] 
-	map.last(obj) = setl4.next
+	set.next(set) = set.next(set) + 1
+	gt(set.next(set),set.max(set))			:s(freturn)
+	setl4.next = set.index(set)[set.next(set)] 
+	set.last(set) = setl4.next
 	ident(setl4.next)				:s(setl4.next.set)f(return)
 
 setl4.next.seq
 
-	ge(seq.next(obj),seq.size(obj))			:s(freturn)
-	seq.next(obj) = seq.next(obj) + 1
-	setl4.next = seq.get(obj,seq.next(obj))		
-	seq.last(obj) = setl4.next
+	ge(seq.next(set),seq.size(set))			:s(freturn)
+	seq.next(set) = seq.next(set) + 1
+	setl4.next = seq.get(set,seq.next(set))		
+	seq.last(set) = setl4.next
 							:(return)
 
 setl4.next.set
 
-*	output = 'next.set ' set.next(obj) ',  max ' set.max(obj) '.'
-	ge(set.next(obj),set.max(obj))	:s(freturn)
-	set.next(obj) = set.next(obj) + 1
-	setl4.next = set.index(obj)[set.next(obj)] 
+*	output = 'next.set ' set.next(set) ',  max ' set.max(set) '.'
+	ge(set.next(set),set.max(set))	:s(freturn)
+	set.next(set) = set.next(set) + 1
+	setl4.next = set.index(set)[set.next(set)] 
 	ident(setl4.next)				:s(setl4.next.set)
-	set.last(obj) = setl4.next
+	set.last(set) = setl4.next
 *	output = 'setl4.next.set returns ' setl4.next '.' 
 							:(return)
 
@@ -589,91 +619,40 @@ setl4.next.str
 
 setl4.next.end
 
-	define('setl4.last(obj)dt,kind')				:(setl4.last.end)
+	define('setl4.last(set)dt,kind')				:(setl4.last.end)
 
 *	Returns value found in most recent call to setl4.last.
 *	This is the value returned by the unary '=' operator.
 
 setl4.last
 
-	dt = datatype(obj)
-	ident(dt,'int')					:s(setl4.last.int)
-	ident(dt,'map')					:s(setl4.last.map)
-	ident(dt,'seq')					:s(setl4.last.seq)
-	ident(dt,'set')					:s(setl4.last.set)
-	ident(dt,'str')					:s(setl4.last.str)
-	output = 'unsupported dt for setl4.last: "' dt '" , quitting.'
-	output = 'show|' show(obj) '|'  :(end)
+	kind = set.kind(set)
+	output = setl4.kind(kind,'str')"next on str's not yet supported, quitting." :(end)
 
-setl4.last.int
-	
-	setl4.last = int.last(obj)			:(return)
-
-setl4.last.map
-
-	setl4.last = map.last(obj)			:(return)
-
-setl4.last.seq
-
-	setl4.last = seq.last(obj)			:(return)
-
-setl4.last.set
-
-	setl4.last = set.last(obj)		:(return)
-
-setl4.last.str
-	
-	output = "next on str's not yet supported, quitting." :(end)
+	setl4.last = set.last(set)
 
 setl4.last.end
 
 
-	define('setl4.loop(obj)dt,kind')				:(setl4.loop.end)
+	define('setl4.loop(set)dt,kind')				:(setl4.loop.end)
 
-*	Returns loop member in interation over compound object _obj_.
+*	Returns loop member in interation over compound object _set.
 
 setl4.loop
 
-	dt = datatype(obj)
-	ident(dt,'int')					:s(setl4.loop.int)
-	ident(dt,'map')					:s(setl4.loop.map)
-	ident(dt,'seq')					:s(setl4.loop.seq)
-	ident(dt,'set')					:s(setl4.loop.set)
-	ident(dt,'str')					:s(setl4.loop.str)
-	output = 'unsupported datatype for setl4.loop ' dt ', quitting.'
-	output = show(obj)  :(end)
-
-setl4.loop.int
-
-	int.next(obj) = int.low(obj)			:(return)
-
-
-setl4.loop.map
-
-	map.next(obj) = 0				:(return)
-
-
-setl4.loop.seq
-
-	seq.next(obj) = 0				:(return)
-
-setl4.loop.set
-
-	set.next(obj) = 0				:(return)
-
-setl4.loop.str
-	
-	str.next(obj) = 0				:(return)
+	kind = set.kind(set)
+	set.next(set) = 0
+	set.next(set) = setl4.kind(kind,'int') set.low(set)
 
 setl4.loop.end
 	
-	define('loop(obj)')				:(loop.end)
+	define('loop(set)')				:(loop.end)
 
 *	Set up for loop.
 
 loop
 
-	setl4.loop(obj)					:s(return)f(freturn)
+	setl4.loop(set)					:s(return)f(freturn)
 
 loop.end
 
@@ -681,18 +660,18 @@ loop.end
 *	Use = as unary operator to yield value of next when iterating.
 
 
-	define('exists(obj,expr)member')		:(exists.end)
+	define('exists(set,expr)member')		:(exists.end)
 
-*	Tests if there is an element in _obj_ such that _eval(expr)_ is false.
+*	Tests if there is an element in _set such that _eval(expr)_ is false.
 
 exists
 
 	exists = false
-	loop(obj)
+	loop(set)
 
 exists.loop
 
-	next(obj)				        :f(exists.done)
+	next(set)				        :f(exists.done)
         ne(eval(expr))                                  :f(return)s(exists.loop)
 
 exists.done
@@ -701,29 +680,29 @@ exists.done
 
 exists.end
 
-	define('exists.not(obj,expr)member')		:(exists.not.end)
+	define('exists.not(set,expr)member')		:(exists.not.end)
 
-*	Tests if there is not an element in _obj_ such that
+*	Tests if there is not an element in _set such that
 *	_eval(expr)_ is true.
 
 exists.not
 
-	exists.not = not(exists(obj.expr))		:(return)
+	exists.not = not(exists(set.expr))		:(return)
 
 exists.not.end
 
-	define('forall(obj,expr)member')		:(forall.end)
+	define('forall(set,expr)member')		:(forall.end)
 
-*	Tests if _expr_ is true for all the members of _obj_.
+*	Tests if _expr_ is true for all the members of _set.
 
 forall
 
 	forall = false
-	loop(obj)
+	loop(set)
 
 forall.loop
 
-	next(obj)				:f(forall.done)
+	next(set)				:f(forall.done)
         output = '=s|' =s '|'
         output = 'eval expr|' eval(expr) '|'
         output = 'true(eval expr)|' true(eval(expr)) '|'
@@ -736,14 +715,14 @@ forall.done
 forall.end
 
 
-	define('forall1(obj,expr)')			:(forall1.end)
+	define('forall1(set,expr)')			:(forall1.end)
 
-*	Tests if _expr_ is true for all1 members of _obj_.
+*	Tests if _expr_ is true for all1 members of _set.
 
 forall1
 
 	forall1 = false
-	visit(obj,'true(eval(expr))')
+	visit(set,'true(eval(expr))')
 
 forall1.end
 
@@ -783,7 +762,7 @@ join.str
 join.str.end
 
 
-	define('map.equal(a,b)entry,key,value')		:(map.equal.end)
+	define('set.equal(a,b)entry,key,value')		:(set.equal.end)
 
 *	Test two maps for equality. 
 
@@ -791,49 +770,49 @@ join.str.end
 *	of the first map for each element in its domain is the same 
 *	as the value of the second map for the corresponding element.
 
-map.equal
+set.equal
 
-	map.equal = ne(#a,#b) false			:s(return)
+	set.equal = ne(#a,#b) false			:s(return)
 
 *	Two maps are equal iff each is a subset of the other.
 
-	map.equal = and(map.subset(a,b),map.subset(b,a)) :(return)
+	set.equal = and(set.subset(a,b),set.subset(b,a)) :(return)
 
-map.equal.end
+set.equal.end
 	
-        define('map.get(map,key)val)id')			:(map.get.end)
+        define('set.get(map,key)val)id')			:(set.get.end)
 
 *       Gets the value of the key _key_ in the map _map_.
 
-map.get
+set.get
 	
-	id = map.key(map)[key]	
+	id = set.key(map)[key]	
 	ident(id)					:s(return)
-        map.get = map.index(map)[id]			:(return)
+        set.get = set.index(map)[id]			:(return)
 
-map.get.end
+set.get.end
 
-*	define('map.inverse(map)entry')			:(map.inverse.end)
+*	define('set.inverse(map)entry')			:(set.inverse.end)
 *
-**	_map.inverse_ returns the inverse of a map. The inverse is
+**	_set.inverse_ returns the inverse of a set. The inverse is
 **	a map with the keys and values of _map_ reversed. 
 *
-*map.inverse
+*set.inverse
 *
-*	map.inverse = set.new('map',#map)
+*	set.inverse = set.new('map',#map)
 *	loop(map)
 *
-*map.inverse.next
+*set.inverse.next
 *
-*	entry = map.next(map)				:f(return)
-*	differ(map.get(map.inverse,value(entry)))	:s(freturn)
-*	map.put(map.inverse,value(entry), key(entry))  :(map.inverse.next)
+*	entry = set.next(map)				:f(return)
+*	differ(set.get(set.inverse,value(entry)))	:s(freturn)
+*	set.put(set.inverse,value(entry), key(entry))  :(set.inverse.next)
 *
-*map.inverse.end
+*set.inverse.end
 
 	define('map.new(init)i,key,str,valr')     	:(map.new.end)
 
-*       Create a new map.
+*       Create a new set.
 
 *       A sequence is a list of values *  separated by spaces.
 
@@ -843,7 +822,7 @@ map.get.end
 
 map.new
 
-*	data('map(map.index,map.key,map.size,map.max,map.next,map.last)')
+*	data('map(set.index,set.key,set.size,set.max,set.next,set.last)')
 
 	ouput = 'enter map.new'
 
@@ -858,55 +837,55 @@ map.new.keyval
 map.new.keyval.next
 
         init break(':') . key ':' break(' ') . val span(' ') =	:f(return)
-        map.put(map.new,key,val)                        :(map.new.keyval.next)
+        set.put(map.new,key,val)                        :(map.new.keyval.next)
 
 map.new.end
 
-        define('map.put(map,key,val)v')                 :(map.put.end)
+        define('map.put(map,key,val)v')                 :(set.map.end)
 
 *       Sets the value of the entry for key _key_ in map _map_ to be _val_, 
 *       creating a new entry if there is no current entry for _key_.
 
 map.put
 
-	v = map.key(map)[key]
-	differ(v)					:s(map.put.value)
+	v = set.key(map)[key]
+	differ(v)					:s(set.put.value)
 
 *       Here to create new entry in map, and then merge to set new value.
 
-        map.max(map) = map.max(map) + 1
-	map.key(map)[key] = map.max(map)	
+        set.max(map) = set.max(map) + 1
+	set.key(map)[key] = set.max(map)	
 
-map.put.value
+set.put.value
 
-        map.index(map)[map.key(map)[key]] = entry(key,val)	:(return)
+        set.index(map)[set.key(map)[key]] = entry(key,val)	:(return)
 
-map.put.end
+set.put.end
 
-        define('map.range(map))')			:(map.range.end)
+        define('set.range(map))')			:(set.range.end)
 
 *       Return set with the keys in _map_.
 
-map.range
+set.range
 
-	map.range = set.new(#map)
+	set.range = set.new(#map)
         loop(map)
 
-map.range.next
+set.range.next
 
-        set.add(map.range,value(map.next(map)))		:s(map.range.next)f(return)
+        set.add(set.range,value(set.next(map)))		:s(set.range.next)f(return)
 
-map.range.end
+set.range.end
 
-        define('map.test(map,key)')                     	:(map.test.end)
+        define('set.test(map,key)')                     	:(set.test.end)
 
 *       Tests if the map _map_ has an entry for _key_.
 
-map.test
+set.test
 	
-	map.test = (differ(map.key(map)[key]) true,false) :(return)
+	set.test = (differ(set.key(map)[key]) true,false) :(return)
 
-map.test.end
+set.test.end
 
 
 	define('mark(line)')		:(mark.end)
@@ -1142,7 +1121,8 @@ seq.push.end
 
 seq.range
 
-	assert.dt(seq,'seq')
+	kind = set.kind(seq)
+	output = differ(kind,'seq') 'range called on non-seq, quitting' :s(end)
         seq.range = set.new('seq',#seq)
         loop(seq)
 
@@ -1158,7 +1138,7 @@ seq.range.end
 
 seq.put
 
-	assert.dt(seq,'seq')
+	assert(ident(set.kind(seq),'seq')
 	seq.array(seq)[i] = val				:(return)
 
 seq.put.end
@@ -1169,7 +1149,6 @@ seq.put.end
 
 set.add
 
-	assert.dt(set,'set')
 	differ(set.key(set)[elem])			:s(return)
 	set.max(set) = set.max(set) + 1
 	set.size(set) = set.size(set) + 1
@@ -1392,15 +1371,15 @@ show.map
 	loop(v)
 	show = ' {'
 
-show.map.next
+show.set.next
 
-	member = next(v)				:f(show.map.done)
+	member = next(v)				:f(show.set.done)
 	show = show ' ' show(member,1)				
-	lt(#show,100)					:s(show.map.next)
+	lt(#show,100)					:s(show.set.next)
 	output = show ' '
-	show =						:(show.map.next)
+	show =						:(show.set.next)
 
-show.map.done
+show.set.done
 
 	show = show ' }'
 							:(show.done)
@@ -1448,7 +1427,7 @@ show.set.done
 							:(show.done)
 show.str
 
-	show = show.quote(str.text(obj))		:(show.done)
+	show = show.quote(str.text(set))		:(show.done)
 
 show.string
 
@@ -1638,7 +1617,7 @@ str.ascii.end
 str.ascii.init
 
 
-        str.ascii.init = map.map(
+        str.ascii.init = set.map(
 .       '0:NUL 16:DLE 32:0 48:0 64:@ 80:P  96:` 112:p '
 .       '1:SOH 17:DC1 33:! 49:1 65:A 81:Q  97:a 113:q '
 .       '2:STX 18:DC2 34:" 50:2 66:B 82:R  98:b 114:r '
@@ -1656,15 +1635,15 @@ str.ascii.init
 .       '14:SO 30:RS  46:.:62 > 78:N 94:^ 110:n 126:~ '
 .       '15:SI 31:US  47:/:63 ? 79:O 95:_ 111:o 127:DEL ') 
 
-        g.str.ascii.name = map.map(128)
-        g.str.ascii.val = map.map(128)
+        g.str.ascii.name = set.map(128)
+        g.str.ascii.val = set.map(128)
         
 
 	loop(str.ascii.init)
 
 str.ascii.init.next
 
-	ent = map.next(str.ascii.init)			:(str.ascii.init.finis)
+	ent = set.next(str.ascii.init)			:(str.ascii.init.finis)
 	g.str.ascii.name[substr(&alphabet,+v + 1,1)] = name
 	g.str.ascii.val[name] = +val			:(str.ascii.init.next)
 
@@ -1705,7 +1684,7 @@ str.frequency
 str.frequency.next
 
 	str len(1) . c = 				:f(str.frequency.end)
-	map.put(str.frequency,c,map.get(str.frequency,c) + 1)	:(str.frequency.next)
+	set.put(str.frequency,c,set.get(str.frequency,c) + 1)	:(str.frequency.next)
 
 str.frequency.end
 
@@ -1810,7 +1789,7 @@ str.reader.opened
 
 str.reader.next
 
-        map.add(map, (ident(filename) input, file))     :f(str.reader.eof)s(str.reader.next)
+        set.add(map, (ident(filename) input, file))     :f(str.reader.eof)s(str.reader.next)
 
 str.reader.eof
 
@@ -1830,7 +1809,7 @@ str.reader.end
 str.reader.string
 
 	delim = ident(delim) '/'
-	str.reader.string = map.seq()
+	str.reader.string = set.seq()
 
 str.reader.string.next
 
@@ -1904,7 +1883,7 @@ str.reader.string.end
 *TOKENS*
 str.tokens  
 
-        str.tokens = map.seq()
+        str.tokens = set.seq()
         line '*'                                        :f(str.tokens.next)
         type = 'c'
         text = line                                                             
@@ -1975,7 +1954,7 @@ str.tokens.character
 
 str.tokens.new
 
-        map.add(str.tokens,token(lineno,pos,type,text))     :(str.tokens.next)
+        set.add(str.tokens,token(lineno,pos,type,text))     :(str.tokens.next)
 
 str.tokens.end
 
@@ -1992,7 +1971,7 @@ str.words
 str.words.next
 
         line break(' ') . word ' ' =                  	:f(return)
-        map.add(str.words,word)                      	:(str.words.next)
+        set.add(str.words,word)                      	:(str.words.next)
 
 str.words.end
 
@@ -2008,7 +1987,7 @@ str.writerr
 
 str.writerr.next
 	
-	output = map.next(lines)			:f(return)s(str.writerr.next)
+	output = set.next(lines)			:f(return)s(str.writerr.next)
 
 str.writerr.end
 
@@ -2039,19 +2018,19 @@ setl4.traceon
                                                         :(return)
 setl4.traceon.end
 
-	define('visit(obj,expr)')			:(visit.end)
+	define('visit(set,expr)')			:(visit.end)
 
 
-*	_visit_ loops over _obj_ and calls _eval_ with argument 
+*	_visit_ loops over _set and calls _eval_ with argument 
 *	_expr_  for each member so reached.
 
 visit
 
-	loop(obj)
+	loop(set)
 
 visit.next
 
-	next(obj)					:f(return)
+	next(set)					:f(return)
 	eval(expr)					:(visit.next)
 	
 visit.end
@@ -2065,11 +2044,11 @@ error
                                                         :(end)
 error.end
 
-*        define('map.loop(map,kind)')                    :(map.loop.end)
+*        define('set.loop(map,kind)')                    :(set.loop.end)
 
 *TODO*
-*       Returns an iterator for _map_. Use _map.next_ to retrieve
-*       the next entry in map. _map.next_ fails when no more entries remain.
+*       Returns an iterator for _map_. Use _set.next_ to retrieve
+*       the next entry in set. _set.next_ fails when no more entries remain.
 
 *       _kind_ gives the kind of loop:
 
@@ -2080,46 +2059,46 @@ error.end
 *               '+val'          iterate in incresing values of values.
 *               '-key'          iterate in decreasing values of keys.
 
-*       Otherwise iterate over the keys in the order in which they were added to the map.
+*       Otherwise iterate over the keys in the order in which they were added to the set.
 
-*map.loop
+*set.loop
 *
-*        map.next(map) = 0
-* :(map.loop.order)
-*        ident(kind)                                     :s(map.loop.order)
-*        ident(kind, '+order')                           :s(map.loop.key.order.inc)
-*        ident(kind, '-order')                           :s(map.loop.key.order.dec)
-*        ident(kind, '+key')                             :s(map.loop.key.inc)
-*        ident(kind, '-key')                             :s(map.loop.key.dec)
-*        ident(kind, '+val')                             :s(map.loop.value.inc)
-*        ident(kind, '-val')                             :s(map.loop.value.dec)
+*        set.next(map) = 0
+* :(set.loop.order)
+*        ident(kind)                                     :s(set.loop.order)
+*        ident(kind, '+order')                           :s(set.loop.key.order.inc)
+*        ident(kind, '-order')                           :s(set.loop.key.order.dec)
+*        ident(kind, '+key')                             :s(set.loop.key.inc)
+*        ident(kind, '-key')                             :s(set.loop.key.dec)
+*        ident(kind, '+val')                             :s(set.loop.value.inc)
+*        ident(kind, '-val')                             :s(set.loop.value.dec)
 *
-*map.loop.order.inc
+*set.loop.order.inc
 *
-*        map.array(map) = convert(map.table(map),'array'):(map.done)
+*        set.array(map) = convert(set.table(map),'array'):(set.done)
 *
-*map.loop.rorder.inc
+*set.loop.rorder.inc
 *
 *        output = 'loop rorder not implemented '         :(nosuchlabel)
-*        map.array(map) = convert(map.table(map),'array'):(map.done)
+*        set.array(map) = convert(set.table(map),'array'):(set.done)
 *
-*map.loop.key.inc
+*set.loop.key.inc
 *
-*        map.array(map) = rsort(map.table(map),1)        :(return)
+*        set.array(map) = rsort(set.table(map),1)        :(return)
 *
-*map.loop.key.dec
+*set.loop.key.dec
 *
-*        map.array(map) = sort(map.table(map),1)         :(return)
+*        set.array(map) = sort(set.table(map),1)         :(return)
 *
-*map.loop.value.inc
+*set.loop.value.inc
 *
-*        map.array(map) = rsort(map.table(map),2)        :(return)
+*        set.array(map) = rsort(set.table(map),2)        :(return)
 *
-*map.loop.value.dec
+*set.loop.value.dec
 *
-*        map.array(map) = sort(map.table(map),-2)        :(return)
+*        set.array(map) = sort(set.table(map),-2)        :(return)
 *
-*map.loop.end
+*set.loop.end
 
 *	Use some of the undefined SPITBOL operators for SETL4 functions.
 *	SPITBOL undefined operators:
@@ -2133,14 +2112,16 @@ error.end
 	opsyn('#','setl4.size',1)
 	opsyn('@','setl4.reduce',2)
 	opsyn('=','setl4.last',1)
-	opsyn('&','setl4.cat',2)
+	opsyn('&','setl4.concatenate',2)
 	opsyn('~','setl4.member',2)
+	opsyn('!','setl4.not',1)
 
 * 	available ops
 *	binary:  #  %  
-*	unary:   !  %  / |
+*	unary:   %  / |
 
-* Defer other opsyn changes until later.
+* Defer other opsyn changes, which reuired mucking about
+*	with SPITBOL lexical scanner,  until later.
 *	opsyn('&','and',2)
 *	opsyn('^','or',2)
 
