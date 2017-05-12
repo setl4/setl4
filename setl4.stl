@@ -781,14 +781,68 @@ map.get
 
 map.get.end
 
-	define('rank.str(word)')	:(rank.str.end)
+	define('rank(set)ara,i,entry,key,seq,value')	:(rank.end)
 
-*	The rank.str of a word consists of all the characters
-*	that occur in the word sorted into alphabetical order
-*	with each character followed by an integer giving the number
-*	of times the character occurs in the word.
+*	Rank returns a sorted version of its operand such that
+*	elements are in increasing order. For example, 
+*		rank('asxybza') is 'aabsxyz'.
+*	Sets are ranked in increasing order of their members.
+*	Maps are ranked in increasing order of their keys.
+*	Sequences and int's are always maintained in rank order.
 
+rank	
+
+	rank = setl4kind(set,'int','set') copy(set)	:s(return)
+	setl4kind(set,'map')				:s(rank.map)
+	setl4kind(set,'seq')				:s(rank.seq)
+	setl4kind(set,'set')				:s(rank.set)
+	setl4kind(set,'str')				:s(rank.str)
+	ident(datatype(set),'string')			:s(rank.string)
+	output 'rank unsupported operand type ' datatype(set) ', quitting.' :(end)
+
+rank.map
+		
+	ara = sort(set.key,1)
+	rank = set.new(#set)
+
+rank.map.next
+
+	entry = ara[i = i + 1,1]			:f(return)
+	map.put(rank,key(entry),value(entry))		:(rank.map.next)
+	
+rank.set.next
+
+	key = ara[i = i + 1,1]				:f(return)
+	set.add(rank,key)				:(rank.set.next)
+	
+rank.string
+
+*	Rank a string by building table from integers 1..size(string)
+*	and then sorting on value.
+
+	seq = seq.new(size(string)
+	
+rank.string.build
+
+	gt(i = i + 1, size(string))			:s(rank.string.sort)
+	seq.push(seq,substr(				:(rank.string.build)
+	ara = sort(set.key(seq),1)
+	i = 0
+	rank = ''
+
+rank.string.sort
+	
+	gt(i = i + 1,size(string))			:s(return)
+	rank = rank seq.get(seq,i)			:(rank.string.push)
+	gt(i = i + 1, size(string))			:f(return)
+	
 rank.str
+
+*TODO*
+	output = 'need to code rank.str using str.frequency' :(end)
+	output = 'need to provide code for rank.str, quiting' :(end)
+
+rank.end
 
 	rank.str = string.frequency(word)		:(return)
 
@@ -2132,6 +2186,7 @@ error.end
 *	binary:  #  %  & ^
 *	unary:   %  / |
 
+*TODO*
 * 	Defer other opsyn changes, which do require mucking about
 *	with SPITBOL lexical scanner,  until later.
 *	opsyn('&','and',2)
