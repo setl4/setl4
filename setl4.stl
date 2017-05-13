@@ -123,84 +123,6 @@ or
 
 or.end
 
-*       Integer Functions
-*       -----------------
-
-*	SETL4 extends the integer operations provided by SPITBOL by
-*	providing the following integer functions:
-
-*                int.divides(n,m)       true iff _n_ is multiple of _m_
-*                int.even(n)            true iff _n_ is even.
-*                int.factorial(n)       returns the value of n! = _n_ * (n - 1) * ... * 
-*                int.odd(n)             true iff _n_ is odd.
-*                int.prime(n)           true iff _n_ is a prime number
-*		 int.square.root        square root rounded up to next integer.
-
-        define('int.divides(n.m)')                      :(int.divides.end)
-
-*       Tests if _n_ is a multiple of _m_.
-
-int.divides
-
-        int.divides = (eq(remdr(n,m)) true, false)      :(return)
-
-int.divides.end
-
-        define('int.even(n)')                           :(int.even.end)
-
-*       Returns true iff _n_ is even.
-
-*EVEN*
-int.even
-
-        int.even = (eq(remdr(n,2)) true,false)          :(int.even.end)
-
-int.even.end
-
-	define('int.factorial(n)')		        :(int.factorial.end)
-
-*	Returns n! = n*(n-1)*(n-2) ... 1
-
-int.factorial
-
-	int.factorial = (eq(n,1) 1, _n_ * int.factorial(n -1))	:(return)
-
-int.factorial.end
-
-        define('int.odd(n)')                            :(int.odd.end)
-
-*       Returns true iff _n_ is odd.
-
-*ODD*
-int.odd
-
-        int.odd = (ne(remdr(n,2)) true,false)           :(return)
-
-int.odd.end
-
-	
-        define('int.prime(n)set')                       :(int.prime.end)
-
-*       Returns true iff _n_ is prime.
-
-*PRIME*
-int.prime
-
-	set = int.new(2,square.root(p))
-	int.prime = not(exists(set,'eq(remdr(p,=s))'))	:(return)
-
-int.prime.end
-
-	define('int.square.root(n)')			:(int.square.root.end)
-
-*	Returns square root of integer _n_, rounded up.
-
-int.square.root
-
-	int.square.root = convert(sqrt(convert(n,'real')),'integer') + 1 :(return)
-
-int.square.root.end
-
 *	Strings (TBSL)
 *	-------
 
@@ -336,15 +258,68 @@ int.square.root.end
 *	for which _eval(expr)_ is true, that is, the members such
 *	that _eval(expr)_ is true.
 
-        define('setl4.arb(set)')                        :(setl4.arb.end)
+        define('setl4.arb(set)n')                        :(setl4.arb.end)
 
 *       Returns arbitary (randomly selected) element of _set_.
 
 setl4.arb
 
-        output = 'setl4.arb not implemented, quitting.' :(end)
+        setl4.arb = integer(set) setl4.random(+set)      :s(return)
+        setl4.arb = string(set) subset(set,setl4.random(set),1) :s(return)
+        n = random(1,setl4.size(set))
+        setl4.kind(set,'int')                           :s(setl4.arb.int)
+        setl4.kind(set,'map')                           :s(setl4.arb.map)
+        setl4.kind(set,'seq')                           :s(setl4.arb.seq)
+        setl4.kind(set,'set')                           :s(setl4.arb.set)
+        setl4.kind(set,'str')                           :s(setl4.arb.str)
 
-setl4.arc.end
+setl4.arb.int
+
+        setl4.arb = set4.binary_seach(set
+
+setl4.arb.map
+
+setl4.arb.seq
+
+setl4.arb.set
+
+setl4.arb.str
+
+setl4.arb.end
+
+        define('setl4.binary.search(tbl,value)high,low,middle') :(setl4.binary.search.end)
+
+*       Perform to find element of _set_correspoding to _value) using a binary search.
+*       Based on Go code for binary search: http://rosettacode.org/wiki/Binary_search#Go
+
+setl4.binary.search
+
+        output = = lt(high,low) 'setl4.binary.search high<low, quitting.' :(end)
+        middle = (low + high) / 2
+        setl4.binary.search = gt(a[middle],value) 
+.               setl4.binary.search = setl4.binary.search(a,value, low, middle -1) :s(return)
+        setl4.binary.search =  lt(a[middle],value)
+.               setl4binarySearch(a,value, middle + 1, high)    :s(return)
+        setl4.binary.search =  middle                  :(return)
+
+setl4.binary.search.end
+
+func binarySearch(a[],vale) {
+        if high < lg {
+                return -1
+        }
+        mid = (low + high) / 2
+        if a[mid] > value {
+                return binarySearch(a,value, low, mid -1)
+        } else if a[mid] < value {
+                return binarySearch(a,value, mid + 1, high)
+        }
+        return mid
+}
+        
+}
+        
+Based on Go code for binary search: http://rosettacode.org/wiki/Binary_search#Go
 
 	define('setl4.concatenate(a,b)')	        :(setl4.concatenate.end)
 
@@ -709,19 +684,6 @@ setl4.next.str
 
 setl4.next.end
 
-	define('this(set)dt,kind')		        :(this.end)
-
-*	Returns value found in most recent call to this.
-
-this
-
-	kind = kind(set)
-	output = setl4.kind(kind,'str') "next on str's not yet supported, quitting." :(end)
-
-	this = set.this(set)
-
-this.end
-
 
 	define('setl4.loop(set)dt,kind')	        :(setl4.loop.end)
 
@@ -735,6 +697,84 @@ setl4.loop
 
 setl4.loop.end
 	
+*       Integer Functions
+*       -----------------
+
+*	SETL4 extends the integer operations provided by SPITBOL by
+*	providing the following integer functions:
+
+*                int.even(n)            true iff _n_ is even.
+*                int.factorial(n)       returns the value of n! = _n_ * (n - 1) * ... * 
+*                int.multiple(n,m)      true iff _n_ is multiple of _m_
+*                int.odd(n)             true iff _n_ is odd.
+*                int.prime(n)           true iff _n_ is a prime number
+*		 int.square.root        square root rounded up to next integer.
+
+        define('int.even(n)')                           :(int.even.end)
+
+*       Returns true iff _n_ is even.
+
+*EVEN*
+int.even
+
+        int.even = (eq(remdr(n,2)) true,false)          :(int.even.end)
+
+int.even.end
+
+	define('int.factorial(n)')		        :(int.factorial.end)
+
+*	Returns n! = n*(n-1)*(n-2) ... 1
+
+int.factorial
+
+	int.factorial = (eq(n,1) 1, _n_ * int.factorial(n -1))	:(return)
+
+int.factorial.end
+
+        define('int.multiple(n,m)')                      :(int.multiple.end)
+
+*       Tests if _n_ is a multiple of _m_.
+
+int.multiple
+
+        int.multiple = (eq(remdr(n,m)) true, false)      :(return)
+
+int.multiple.end
+
+        define('int.odd(n)')                            :(int.odd.end)
+
+*       Returns true iff _n_ is odd.
+
+*ODD*
+int.odd
+
+        int.odd = (ne(remdr(n,2)) true,false)           :(return)
+
+int.odd.end
+
+	
+        define('int.prime(n)set')                       :(int.prime.end)
+
+*       Returns true iff _n_ is prime.
+
+*PRIME*
+int.prime
+
+	set = int.new(2,square.root(p))
+	int.prime = not(exists(set,'eq(remdr(p,=s))'))	:(return)
+
+int.prime.end
+
+	define('int.square.root(n)')			:(int.square.root.end)
+
+*	Returns square root of integer _n_, rounded up.
+
+int.square.root
+
+	int.square.root = convert(sqrt(convert(n,'real')),'integer') + 1 :(return)
+
+int.square.root.end
+
         define('int.new(low,high,step)')                :(int.new.end)
 
 *       Return new integer seqencer in range low, low+step, ... high
@@ -1072,7 +1112,7 @@ out.ok
 
 out.end
 
-        define('random(n)')                             :(random.end)
+        define('stl4.random(n)')                             :(stl4.random.end)
 
 *       Return integer uniformly distributed in 1,2,...,n.
 *       If n=0 returns real uniformly distributed in the interval [0,1].
@@ -1080,40 +1120,40 @@ out.end
 *       James F. Gimpel, John Wiley and Sons, 1976.
 
 *RANDOM*
-random
+stl4.random
 
-        g.random_var = remdr(g.random_var * 4676, 414971)
-        random  = g.random_var / 414971.0
-        random = ne(n) convert(random * n,'integer') + 1
+        g.stl4.random_var = remdr(g.stl4.random_var * 4676, 414971)
+        stl4.random  = g.stl4.random_var / 414971.0
+        stl4.random = ne(n) convert(stl4.random * n,'integer') + 1
                                                         :(return)
-random.end
+stl4.random.end
 
-        define('random.seed()s,c')                      :(random.seed.end)
+        define('stl4.random.seed()s,c')                      :(stl4.random.seed.end)
 
-*       Compute seed for random number generator from date and time.
+*       Compute seed for stl4.random number generator from date and time.
 
 *RANDOMSEED*
-random.seed
-        g.random_var =
+stl4.random.seed
+        g.stl4.random_var =
         s = g.date
         s = replace(s,'/:-','   ')
 
 *       Get all the digits in s.
 
-random.seed.loop
+stl4.random.seed.loop
 
-        s len(1) . c =                                  :f(random.seed.done)
-        ident(c,' ')                                    :s(random.seed.loop)
-        g.random_var = g.random_var c                   :(random.seed.loop)
+        s len(1) . c =                                  :f(stl4.random.seed.done)
+        ident(c,' ')                                    :s(stl4.random.seed.loop)
+        g.stl4.random_var = g.stl4.random_var c                   :(stl4.random.seed.loop)
 
-random.seed.done
+stl4.random.seed.done
 
 *       Reverse the seed so digits depending on time come first.
 
-        g.random_var = +reverse(g.random_var    )
+        g.stl4.random_var = +reverse(g.stl4.random_var    )
                                                         :(return)
 
-random.seed.end
+stl4.random.seed.end
 
 *	Sequences:
 *	----------
@@ -2112,6 +2152,19 @@ setl4.traceon
                                                         :(return)
 setl4.traceon.end
 
+	define('this(set)dt,kind')		        :(this.end)
+
+*	Returns value found in most recent call to this.
+
+this
+
+	kind = kind(set)
+	output = setl4.kind(kind,'str') "next on str's not yet supported, quitting." :(end)
+
+	this = set.this(set)
+
+this.end
+
 	define('visit(set,expr)')			:(visit.end)
 
 
@@ -2226,6 +2279,3 @@ error.end
 *	with SPITBOL lexical scanner,  until later.
 *	opsyn('&','and',2)
 *	opsyn('^','or',2)
-
-
-
