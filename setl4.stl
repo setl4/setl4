@@ -18,7 +18,7 @@ assert.dt.end
 
 assert
 
-	eq(expr)					:(return)
+	true(expr)					:(return)
 	output = 'assertion failed, quitting' :(end)
 
 assert.end
@@ -194,8 +194,6 @@ square.root.end
 *	Strings (TBSL)
 *	-------
 
-*	data('str(str.size,str.index,str.key,str.max,str.next,str.text,str.this)')
-
 *       Sets
 *       ____
         
@@ -205,7 +203,7 @@ square.root.end
 
 *	A set is defined by the following datatype:
 
-	data('set(set,kind,set.index,set.key,set.size,set.max,set.next,set.this,set.loop)')
+	data('set(set.kind,set.index,set.key,set.size,set.max,set.next,set.this,set.loop,set.low,set.high,set.step)')
 
 *	where
 
@@ -237,18 +235,6 @@ square.root.end
 *	New elements can be added to a sequence using the 'push' primitive, and the most
 *	recent element can be deleted using the 'pop' primitive.
 
-
-*	New instances of sets are created by set.new
-
-*		set.new(init,name)
-
-*	where
-
-*		_type_ is the compound type: set, map, etc.
-
-*		_init_ is an initialization value, usually an integer or string
-
-*		_name_ is a string that is displayed when showing the object.
 
 *	Integers
 *       --------
@@ -351,6 +337,17 @@ setl4.concatenate
 
 setl4.concatenate.end
 
+	define('setl4.eval(set,expr)')			:(setl4.eval.end)
+
+*	Evaluate _expr_ with 'this_ set to _set.this(set)_
+
+setl4.eval
+
+	this = set.this(set)
+	setl4.eval = eval(expr)				:(return)
+
+setl4.eval.end
+
 	define('setl4.kind(set,kind1,kind2,kind3,kind3,kind4)kind')	:(setl4.kind.end)
 
 *	Tests if the kind of _set_ is one of kind1, kind2, .... Returns true if so,
@@ -358,6 +355,8 @@ setl4.concatenate.end
 
 setl4.kind
 
+*	output = 'setl4.kind dt ' datatype(set)	
+	kind = ident(datatype(set),'string') true		:s(return)
 	kind = set.kind(set)
 	setl4.kind = differ(kind1) ident(kind1,kind) true	:s(return)
 	setl4.kind = differ(kind2) ident(kind2,kind) true	:s(return)
@@ -367,7 +366,7 @@ setl4.kind
 
 setl4.kind.end
 
-	define('setl4.member(elem,set)kind,entry,key,value') :(setl4.elem.end)
+	define('setl4.member(elem,kind,entry,key,value)') :(setl4.member.end)
 
 *	Tests if _elem_ is 'elem' of _set, where:
 
@@ -387,7 +386,7 @@ setl4.kind.end
 setl4.member
 
 	setl4.member = false
-	kind = set.kind(set)
+	kind = kind(set)
 	setl4.member = false
 	setl4.kind(kind,'int')					:s(setl4.member.int)
 	setl4.kind(kind,'map')					:s(setl4.member.map)
@@ -441,7 +440,7 @@ setl.4.member.string
 	string break(elem)				:f(return)
 	setl4.member = true				:(return)
 
-setl4.elem.end
+setl4.member.end
 
 	define('setl4.not(expr)')			:(setl4.not.end)
 
@@ -456,14 +455,14 @@ setl4.not
 setl4.not.end
 
 *	Define '#' as unary operator that returns size of its operand.
-	define('setl4.size(set)kind')			:(setl4.size.end)
+	define('setl4.size(set)')			:(setl4.size.end)
 
 *	Return size of operand.
 
 setl4.size
 	
-	kind = set.kind(set)
-	setl4.size = setl4.kind(kind,'string') size(set)	:s(return) 
+	setl4.size = ident(datatype(set),'string') size(set)	:s(return) 
+	kind = setl4.kind(set)
 	output = setl4.kind(set,'int') ' need step case for setl4.size int' :(end)
 	setl4.size = setl4.kind(kind,'int')
 .		set.high(set) - set.low(set) + 1		:s(return)
@@ -480,86 +479,86 @@ setl4.size.end
 *	a set _B_ whose elements are exactly those elements _x_ of _A_
 *	for which _S(x)_ holds.
 
-*	In SETL4 we say that the expression '_A_ @ _S_' "reduces"
+*	In SETL4 we say that the expression '_A_ @ _S_' "filters"
 *	_A_ by _S_. This can also be read as 
 *		"the subset of _A_ such that _S_ is true"
 
-	define('setl4.reduce(set,expr)kind,member,text,i,r')	:(setl4.reduce.end)
+	define('setl4.filter(set,expr)kind,member,text,i,r')	:(setl4.filter.end)
 
 *	Returns that part of compound object _set for which _expr_ is true.
 
-setl4.reduce
+setl4.filter
 
 	member = datatype(set)
-	setl4.kind(kind,'map')				:s(setl4.reduce.map)
-	setl4.kind(kind,'seq')				:s(setl4.reduce.seq)
-	setl4.kind(kind,'set')				:s(setl4.reduce.set)
-	setl4.kind(kind,'str')				:s(setl4.reduce.str)
+	setl4.kind(kind,'map')				:s(setl4.filter.map)
+	setl4.kind(kind,'seq')				:s(setl4.filter.seq)
+	setl4.kind(kind,'set')				:s(setl4.filter.set)
+	setl4.kind(kind,'str')				:s(setl4.filter.str)
 
-setl4.reduce.map
-	setl4.reduce = set.new(#set)
+setl4.filter.map
+	setl4.filter = set.new(#set)
 	loop(set)
 
-setl4.reduce.map.next
+setl4.filter.map.next
 
 	member = next(#set)			        :f(return)
-	member = eval(expr)				:f(setl4.reduce.map.next)
-	eq(member)					:s(setl4.reduce.map.next)
-	set.add(setl4.reduce,member)			:(setl4.reduce.map.next)
+	member = eval(expr)				:f(setl4.filter.map.next)
+	eq(member)					:s(setl4.filter.map.next)
+	set.add(setl4.filter,member)			:(setl4.filter.map.next)
 
 
-setl4.reduce.seq
+setl4.filter.seq
 
-	setl4.reduce = seq.new(#set)
+	setl4.filter = seq.new(#set)
 	loop(set)
 
 
-setl4.reduce.seq.next
+setl4.filter.seq.next
 
 	member = next(#set)			        :f(return)
-	member = eval(expr)				:f(seql4.reduce.seq.next)
-	eq(member)					:s(seql4.reduce.seq.next)
-	seq.add(setl4.reduce,member)			:(setl4.reduce.seq.next)
+	member = eval(expr)				:f(seql4.filter.seq.next)
+	eq(member)					:s(seql4.filter.seq.next)
+	seq.add(setl4.filter,member)			:(setl4.filter.seq.next)
 
-setl4.reduce.set
+setl4.filter.set
 
-	setl4.reduce = set.new(#set)
+	setl4.filter = set.new(#set)
 	loop(set)
 
-setl4.reduce.set.next
+setl4.filter.set.next
 
 	member = next(set)			        :f(return)
 
-	ouput = '4.reduce|' member '|'
-	r = eval(expr)				        :f(setl4.reduce.set.next)
-	eq(r)					        :s(setl4.reduce.set.next)
-	set.add(setl4.reduce,member)		        :(setl4.reduce.set.next)
+	ouput = '4.filter|' member '|'
+	r = eval(expr)				        :f(setl4.filter.set.next)
+	eq(r)					        :s(setl4.filter.set.next)
+	set.add(setl4.filter,member)		        :(setl4.filter.set.next)
 
-setl4.reduce.str
+setl4.filter.str
 
-	setl4.reduce = str.new(#set)
+	setl4.filter = str.new(#set)
 	text = str.text(set)
 
 
-set4.reduce.str.next
+set4.filter.str.next
 
 	member = next(#set)
 	text len (1) . member =				:f(return)
-	member = eval(expr)				:f(strl4.reduce.str.next)
-	eq(member)					:s(strl4.reduce.str.next)
-	str.add(strl4.reduce,member)			:(setl4.reduce.str.next)
+	member = eval(expr)				:f(strl4.filter.str.next)
+	eq(member)					:s(strl4.filter.str.next)
+	str.add(strl4.filter,member)			:(setl4.filter.str.next)
 
-*setl4.reduce.str (orig. form)
+*setl4.filter.str (orig. form)
 
 	set len(1) . member =				:f(return)
-	member = eval(expr)				:f(setl4.reduce.string)
-	eq(member)					:s(setl4.reduce.string)
-	setl4.reduce = setl4.reduce  c			:(setl4.reduce.string)
+	member = eval(expr)				:f(setl4.filter.string)
+	eq(member)					:s(setl4.filter.string)
+	setl4.filter = setl4.filter  c			:(setl4.filter.string)
 
 
 *	Append c to result.
 
-setl4.reduce.end
+setl4.filter.end
 
 
 *TODO : use '&' for 'and', and '|' for or, after not allowing '|' for exponentiation
@@ -636,7 +635,7 @@ next.end
 
 setl4.next
 
-	kind = set.kind(set)
+	kind = kind(set)
 	setl4.kind(kind,'int')		                :s(setl4.next.int)
 	setl4.kind(kind,'map')			        :s(setl4.next.map)
 	setl4.kind(kind,'seq')			        :s(setl4.next.seq)
@@ -697,7 +696,7 @@ setl4.next.end
 
 this
 
-	kind = set.kind(set)
+	kind = kind(set)
 	output = setl4.kind(kind,'str') "next on str's not yet supported, quitting." :(end)
 
 	this = set.this(set)
@@ -717,7 +716,6 @@ setl4.loop
 
 setl4.loop.end
 	
-        output = 'before int.ner'
         define('int.new(low,high,step)')                :(int.new.end)
 
 *       Return new integer seqencer in range low, low+step, ... high
@@ -732,7 +730,6 @@ int.new
 
 int.new.end
 
-        output = 'aftr int.ner'
 	define('loop(set)')			        :(loop.end)
 
 *	Set up for loop.
@@ -1198,7 +1195,7 @@ seq.push.end
 
 seq.range
 
-	kind = set.kind(seq)
+	kind = kind(seq)
 	output = differ(kind,'seq') 'range called on non-seq, quitting' :s(end)
         seq.range = set.new('seq',#seq)
         loop(seq)
@@ -1215,7 +1212,7 @@ seq.range.end
 
 seq.put
 
-	assert(ident(set.kind(seq),'seq'))
+	assert(ident(kind(seq),'seq'))
 	seq.array(seq)[i] = val				:(return)
 
 seq.put.end
@@ -1316,11 +1313,11 @@ set.less.end
 *	values separated by spaces.
 
 set.new
-        out3('set.new',init)
+	out('set.new init',init)
 	ident(init)					:s(set.new.int)
 	n = convert(init,'integer')			:s(set.new.int)
 	set.new = set('set',table(n),table(n))
-*	output = 'set.new fatal error, quit' :(end)
+        out('set.new',init)
 	init = init ' ' 
 
 set.new.init
@@ -1331,6 +1328,7 @@ set.new.init
 set.new.int
 
 	n = (ident(init) 128,convert(init,'integer'))
+	out('set.new.init n',n)
 	set.new = set(table(n),table(n))		:(return)
 
 set.new.end
@@ -2193,13 +2191,14 @@ error.end
 
 *	SETL4 binary operators:
 
-	opsyn('@','setl4.reduce',     2)
+	opsyn('@','setl4.eval',       2)
+	opsyn('#','setl4.filter',     2)
 	opsyn('%','setl4.concatenate',2)
 	opsyn('~','setl4.member'     ,2)
 
 * 	ops still available for use by SETL4:
 
-*	binary:  #  &  ^
+*	binary:  &  ^
 *	unary:   %  /  =  |
 
 *TODO*
