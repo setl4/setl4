@@ -338,7 +338,7 @@ int.square.root.end
 
         define('setl4.arb(set)')                        :(setl4.arb.end)
 
-*       Returns arbitary (random) element of _set_.
+*       Returns arbitary (randomly selected) element of _set_.
 
 setl4.arb
 
