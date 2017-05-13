@@ -129,67 +129,77 @@ or.end
 *	SETL4 extends the integer operations provided by SPITBOL by
 *	providing the following integer functions:
 
-*                even(n)         true iff n is even.
-*                factorial(n)    returns the value of n! = n * (n - 1) * ... * 
-*                odd(n)          true iff n is odd.
-*                prime(n)        true iff n is a prime number
-*		 square.root	 square root rounded up to next integer.
+*                int.divides(n,m)       true iff _n_ is multiple of _m_
+*                int.even(n)            true iff _n_ is even.
+*                int.factorial(n)       returns the value of n! = _n_ * (n - 1) * ... * 
+*                int.odd(n)             true iff _n_ is odd.
+*                int.prime(n)           true iff _n_ is a prime number
+*		 int.square.root        square root rounded up to next integer.
 
+        define('int.divides(n.m)')                      :(int.divides.end)
 
-        define('even(n)')                           	:(even.end)
+*       Tests if _n_ is a multiple of _m_.
 
-*       Returns true iff n is even.
+int.divides
+
+        int.divides = (eq(remdr(n,m)) true, false)      :(return)
+
+int.divides.end
+
+        define('int.even(n)')                           :(int.even.end)
+
+*       Returns true iff _n_ is even.
 
 *EVEN*
-even
+int.even
 
-        even = (eq(remdr(n,2)) true,false)             	:(even.end)
+        int.even = (eq(remdr(n,2)) true,false)          :(int.even.end)
 
-even.end
+int.even.end
 
-	define('factorial(n)')				:(factorial.end)
+	define('int.factorial(n)')		        :(int.factorial.end)
 
 *	Returns n! = n*(n-1)*(n-2) ... 1
 
-factorial
+int.factorial
 
-	factorial = (eq(n,1) 1, n * factorial(n -1))	:(return)
+	int.factorial = (eq(n,1) 1, _n_ * int.factorial(n -1))	:(return)
 
-factorial.end
+int.factorial.end
 
-        define('odd(n)')                           	:(odd.end)
+        define('int.odd(n)')                            :(int.odd.end)
 
-*       Returns true iff n is odd.
+*       Returns true iff _n_ is odd.
 
 *ODD*
-odd
+int.odd
 
-        odd = (ne(remdr(n,2)) true,false)               :(odd.end)
+        int.odd = (ne(remdr(n,2)) true,false)           :(return)
 
-odd.end
+int.odd.end
 
 	
-        define('prime(n)set')                         	:(prime.end)
+        define('int.prime(n)set')                       :(int.prime.end)
 
-*       Returns true iff n is prime.
+*       Returns true iff _n_ is prime.
 
 *PRIME*
-prime
+int.prime
 
 	set = int.new(2,square.root(p))
-	prime = not(exists(set,'eq(remdr(p,=s))'))	:(return)
+	int.prime = not(exists(set,'eq(remdr(p,=s))'))	:(return)
 
-prime.end
+int.prime.end
 
-	define('square.root(n)')			:(square.root.end)
+	define('int.square.root(n)')			:(int.square.root.end)
 
 *	Returns square root of integer _n_, rounded up.
 
-square.root
+int.square.root
 
-	square.root = convert(sqrt(convert(n,'real')),'integer') + 1 :(return)
+	int.square.root = convert(sqrt(convert(n,'real')),'integer') + 1 :(return)
 
-square.root.end
+int.square.root.end
 
 *	Strings (TBSL)
 *	-------
@@ -326,6 +336,15 @@ square.root.end
 *	for which _eval(expr)_ is true, that is, the members such
 *	that _eval(expr)_ is true.
 
+        define('setl4.arb(set)')                        :(setl4.arb.end)
+
+*       Returns arbitary element of _set_.
+
+setl4.arb
+
+        output = 'setl4.arb not implemented, quitting.' :(end)
+
+setl4.arc.end
 
 	define('setl4.concatenate(a,b)')	        :(setl4.concatenate.end)
 
@@ -356,7 +375,7 @@ setl4.eval.end
 setl4.kind
 
 *	output = 'setl4.kind dt ' datatype(set)	
-	kind = ident(datatype(set),'string') true		:s(return)
+	kind = ident(datatype(set),'string') true       :s(return)
 	kind = set.kind(set)
 	setl4.kind = differ(kind1) ident(kind1,kind) true	:s(return)
 	setl4.kind = differ(kind2) ident(kind2,kind) true	:s(return)
@@ -2186,8 +2205,9 @@ error.end
 
 *	SETL4 unary operators:
 
-	opsyn('#','setl4.size',1)
+	opsyn('=','setl4.arb', 1)
 	opsyn('!','setl4.not', 1)
+	opsyn('#','setl4.size',1)
 
 *	SETL4 binary operators:
 
@@ -2199,7 +2219,7 @@ error.end
 * 	ops still available for use by SETL4:
 
 *	binary:  &  ^
-*	unary:   %  /  =  |
+*	unary:   %  /  |
 
 *TODO*
 * 	Defer other opsyn changes, which do require mucking about
