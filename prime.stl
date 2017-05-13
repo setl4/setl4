@@ -1,0 +1,19 @@
+        define('prime(n)')                              :(prime.end)
+
+*       Tests if _n_ is a prime.
+
+prime
+
+        divisors = int.new(2,square.root(n))
+        prime = forall(divisors,!divides(n,this(divisors)))  :(return)
+
+prime.end
+
+        output = 'start test'
+        test = int.new(2,n)
+        loop(test)
+loop
+        this = next(test)                               :f(end)
+        output = prime(this) this                       :(loop)
+end
+

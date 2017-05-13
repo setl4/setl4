@@ -1,5 +1,12 @@
+* lambda expressions
 
-loop
-	s = dupl(&lcase,100)
-	le(n = n + 1,1000000) :s(loop)
+ s = "loop  output = le(i = i + 1,20) i :s(loop);end"
+* c = code(s)
+*  :(loop)
+
+        define('lambda(x,f)')           :(lambda.end)
+
+lambda
+
+        code = "$x '.' $f; apply($f,$x);(end)
 end

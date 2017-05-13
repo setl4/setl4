@@ -1,0 +1,4 @@
+ s = "loop  output = le(i = i + 1,20) i :s(loop);end"
+ c = code(s)
+  :(loop)
+end

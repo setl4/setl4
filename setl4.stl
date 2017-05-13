@@ -65,9 +65,9 @@ false.end
 *TRUE*
 true
 
-	true = ident(e) false                               :s(return)
-	true = integer(e) (ne(e) true, false)         		:s(return)
-	true = (differ(e) true, false)                         :(return)
+	true = ident(e) false                           :s(return)
+	true = integer(e) (ne(e) true, false)           :s(return)
+	true = (differ(e) true, false)                  :(return)
 
 true.end
 
@@ -87,8 +87,8 @@ and
 *       Here where at least one operand for 'and' is not integer, so
 *       use ident/differ to evaluate.
 
-        and = differ(a) differ(b) true                     :s(return)
-        and = false                                         :(return) 
+        and = differ(a) differ(b) true                  :s(return)
+        and = false                                     :(return) 
 
 and.end
 
@@ -98,11 +98,11 @@ and.end
 
 not
 	expr = integer(a) +expr
-	not = integer(expr) (true(expr) false, true)		:s(return)
+	not = integer(expr) (true(expr) false, true)    :s(return)
 
 *	Argument to _not_ is not integer, so use ident/differ
 
-	not = (differ(e) false, true)				:(return)
+	not = (differ(e) false, true)		        :(return)
 
 not.end
 
@@ -114,12 +114,12 @@ not.end
 or
         a = integer(a) +a        
         b = integer(b) +b
-        or = integer(a) ne(e) true				:s(return)
-        or = integer(b) ne(b) true				:s(return)
+        or = integer(a) ne(e) true		        :s(return)
+        or = integer(b) ne(b) true		        :s(return)
 
 *       Here if _or_ operands not both integers, so use ident/differ.
 
-	or = (differ(a) true, differ(b) true, false)		:(return)
+	or = (differ(a) true, differ(b) true, false)    :(return)
 
 or.end
 
@@ -176,8 +176,8 @@ odd.end
 *PRIME*
 prime
 
-	set = int.new(2,square.root(p)
-	prime = not(exists(set,'eq(remdr(p,=s))))'	:(return)
+	set = int.new(2,square.root(p))
+	prime = not(exists(set,'eq(remdr(p,=s))'))	:(return)
 
 prime.end
 
@@ -194,7 +194,7 @@ square.root.end
 *	Strings (TBSL)
 *	-------
 
-*	data('str(str.size,str.index,str.key,str.max,str.next,str.text,str.last)')
+*	data('str(str.size,str.index,str.key,str.max,str.next,str.text,str.this)')
 
 *       Sets
 *       ____
@@ -205,7 +205,7 @@ square.root.end
 
 *	A set is defined by the following datatype:
 
-	data('set(set,kind,set.index,set.key,set.size,set.max,set.next,set.last,set.loop)')
+	data('set(set,kind,set.index,set.key,set.size,set.max,set.next,set.this,set.loop)')
 
 *	where
 
@@ -256,7 +256,7 @@ square.root.end
 *	SETL4 provides a data structure for iterating over a sequence of consecutive
 *	integers:
 
-	data('int(int.low,int.high,int.size,int.next,int.last)')
+	data('int(int.low,int.high,int.size,int.next,int.this)')
 
 *	Sequences
 *	---------
@@ -266,7 +266,7 @@ square.root.end
 *	SETL4 sequences are implemented using SPITBOL arrays, with the array
 *	length being adjusted as necessary.
 
-	data('seq(seq.array,seq.size,seq.max,seq.next,seq.last)')
+	data('seq(seq.array,seq.size,seq.max,seq.next,seq.this)')
 
 *	Pairs
 *	-----
@@ -289,7 +289,7 @@ square.root.end
 
 *	where _key_ is the key, and _value_ is the value of the map for _key_.
 
-	data('map(set.index,set.key,set.size,set.max,set.next,set.last)')
+	data('map(set.index,set.key,set.size,set.max,set.next,set.this)')
 
 *       The SPITBOL datatype TABLE provides the machinery to implement maps.
 *       SPITBOL provides no way to determine the number of domain values, or size, of
@@ -341,7 +341,7 @@ square.root.end
 *	that _eval(expr)_ is true.
 
 
-	define('setl4.concatenate(a,b)')	:(setl4.concatenate.end)
+	define('setl4.concatenate(a,b)')	        :(setl4.concatenate.end)
 
 *	Concatenate argument strings.
 
@@ -401,9 +401,9 @@ setl4.member
 
 setl4.member.int
 
-	setl4.member = lt(elem,set.low(set) false		:s(return)_
-	setl4.member = gt(elem,set.low(set) false		:s(return)_
-	setl4.member = (eq(remdr(elem - set.low(set),set.step(set)) true, false)	:(return)
+	setl4.member = lt(elem,set.low(set)) false		:s(return)
+	setl4.member = gt(elem,set.low(set)) false		:s(return)
+	setl4.member = (eq(remdr(elem - set.low(set),set.step(set))) true, false)	:(return)
 
 setl.4.member.map
 
@@ -438,7 +438,7 @@ setl.4.member.str
 
 setl.4.member.string
 
-	string break(_elem)				:f(return)
+	string break(elem)				:f(return)
 	setl4.member = true				:(return)
 
 setl4.elem.end
@@ -502,7 +502,7 @@ setl4.reduce.map
 
 setl4.reduce.map.next
 
-	member = next(#set)			:f(return)
+	member = next(#set)			        :f(return)
 	member = eval(expr)				:f(setl4.reduce.map.next)
 	eq(member)					:s(setl4.reduce.map.next)
 	set.add(setl4.reduce,member)			:(setl4.reduce.map.next)
@@ -516,7 +516,7 @@ setl4.reduce.seq
 
 setl4.reduce.seq.next
 
-	member = next(#set)			:f(return)
+	member = next(#set)			        :f(return)
 	member = eval(expr)				:f(seql4.reduce.seq.next)
 	eq(member)					:s(seql4.reduce.seq.next)
 	seq.add(setl4.reduce,member)			:(setl4.reduce.seq.next)
@@ -528,12 +528,12 @@ setl4.reduce.set
 
 setl4.reduce.set.next
 
-	member = next(set)			:f(return)
+	member = next(set)			        :f(return)
 
 	ouput = '4.reduce|' member '|'
-	r = eval(expr)				:f(setl4.reduce.set.next)
-	eq(r)					:s(setl4.reduce.set.next)
-	set.add(setl4.reduce,member)		:(setl4.reduce.set.next)
+	r = eval(expr)				        :f(setl4.reduce.set.next)
+	eq(r)					        :s(setl4.reduce.set.next)
+	set.add(setl4.reduce,member)		        :(setl4.reduce.set.next)
 
 setl4.reduce.str
 
@@ -631,17 +631,17 @@ next.end
 
 	define('setl4.next(set)dt,kind')		:(setl4.next.end)
 
-*	Advances iteration field 'next' and sets field 'last'
+*	Advances iteration field 'next' and sets field 'this'
 *	to the next element of the iteration.
 
 setl4.next
 
-	kiind = set.kind(set)
-	setl4.kind(kind,'int')					:s(setl4.next.int)
-	setl4.kind(kind,'map')					:s(setl4.next.map)
-	setl4.kind(kind,'seq')					:s(setl4.next.seq)
-	setl4.kind(kind,'set')					:s(setl4.next.set)
-	setl4.kind(kind,'str')					:s(setl4.next.str)
+	kind = set.kind(set)
+	setl4.kind(kind,'int')		                :s(setl4.next.int)
+	setl4.kind(kind,'map')			        :s(setl4.next.map)
+	setl4.kind(kind,'seq')			        :s(setl4.next.seq)
+	setl4.kind(kind,'set')			        :s(setl4.next.set)
+	setl4.kind(kind,'str')			        :s(setl4.next.str)
 	output = 'unsupported dt for setl4.next: "' dt '" , quitting.'
 	output = 'show|' show(set) '|'  :(end)
 
@@ -655,15 +655,15 @@ setl4.next.int
 	ge(int.next(set),int.high(set))			:s(freturn)
 	int.next(set) = int.next(set) + int.step(set)
 	gt(int.next(set),int.high(set))			:s(freturn)
-	int.last(set) = int.next(set)
-	setl4.next = int.last(set)			:(return)
+	int.this(set) = int.next(set)
+	setl4.next = int.this(set)			:(return)
 
 setl4.next.map
 
 	set.next(set) = set.next(set) + 1
 	gt(set.next(set),set.max(set))			:s(freturn)
 	setl4.next = set.index(set)[set.next(set)] 
-	set.last(set) = setl4.next
+	set.this(set) = setl4.next
 	ident(setl4.next)				:s(setl4.next.set)f(return)
 
 setl4.next.seq
@@ -671,7 +671,7 @@ setl4.next.seq
 	ge(seq.next(set),seq.size(set))			:s(freturn)
 	seq.next(set) = seq.next(set) + 1
 	setl4.next = seq.get(set,seq.next(set))		
-	seq.last(set) = setl4.next
+	seq.this(set) = setl4.next
 							:(return)
 
 setl4.next.set
@@ -680,10 +680,10 @@ setl4.next.set
 	ge(set.next(set),set.max(set))	:s(freturn)
 	set.next(set) = set.next(set) + 1
 	setl4.next = set.index(set)[set.next(set)] 
-	ident(setl4.next)				:s(setl4.next.set)
-	set.last(set) = setl4.next
+	ident(setl4.next)		                :s(setl4.next.set)
+	set.this(set) = setl4.next
 *	output = 'setl4.next.set returns ' setl4.next '.' 
-							:(return)
+						        :(return)
 
 setl4.next.str
 	
@@ -691,22 +691,21 @@ setl4.next.str
 
 setl4.next.end
 
-	define('setl4.last(set)dt,kind')				:(setl4.last.end)
+	define('this(set)dt,kind')		        :(this.end)
 
-*	Returns value found in most recent call to setl4.last.
-*	This is the value returned by the unary '=' operator.
+*	Returns value found in most recent call to this.
 
-setl4.last
+this
 
 	kind = set.kind(set)
 	output = setl4.kind(kind,'str') "next on str's not yet supported, quitting." :(end)
 
-	setl4.last = set.last(set)
+	this = set.this(set)
 
-setl4.last.end
+this.end
 
 
-	define('setl4.loop(set)dt,kind')				:(setl4.loop.end)
+	define('setl4.loop(set)dt,kind')	        :(setl4.loop.end)
 
 *	Returns loop member in interation over compound object _set.
 
@@ -718,13 +717,29 @@ setl4.loop
 
 setl4.loop.end
 	
-	define('loop(set)')				:(loop.end)
+        output = 'before int.ner'
+        define('int.new(low,high,step)')                :(int.new.end)
+
+*       Return new integer seqencer in range low, low+step, ... high
+
+int.new
+
+        output = 'enter int.new'
+        int.new = set.new(#n)
+        set.low(int.new)  = (differ(low) +low, 1)
+        set.high(int.new) = (differ(high) +high, n)
+        set.step(int.new) = (differ(step) +step, 1)     :(return)
+
+int.new.end
+
+        output = 'aftr int.ner'
+	define('loop(set)')			        :(loop.end)
 
 *	Set up for loop.
 
 loop
 
-	setl4.loop(set)					:s(return)f(freturn)
+	setl4.loop(set)				        :s(return)f(freturn)
 
 loop.end
 
@@ -733,7 +748,7 @@ loop.end
 
 
 
-	define('integers(low,high,step)i,n')			:(integers.end)
+	define('integers(low,high,step)i,n')	        :(integers.end)
 
 *	Define new set of consecutive integers _n_:
 *		_low_, _low_ + _step_, ... , _high_
@@ -769,7 +784,7 @@ map.equal
 
 map.equal.end
 	
-        define('map.get(map,key)val)id')			:(map.get.end)
+        define('map.get(map,key)val)id')	        :(map.get.end)
 
 *       Gets the value of the key _key_ in the map _map_.
 
@@ -820,12 +835,13 @@ rank.string
 *	Rank a string by building table from integers 1..size(string)
 *	and then sorting on value.
 
-	seq = seq.new(size(string)
+	seq = seq.new(size(string))
 	
 rank.string.build
 
 	gt(i = i + 1, size(string))			:s(rank.string.sort)
-	seq.push(seq,substr(				:(rank.string.build)
+*	seq.push(seq,substr(				:(rank.string.build)
+*TODO sort this out
 	ara = sort(set.key(seq),1)
 	i = 0
 	rank = ''
@@ -842,9 +858,9 @@ rank.str
 	output = 'need to code rank.str using str.frequency' :(end)
 	output = 'need to provide code for rank.str, quiting' :(end)
 
-rank.end
 
-	rank.str = string.frequency(word)		:(return)
+*TODO*
+*	rank.str = str.frequency(word)		:(return)
 
 	outut = 'dave, complete code for rank.str()'
 
@@ -853,6 +869,7 @@ rank.end
 	:(return)
 rank.str.end
 
+rank.end
 *	define('set.inverse(map)entry')			:(set.inverse.end)
 *
 **	_set.inverse_ returns the inverse of a set. The inverse is
@@ -867,7 +884,7 @@ rank.str.end
 *
 *	entry = set.next(map)				:f(return)
 *	differ(set.get(set.inverse,value(entry)))	:s(freturn)
-*	set.put(set.inverse,value(entry), key(entry))  :(set.inverse.next)
+*	set.put(set.inverse,value(entry), key(entry))   :(set.inverse.next)
 *
 *set.inverse.end
 
@@ -898,7 +915,7 @@ map.domain.end
 
 map.new
 
-*	data('map(set.index,set.key,set.size,set.max,set.next,set.last)')
+*	data('map(set.index,set.key,set.size,set.max,set.next,set.this)')
 
 	ouput = 'enter map.new'
 
@@ -938,7 +955,7 @@ map.put.value
 
 map.put.end
 
-        define('map.test(map,key)')                     	:(map.test.end)
+        define('map.test(map,key)')                     :(map.test.end)
 
 *       Tests if the map _map_ has an entry for _key_.
 
@@ -1031,9 +1048,8 @@ out.2
 
 out.3
         type.ex(text3,'string')                         :s(out.ok)
-        type.ex(text3,'integer')             	:s(out.ok)
-*.                                               :(error)
-
+        type.ex(text3,'integer')             	        :s(out.ok)
+                                                     :(error)  	
 out.ok
 
         output = text1 ' [' text2 ']' text3  	:(return)
@@ -1056,7 +1072,7 @@ random
                                                         :(return)
 random.end
 
-        define('random.seed()s,c')                       :(random.seed.end)
+        define('random.seed()s,c')                      :(random.seed.end)
 
 *       Compute seed for random number generator from date and time.
 
@@ -1170,7 +1186,7 @@ seq.push
 seq.push.room
 
 	seq.size(seq) = #seq + 1
-	seq.array(seq)[#seq] = val		:(return)
+	seq.array(seq)[#seq] = val		        :(return)
 
 seq.push.end
 
@@ -1253,8 +1269,8 @@ set.integers
 
 set.integers.next
 
-	gt(i = i + 1,n)				:s(return)
-	set.add(set.integers,i)			:(set.integers.next)
+	gt(i = i + 1,n)				        :s(return)
+	set.add(set.integers,i)			        :(set.integers.next)
 
 set.integers.end
 
@@ -1284,13 +1300,13 @@ set.less
 	index = set.key(set)[elem]
 	set.index(set)[index] =
 	set.index(set)[max] = elem
-	set.size(set) = set.size(set) - 1	:(return) 
+	set.size(set) = set.size(set) - 1	        :(return) 
 
 set.less.end
 *
-        define('set.new(init)n')	     	:(set.new.end)
+        define('set.new(init)n')	     	        :(set.new.end)
 
-*	data('set(set.index,set.key,set.size,set.max,set.next,set.last)')
+*	data('set(set.index,set.key,set.size,set.max,set.next,set.this)')
 
 *       Create a new set.
 
@@ -1300,10 +1316,11 @@ set.less.end
 *	values separated by spaces.
 
 set.new
+        out3('set.new',init)
 	ident(init)					:s(set.new.int)
 	n = convert(init,'integer')			:s(set.new.int)
-*	set.new = set('set',table(n),table(n))
-	output = 'set.new fatal error, quit' :(end)
+	set.new = set('set',table(n),table(n))
+*	output = 'set.new fatal error, quit' :(end)
 	init = init ' ' 
 
 set.new.init
@@ -1329,7 +1346,7 @@ set.in
 
 set.in.end
 
-        define('set.notin(x,set)')                      	:(set.notin.end)
+        define('set.notin(x,set)')                      :(set.notin.end)
 
 *       Returns _true_ iff _x_ is is not element in set _set_.
 
@@ -2014,7 +2031,7 @@ str.tokens.character
 
 str.tokens.new
 
-        set.add(str.tokens,token(lineno,pos,type,text))     :(str.tokens.next)
+        set.add(str.tokens,token(lineno,pos,type,text)) :(str.tokens.next)
 
 str.tokens.end
 
@@ -2172,19 +2189,18 @@ error.end
 *	SETL4 unary operators:
 
 	opsyn('#','setl4.size',1)
-	opsyn('=','setl4.last',1)
 	opsyn('!','setl4.not', 1)
 
 *	SETL4 binary operators:
 
 	opsyn('@','setl4.reduce',     2)
-	opsyn('&','setl4.concatenate',2)
+	opsyn('%','setl4.concatenate',2)
 	opsyn('~','setl4.member'     ,2)
 
 * 	ops still available for use by SETL4:
 
-*	binary:  #  %  & ^
-*	unary:   %  / |
+*	binary:  #  &  ^
+*	unary:   %  /  =  |
 
 *TODO*
 * 	Defer other opsyn changes, which do require mucking about
