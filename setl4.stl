@@ -71,27 +71,6 @@ true
 
 true.end
 
-        define('and(a,b)')                		:(and.end)
-
-*       Returns true iff (if and only if) both arguments are true.
-
-*AND*
-and
-
-*       See if both operands are integers.
-
-        a = integer(a) +a
-        b = integer(b) +b
-        and = integer(a) integer(b) (ne(a * b) true, false)    :s(return)
-
-*       Here where at least one operand for 'and' is not integer, so
-*       use ident/differ to evaluate.
-
-        and = differ(a) differ(b) true                  :s(return)
-        and = false                                     :(return) 
-
-and.end
-
 	define('not(expr)')				:(not.end)
 
 *	Returns true if and only if _expr_ is false.
@@ -105,23 +84,6 @@ not
 	not = (differ(e) false, true)		        :(return)
 
 not.end
-
-        define('or(a,b)')                 		:(or.end)
-
-*       Returns true iff (if and only if) at least one argument is true.
-
-*OR*
-or
-        a = integer(a) +a        
-        b = integer(b) +b
-        or = integer(a) ne(e) true		        :s(return)
-        or = integer(b) ne(b) true		        :s(return)
-
-*       Here if _or_ operands not both integers, so use ident/differ.
-
-	or = (differ(a) true, differ(b) true, false)    :(return)
-
-or.end
 
 *	Strings (TBSL)
 *	-------
@@ -262,6 +224,27 @@ or.end
 
 *       Returns arbitary (randomly selected) element of _set_.
 
+        define('setl4.and(a,b)')                		:(setl4.and.end)
+
+*       Returns true iff (if and only if) both arguments are true.
+
+*SETL4.AND*
+setl4.and
+
+*       See if both operands are integers.
+
+        a = integer(a) +a
+        b = integer(b) +b
+        setl4.and = integer(a) integer(b) (ne(a * b) true, false)    :s(return)
+
+*       Here where at least one operand for 'and' is not integer, so
+*       use ident/differ to evaluate.
+
+        setl4.and = differ(a) differ(b) true                  :s(return)
+        setl4.and = false                                     :(return) 
+
+setl4.and.end
+
 setl4.arb
 
         setl4.arb = integer(set) setl4.random(+set)      :s(return)
@@ -275,7 +258,7 @@ setl4.arb
 
 setl4.arb.int
 
-        setl4.arb = set4.binary_seach(set
+        output = 'setl4.arb not done for int' :(end)
 
 setl4.arb.map
 
@@ -294,7 +277,7 @@ setl4.arb.end
 
 setl4.binary.search
 
-        output = = lt(high,low) 'setl4.binary.search high<low, quitting.' :(end)
+        output = lt(high,low) 'setl4.binary.search high<low, quitting.' :(end)
         middle = (low + high) / 2
         setl4.binary.search = gt(a[middle],value) 
 .               setl4.binary.search = setl4.binary.search(a,value, low, middle -1) :s(return)
@@ -303,23 +286,6 @@ setl4.binary.search
         setl4.binary.search =  middle                  :(return)
 
 setl4.binary.search.end
-
-func binarySearch(a[],vale) {
-        if high < lg {
-                return -1
-        }
-        mid = (low + high) / 2
-        if a[mid] > value {
-                return binarySearch(a,value, low, mid -1)
-        } else if a[mid] < value {
-                return binarySearch(a,value, mid + 1, high)
-        }
-        return mid
-}
-        
-}
-        
-Based on Go code for binary search: http://rosettacode.org/wiki/Binary_search#Go
 
 	define('setl4.concatenate(a,b)')	        :(setl4.concatenate.end)
 
@@ -448,7 +414,23 @@ setl4.not
 
 setl4.not.end
 
-*	Define '#' as unary operator that returns size of its operand.
+        define('setl4.or(a,b)')                 		:(setl4.or.end)
+
+*       Returns true iff (if and only if) at least one argument is true.
+
+*SETL4.OR*
+setl4.or
+        a = integer(a) +a        
+        b = integer(b) +b
+        setl4.or = integer(a) ne(e) true		        :s(return)
+        setl4.or = integer(b) ne(b) true		        :s(return)
+
+*       Here if operands not both integers, so use ident/differ.
+
+	setl4.or = (differ(a) true, differ(b) true, false)    :(return)
+
+setl4.or.end
+
 	define('setl4.size(set)')			:(setl4.size.end)
 
 *	Return size of operand.
@@ -727,7 +709,7 @@ int.even.end
 
 int.factorial
 
-	int.factorial = (eq(n,1) 1, _n_ * int.factorial(n -1))	:(return)
+	int.factorial = (eq(n,1) 1, n * int.factorial(n -1))	:(return)
 
 int.factorial.end
 
@@ -2258,16 +2240,18 @@ error.end
 
 *	SETL4 unary operators:
 
-	opsyn('=','setl4.arb', 1)
-	opsyn('!','setl4.not', 1)
+*	opsyn('=','setl4.arb', 1)
+*	opsyn('!','setl4.not', 1)
 	opsyn('#','setl4.size',1)
 
 *	SETL4 binary operators:
 
-	opsyn('@','setl4.eval',       2)
-	opsyn('#','setl4.filter',     2)
-	opsyn('%','setl4.concatenate',2)
-	opsyn('~','setl4.member'     ,2)
+	opsyn('&','setl4.and',         2)
+	opsyn('@','setl4.eval',        2)
+	opsyn('#','setl4.filter',      2)
+*	opsyn('%','setl4.concatenate', 2)
+	opsyn('~','setl4.member',      2)
+	opsyn('^','setl4.or',          2)
 
 * 	ops still available for use by SETL4:
 
@@ -2277,5 +2261,4 @@ error.end
 *TODO*
 * 	Defer other opsyn changes, which do require mucking about
 *	with SPITBOL lexical scanner,  until later.
-*	opsyn('&','and',2)
-*	opsyn('^','or',2)
+
