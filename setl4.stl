@@ -71,20 +71,6 @@ true
 
 true.end
 
-	define('not(expr)')				:(not.end)
-
-*	Returns true if and only if _expr_ is false.
-
-not
-	expr = integer(a) +expr
-	not = integer(expr) (true(expr) false, true)    :s(return)
-
-*	Argument to _not_ is not integer, so use ident/differ
-
-	not = (differ(e) false, true)		        :(return)
-
-not.end
-
 *	Strings (TBSL)
 *	-------
 
@@ -418,7 +404,6 @@ setl4.not.end
 
 *       Returns true iff (if and only if) at least one argument is true.
 
-*SETL4.OR*
 setl4.or
         a = integer(a) +a        
         b = integer(b) +b
@@ -2230,18 +2215,20 @@ error.end
 *set.loop.end
 
 *	Use some of the undefined SPITBOL operators for SETL4 functions.
-*	SPITBOL undefined operators:
 
-*	binary:  &  @  #  %  ~
-*	unary:   !  %  /  #  = |
+*       Characters available for use by 'opsyn' to associate the character
+*       with a function.
+
+*	binary  :  &  @  #  %  ~
+*	unary:  !  %  /  #  = |
 
 *	These opsyn changes do not require mucking about
 *	with SPITBOL lexical scanner.
 
 *	SETL4 unary operators:
 
-*	opsyn('=','setl4.arb', 1)
-*	opsyn('!','setl4.not', 1)
+	opsyn('=','setl4.arb', 1)
+	opsyn('!','setl4.not', 1)
 	opsyn('#','setl4.size',1)
 
 *	SETL4 binary operators:
@@ -2249,16 +2236,11 @@ error.end
 	opsyn('&','setl4.and',         2)
 	opsyn('@','setl4.eval',        2)
 	opsyn('#','setl4.filter',      2)
-*	opsyn('%','setl4.concatenate', 2)
 	opsyn('~','setl4.member',      2)
 	opsyn('^','setl4.or',          2)
 
-* 	ops still available for use by SETL4:
+* 	characters still available for use by SETL4 as operators:
 
-*	binary:  &  ^
-*	unary:   %  /  |
+*	unary:    |  /  
 
-*TODO*
-* 	Defer other opsyn changes, which do require mucking about
-*	with SPITBOL lexical scanner,  until later.
 
