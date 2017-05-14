@@ -206,15 +206,10 @@ true.end
 *	for which _eval(expr)_ is true, that is, the members such
 *	that _eval(expr)_ is true.
 
-        define('setl4.arb(set)n')                        :(setl4.arb.end)
-
-*       Returns arbitary (randomly selected) element of _set_.
-
         define('setl4.and(a,b)')                		:(setl4.and.end)
 
 *       Returns true iff (if and only if) both arguments are true.
 
-*SETL4.AND*
 setl4.and
 
 *       See if both operands are integers.
@@ -230,6 +225,11 @@ setl4.and
         setl4.and = false                                     :(return) 
 
 setl4.and.end
+
+        define('setl4.arb(set)n')                        :(setl4.arb.end)
+
+*       Returns arbitary (randomly selected) element of _set_.
+
 
 setl4.arb
 
@@ -388,6 +388,15 @@ setl.4.member.string
 
 setl4.member.end
 
+        define('setl4.new(str)')                        :(setl4.new.end)
+
+*       Create new set, as specified by 'str'
+
+setl4.new
+        output = 'setl4.new: ' str '.'
+        output = 'setl4.new not yet implemented, quitting' :(setl4.quit)
+
+setl4.new.end
 	define('setl4.not(expr)')			:(setl4.not.end)
 
 *	Returns not of boolean expression.
@@ -415,6 +424,13 @@ setl4.or
 	setl4.or = (differ(a) true, differ(b) true, false)    :(return)
 
 setl4.or.end
+
+                                                        :(setl4.quit.bypass)
+setl4.quit
+        output = 'Fatal error ' &lastno '.   Stopping the madness.'
+*        &dump = 3
+                                                        :(end)
+setl4.quit.bypass
 
 	define('setl4.size(set)')			:(setl4.size.end)
 
@@ -2148,16 +2164,6 @@ visit.next
 	eval(expr)					:(visit.next)
 	
 visit.end
-
-        :(error.end)
-error
-        output = 'error lastno ' &lastno
-        output = 'ERROR'
-        output = 'Fatal error: stopping the madness.'
-*       &dump = 3
-                                                        :(end)
-error.end
-
 *        define('set.loop(map,kind)')                    :(set.loop.end)
 
 *TODO*
@@ -2219,8 +2225,8 @@ error.end
 *       Characters available for use by 'opsyn' to associate the character
 *       with a function.
 
-*	binary  :  &  @  #  %  ~
-*	unary:  !  %  /  #  = |
+*	binary  &  @  #  %  ~ 
+*	unary:  !  %  /  #  =  |
 
 *	These opsyn changes do not require mucking about
 *	with SPITBOL lexical scanner.
@@ -2228,6 +2234,7 @@ error.end
 *	SETL4 unary operators:
 
 	opsyn('=','setl4.arb', 1)
+	opsyn('|','setl4.new', 1)
 	opsyn('!','setl4.not', 1)
 	opsyn('#','setl4.size',1)
 
@@ -2241,6 +2248,6 @@ error.end
 
 * 	characters still available for use by SETL4 as operators:
 
-*	unary:    |  /  
+*	unary:    /  
 
 
