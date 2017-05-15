@@ -35,28 +35,30 @@
 *   exists(set,expr)
 *   forall(set,expr)
 
+*   int.cardinal(n,word)
 *   int.even(n)
 *   int.factorial(n)
 *   int.member(member,int)
+*   int.number(n)
 *   int.multiple(n,m)
 *   int.odd(n)
 *   int.prime(n)set
 *   int.square.root(n)
+*   int.thousands(s)
 
 *   loop(set)
 
 *   map.new(init)
 *   map.domain(map)
 *   map.equal(a,b)
+*   map.first(map)
 *   map.get(map,key)
+*   map.last(map)
 *   map.put(map,key,val)
 *   map.test(map,key)
 
 *   mark(line)
 *   next(set)
-*   number.cardinal(n,word)
-*   number.number(n)
-*   number.thousands(s)
 *   rank(set)
 
 *   seq.add(seq,val)
@@ -71,12 +73,12 @@
 *   set.add(set,elem)
 *   set.difference(a,b)
 *   set.equal(a,b)
+*   set.first(set)
 *   set.integers(n)
 *   set.intersection(a,b)
 *   set.less(set,elem)
-*   set.in(x,set)
+*   set.last(set)
 *   set.new(init)
-*   set.notin(x,set)
 *   set.subset(a,b)
 *   set.union(a,b)
 
@@ -176,7 +178,7 @@ true.end
 assert.dt
 
     assert(ident(datatype(set),typ))                :s(return)
-    output = 'assertion on datatype failed ' typ    :(setl4.quit)
+    output = 'assertion on datatype failed ' typ    :(quit)
     
 
 assert.dt.end
@@ -254,6 +256,15 @@ forall.end
 *            int.prime(n)      true iff _n_ is a prime number
 *            int.square.root   square root rounded up to next integer.
 
+    define('int.int.cardinal(n,word)')           :(int.int.cardinal.end)
+*   If N is one, returns 'one' followed by WORD.
+*   Otherwise returns NUMBER(N) followed by WORD and 'S'.
+
+int.int.cardinal
+
+    int.cardinal = (eq(n,1) 'one ' word, number(n) ' '  word 's'):(return)
+
+int.int.cardinal.end
 
     define('int.even(n)')                           :(int.even.end)
 
@@ -302,6 +313,20 @@ int.multiple
 
 int.multiple.end
 
+    define('int.number(n)')                      :(int.number.end)
+
+**      If _n_ can be represented as a string of one or two words
+**      then return that string. Otherwise return _n_.
+
+int.number
+    output = 'int.number not implemented, quitting.' :(quit)
+    int.number = eq(n) 'zero'                    :s(return)
+    int.number = g.numbers[n]
+    differ(int.number)                           :s(return)
+    int.number = n                               :(return)
+
+int.number.end
+
     define('int.odd(n)')                            :(int.odd.end)
 
 *   Returns true iff _n_ is odd.
@@ -335,6 +360,18 @@ int.square.root
 
 int.square.root.end
 
+    define('int.thousands(s)n')                  :(int.thousands.end)
+
+*   Format s with comma's every three digits from right.
+
+int.thousands
+
+    n = size(s)
+    int.thousands = le(n,3) s                    :s(return)
+    int.thousands = int.thousands(substr(s,1,n - 3)) ',' substr(s, n - 2, 3):(return)
+
+int.thousands.end
+
     define('loop(set)dt')                           :(loop.end)
 
 *   Set up for loop.
@@ -343,9 +380,8 @@ loop
 
 *   Returns loop member in interation over compound object _set.
 
-    set.next(set) = 0
-    set.next(set) = setl4.kind(set.kind(set),'int')
-.                               set.low(set) - 1 :(return)
+    set.next(set) = 
+.           (setl4.kind(set.kind(set),'int') set.low(set) - 1, 0) :(return)
 
 loop.end
 
@@ -356,9 +392,9 @@ loop.end
 
     data('pair(first,second)')
 
-*   In mathematics, a map, or function, is a set of ordered pairs
-*   that define a relation between the first element of a pair,
-*   called the _key_, and the value of the map for _key_, _value_.
+*   In mathematics, a map, or function, defined on a finite set is a set of 
+*   ordered pairs that define a relation between the first element of a pair, 
+*   its _key_, and the value of the map for _key_.
 
 *   SETL4 represents a map entry as follows:
 
@@ -366,8 +402,6 @@ loop.end
 
 *   where _key_ is the key, and _value_ is the value of the
 *   map for _key_.
-
-    data('map(set.index,set.key,set.size,set.max,set.next,set.this)')
 
 *   The SPITBOL datatype TABLE provides the machinery to implement maps.
 *   SPITBOL provides no way to determine the number of domain values,
@@ -454,7 +488,7 @@ map.equal.end
 
 map.first
 
-    map.first = map.key(map)[1]                         :(return)
+    map.first = set.key(map)[1]                         :(return)
 
 map.first.end
 
@@ -470,13 +504,13 @@ map.get
 
 map.get.end
 
-    define('map.last(map)')                            :(map.last)
+    define('map.last(map)')                         :(map.last)
 
 *   Returns last element in _map_.
 
 map.last
 
-    map.last = map.key(map)[1]                         :(return)
+    map.last = set.key(map)[1]                      :(return)
 
 map.last.end
 
@@ -520,42 +554,6 @@ next
 next.end
 
 
-    define('int.number.cardinal(n,word)')           :(int.number.cardinal.end)
-*   If N is one, returns 'one' followed by WORD.
-*   Otherwise returns NUMBER(N) followed by WORD and 'S'.
-
-int.number.cardinal
-
-    number.cardinal = (eq(n,1) 'one ' word, number(n) ' '  word 's'):(return)
-
-int.number.cardinal.end
-
-    define('int.number(n)')                      :(int.number.end)
-
-**      If N can be represented as a string of one or two words
-**      then return that string. Otherwise return N.
-
-int.number
-    output = 'int.number not implemented, quitting.' :(setl4.quit)
-    int.number = eq(n) 'zero'                    :s(return)
-    int.number = g.numbers[n]
-    differ(number.number)                           :s(return)
-    number.number = n                               :(return)
-
-int.number.end
-
-    define('number.thousands(s)n')                  :(number.thousands.end)
-
-*   Format s with comma's every three digits from right.
-
-number.thousands
-
-    n = size(s)
-    number.thousands = le(n,3) s                    :s(return)
-    number.thousands = number.thousands(substr(s,1,n - 3)) ',' substr(s, n - 2, 3):(return)
-
-number.thousands.end
-
     define('rank(set)ara,i,entry,key,seq,value')    :(rank.end)
 
 *   Rank returns a sorted version of its operand such that
@@ -567,14 +565,11 @@ number.thousands.end
 
 rank
 
-    rank = setl4kind(set,'int','set') copy(set)     :s(return)
-    setl4kind(set,'map')                            :s(rank.map)
-    setl4kind(set,'seq')                            :s(rank.seq)
-    setl4kind(set,'set')                            :s(rank.set)
-    setl4kind(set,'str')                            :s(rank.str)
+    rank = setl4kind(set,'int','seq') copy(set)     :s(return)
+    setl4kind(set,'map','set','str')                :s($('rank.' setl4kind(set)))
     ident(datatype(set),'string')                   :s(rank.string)
     output 'rank unsupported operand type ' datatype(set)
-.                ', quitting.' :(setl4.quit)
+.                ', quitting.' :(quit)
 
 rank.map
 
@@ -586,10 +581,15 @@ rank.map.next
     entry = ara[i = i + 1,1]                        :f(return)
     map.put(rank,key(entry),value(entry))           :(rank.map.next)
 
+rank.set
+
+    ara = sort(set.key,1)
+    rank = set.new(#set)
+
 rank.set.next
 
-    key = ara[i = i + 1,1]                          :f(return)
-    set.add(rank,key)                               :(rank.set.next)
+    entry = ara[i = i + 1,1]                        :f(return)
+    set.put(rank,key(entry),value(entry))           :(rank.set.next)
 
 rank.string
 
@@ -602,6 +602,7 @@ rank.string.build
 
     gt(i = i + 1, size(string))                     :s(rank.string.sort)
 *   seq.push(seq,substr(                            :(rank.string.build)
+    output = 'rank.string not implemented, quitting.' :(quit)
 *TODO sort this out
     ara = sort(set.key(seq),1)
     i = 0
@@ -825,7 +826,7 @@ set.add.end
 
 set.difference
 
-    set.difference = a @ 'set.notin(=a,b)'          :(return)
+    set.difference = a @ !'set.member(=a,b)'          :(return)
 
 set.difference.end
 
@@ -918,20 +919,7 @@ set.less
 
 set.less.end
 *
-    define('set.in(x,set)')                         :(set.in.end)
-
-*   Returns _true_ iff _x_ is element of set _set_.
-
-set.in
-
-    assert.dt(set,'set')
-    set.in = (differ(set.key(set)[elem]) true, false) :(return)
-
-set.in.end
-
     define('set.new(init)n')                        :(set.new.end)
-
-*   data('set(set.index,set.key,set.size,set.max,set.next,set.this)')
 
 *   Create a new set.
 
@@ -2066,7 +2054,7 @@ setl4.member.end
 
 setl4.new
     output = 'setl4.new: ' str '.'
-    output = 'setl4.new not yet implemented, quitting' :(setl4.quit)
+    output = 'setl4.new not yet implemented, quitting' :(quit)
 
 setl4.new.end
 
@@ -2159,12 +2147,12 @@ setl4.or
 
 setl4.or.end
 
-                                                    :(setl4.quit.bypass)
-setl4.quit
+                                                    :(quit.bypass)
+quit
     output = 'Fatal error ' &lastno '.   Stopping the madness.'
 *    &dump = 3
                                                     :(end)
-setl4.quit.bypass
+quit.bypass
 
 
     define('setl4.random(n)')                       :(setl4.random.end)
@@ -2269,7 +2257,7 @@ setl4.traceon.end
 *setl4.op
 *
 *   opsyn(ch,proc,n)                :s(return)
-*   output = 'fatal problem with opsyn for ' ch ', quitting.' :(setl4.quit)
+*   output = 'fatal problem with opsyn for ' ch ', quitting.' :(quit)
 *
 *setl4.op.end
 
