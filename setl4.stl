@@ -1,290 +1,290 @@
-*       Copyright 2017, David Shields
-*       Licensed under the MIT license.
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
 
-*       SETL4 is an extension of SPITBOL. This file consists of a set of functions
-*       operator definitions that support set-theoretic operations defined
-*       on finite sets.
+*   SETL4 is an extension of SPITBOL. This file consists of a set of functions
+*   operator definitions that support set-theoretic operations defined
+*   on finite sets.
 
-*       SETL4 unary operators:
+*   SETL4 unary operators:
 
-*       '='     =s      Arb             Returns arbitary (randomly selected)  element of s
-*       '|'     |'str'  Constructor     Returns set specified by string _str_
-*       '!'     !expr   Not             True if and only if _expr_ is false
-*       '#'     #s      Size            Number of elements in set _s_
+*   '='     =s      Arb             Returns arbitary (randomly selected)  element of s
+*   '|'     |'str'  Constructor     Returns set specified by string _str_
+*   '!'     !expr   Not             True if and only if _expr_ is false
+*   '#'     #s      Size            Number of elements in set _s_
 
-*       SETL4 binary operators:
+*   SETL4 binary operators:
 
-*       '&'     a & b   And             True if and only if both _a_ and _b_ are true
-*       '@'     s @ e   Eval            Evaluates _e_ at current element of set _s_
-*       '#'     s # e   Filter          Returns subset of set _s_ for which _e_ is true
-*       '~'     m ~ s   Membership      Tests if _m_ is member of set _s_
-*       '^'     a ^ b   Or              True if and only if _a_ or _b_ is true
+*   '&'     a & b   And             True if and only if both _a_ and _b_ are true
+*   '@'     s @ e   Eval            Evaluates _e_ at current element of set _s_
+*   '#'     s # e   Filter          Returns subset of set _s_ for which _e_ is true
+*   '~'     m ~ s   Membership      Tests if _m_ is member of set _s_
+*   '^'     a ^ b   Or              True if and only if _a_ or _b_ is true
 
-*       For example, the folowing SETL4 expression determines if integer _P_ is prime:
+*   For example, the folowing SETL4 expression determines if integer _P_ is prime:
 
-*               !exists(|'int 2 P' @ 'multiple(P,this)')
+*           !exists(|'int 2 P' @ 'multiple(P,this)')
 
-*       where _multiple(a,b) is true if and only if _a_ is a multiple of _b_.
+*   where _multiple(a,b) is true if and only if _a_ is a multiple of _b_.
 
-*       Functions, defined herein,  that extend SPITBOL to implement SETL4.
+*   Functions, defined herein,  that extend SPITBOL to implement SETL4.
 
-*       false(e)
-*       true(e)
-*       assert.dt(obj,typ)
-*       assert(expr)
-*       exists(set,expr)
-*       forall(set,expr)
+*   false(e)
+*   true(e)
+*   assert.dt(obj,typ)
+*   assert(expr)
+*   exists(set,expr)
+*   forall(set,expr)
 
-*       int.even(n)
-*       int.factorial(n)
-*       int.member(member,int)
-*       int.multiple(n,m)
-*       int.odd(n)
-*       int.prime(n)set
-*       int.square.root(n)
+*   int.even(n)
+*   int.factorial(n)
+*   int.member(member,int)
+*   int.multiple(n,m)
+*   int.odd(n)
+*   int.prime(n)set
+*   int.square.root(n)
 
-*       loop(set)
+*   loop(set)
 
-*       map.new(init)
-*       map.domain(map)
-*       map.equal(a,b)
-*       map.get(map,key)
-*       map.put(map,key,val)
-*       map.test(map,key)
+*   map.new(init)
+*   map.domain(map)
+*   map.equal(a,b)
+*   map.get(map,key)
+*   map.put(map,key,val)
+*   map.test(map,key)
 
-*       mark(line)
-*       next(set)
-*       number.cardinal(n,word)
-*       number.number(n)
-*       number.thousands(s)
-*       rank(set)
+*   mark(line)
+*   next(set)
+*   number.cardinal(n,word)
+*   number.number(n)
+*   number.thousands(s)
+*   rank(set)
 
-*       seq.add(seq,val)
-*       seq.extend(seq,len)
-*       seq.get(seq,i)
-*       seq.integers(n)
-*       seq.new(n)
-*       seq.push(seq,val)
-*       seq.put(seq,i,val)
-*       seq.range(seq)
+*   seq.add(seq,val)
+*   seq.extend(seq,len)
+*   seq.get(seq,i)
+*   seq.integers(n)
+*   seq.new(n)
+*   seq.push(seq,val)
+*   seq.put(seq,i,val)
+*   seq.range(seq)
 
-*       set.add(set,elem)
-*       set.difference(a,b)
-*       set.equal(a,b)
-*       set.integers(n)
-*       set.intersection(a,b)
-*       set.less(set,elem)
-*       set.in(x,set)
-*       set.new(init)
-*       set.notin(x,set)
-*       set.subset(a,b)
-*       set.union(a,b)
+*   set.add(set,elem)
+*   set.difference(a,b)
+*   set.equal(a,b)
+*   set.integers(n)
+*   set.intersection(a,b)
+*   set.less(set,elem)
+*   set.in(x,set)
+*   set.new(init)
+*   set.notin(x,set)
+*   set.subset(a,b)
+*   set.union(a,b)
 
-*       show(v,lvl)
-*       show.line(line)
-*       show.lines(lines,title)
-*       show.quote(str)
-*       show.words(words)
+*   show(v,lvl)
+*   show.line(line)
+*   show.lines(lines,title)
+*   show.quote(str)
+*   show.words(words)
 
-*       str.append(str,w,ch)
-*       str.ascii(line)
-*       str.ascii.init(init)
-*       str.datename(date)
-*       str.frequency(str)
-*       str.lower(s)
-*       str.spaces(line)c
-*       str.less(str,sub)
-*       str.new(init)
-*       str.out(text1,text2,text3)
-*       str.prefix(str,pre)
-*       str.reader(filename,expr)
-*       str.reader.string(str,delim)
-*       str.slice(str,first,last)
-*       str.tokens(line)
-*       str.upper(s)
-*       str.words(line)
-*       str.writer(lines)
+*   str.append(str,w,ch)
+*   str.ascii(line)
+*   str.ascii.init(init)
+*   str.datename(date)
+*   str.frequency(str)
+*   str.lower(s)
+*   str.spaces(line)c
+*   str.less(str,sub)
+*   str.new(init)
+*   str.out(text1,text2,text3)
+*   str.prefix(str,pre)
+*   str.reader(filename,expr)
+*   str.reader.string(str,delim)
+*   str.slice(str,first,last)
+*   str.tokens(line)
+*   str.upper(s)
+*   str.words(line)
+*   str.writer(lines)
 
-*       this(set)
-*       visit(set,expr)
+*   this(set)
+*   visit(set,expr)
 
-*       setl4.and(a,b)
-*       setl4.arb(set)
-*       setl4.binary.search(tbl,value)
-*       setl4.concatenate(a,b)
-*       setl4.eval(set,expr)
-*       setl4.filter(set,expr)
-*       setl4.kind(set,kind1,kind2,kind3,kind3,kind4)
-*       setl4.member(elem,kind,entry,key,value)
-*       setl4.new(str)
-*       setl4.next(set)
-*       setl4.not(expr)
-*       setl4.or(a,b)
-*       setl4.random(n)
-*       setl4.random.seed()
-*       setl4.size(set)
-*       setl4.traceoff()
-*       setl4.traceon()
+*   setl4.and(a,b)
+*   setl4.arb(set)
+*   setl4.binary.search(tbl,value)
+*   setl4.concatenate(a,b)
+*   setl4.eval(set,expr)
+*   setl4.filter(set,expr)
+*   setl4.kind(set,kind1,kind2,kind3,kind3,kind4)
+*   setl4.member(elem,kind,entry,key,value)
+*   setl4.new(str)
+*   setl4.next(set)
+*   setl4.not(expr)
+*   setl4.or(a,b)
+*   setl4.random(n)
+*   setl4.random.seed()
+*   setl4.size(set)
+*   setl4.traceoff()
+*   setl4.traceon()
 
-*       Boolean Logic
-*       -------------
+*   Boolean Logic
+*   -------------
 
-*       Boolean logic is a form of algebra with just two values:
-*                true and false.
+*   Boolean logic is a form of algebra with just two values:
+*            true and false.
 
 
-*       In SPITBOL, the algebra is defined on strings:
-*       the null string is "false" and all other strings are "true".
-*       IDENT is used to test for true, DIFFER for false.
-*       Each signals their result by success (true) or failure (false).
+*   In SPITBOL, the algebra is defined on strings:
+*   the null string is "false" and all other strings are "true".
+*   IDENT is used to test for true, DIFFER for false.
+*   Each signals their result by success (true) or failure (false).
 
-*       In SETL4, the algebra is defined both on the integers and
-*       on non-integers.  For integers, zero is "false" and all
-*       other integers are "true." For non-integers, the null
-*       string ('') is true, and all other values are false.
+*   In SETL4, the algebra is defined both on the integers and
+*   on non-integers.  For integers, zero is "false" and all
+*   other integers are "true." For non-integers, the null
+*   string ('') is true, and all other values are false.
 
-        false = 0
-        true = 1
+    false = 0
+    true = 1
 
-        define('false(e)')                              :(false.end)
+    define('false(e)')                              :(false.end)
 
-*       Returns true if its argument is false, or else false.
+*   Returns true if its argument is false, or else false.
 
 false
 
-        e = integer(e) +e
-        false = integer(e) (eq(e) true, false)          :s(return)
-        false = (ident(e) true, false)                  :(return)
+    e = integer(e) +e
+    false = integer(e) (eq(e) true, false)          :s(return)
+    false = (ident(e) true, false)                  :(return)
 
 false.end
 
-        define('true(e)')                              :(true.end)
+    define('true(e)')                              :(true.end)
 
-*       Returns true if its argument is true, or else false.
+*   Returns true if its argument is true, or else false.
 
 true
-        e = integer(e) +e
-        true = integer(e) (ne(e) true, false)           :s(return)
-        true = (differ(e) true, false)                  :(return)
+    e = integer(e) +e
+    true = integer(e) (ne(e) true, false)           :s(return)
+    true = (differ(e) true, false)                  :(return)
 
 true.end
 
-        define('assert.dt(obj,typ)')                    :(assert.dt.end)
+    define('assert.dt(obj,typ)')                    :(assert.dt.end)
 
-*       Verify that _obj_ has datatype _typ_, end execution if not.
+*   Verify that _obj_ has datatype _typ_, end execution if not.
 
 assert.dt
 
-        assert(ident(datatype(set),typ))                :s(return)
-        output = 'assertion on datatype failed ' typ    :(setl4.quit)
-        
+    assert(ident(datatype(set),typ))                :s(return)
+    output = 'assertion on datatype failed ' typ    :(setl4.quit)
+    
 
 assert.dt.end
 
-        define('assert(expr)')                          :(assert.end)
+    define('assert(expr)')                          :(assert.end)
 
-*       Verify that _expr_ is true, end execution otherwise.
+*   Verify that _expr_ is true, end execution otherwise.
 
 assert
 
-        true(expr)                                      :s(return)
-        output = 'assertion failed, quitting' :(end)
+    true(expr)                                      :s(return)
+    output = 'assertion failed, quitting' :(end)
 
 assert.end
 
-        define('exists(set,expr)e')                     :(exists.end)
+    define('exists(set,expr)e')                     :(exists.end)
 
-*       Tests if there is an element in _set such that _eval(expr)_
-*       is false.
+*   Tests if there is an element in _set such that _eval(expr)_
+*   is false.
 
 exists
 
-        exists = false
-        loop(set)
+    exists = false
+    loop(set)
 
 exists.loop
 
-        next(set)                                       :f(exists.done)
-        e = eval(expr)                                  :f(exists.loop)
-        exists = true(e) true				:s(return)f(exists.loop)
+    next(set)                                       :f(exists.done)
+    e = eval(expr)                                  :f(exists.loop)
+    exists = true(e) true               :s(return)f(exists.loop)
 
 exists.done
 
-        exists = true                                   :(return)
+    exists = true                                   :(return)
 
 exists.end
 
-        define('forall(set,expr)e')                     :(forall.end)
+    define('forall(set,expr)e')                     :(forall.end)
 
-*       Tests if _expr_ is true for all the members of _set.
+*   Tests if _expr_ is true for all the members of _set.
 
 forall
 
-        forall = false
-        loop(set)
+    forall = false
+    loop(set)
 
 forall.loop
 
-        next(set)                                       :f(forall.done)
+    next(set)                                       :f(forall.done)
 
-*       If _eval(expr)_ fails, forall is false.
-        e = eval(expr)                                  :f(return)
-        true(e)                                         :s(forall.loop)f(return)
+*   If _eval(expr)_ fails, forall is false.
+    e = eval(expr)                                  :f(return)
+    true(e)                                         :s(forall.loop)f(return)
 
 forall.done
 
-        forall = true                                   :(return)
+    forall = true                                   :(return)
 
 forall.end
 
-*       Integers (int's)
-*       --------
+*   Integers (int's)
+*   --------
 
-*       SETL4 provides the type _int_ .
-*       An _int_ is a sequence of positive integers
+*   SETL4 provides the type _int_ .
+*   An _int_ is a sequence of positive integers
 *
-*       SETL4 extends the integer operations provided by SPITBOL by
-*       providing the following integer functions:
+*   SETL4 extends the integer operations provided by SPITBOL by
+*   providing the following integer functions:
 
-*                int.even(n)       true iff _n_ is even.
-*                int.factorial(n)  returns the value of
-*                                       n! = _n_ * (n - 1) * ... *
-*                int.multiple(n,m) true iff _n_ is multiple of _m_
-*                int.odd(n)        true iff _n_ is odd.
-*                int.prime(n)      true iff _n_ is a prime number
-*                int.square.root   square root rounded up to next integer.
+*            int.even(n)       true iff _n_ is even.
+*            int.factorial(n)  returns the value of
+*                                   n! = _n_ * (n - 1) * ... *
+*            int.multiple(n,m) true iff _n_ is multiple of _m_
+*            int.odd(n)        true iff _n_ is odd.
+*            int.prime(n)      true iff _n_ is a prime number
+*            int.square.root   square root rounded up to next integer.
 
 
-        define('int.even(n)')                           :(int.even.end)
+    define('int.even(n)')                           :(int.even.end)
 
-*       Returns true iff _n_ is even.
+*   Returns true iff _n_ is even.
 
 int.even
 
-        int.even = (eq(remdr(n,2)) true,false)          :(int.even.end)
+    int.even = (eq(remdr(n,2)) true,false)          :(int.even.end)
 
 int.even.end
 
-        define('int.factorial(n)')                      :(int.factorial.end)
+    define('int.factorial(n)')                      :(int.factorial.end)
 
-*       Returns n! = n*(n-1)*(n-2) ... 1
+*   Returns n! = n*(n-1)*(n-2) ... 1
 
 int.factorial
 
-        int.factorial = (eq(n,1) 1, n * int.factorial(n -1))    :(return)
+    int.factorial = (eq(n,1) 1, n * int.factorial(n -1))    :(return)
 
 int.factorial.end
 
-        define('int.member(member,int)')                :(int.member.end)
+    define('int.member(member,int)')                :(int.member.end)
 
-*       Tests if _member_ is a member of _int_
+*   Tests if _member_ is a member of _int_
 
 int.member
 
-        member = +member
-        int.member = lt(member,set.low(int))    false   :s(return)
-        int.member = gt(member,set.high(int))   false   :s(return)
-        int.member = (multiple(
+    member = +member
+    int.member = lt(member,set.low(int))    false   :s(return)
+    int.member = gt(member,set.high(int))   false   :s(return)
+    int.member = (multiple(
 .                       (int.high(int) - int.low(int) + 1)
 .                         / int.step(int),
 .                       int.step(int))
@@ -292,994 +292,1031 @@ int.member
 
 int.member.end
 
-        define('int.multiple(n,m)')                      :(int.multiple.end)
+    define('int.multiple(n,m)')                      :(int.multiple.end)
 
-*       Tests if _n_ is a multiple of _m_.
+*   Tests if _n_ is a multiple of _m_.
 
 int.multiple
 
-        int.multiple = (eq(remdr(n,m)) true, false)      :(return)
+    int.multiple = (eq(remdr(n,m)) true, false)      :(return)
 
 int.multiple.end
 
-        define('int.odd(n)')                            :(int.odd.end)
+    define('int.odd(n)')                            :(int.odd.end)
 
-*       Returns true iff _n_ is odd.
+*   Returns true iff _n_ is odd.
 
 int.odd
 
-        int.odd = (ne(remdr(n,2)) true,false)           :(return)
+    int.odd = (ne(remdr(n,2)) true,false)           :(return)
 
 int.odd.end
 
 
-        define('int.prime(n)set')                       :(int.prime.end)
+    define('int.prime(n)set')                       :(int.prime.end)
 
-*       Returns true iff _n_ is prime.
+*   Returns true iff _n_ is prime.
 
 int.prime
 
-        set = int.new(2,square.root(p))
-*TODO* check this
-        int.prime = not(exists(set,'eq(remdr(p,=s))'))  :(return)
+    set = int.new(2,square.root(p))
+    int.prime = not(exists(set,'eq(remdr(p,=s))'))  :(return)
 
 int.prime.end
 
-        define('int.square.root(n)')               :(int.square.root.end)
+    define('int.square.root(n)')               :(int.square.root.end)
 
-*       Returns square root of integer _n_, rounded up.
+*   Returns square root of integer _n_, rounded up.
 
 int.square.root
 
-        int.square.root = convert(sqrt(convert(n,'real')),
+    int.square.root = convert(sqrt(convert(n,'real')),
 .                               'integer') + 1 :(return)
 
 int.square.root.end
 
-        define('loop(set)dt')                           :(loop.end)
+    define('loop(set)dt')                           :(loop.end)
 
-*       Set up for loop.
+*   Set up for loop.
 
 loop
 
-*       Returns loop member in interation over compound object _set.
+*   Returns loop member in interation over compound object _set.
 
-        set.next(set) = 0
-        set.next(set) = setl4.kind(set.kind(set),'int')
+    set.next(set) = 0
+    set.next(set) = setl4.kind(set.kind(set),'int')
 .                               set.low(set) - 1 :(return)
 
 loop.end
 
-*       Maps
-*       --------------
+*   Maps
+*   --------------
 
-*       A _pair_ joins two values together.
+*   A _pair_ joins two values together.
 
-        data('pair(first,second)')
+    data('pair(first,second)')
 
-*       In mathematics, a map, or function, is a set of ordered pairs
-*       that define a relation between the first element of a pair,
-*       called the _key_, and the value of the map for _key_, _value_.
+*   In mathematics, a map, or function, is a set of ordered pairs
+*   that define a relation between the first element of a pair,
+*   called the _key_, and the value of the map for _key_, _value_.
 
-*       SETL4 represents a map entry as follows:
+*   SETL4 represents a map entry as follows:
 
-        data('entry(key,value)')
+    data('entry(key,value)')
 
-*       where _key_ is the key, and _value_ is the value of the
-*       map for _key_.
+*   where _key_ is the key, and _value_ is the value of the
+*   map for _key_.
 
-        data('map(set.index,set.key,set.size,set.max,set.next,set.this)')
+    data('map(set.index,set.key,set.size,set.max,set.next,set.this)')
 
-*       The SPITBOL datatype TABLE provides the machinery to implement maps.
-*       SPITBOL provides no way to determine the number of domain values,
-*       or size, of a map other than converting the map to an array, which is
-*       the only way to iterate over a set.
+*   The SPITBOL datatype TABLE provides the machinery to implement maps.
+*   SPITBOL provides no way to determine the number of domain values,
+*   or size, of a map other than converting the map to an array, which is
+*   the only way to iterate over a set.
 
-*       Each new entry added to a map is given an integer id,
-*       starting with one.  The field _set.index_ maps the id's
-*       to the associated entries.
+*   Each new entry added to a map is given an integer id,
+*   starting with one.  The field _set.index_ maps the id's
+*   to the associated entries.
 
-*       The field _set.key_ maps the keys used in entries to
-*       their associated id's, and is needed to allow constant-time
-*       access to map entries, both when retrieving values and
-*       when iterating over the set.
+*   The field _set.key_ maps the keys used in entries to
+*   their associated id's, and is needed to allow constant-time
+*   access to map entries, both when retrieving values and
+*   when iterating over the set.
 
-        setl4.default.size = 16
+    setl4.default.size = 16
 
-        define('map.new(init)init,key,val')        :(map.new.end)
+    define('map.new(init)init,key,val')        :(map.new.end)
 
-*       Create a new map.
+*   Create a new map.
 
-*       _init_ is a list consisting of a list of key/value pairs,
-*       with a colon (:) between the key and value.
+*   _init_ is a list consisting of a list of key/value pairs,
+*   with a colon (:) between the key and value.
 
 map.new
 
-        map.new = ident(init) set(table(setl4.default.size),
+    map.new = ident(init) set(table(setl4.default.size),
 .               table(setl4.default.size)) :s(return)
-        key = convert(init,'integer')                    :f(map.new.init)
-        map.new = map(table(key),table(key))             :(return)
+    key = convert(init,'integer')                    :f(map.new.init)
+    map.new = map(table(key),table(key))             :(return)
 
 map.new.init
 
-        map.new = set(table(setl4.default.size),table(setl4.default.size))
-        init = init ' '
+    map.new = set(table(setl4.default.size),table(setl4.default.size))
+    init = init ' '
 
 map.new.init.next
 
-        init break(':') . key ':' break(' ') . val span(' ') =  :f(return)
-        map.put(map.new,key,val)                        :(map.new.init.next)
+    init break(':') . key ':' break(' ') . val span(' ') =  :f(return)
+    map.put(map.new,key,val)                        :(map.new.init.next)
 
 map.new.end
 
-        define('map.domain(map))')                      :(map.domain.end)
+    define('map.domain(map))')                      :(map.domain.end)
 
-*       Return set with the keys in _map_.
+*   Return set with the keys in _map_.
 
 map.domain
 
-*TODO* this code seems wrong.
-
-        map.domain = set.new(#map)
-        loop(map)
+    map.domain = set.new(#map)
+    loop(map)
 
 map.domain.next
 
-        next(map.domain)
-        set.add(map.domain,set.this(map))		:s(map.domain.next)f(return)
+    next(map.domain)
+    set.add(map.domain,set.this(map))       :s(map.domain.next)f(return)
 
 map.domain.end
 
-        define('map.equal(a,b)entry,key,value')         :(map.equal.end)
+    define('map.equal(a,b)entry,key,value')         :(map.equal.end)
 
-*       Test two maps for equality.
+*   Test two maps for equality.
 
-*       Two maps are equal if they have the same size and the value
-*       of the first map for each element in its domain is the same
-*       as the value of the second map for the corresponding element.
+*   Two maps are equal if they have the same size and the value
+*   of the first map for each element in its domain is the same
+*   as the value of the second map for the corresponding element.
 
 map.equal
 
-	map.equal = false
-	ne(#a,#b)					:s(return)
+    map.equal = false
+    ne(#a,#b)                   :s(return)
 
-*       Two maps are equal iff each is a subset of the other.
+*   Two maps are equal iff each is a subset of the other.
 
-	map.equal = set.equal(map.domain(a),map.domain(b)) :f(return)
-	map.equal = set.equal(map.range(a),map.range(b))   :f(return)
-	map.equal = true
+    map.equal = set.equal(map.domain(a),map.domain(b)) :f(return)
+    map.equal = set.equal(map.range(a),map.range(b))   :f(return)
+    map.equal = true
 
 map.equal.end
 
-        define('map.get(map,key)val)id')                :(map.get.end)
+    define('map.first(map)')                            :(map.last)
 
-*       Gets the value of the key _key_ in the map _map_.
+*   Returns first element in _map_.
+
+map.first
+
+    map.first = map.key(map)[1]                         :(return)
+
+map.first.end
+
+    define('map.get(map,key)val)id')                :(map.get.end)
+
+*   Gets the value of the key _key_ in the map _map_.
 
 map.get
 
-        id = set.key(map)[key]
-        ident(id)                                       :s(return)
-        map.get = set.index(map)[id]                    :(return)
+    id = set.key(map)[key]
+    ident(id)                                       :s(return)
+    map.get = set.index(map)[id]                    :(return)
 
 map.get.end
 
-        define('map.put(map,key,val)v')                 :(map.put.end)
+    define('map.last(map)')                            :(map.last)
 
-*       Sets the value of the entry for key _key_ in map _map_ to be _val_,
-*       creating a new entry if there is no current entry for _key_.
+*   Returns last element in _map_.
+
+map.last
+
+    map.last = map.key(map)[1]                         :(return)
+
+map.last.end
+
+    define('map.put(map,key,val)v')                 :(map.put.end)
+
+*   Sets the value of the entry for key _key_ in map _map_ to be _val_,
+*   creating a new entry if there is no current entry for _key_.
 
 map.put
 
-        v = set.key(map)[key]
-        differ(v)                                       :s(map.put.value)
+    v = set.key(map)[key]
+    differ(v)                                       :s(map.put.value)
 
-*       Here to create new entry in map, and then merge to set new value.
+*   Here to create new entry in map, and then merge to set new value.
 
-        set.max(map) = set.max(map) + 1
-        set.key(map)[key] = set.max(map)
+    set.max(map) = set.max(map) + 1
+    set.key(map)[key] = set.max(map)
 
 map.put.value
 
-        set.index(map)[set.key(map)[key]] = entry(key,val)      :(return)
+    set.index(map)[set.key(map)[key]] = entry(key,val)      :(return)
 
 map.put.end
 
-        define('map.test(map,key)')                     :(map.test.end)
+    define('map.test(map,key)')                     :(map.test.end)
 
-*       Tests if the map _map_ has an entry for _key_.
+*   Tests if the map _map_ has an entry for _key_.
 
 map.test
 
-        map.test = (differ(set.key(map)[key]) true,false) :(return)
+    map.test = (differ(set.key(map)[key]) true,false) :(return)
 
 map.test.end
 
-        define('next(set)')                             :(next.end)
+    define('next(set)')                             :(next.end)
 
 next
 
-        next = setl4.next(set)                      :s(return)f(freturn)
+    next = setl4.next(set)                      :s(return)f(freturn)
 
 next.end
 
 
-        define('int.number.cardinal(n,word)')           :(int.number.cardinal.end)
-*       If N is one, returns 'one' followed by WORD.
-*       Otherwise returns NUMBER(N) followed by WORD and 'S'.
+    define('int.number.cardinal(n,word)')           :(int.number.cardinal.end)
+*   If N is one, returns 'one' followed by WORD.
+*   Otherwise returns NUMBER(N) followed by WORD and 'S'.
 
 int.number.cardinal
 
-        number.cardinal = (eq(n,1) 'one ' word, number(n) ' '  word 's'):(return)
+    number.cardinal = (eq(n,1) 'one ' word, number(n) ' '  word 's'):(return)
 
 int.number.cardinal.end
 
-        define('int.number(n)')                      :(int.number.end)
+    define('int.number(n)')                      :(int.number.end)
 
 **      If N can be represented as a string of one or two words
 **      then return that string. Otherwise return N.
 
 int.number
-	output = 'int.number not implemented, quitting.' :(setl4.quit)
-        int.number = eq(n) 'zero'                    :s(return)
-        int.number = g.numbers[n]
-        differ(number.number)                           :s(return)
-        number.number = n                               :(return)
+    output = 'int.number not implemented, quitting.' :(setl4.quit)
+    int.number = eq(n) 'zero'                    :s(return)
+    int.number = g.numbers[n]
+    differ(number.number)                           :s(return)
+    number.number = n                               :(return)
 
 int.number.end
 
-        define('number.thousands(s)n')                  :(number.thousands.end)
+    define('number.thousands(s)n')                  :(number.thousands.end)
 
-*       Format s with comma's every three digits from right.
+*   Format s with comma's every three digits from right.
 
 number.thousands
 
-        n = size(s)
-        number.thousands = le(n,3) s                    :s(return)
-        number.thousands = number.thousands(substr(s,1,n - 3)) ',' substr(s, n - 2, 3):(return)
+    n = size(s)
+    number.thousands = le(n,3) s                    :s(return)
+    number.thousands = number.thousands(substr(s,1,n - 3)) ',' substr(s, n - 2, 3):(return)
 
 number.thousands.end
 
-        define('rank(set)ara,i,entry,key,seq,value')    :(rank.end)
+    define('rank(set)ara,i,entry,key,seq,value')    :(rank.end)
 
-*       Rank returns a sorted version of its operand such that
-*       elements are in increasing order. For example,
-*               rank('asxybza') is 'aabsxyz'.
-*       Sets are ranked in increasing order of their members.
-*       Maps are ranked in increasing order of their keys.
-*       Sequences and int's are always maintained in rank order.
+*   Rank returns a sorted version of its operand such that
+*   elements are in increasing order. For example,
+*           rank('asxybza') is 'aabsxyz'.
+*   Sets are ranked in increasing order of their members.
+*   Maps are ranked in increasing order of their keys.
+*   Sequences and int's are always maintained in rank order.
 
 rank
 
-        rank = setl4kind(set,'int','set') copy(set)     :s(return)
-        setl4kind(set,'map')                            :s(rank.map)
-        setl4kind(set,'seq')                            :s(rank.seq)
-        setl4kind(set,'set')                            :s(rank.set)
-        setl4kind(set,'str')                            :s(rank.str)
-        ident(datatype(set),'string')                   :s(rank.string)
-        output 'rank unsupported operand type ' datatype(set)
+    rank = setl4kind(set,'int','set') copy(set)     :s(return)
+    setl4kind(set,'map')                            :s(rank.map)
+    setl4kind(set,'seq')                            :s(rank.seq)
+    setl4kind(set,'set')                            :s(rank.set)
+    setl4kind(set,'str')                            :s(rank.str)
+    ident(datatype(set),'string')                   :s(rank.string)
+    output 'rank unsupported operand type ' datatype(set)
 .                ', quitting.' :(setl4.quit)
 
 rank.map
 
-        ara = sort(set.key,1)
-        rank = set.new(#set)
+    ara = sort(set.key,1)
+    rank = set.new(#set)
 
 rank.map.next
 
-        entry = ara[i = i + 1,1]                        :f(return)
-        map.put(rank,key(entry),value(entry))           :(rank.map.next)
+    entry = ara[i = i + 1,1]                        :f(return)
+    map.put(rank,key(entry),value(entry))           :(rank.map.next)
 
 rank.set.next
 
-        key = ara[i = i + 1,1]                          :f(return)
-        set.add(rank,key)                               :(rank.set.next)
+    key = ara[i = i + 1,1]                          :f(return)
+    set.add(rank,key)                               :(rank.set.next)
 
 rank.string
 
-*       Rank a string by building table from integers
-*       1..size(string) and then sorting on value.
+*   Rank a string by building table from integers
+*   1..size(string) and then sorting on value.
 
-        seq = seq.new(size(string))
+    seq = seq.new(size(string))
 
 rank.string.build
 
-        gt(i = i + 1, size(string))                     :s(rank.string.sort)
-*       seq.push(seq,substr(                            :(rank.string.build)
+    gt(i = i + 1, size(string))                     :s(rank.string.sort)
+*   seq.push(seq,substr(                            :(rank.string.build)
 *TODO sort this out
-        ara = sort(set.key(seq),1)
-        i = 0
-        rank = ''
+    ara = sort(set.key(seq),1)
+    i = 0
+    rank = ''
 
 rank.string.sort
 
-	gt(i = i + 1,size(string))                      :s(return)
-        rank = rank seq.get(seq,i)                      :(rank.string.push)
-        gt(i = i + 1, size(string))                     :f(return)
+    gt(i = i + 1,size(string))                      :s(return)
+    rank = rank seq.get(seq,i)                      :(rank.string.push)
+    gt(i = i + 1, size(string))                     :f(return)
 
 rank.str
 
-        i = str.frequency(set)
-	seq = str.set(str)
-	loop(seq)
+    i = str.frequency(set)
+    seq = str.set(str)
+    loop(seq)
 
 rank.str.next
-	
-	key = next(seq)					:f(return)
-	rank = rank dupl(key,str.frequency[key])	:(rank.str.next)
-	
+    
+    key = next(seq)                 :f(return)
+    rank = rank dupl(key,str.frequency[key])    :(rank.str.next)
+    
 rank.string.next
 
-	str = set					:(rank.str)
+    str = set                   :(rank.str)
 
 rank.end
 
-*       Sequences:
-*       ----------
+*   Sequences:
+*   ----------
 
-*       A sequence, or 'seq', is a map defined on the positive integers
-*       1,2, ... ,n. Sequences are implemented using SPITBOL arrays,
-*       which are grown in size when adding a new element for which
-*       no room remains in the array.
+*   A sequence, or 'seq', is a map defined on the positive integers
+*   1,2, ... ,n. Sequences are implemented using SPITBOL arrays,
+*   which are grown in size when adding a new element for which
+*   no room remains in the array.
 
 
-        define('seq.add(seq,val)')                      :(seq.add.end)
+    define('seq.add(seq,val)')                      :(seq.add.end)
 
 seq.add
 
-        seq.add = seq.push(seq,val)                     :(return)
+    seq.add = seq.push(seq,val)                     :(return)
 
 seq.add.end
 
-        define('seq.extend(seq,len)ara,i')              :(seq.extend.end)
+    define('seq.extend(seq,len)ara,i')              :(seq.extend.end)
 
-*       Increase length of sequence to be _len_.
+*   Increase length of sequence to be _len_.
 
 seq.extend
 
-        ara = array(len)
+    ara = array(len)
 
 seq.extend.copy
 
-        gt(i = i + 1, seq,length(seq))                  :s(seq.extend.done)
-        ara[i] = seq.array(seq)[i]                      :(seq.extend.copy)
+    gt(i = i + 1, seq,length(seq))                  :s(seq.extend.done)
+    ara[i] = seq.array(seq)[i]                      :(seq.extend.copy)
 
 seq.extend.done
 
-        seq.length(seq) = len
-        seq.array(seq) = ara
-                                                        :(return)
+    seq.length(seq) = len
+    seq.array(seq) = ara
+                                                    :(return)
 
 seq.extend.end
 
-        define('seq.get(seq,i)')                        :(seq.get.end)
+    define('seq.get(seq,i)')                        :(seq.get.end)
 
-*       Gets the value of element _i_ in the sequence _seq_
+*   Gets the value of element _i_ in the sequence _seq_
 
 seq.get
 
-        seq.get = seq.array(seq)[i]                     :f(freturn)s(return)
+    seq.get = seq.array(seq)[i]                     :f(freturn)s(return)
 
 seq.get.end
 
-        define('seq.integers(n)i')                      :(seq.integers.end)
+    define('seq.integers(n)i')                      :(seq.integers.end)
 
-*       Returns sequence of integers in the range 1 .. _n_.
+*   Returns sequence of integers in the range 1 .. _n_.
 
 seq.integers
 
-        seq.integers = seq.new(n)
+    seq.integers = seq.new(n)
 
 seq.integers.next
 
-        gt(i = i + 1, n)                                :s(return)
-        seq.push(seq.integers,i)                        :(seq.integers.next)
+    gt(i = i + 1, n)                                :s(return)
+    seq.push(seq.integers,i)                        :(seq.integers.next)
 
 seq.integers.end
 
-        define('seq.new(n)i,len')                       :(seq.new.end)
+    define('seq.new(n)i,len')                       :(seq.new.end)
 
-*       Create a new sequence of length _n_.
+*   Create a new sequence of length _n_.
 
 
 seq.new
 
-        assert.dt(seq,'seq')
-        n = ident(n) setl4.default.size
-        n = integer(n) +n
-        seq.new = seq(array(n))
-        seq.max(seq.new) = n                            :(return)
+    assert.dt(seq,'seq')
+    n = ident(n) setl4.default.size
+    n = integer(n) +n
+    seq.new = seq(array(n))
+    seq.max(seq.new) = n                            :(return)
 
 seq.new.end
 
-        define('seq.push(seq,val)len')                  :(seq.push.end)
+    define('seq.push(seq,val)len')                  :(seq.push.end)
 
 seq.push
 
-        assert.dt(seq,'seq')
-        len = seq.size(seq)
-        lt(len,seq.max(seq))                            :s(seq.push.room)
+    assert.dt(seq,'seq')
+    len = seq.size(seq)
+    lt(len,seq.max(seq))                            :s(seq.push.room)
 
-*       Here to extend length of array by fifty per cent.
+*   Here to extend length of array by fifty per cent.
 
-        seq.extend(seq,(3 * len) / 2)
+    seq.extend(seq,(3 * len) / 2)
 
 seq.push.room
 
-        seq.size(seq) = #seq + 1
-        seq.array(seq)[#seq] = val                      :(return)
+    seq.size(seq) = #seq + 1
+    seq.array(seq)[#seq] = val                      :(return)
 
 seq.push.end
 
-        define('seq.put(seq,i,val)v,len')               :(seq.put.end)
+    define('seq.put(seq,i,val)v,len')               :(seq.put.end)
 
-*       Sets the value of element _i_ in the sequence _seq_ to be _val_.
+*   Sets the value of element _i_ in the sequence _seq_ to be _val_.
 
 seq.put
 
-        assert(ident(kind(seq),'seq'))
-        seq.array(seq)[i] = val                         :(return)
+    assert(ident(kind(seq),'seq'))
+    seq.array(seq)[i] = val                         :(return)
 
 seq.put.end
 
-        define('seq.range(seq)')                        :(seq.range.end)
+    define('seq.range(seq)')                        :(seq.range.end)
 
 
-*        Return set with the values in _seq_ as its members.
+*    Return set with the values in _seq_ as its members.
 
 seq.range
 
-        kind = kind(seq)
-        output = differ(kind,'seq') 'range called on non-seq, quitting' :s(end)
-        seq.range = set.new('seq',#seq)
-        loop(seq)
+    kind = kind(seq)
+    output = differ(kind,'seq') 'range called on non-seq, quitting' :s(end)
+    seq.range = set.new('seq',#seq)
+    loop(seq)
 
 seq.range.next
 
-        seq.range.add(value(seq.next(seq)))             :f(return)s(seq.range.next)
+    seq.range.add(value(seq.next(seq)))             :f(return)s(seq.range.next)
 
 seq.range.end
 
-*       Sets
-*       ____
+*   Sets
+*   ____
 
 
-*       SETL4 extends SPITBOL by adding the datatype _set_ to represent
-*       finite sets. Several additional datatypes based on sets are
-*       also provided. Each is identified by its kind.
+*   SETL4 extends SPITBOL by adding the datatype _set_ to represent
+*   finite sets. Several additional datatypes based on sets are
+*   also provided. Each is identified by its kind.
 
-*       A set is defined by the following datatype:
+*   A set is defined by the following datatype:
 
-        data('set(set.kind,set.index,set.key,set.size,set.max,set.next,'
+    data('set(set.kind,set.index,set.key,set.size,set.max,set.next,'
 .               'set.this,set.loop,set.low,set.high,set.step,set.text)')
 
-*       where
+*   where
 
-*               _kind_          the kind of _set_: 'int', 'map', 'seq', 'set', or 'str'.
+*           _kind_          the kind of _set_: 'int', 'map', 'seq', 'set', or 'str'.
 
-*               _index_         a SPITBOL table used to map the integer
-*                               id assigned each element to the value of the element.
+*           _index_         a SPITBOL table used to map the integer
+*                           id assigned each element to the value of the element.
 
-*               _key_           a SPITBOL table, used only for maps, to permit iteration
+*           _key_           a SPITBOL table, used only for maps, to permit iteration
 
-*               _size_          the current number of members.
+*           _size_          the current number of members.
 
-*               _max_           the maximum id assigned an element of the set.
+*           _max_           the maximum id assigned an element of the set.
 
-*               _next_          the last value returned by the _next_ primitive
-*                               when iterating over a set.
-*               _loop_          is array needed when iterating in order other than which
-*                               elements were added to the set.
+*           _next_          the last value returned by the _next_ primitive
+*                           when iterating over a set.
+*           _loop_          is array needed when iterating in order other than which
+*                           elements were added to the set.
 
-*               _text_          is the text of the set of kind _str_
+*           _text_          is the text of the set of kind _str_
 
-*       Note that the null value is not allowed as an element of a set, or the
-*       value of a map entry, but can be used as the value of an element in a seq.
+*   Note that the null value is not allowed as an element of a set, or the
+*   value of a map entry, but can be used as the value of an element in a seq.
 
-*       The _key_ table is needed to provide constant time bounds for iterating over
-*       a set, in all of its forms.
+*   The _key_ table is needed to provide constant time bounds for iterating over
+*   a set, in all of its forms.
 
-*	Since the _key_ table is needed, a set can be indexed using the key table.
-*	This allows the definition of 'get' and 'put' on sequences.
+*   Since the _key_ table is needed, a set can be indexed using the key table.
+*   This allows the definition of 'get' and 'put' on sequences.
 
-*       Sequences are currently implemented using SPITBOL arrays, extending
-*       the array length dynamically as needed.
+*   Sequences are currently implemented using SPITBOL arrays, extending
+*   the array length dynamically as needed.
 
-*       New elements can be added to a sequence using the 'push' primitive,
-*       and the most recent element can be deleted using the 'pop' primitive.
+*   New elements can be added to a sequence using the 'push' primitive,
+*   and the most recent element can be deleted using the 'pop' primitive.
 
-        define('set.add(set,elem)max')                  :(set.add.end)
+    define('set.add(set,elem)max')                  :(set.add.end)
 
-*       Add _elem_ to set, unless already present.
+*   Add _elem_ to set, unless already present.
 
 set.add
 
-        differ(set.key(set)[elem])                      :s(return)
-        set.max(set) = set.max(set) + 1
-        set.size(set) = set.size(set) + 1
-        max = set.max(set)
-        set.index(set)[max] = elem
-        set.key(set)[elem] = max                        :(return)
+    differ(set.key(set)[elem])                      :s(return)
+    set.max(set) = set.max(set) + 1
+    set.size(set) = set.size(set) + 1
+    max = set.max(set)
+    set.index(set)[max] = elem
+    set.key(set)[elem] = max                        :(return)
 
 set.add.end
 
-        define('set.difference(a,b)elem')               :(set.difference.end)
+    define('set.difference(a,b)elem')               :(set.difference.end)
 
-*       Returns set defined by set of elements of _a_ that are not in _b_.
+*   Returns set defined by set of elements of _a_ that are not in _b_.
 
 set.difference
 
-        set.difference = a @ 'set.notin(=a,b)'          :(return)
+    set.difference = a @ 'set.notin(=a,b)'          :(return)
 
 set.difference.end
 
-        define('set.equal(a,b)')                        :(set.equal.end)
+    define('set.equal(a,b)')                        :(set.equal.end)
 
-*       Tests if two sets are equal.
-*       Two sets are equal iff each is a subset of the other.
+*   Tests if two sets are equal.
+*   Two sets are equal iff each is a subset of the other.
 
 set.equal
 
-        set.equal = and(set.subset(a,b),set.subset(b,a)) :(return)
+    set.equal = and(set.subset(a,b),set.subset(b,a)) :(return)
 
 set.equal.end
 
-	define('set.get(set,i)')				:set.get.end)
+    define('set.first(set)')                            :(set.first)
 
-*	Return the member in set corresponding to _i_, where _i_
-*	is in the range 1 ... size(set), and corresponds to the i-th
-*	entry added to the set.
+*   Returns first element in _set_.
+
+set.first
+
+    set.first = set.key(set)[1]                         :(return)
+
+set.first.end
+
+    define('set.get(set,i)')                            :(set.get.end)
+
+*   Return the member in set corresponding to _i_, where _i_
+*   is in the range 1 ... size(set), and corresponds to the i-th
+*   entry added to the set.
 
 set.get
 
-	set.get = set.key(set)[i]			:(return)
+    set.get = set.key(set)[i]           :(return)
 
 set.get.end
 
-        define('set.integers(n)i')                      :(set.integers.end)
+    define('set.integers(n)i')                      :(set.integers.end)
 
-*       Return set containing integers 1 .. _n_
+*   Return set containing integers 1 .. _n_
 
 set.integers
 
-        set.integers = set.new(n)
-        i = 0
+    set.integers = set.new(n)
+    i = 0
 
 set.integers.next
 
-        gt(i = i + 1,n)                                 :s(return)
-        set.add(set.integers,i)                         :(set.integers.next)
+    gt(i = i + 1,n)                                 :s(return)
+    set.add(set.integers,i)                         :(set.integers.next)
 
 set.integers.end
 
-        define('set.intersection(a,b)elem')             :(set.intersection.end)
+    define('set.intersection(a,b)elem')             :(set.intersection.end)
 
-*       Returns intersection of sets _a_ and _b_.
+*   Returns intersection of sets _a_ and _b_.
 
 set.intersection
 
-        set.intersection = a @ 'set.in(=a,b)'           :(return)
+    set.intersection = a @ 'set.in(=a,b)'           :(return)
 
 set.intersection.end
 
-        define('set.less(set,elem)index,key')           :(set.less.end)
+    define('set.last(set)')                            :(set.last)
 
-*       Remove _elem_ from set if it is in the set,
-*       otherwise do nothing.
+*   Returns last element in _set_.
+
+set.last
+
+    set.last = set.key(set)[1]                         :(return)
+
+set.last.end
+
+    define('set.less(set,elem)index,key')           :(set.less.end)
+
+*   Remove _elem_ from set if it is in the set,
+*   otherwise do nothing.
 
 set.less
 
-*       Do nothing if element not in set.
+*   Do nothing if element not in set.
 
-        ident(set.key(set)[elem])                       :s(return)
+    ident(set.key(set)[elem])                       :s(return)
 
-*       Here to remove element from set.
+*   Here to remove element from set.
 
-        index = set.key(set)[elem]
-        set.index(set)[index] =
-        set.index(set)[max] = elem
-        set.size(set) = set.size(set) - 1               :(return)
+    index = set.key(set)[elem]
+    set.index(set)[index] =
+    set.index(set)[max] = elem
+    set.size(set) = set.size(set) - 1               :(return)
 
 set.less.end
 *
-        define('set.in(x,set)')                         :(set.in.end)
+    define('set.in(x,set)')                         :(set.in.end)
 
-*       Returns _true_ iff _x_ is element of set _set_.
+*   Returns _true_ iff _x_ is element of set _set_.
 
 set.in
 
-        assert.dt(set,'set')
-        set.in = (differ(set.key(set)[elem]) true, false) :(return)
+    assert.dt(set,'set')
+    set.in = (differ(set.key(set)[elem]) true, false) :(return)
 
 set.in.end
 
-        define('set.new(init)n')                        :(set.new.end)
+    define('set.new(init)n')                        :(set.new.end)
 
-*       data('set(set.index,set.key,set.size,set.max,set.next,set.this)')
+*   data('set(set.index,set.key,set.size,set.max,set.next,set.this)')
 
-*       Create a new set.
+*   Create a new set.
 
-*       If _init_ is null, use a default value for the table.
-*       If _init_ is an integer, use the value for the initial size of the table.
-*       If _init_ is a string then treat it as list of initial elements, with their
-*       values separated by spaces.
+*   If _init_ is null, use a default value for the table.
+*   If _init_ is an integer, use the value for the initial size of the table.
+*   If _init_ is a string then treat it as list of initial elements, with their
+*   values separated by spaces.
 
 set.new
-        out('set.new init',init)
-        ident(init)                                     :s(set.new.int)
-        n = convert(init,'integer')                     :s(set.new.int)
-        set.new = set('set',table(n),table(n))
-        out('set.new',init)
-        init = init ' '
+    out('set.new init',init)
+    ident(init)                                     :s(set.new.int)
+    n = convert(init,'integer')                     :s(set.new.int)
+    set.new = set('set',table(n),table(n))
+    out('set.new',init)
+    init = init ' '
 
 set.new.init
 
-        init break(' ') . element ' ' =                 :f(return)
-        set.add(set.new,element)                        :(set.new.init)
+    init break(' ') . element ' ' =                 :f(return)
+    set.add(set.new,element)                        :(set.new.init)
 
 set.new.int
 
-        n = (ident(init) setl4.default.size,convert(init,'integer'))
-        out('set.new.init n',n)
-        set.new = set(table(n),table(n))                :(return)
+    n = (ident(init) setl4.default.size,convert(init,'integer'))
+    out('set.new.init n',n)
+    set.new = set(table(n),table(n))                :(return)
 
 set.new.end
 
-        define('set.subset(a,b)member')                 :(set.subset.end)
+    define('set.subset(a,b)member')                 :(set.subset.end)
 
-*       Tests if _b_ is a subset of _a_.
+*   Tests if _b_ is a subset of _a_.
 
 set.subset
 
-        set.subset = false
-        gt(#b,#a)                                       :s(return)
-        loop(b)
+    set.subset = false
+    gt(#b,#a)                                       :s(return)
+    loop(b)
 
 set.subset.next
 
-        member = set.next(b)                            :f(set.subset.done)
-        set.in(member,a)                                :s(set.subset.next)f(return)
+    member = set.next(b)                            :f(set.subset.done)
+    set.in(member,a)                                :s(set.subset.next)f(return)
 
 set.subset.done
 
-        set.subset = true                               :(return)
+    set.subset = true                               :(return)
 
 set.subset.end
 
-        define('set.union(a,b)elem')                    :(set.union.end)
+    define('set.union(a,b)elem')                    :(set.union.end)
 
-*       Returns union of sets _a_ and _b_.
+*   Returns union of sets _a_ and _b_.
 
 set.union
 
-*       Arrange so set a is the larger set.
+*   Arrange so set a is the larger set.
 
-        ge(#a,#b)                                       :s(set.union.a)
-        set.union = a
-        a = b
-        b = set.union
+    ge(#a,#b)                                       :s(set.union.a)
+    set.union = a
+    a = b
+    b = set.union
 
 set.union.a
 
-*       Make copy of a by making copy of a's table.
+*   Make copy of a by making copy of a's table.
 
-        set.union = set.new(#a)
-        set.table(set.union) = copy(set.table(a))
+    set.union = set.new(#a)
+    set.table(set.union) = copy(set.table(a))
 
-        loop(b)
+    loop(b)
 
 set.union.b
 
-        elem = set.next(b)                              :f(return)
-        set.add(set.union,elem)                         :(set.union.b)
+    elem = set.next(b)                              :f(return)
+    set.add(set.union,elem)                         :(set.union.b)
 
 set.union.end
 
-        define('show(v,lvl)i,ent,type,line,hdr')        :(show.end)
+    define('show(v,lvl)i,ent,type,line,hdr')        :(show.end)
 
-*       Show the value of expression _v_.
-*       _lev_ is non-zero when called to list member or element
-*       of a compound object.
+*   Show the value of expression _v_.
+*   _lev_ is non-zero when called to list member or element
+*   of a compound object.
 
 *SHOW*
 show
-        typ = datatype(v)
-                                                        :($('show.' typ))
+    typ = datatype(v)
+                                                    :($('show.' typ))
 
 show.array
 
-        proto = prototype(ara)
-        proto break(',')                                :s(show.array.2)
+    proto = prototype(ara)
+    proto break(',')                                :s(show.array.2)
 
-*       Here for one dimensional array.
+*   Here for one dimensional array.
 
 show.array.1
-        first = ara[add1(.i)]                           :f(show.array.done)
-        out(lpad(i,3) tab first)                        :(show.array.1)
+    first = ara[add1(.i)]                           :f(show.array.done)
+    out(lpad(i,3) tab first)                        :(show.array.1)
 
 show.array.2
-        first = ara[add1(.i),1]                         :f(show.array.done)
-        out(lpad(i,3) tab show(first) tab show(ara[i,2])) :(show.array.2)
+    first = ara[add1(.i),1]                         :f(show.array.done)
+    out(lpad(i,3) tab show(first) tab show(ara[i,2])) :(show.array.2)
 
 show.entry
 
-        show = show ' ' show(key(v))  ':' show(value(v)) ' ' :(show.done)
+    show = show ' ' show(key(v))  ':' show(value(v)) ' ' :(show.done)
 
 show.int
 
-        show = 'integers(' int.low(v) '..' int.high(v) ') ' :(show.done)
+    show = 'integers(' int.low(v) '..' int.high(v) ') ' :(show.done)
 
 show.integer
 
-        show = v                                        :(show.done)
+    show = v                                        :(show.done)
 
 show.map
 
-*	Call _rank_ so entries listed in rank order.
+*   Call _rank_ so entries listed in rank order.
 
-	map = rank(map)
-        loop(v)
-        show = ' {'
+    map = rank(map)
+    loop(v)
+    show = ' {'
 
 show.map.next
 
-        member = next(v)                                :f(show.map.done)
-        show = show ' ' show(member,1)
-        lt(#show,100)                                   :s(show.map.next)
-        output = show ' '
-        show =                                          :(show.map.next)
+    member = next(v)                                :f(show.map.done)
+    show = show ' ' show(member,1)
+    lt(#show,100)                                   :s(show.map.next)
+    output = show ' '
+    show =                                          :(show.map.next)
 
 show.map.done
 
-        show = show ' }'
-                                                        :(show.done)
+    show = show ' }'
+                                                    :(show.done)
 
 show.pair
 
-        show = '{' lineid(num(pair)) ',' "'"
+    show = '{' lineid(num(pair)) ',' "'"
 .                       replace(line(pair),' ','.') "'" '}' :(show.done)
 
 show.seq
 
-        loop(v)
-        show = ' ['
+    loop(v)
+    show = ' ['
 
 show.seq.next
 
-        member = next(v)                                :f(show.seq.done)
-        show = (ident(show) '[ ', show ' ') show(member,1)
-        lt(#show,100)                                   :s(show.seq.next)
-        output = show ' '
-        show =                                          :(show.seq.next)
+    member = next(v)                                :f(show.seq.done)
+    show = (ident(show) '[ ', show ' ') show(member,1)
+    lt(#show,100)                                   :s(show.seq.next)
+    output = show ' '
+    show =                                          :(show.seq.next)
 
 show.seq.done
 
-        show = show ' ]'                                :(show.done)
+    show = show ' ]'                                :(show.done)
 
 show.set
 
-*	Call _rank_ so entries listed in rank order.
+*   Call _rank_ so entries listed in rank order.
 
-	set = rank(set)
-        show =  ' {'
-        loop(v)
+    set = rank(set)
+    show =  ' {'
+    loop(v)
 
 show.set.next
 
-        member = next(v)                                :f(show.set.done)
+    member = next(v)                                :f(show.set.done)
 
-        show = (ident(show,'{') '{ ', show ' ') show(member,1)
-*       show = show ' '  show(member,1)
-        lt(#show,100)                                   :s(show.set.next)
-        output = show
-        show =                                          :(show.set.next)
+    show = (ident(show,'{') '{ ', show ' ') show(member,1)
+*   show = show ' '  show(member,1)
+    lt(#show,100)                                   :s(show.set.next)
+    output = show
+    show =                                          :(show.set.next)
 
 show.set.done
 
-        show = show ' }'
-                                                        :(show.done)
+    show = show ' }'
+                                                    :(show.done)
 show.str
 
-        show = show.quote(str.text(set))                :(show.done)
+    show = show.quote(str.text(set))                :(show.done)
 
 show.string
 
-*       Don't quote string that is an integer.
+*   Don't quote string that is an integer.
 
-        show = integer(v) v                             :s(show.done)
+    show = integer(v) v                             :s(show.done)
 
-        show = show.quote(v)                            :(show.done)
+    show = show.quote(v)                            :(show.done)
 
 
 show.table
 
-        t = convert(v,'array')
+    t = convert(v,'array')
 
 show.table.next
 
-        key = t[i = i + 1,1]                            :f(show.done)
-        value = t[i,2]
+    key = t[i = i + 1,1]                            :f(show.done)
+    value = t[i,2]
 
-        output = tab show(key)    ' -> ' show(value)
-                                                        :(show.table.next)
+    output = tab show(key)    ' -> ' show(value)
+                                                    :(show.table.next)
 show.string.quote
 
-        show = '"'  v '"'                               :(show.done)
+    show = '"'  v '"'                               :(show.done)
 
 show.done
 
-        output = eq(lvl) show
-                                                        :(return)
+    output = eq(lvl) show
+                                                    :(return)
 
 show.end
 
-        define('show.line(line)')                       :(show.line.end)
+    define('show.line(line)')                       :(show.line.end)
 
-*       Show a line with spaces replaced by '.'
+*   Show a line with spaces replaced by '.'
 
 *SHOW.LINE*
 show.line
 
-        show.line = replace(line,' ','.')               :(return)
+    show.line = replace(line,' ','.')               :(return)
 
 show.line.end
 
-        define('show.lines(lines,title)i,line,titled')  :(show.lines.end)
+    define('show.lines(lines,title)i,line,titled')  :(show.lines.end)
 
-*       Show the lines that are not empty in an array of lines
+*   Show the lines that are not empty in an array of lines
 
 *SHOW.LINES*
 show.lines
 
-        title  = 'lines' (differ(title) ' ' title, '')
-        out(itle)
+    title  = 'lines' (differ(title) ' ' title, '')
+    out(itle)
 
 show.lines.n
 
-        line = lines[add1(.i)]                          :f(return)
-        empty(line)                                     :s(show.lines.n)
-        differ(titled)                                  :s(show.lines.titled)
+    line = lines[add1(.i)]                          :f(return)
+    empty(line)                                     :s(show.lines.n)
+    differ(titled)                                  :s(show.lines.titled)
 
-*       Don not list header unless at least one non-empty line
+*   Don not list header unless at least one non-empty line
 
-        out('    123456789012345')
+    out('    123456789012345')
 
 
-        titled = 1
+    titled = 1
 
 show.lines.titled
 
-        out(lpad(lineid(i),2) ' ' replace(line,' ','.')) :(show.lines.n)
+    out(lpad(lineid(i),2) ' ' replace(line,' ','.')) :(show.lines.n)
 
 show.lines.end
 
-        define('show.quote(str)')                       :(show.quote.end)
+    define('show.quote(str)')                       :(show.quote.end)
 
-*       Show string _str_ enclosed in quotes
+*   Show string _str_ enclosed in quotes
 
 show.quote
 
-        str break('"')                                  :s(show.quote.double)
+    str break('"')                                  :s(show.quote.double)
 
-        show.quote = '"' str '"'                        :(return)
+    show.quote = '"' str '"'                        :(return)
 
 show.quote.double
 
-        show.quote = "'" str "'"                        :(return)
+    show.quote = "'" str "'"                        :(return)
 
 show.quote.end
 
-        define('show.words(words)i,pos')                :(show.words.end)
+    define('show.words(words)i,pos')                :(show.words.end)
 
-*       Show results of words() call.
+*   Show results of words() call.
 
 show.words
 
-        pos = words[add1(.i),1]                         :f(return)
-        out('words ' lpad(pos,2) ' ' words[i,2])        :(show.words)
+    pos = words[add1(.i),1]                         :f(return)
+    out('words ' lpad(pos,2) ' ' words[i,2])        :(show.words)
 
 show.words.end
 
 
-*       Strings
-*       -------
+*   Strings
+*   -------
 
-*       SETL4 provides additional operations, based on set theory,
-*        on strings in the form of "str's".
+*   SETL4 provides additional operations, based on set theory,
+*    on strings in the form of "str's".
 
-        define('str.append(str,w,ch)')                  :(str.append.end)
+    define('str.append(str,w,ch)')                  :(str.append.end)
 
-*       _str.append_ appends _ch_, or ' ' if _ch_ is null, to _str_
-*       and then appends _w_.
+*   _str.append_ appends _ch_, or ' ' if _ch_ is null, to _str_
+*   and then appends _w_.
 
 str.append
 
-        str.append = str (ident(str) w, str (ident(ch) ' ' , ch) w):(return)
+    str.append = str (ident(str) w, str (ident(ch) ' ' , ch) w):(return)
 
 str.append.end
 
-	setl4.ascii.initialized = false
+    setl4.ascii.initialized = false
 
-        define('str.ascii(line)c,n,name,nul,num,pos')   :(str.ascii.end)
+    define('str.ascii(line)c,n,name,nul,num,pos')   :(str.ascii.end)
 
-*       Return the text of line with every str.ascii character identified.
+*   Return the text of line with every str.ascii character identified.
 
 str.ascii
 
-	true(setl4.ascii.initialized)			:s(str.ascii.initialized)
+    true(setl4.ascii.initialized)           :s(str.ascii.initialized)
 
-*	Here to initialize the needed maps.
-	
-	setl4.ascii.init()
-	setl4.ascii.initialized = true;
+*   Here to initialize the needed maps.
+    
+    setl4.ascii.init()
+    setl4.ascii.initialized = true;
 
 str.ascii.initialized
 
-        nul = substr(&alphabet,1,1)
+    nul = substr(&alphabet,1,1)
 
 str.ascii.next
 
-*       Add space after previous character if result not null.
+*   Add space after previous character if result not null.
 
-        str.ascii = differ(str.ascii) str.ascii ' '
-        c = substr(line,1,1)                            :f(str.ascii.done)
-        ident(c,nul)                                    :s(str.ascii.null)
-        line any('0123456789')                          :s(str.ascii.integer)
-        line any(&lcase &ucase)                         :s(str.ascii.letter)
-        line ' '                                        :s(str.ascii.space)
+    str.ascii = differ(str.ascii) str.ascii ' '
+    c = substr(line,1,1)                            :f(str.ascii.done)
+    ident(c,nul)                                    :s(str.ascii.null)
+    line any('0123456789')                          :s(str.ascii.integer)
+    line any(&lcase &ucase)                         :s(str.ascii.letter)
+    line ' '                                        :s(str.ascii.space)
 
-*       Check for control character (code <=26)
+*   Check for control character (code <=26)
 
-        &alphabet break(c) . pos                        :f(str.ascii.other)
-        pos = size(pos)
-        gt(pos,26)                                      :s(str.ascii.other)
-        str.ascii = str.ascii g.str.ascii.name[c] '(^'
+    &alphabet break(c) . pos                        :f(str.ascii.other)
+    pos = size(pos)
+    gt(pos,26)                                      :s(str.ascii.other)
+    str.ascii = str.ascii g.str.ascii.name[c] '(^'
 .               substr('ABCDEFGHIJKLMNOPQRSTUVWXYZ',pos,1) ')'
-        line len(1) =                                   :(str.ascii.next)
+    line len(1) =                                   :(str.ascii.next)
 
 str.ascii.integer
 
-        line span('0123456789') . text =
-        str.ascii = str.ascii  text                     :(str.ascii.next)
+    line span('0123456789') . text =
+    str.ascii = str.ascii  text                     :(str.ascii.next)
 
 str.ascii.letter
 
-        line span(&lcase &ucase) . text =
-        str.ascii = str.ascii  text                     :(str.ascii.next)
+    line span(&lcase &ucase) . text =
+    str.ascii = str.ascii  text                     :(str.ascii.next)
 
 str.ascii.null
 
-        str.ascii = str.ascii 'NUL'                     :(str.ascii.next)
+    str.ascii = str.ascii 'NUL'                     :(str.ascii.next)
 
 str.ascii.other
 
-*       Here if none of the other cases apply, so just list the str.ascii name.
+*   Here if none of the other cases apply, so just list the str.ascii name.
 
-        str.ascii = str.ascii setl4.strl4..str.ascii.name[c]
-        line = substr(line,2)                           :(str.ascii.next)
+    str.ascii = str.ascii setl4.strl4..str.ascii.name[c]
+    line = substr(line,2)                           :(str.ascii.next)
 
 str.ascii.space
 
-        line span(' ') . text =
+    line span(' ') . text =
 
-        str.ascii =  str.ascii 'SPC'
-        str.ascii = gt(size(text),1) str.ascii 'SPC*' size(text)
-        str.ascii = str.ascii
-                                                        :(str.ascii.next)
+    str.ascii =  str.ascii 'SPC'
+    str.ascii = gt(size(text),1) str.ascii 'SPC*' size(text)
+    str.ascii = str.ascii
+                                                    :(str.ascii.next)
 str.ascii.done
 
-        str.ascii = trim(str.ascii)                     :(return)
+    str.ascii = trim(str.ascii)                     :(return)
 
 str.ascii.end
 
-        define('str.ascii.init(init)name,val')          :(str.ascii.init.end)
+    define('str.ascii.init(init)name,val')          :(str.ascii.init.end)
 
-*       Initialize maps for use by _str.ascii_.
-*       Since space (str.ascii 32) prints as space, use the name SPC for 32.
+*   Initialize maps for use by _str.ascii_.
+*   Since space (str.ascii 32) prints as space, use the name SPC for 32.
 
 str.ascii.init
 
 
-        str.ascii.init = setl4.str.map(
+    str.ascii.init = setl4.str.map(
 .       '0:NUL 16:DLE 32:SPC 48:0 64:@ 80:P  96:` 112:p '
 .       '1:SOH 17:DC1 33:!   49:1 65:A 81:Q  97:a 113:q '
 .       '2:STX 18:DC2 34:"   50:2 66:B 82:R  98:b 114:r '
@@ -1297,413 +1334,413 @@ str.ascii.init
 .       '14:SO 30:RS  46:.   62:> 78:N 94:^ 110:n 126:~ '
 .       '15:SI 31:US  47:/   63:? 79:O 95:_ 111:o 127:DEL ')
 
-        setl4.strl4..str.ascii.name = setl4.str.map(setl4.strl4.default.size)
-        setl4.strl4..str.ascii.val = setl4.str.map(setl4.strl4.default.size)
+    setl4.strl4..str.ascii.name = setl4.str.map(setl4.strl4.default.size)
+    setl4.strl4..str.ascii.val = setl4.str.map(setl4.strl4.default.size)
 
 
-        loop(str.ascii.init)
+    loop(str.ascii.init)
 
 str.ascii.init.next
 
-        ent = setl4.str.next(str.ascii.init)                  :(str.ascii.init.finis)
-*       Correct entry for 0 to be NUL, the NUL character
-        setl4.strl4..str.ascii.name[substr(&alphabet,+v + 1,1)] = name
-        setl4.strl4..str.ascii.val[name] = +val                    :(str.ascii.init.next)
+    ent = setl4.str.next(str.ascii.init)                  :(str.ascii.init.finis)
+*   Correct entry for 0 to be NUL, the NUL character
+    setl4.strl4..str.ascii.name[substr(&alphabet,+v + 1,1)] = name
+    setl4.strl4..str.ascii.val[name] = +val                    :(str.ascii.init.next)
 
 
 
-        setl4.strl4..str.ascii.name[] = 'NUL'
-        setl4.strl4..str.ascii.val['NUL'] = 0
-        setl4.strl4..str.ascii.name[' '] = 'SPC'
-        setl4.strl4..str.ascii.val['SPC'] = 32                     :(return)
+    setl4.strl4..str.ascii.name[] = 'NUL'
+    setl4.strl4..str.ascii.val['NUL'] = 0
+    setl4.strl4..str.ascii.name[' '] = 'SPC'
+    setl4.strl4..str.ascii.val['SPC'] = 32                     :(return)
 
 str.ascii.init.end
 
-        define('str.datename(date)s')                   :(str.datename.end)
+    define('str.datename(date)s')                   :(str.datename.end)
 
-*       Convert date to form with no spaces, just dashes, to be
-*       suitable for use as part of a file name.
+*   Convert date to form with no spaces, just dashes, to be
+*   suitable for use as part of a file name.
 
 str.datename
 
-        str.datename = replace(date,' :/','---')
-        str.datename = substr(str.datename,12,8) '-' substr(str.datename,1,10)
-                                                        :(return)
+    str.datename = replace(date,' :/','---')
+    str.datename = substr(str.datename,12,8) '-' substr(str.datename,1,10)
+                                                    :(return)
 str.datename.end
 
-        define('str.frequency(str)')                    :(str.frequency.end)
+    define('str.frequency(str)')                    :(str.frequency.end)
 
-*       Return map from the characters in a str to the number of times
-*       each occurs in the str.
+*   Return map from the characters in a str to the number of times
+*   each occurs in the str.
 
 str.frequency
 
-        str.frequency = map.new(size(str))
+    str.frequency = map.new(size(str))
 
 str.frequency.next
 
-        str len(1) . c =                                :f(str.frequency.end)
-        setl4.str.put(str.frequency,c,setl4.str.get(str.frequency,c) + 1)   :(str.frequency.next)
+    str len(1) . c =                                :f(str.frequency.end)
+    setl4.str.put(str.frequency,c,setl4.str.get(str.frequency,c) + 1)   :(str.frequency.next)
 
 str.frequency.end
 
-        define('str.less(str,sub)before,after')         :(str.less.end)
+    define('str.less(str,sub)before,after')         :(str.less.end)
 
 **      Less removes the first instance of each character in SUB from *str*,
 **      where SUB is a substr of *str*.
 
 str.less
-        ident(str)                                      :s(return)
-        str.less = str
+    ident(str)                                      :s(return)
+    str.less = str
 
 str.less.ch
-        sub len(1) . ch =                               :f(return)
-        str.less break(ch) . before  ch rem . after
-        str.less = before after                         :(str.less.ch)
+    sub len(1) . ch =                               :f(return)
+    str.less break(ch) . before  ch rem . after
+    str.less = before after                         :(str.less.ch)
 
 str.less.end
 
-        define('str.lower(s)')                          :(str.lower.end)
+    define('str.lower(s)')                          :(str.lower.end)
 
-*       Convert argument to lower case.
+*   Convert argument to lower case.
 
 str.lower
 
-        str.lower = replace(s,&ucase,&lcase)            :(return)
+    str.lower = replace(s,&ucase,&lcase)            :(return)
 
 str.lower.end
 
-        define('str.new(init)')                         :(str.new.end)
+    define('str.new(init)')                         :(str.new.end)
 
-*       Create new _str_ from str _init_.
+*   Create new _str_ from str _init_.
 
 str.new
 
-        str.new = setl4.str.new(1)
-        setl4.str.text(str.new) = init                        :(return)
+    str.new = setl4.str.new(1)
+    setl4.str.text(str.new) = init                        :(return)
 
 str.new.end
 
-        define('str.out(text1,text2,text3)type1,type2')     :(str.out.end)
+    define('str.out(text1,text2,text3)type1,type2')     :(str.out.end)
 
-*       Output a line conisting of TEXT1, TEXT2 enclosed
-*       in brackets, followed by TEXT3.
+*   Output a line conisting of TEXT1, TEXT2 enclosed
+*   in brackets, followed by TEXT3.
 
 str.out
-        output = text1 (differ(text2) '[' text2 ']', '')
+    output = text1 (differ(text2) '[' text2 ']', '')
 .               (differ(text3) text3, ''):(return)
 
-        differ(text2)                                   :s(str.out.text2)
+    differ(text2)                                   :s(str.out.text2)
 
-*       Here if just text1.
+*   Here if just text1.
 
-        output = text1                                  :(return)
+    output = text1                                  :(return)
 
 str.out.text2
 
-        type2 = dt(text2)
-        type3 = dt(text3)
-*       output = 'dt(type2) ' dt(type2)
-*       output = 'dt(type3) ' dt(type3)
-        ident(datatype(text2),'string')                 :s(str.out.2)
+    type2 = dt(text2)
+    type3 = dt(text3)
+*   output = 'dt(type2) ' dt(type2)
+*   output = 'dt(type3) ' dt(type3)
+    ident(datatype(text2),'string')                 :s(str.out.2)
 *.                                                      :(error)
 
 str.out.2
 
-        ident(type3,'integer')                          :s(str.out.3)
-        ident(type3,'string')                           :s(out.3)
+    ident(type3,'integer')                          :s(str.out.3)
+    ident(type3,'string')                           :s(out.3)
 
 str.out.3
-        type.ex(text3,'string')                         :s(str.out.ok)
-        type.ex(text3,'integer')                        :s(str.out.ok)
-                                                        :(setl4.strl4.quit)
+    type.ex(text3,'string')                         :s(str.out.ok)
+    type.ex(text3,'integer')                        :s(str.out.ok)
+                                                    :(setl4.strl4.quit)
 str.out.ok
 
-        output = text1 ' [' text2 ']' text3     :(return)
+    output = text1 ' [' text2 ']' text3     :(return)
 
 str.out.end
 
-        define('str.prefix(str,pre)word')               :(str.prefix.end)
+    define('str.prefix(str,pre)word')               :(str.prefix.end)
 
-*       Prefix takes a list of space-separated words str and str.prefixes each
-*       with the str pre.
+*   Prefix takes a list of space-separated words str and str.prefixes each
+*   with the str pre.
 
 str.prefix
 
-        str = str ' ';* so each word followed by space
+    str = str ' ';* so each word followed by space
 
 str.prefix.1
 
-        str break(' ') . word span(' ')  =              :f(return)
-        add1(.str.prefixcount)
-        str.prefix = append(str.prefix, pre word,'A')   :(str.prefix.1)
+    str break(' ') . word span(' ')  =              :f(return)
+    add1(.str.prefixcount)
+    str.prefix = append(str.prefix, pre word,'A')   :(str.prefix.1)
 
 str.prefix.end
 
-*       Lines
-*       -----
+*   Lines
+*   -----
 
-*       Lines can be just strs or, in some cases, a line is represented by a pair:
+*   Lines can be just strs or, in some cases, a line is represented by a pair:
 
-        data('line(mark,text)')
+    data('line(mark,text)')
 
-*       where
+*   where
 
-*               _mark_ is defined by the value returned by an instance
-*               of the _eval_ function ...
+*           _mark_ is defined by the value returned by an instance
+*           of the _eval_ function ...
 
-*               _text_ is the text of the line.
+*           _text_ is the text of the line.
 
-*       For example, the _reader_ function reads a file and returns a
-*       sequence of _lines_.
+*   For example, the _reader_ function reads a file and returns a
+*   sequence of _lines_.
 
-        define('str.reader(filename,expr)line,mark')    :(str.reader.end)
+    define('str.reader(filename,expr)line,mark')    :(str.reader.end)
 
-*       Return a sequence of the lines in the file specified by _filename_.
-*       If _expr_ is not null, then _eval_ is called just after each
-*       line is read, with the variable _pair_ setl4.str to the associated pair.
-*       If _eval_ fails the line is skipped.  Otherwise returns a new pair
-*       to be entered in the input seq.
+*   Return a sequence of the lines in the file specified by _filename_.
+*   If _expr_ is not null, then _eval_ is called just after each
+*   line is read, with the variable _pair_ setl4.str to the associated pair.
+*   If _eval_ fails the line is skipped.  Otherwise returns a new pair
+*   to be entered in the input seq.
 
 str.reader
 
-        differ(filename) input(.file,g.channel.temp,filename):s(str.reader.opened)
-        out('unable to open str.reader file ' filename '.') :(freturn)
+    differ(filename) input(.file,g.channel.temp,filename):s(str.reader.opened)
+    out('unable to open str.reader file ' filename '.') :(freturn)
 
 str.reader.opened
 
-        str.reader = map(1024)
+    str.reader = map(1024)
 
 str.reader.next
 
-        setl4.str.add(map, (ident(filename) input, file)) :f(str.reader.eof)s(str.reader.next)
+    setl4.str.add(map, (ident(filename) input, file)) :f(str.reader.eof)s(str.reader.next)
 
 str.reader.eof
 
-*       Here at end of file; close temporary file if one was needed.
+*   Here at end of file; close temporary file if one was needed.
 
-        differ(filename) endfile(g.channel.temp)        :(return)
+    differ(filename) endfile(g.channel.temp)        :(return)
 
 str.reader.end
 
-        define('str.reader.str(str,delim)line')      :(str.reader.str.end)
+    define('str.reader.str(str,delim)line')      :(str.reader.str.end)
 
-*       Returns a sequence of the lines in _str_,
-*       where the delimiter character _delim_ is used to mark
-*       the end of a line. One intended use of _str.reader.str_
-*       is to assist in the construction of test programs.
+*   Returns a sequence of the lines in _str_,
+*   where the delimiter character _delim_ is used to mark
+*   the end of a line. One intended use of _str.reader.str_
+*   is to assist in the construction of test programs.
 
 str.reader.str
 
-        delim = ident(delim) '/'
-        str.reader.str = setl4.str.seq()
+    delim = ident(delim) '/'
+    str.reader.str = setl4.str.seq()
 
 str.reader.str.next
 
-        str break(delim) . line delim =                 :f(return)
-        add(str.reader.str,line)                     :(str.reader.str.next)
+    str break(delim) . line delim =                 :f(return)
+    add(str.reader.str,line)                     :(str.reader.str.next)
 
 str.reader.str.end
 
-	define('str.set(str)')				:(str.set.end)
+    define('str.set(str)')              :(str.set.end)
 
-*	Returns setl4.str of characters in str _str_.
+*   Returns setl4.str of characters in str _str_.
 
 str.set
 
-	str.str = setl4.str(size(str))
-	loop(str)
+    str.str = setl4.str(size(str))
+    loop(str)
 
 str.set.next
 
-	next(str.set)					:f(return)
-	setl4.str.add(str.set,this(set))		:(str.set.next)
+    next(str.set)                   :f(return)
+    setl4.str.add(str.set,this(set))        :(str.set.next)
 
 str.set.end
 
-        define('str.slice(str,first,last)')             :(str.slice.end)
+    define('str.slice(str,first,last)')             :(str.slice.end)
 
 str.slice
 
-        str.slice = substr(str,first,last)              :(return)
+    str.slice = substr(str,first,last)              :(return)
 
 str.slice.end
 
-        define('str.spaces(line)c')                     :(str.spaces.end)
+    define('str.spaces(line)c')                     :(str.spaces.end)
 
-*       Returns str which has ' ' in position _i_ if the _i_-th
-*       characer in _str_ is a space (' '), or '*' otherwise.
+*   Returns str which has ' ' in position _i_ if the _i_-th
+*   characer in _str_ is a space (' '), or '*' otherwise.
 
 str.spaces
 
-        line len(1) . c                                 :f(return)
-        str.spaces = str.spaces (ident(c,' ') ' ', '*') :(str.spaces)
+    line len(1) . c                                 :f(return)
+    str.spaces = str.spaces (ident(c,' ') ' ', '*') :(str.spaces)
 
 str.spaces.end
 
-*       Tokens: Lexical Scanning
-*       ------------------------
+*   Tokens: Lexical Scanning
+*   ------------------------
 
 
-*       A token is represented as an instance of the datatype _token_ as follows:
+*   A token is represented as an instance of the datatype _token_ as follows:
 
-        data('token(lineno,ndx,type,text)')
+    data('token(lineno,ndx,type,text)')
 
-*       where:
-*               _lineno_        is the line number within the file;
-*               _ndx_           is the index of the first character of the
-*                               token in the line;
-*               _type_          is the token's type, as described below; and
-*               _text_          is the text of the token.
+*   where:
+*           _lineno_        is the line number within the file;
+*           _ndx_           is the index of the first character of the
+*                           token in the line;
+*           _type_          is the token's type, as described below; and
+*           _text_          is the text of the token.
 
-*       The type is represented by a single character, as follows:
+*   The type is represented by a single character, as follows:
 
-*               'c'             comment, indicated by asterisk (*) in the first column.
-*                               The text consists of the entire line.
+*           'c'             comment, indicated by asterisk (*) in the first column.
+*                           The text consists of the entire line.
 
-*               'i'             integer, consisting of one or more digits ('0123456789')
+*           'i'             integer, consisting of one or more digits ('0123456789')
 
-*               'l'             left opener, one of '(<[{'
+*           'l'             left opener, one of '(<[{'
 
-*               'p'             punctation, one of '.;,?!', or single quote ('),
-*                               or double quote ("),
+*           'p'             punctation, one of '.;,?!', or single quote ('),
+*                           or double quote ("),
 
-*               'o'             other printable character, one of '~@#$%^&*_-+=`'.
+*           'o'             other printable character, one of '~@#$%^&*_-+=`'.
 
-*                'q'            quoted str, starting witn '"', and continuing
-*                               to the next instance of the opening quote character.
+*            'q'            quoted str, starting witn '"', and continuing
+*                           to the next instance of the opening quote character.
 
-*               'r'             right closer, one of ')>]}'
+*           'r'             right closer, one of ')>]}'
 
-*               's'             space, consistine of one or more spaces (spaces)
+*           's'             space, consistine of one or more spaces (spaces)
 
-*               't'             tab character
+*           't'             tab character
 
-*               'u'             unprintable character, for example control-k
+*           'u'             unprintable character, for example control-k
 
-*               'w'             word, consisting of one of more letters in
-*                               upper or lower case or "'" or "_".
+*           'w'             word, consisting of one of more letters in
+*                           upper or lower case or "'" or "_".
 
-*       The longest possible str meeting the rules is used when building a token.
-*       For example, 'abc' is just the word 'abc', not 'a' followed by 'bc', and so forth.
+*   The longest possible str meeting the rules is used when building a token.
+*   For example, 'abc' is just the word 'abc', not 'a' followed by 'bc', and so forth.
 
-*       It is recommended that the tab character NOT be used as an abbreviation for
-*       one or more spaces in the input file. If tabs are used, then _pos_ is ill-defined.
-*       If tabs are not used, then _pos_ indicates the true position in the line of
-*       the first character of the token, and so error messages and references to the
-*       token will be exact.  For example, _pos_ could be used to indicate where to give
-*       emphasis to a token by underlining it, or enclosing it in '_' to generate
-*       markdown format, and so forth.
+*   It is recommended that the tab character NOT be used as an abbreviation for
+*   one or more spaces in the input file. If tabs are used, then _pos_ is ill-defined.
+*   If tabs are not used, then _pos_ indicates the true position in the line of
+*   the first character of the token, and so error messages and references to the
+*   token will be exact.  For example, _pos_ could be used to indicate where to give
+*   emphasis to a token by underlining it, or enclosing it in '_' to generate
+*   markdown format, and so forth.
 
-        define('str.tokens(line)type,pos,text,lineno')  :(str.tokens.end)
+    define('str.tokens(line)type,pos,text,lineno')  :(str.tokens.end)
 
-*       Str.tokens scans _line_ and returns a table of the str.tokens in the line.
-*       The table has keys from 1..n, where _n_ is the number of str.tokens found.
+*   Str.tokens scans _line_ and returns a table of the str.tokens in the line.
+*   The table has keys from 1..n, where _n_ is the number of str.tokens found.
 
-*       This function is an instance of what is called a lexiical scanner, or tokenizer,
-*       which is the first stage in a programming language compiler, or for any program
-*       that processes text files with a specified structure.
+*   This function is an instance of what is called a lexiical scanner, or tokenizer,
+*   which is the first stage in a programming language compiler, or for any program
+*   that processes text files with a specified structure.
 
 str.tokens
 
-        str.tokens = setl4.str.seq()
-        line '*'                                        :f(str.tokens.next)
-        type = 'c'
-        text = line
-        line =                                          :(str.tokens.new)
+    str.tokens = setl4.str.seq()
+    line '*'                                        :f(str.tokens.next)
+    type = 'c'
+    text = line
+    line =                                          :(str.tokens.new)
 
 str.tokens.next
 
-        line ' '                                        :s(str.tokens.space)
-        line any('0123456789')                          :s(str.tokens.integer)
-        line any('(<[{')                                :s(str.tokens.left)
-        line any('.;,?!')                               :s(str.tokens.punctuation)
-        line '"'                                        :s(str.tokens.quote)
-        line any('~@#$%^&*_-+=')                                        :s(str.tokens.other)
-        line any(')>]}')                                :s(str.tokens.right)
-        line char(9)                                    :s(str.tokens.tab)
-        line any(&lcase &ucase)                         :s(str.tokens.word)
+    line ' '                                        :s(str.tokens.space)
+    line any('0123456789')                          :s(str.tokens.integer)
+    line any('(<[{')                                :s(str.tokens.left)
+    line any('.;,?!')                               :s(str.tokens.punctuation)
+    line '"'                                        :s(str.tokens.quote)
+    line any('~@#$%^&*_-+=')                                        :s(str.tokens.other)
+    line any(')>]}')                                :s(str.tokens.right)
+    line char(9)                                    :s(str.tokens.tab)
+    line any(&lcase &ucase)                         :s(str.tokens.word)
 
-*       Here for unprintable
-                                                        :(str.tokens.unprintable)
+*   Here for unprintable
+                                                    :(str.tokens.unprintable)
 
 str.tokens.integer
 
-        type = 'i'
-        line span('0123456789') . text =                :(str.tokens.new)
+    type = 'i'
+    line span('0123456789') . text =                :(str.tokens.new)
 
 str.tokens.punctuation
 
-        type = 'p'                                       :(str.tokens.character)
+    type = 'p'                                       :(str.tokens.character)
 
 str.tokens.other
 
-        type = 'o'                                      :(str.tokens.character)
+    type = 'o'                                      :(str.tokens.character)
 
 *str.tokens.other
 
-        type = 'o'                                      :(str.tokens.character)
+    type = 'o'                                      :(str.tokens.character)
 
 str.tokens.quote
 
-        type = 'q'
-        line '"' break('"') . text '"' =
-        text = '"' text '"'                             :(str.tokens.new)
+    type = 'q'
+    line '"' break('"') . text '"' =
+    text = '"' text '"'                             :(str.tokens.new)
 
 str.tokens.right
 
-        type = 'r'                                      :(str.tokens.character)
+    type = 'r'                                      :(str.tokens.character)
 
 str.tokens.space
 
-        type = 's'
-        line span(' ')  . text =                        :(str.tokens.new)
+    type = 's'
+    line span(' ')  . text =                        :(str.tokens.new)
 
 str.tokens.tab
 
-        type = 't'                                      :(str.tokens.character)
+    type = 't'                                      :(str.tokens.character)
 
 str.tokens.word
 
 *FIX*
-        type = 'w'
-        line span(&ucase &lcase "_" "'") . text =       :(str.tokens.new)
+    type = 'w'
+    line span(&ucase &lcase "_" "'") . text =       :(str.tokens.new)
 
 str.tokens.character
 
-*       Here if token is single character.
+*   Here if token is single character.
 
-        line len(1) . text                              :(str.tokens.new)
+    line len(1) . text                              :(str.tokens.new)
 
 str.tokens.new
 
-        setl4.str.add(str.tokens,token(lineno,pos,type,text)) :(str.tokens.next)
+    setl4.str.add(str.tokens,token(lineno,pos,type,text)) :(str.tokens.next)
 
 str.tokens.end
 
-        define('str.upper(s)')                          :(str.upper.end)
+    define('str.upper(s)')                          :(str.upper.end)
 
-*       Convert argument to upper case.
+*   Convert argument to upper case.
 
 str.upper
 
-        str.upper = replace(s,&lcase,&ucase)            :(return)
+    str.upper = replace(s,&lcase,&ucase)            :(return)
 
 str.upper.end
 
-        define('str.words(line)word')                   :(str.words.end)
+    define('str.words(line)word')                   :(str.words.end)
 
-*       Return sequence of the str.words in line, fail if no str.words.
+*   Return sequence of the str.words in line, fail if no str.words.
 
 str.words
 
-        str.words = map()
-        line =  line ' '
+    str.words = map()
+    line =  line ' '
 
 str.words.next
 
-        line break(' ') . word ' ' =                    :f(return)
-        set.add(str.words,word)                         :(str.words.next)
+    line break(' ') . word ' ' =                    :f(return)
+    set.add(str.words,word)                         :(str.words.next)
 
 str.words.end
 
@@ -1714,83 +1751,83 @@ str.words.end
 
 str.writer
 
-        lines = copy(lines)
-        loop(lines)
+    lines = copy(lines)
+    loop(lines)
 
 str.writer.next
 
-        output = set.next(lines)                :f(return)s(str.writer.next)
+    output = set.next(lines)                :f(return)s(str.writer.next)
 
 str.writer.end
 
-        define('this(set)dt,kind')                      :(this.end)
+    define('this(set)dt,kind')                      :(this.end)
 
-*       Returns value found in most recent call to this.
+*   Returns value found in most recent call to this.
 
 this
 
-        kind = kind(set)
-        output = setl4.kind(kind,'str') "next on str's not yet supported, quitting." :(end)
+    kind = kind(set)
+    output = setl4.kind(kind,'str') "next on str's not yet supported, quitting." :(end)
 
-        this = set.this(set)
+    this = set.this(set)
 
 this.end
 
-        define('visit(set,expr)')                       :(visit.end)
+    define('visit(set,expr)')                       :(visit.end)
 
-*       _Visit_ loops over _set and calls _eval_ with argument
-*       _expr_  for each of its members.
+*   _Visit_ loops over _set and calls _eval_ with argument
+*   _expr_  for each of its members.
 
 visit
 
-        loop(set)
+    loop(set)
 
 visit.next
 
-        next(set)                                       :f(return)
-        eval(expr)                                      :(visit.next)
+    next(set)                                       :f(return)
+    eval(expr)                                      :(visit.next)
 
 visit.end
 
-        define('setl4.and(a,b)')                                :(setl4.and.end)
+    define('setl4.and(a,b)')                                :(setl4.and.end)
 
-*       Returns true iff (if and only if) both arguments are true.
+*   Returns true iff (if and only if) both arguments are true.
 
 setl4.and
 
-*       See if both operands are integers.
+*   See if both operands are integers.
 
-        a = integer(a) +a
-        b = integer(b) +b
-        setl4.and = integer(a) integer(b) (ne(a * b) true, false)    :s(return)
+    a = integer(a) +a
+    b = integer(b) +b
+    setl4.and = integer(a) integer(b) (ne(a * b) true, false)    :s(return)
 
-*       Here where at least one operand for 'and' is not integer, so
-*       use ident/differ to evaluate.
+*   Here where at least one operand for 'and' is not integer, so
+*   use ident/differ to evaluate.
 
-        setl4.and = differ(a) differ(b) true                  :s(return)
-        setl4.and = false                                     :(return)
+    setl4.and = differ(a) differ(b) true                  :s(return)
+    setl4.and = false                                     :(return)
 
 setl4.and.end
 
-        define('setl4.arb(set)n')                        :(setl4.arb.end)
+    define('setl4.arb(set)n')                        :(setl4.arb.end)
 
-*       Returns arbitary (randomly selected) element of _set_.
+*   Returns arbitary (randomly selected) element of _set_.
 
 
 setl4.arb
 
-        setl4.arb = integer(set) setl4.random(+set)      :s(return)
-        setl4.arb = string(set) subset(set,setl4.random(set),1) :s(return)
-        n = random(1,setl4.size(set))
-        setl4.kind(set,'int')                           :s(setl4.arb.int)
-        setl4.kind(set,'map')                           :s(setl4.arb.map)
-        setl4.kind(set,'seq')                           :s(setl4.arb.seq)
-        setl4.kind(set,'set')                           :s(setl4.arb.set)
-        setl4.kind(set,'str')                           :s(setl4.arb.str)
+    setl4.arb = integer(set) setl4.random(+set)      :s(return)
+    setl4.arb = string(set) subset(set,setl4.random(set),1) :s(return)
+    n = random(1,setl4.size(set))
+    setl4.kind(set,'int')                           :s(setl4.arb.int)
+    setl4.kind(set,'map')                           :s(setl4.arb.map)
+    setl4.kind(set,'seq')                           :s(setl4.arb.seq)
+    setl4.kind(set,'set')                           :s(setl4.arb.set)
+    setl4.kind(set,'str')                           :s(setl4.arb.str)
 
 setl4.arb.int
 
-        output = 'setl4.arb not done for int' :(end)
+    output = 'setl4.arb not done for int' :(end)
 
 setl4.arb.map
 
@@ -1802,506 +1839,452 @@ setl4.arb.str
 
 setl4.arb.end
 
-        define('setl4.binary.search(tbl,value)high,low,middle') :(setl4.binary.search.end)
+    define('setl4.binary.search(tbl,value)high,low,middle') :(setl4.binary.search.end)
 
-*       Perform to find element of _set_correspoding to _value) using a binary search.
-*       Based on Go code for binary search: http://rosettacode.org/wiki/Binary_search#Go
+*   Perform to find element of _set_correspoding to _value) using a binary search.
+*   Based on Go code for binary search: http://rosettacode.org/wiki/Binary_search#Go
 
 setl4.binary.search
 
-        output = lt(high,low) 'setl4.binary.search high<low, quitting.' :(end)
-        middle = (low + high) / 2
-        setl4.binary.search = gt(a[middle],value)
+    output = lt(high,low) 'setl4.binary.search high<low, quitting.' :(end)
+    middle = (low + high) / 2
+    setl4.binary.search = gt(a[middle],value)
 .               setl4.binary.search = setl4.binary.search(a,value, low, middle -1) :s(return)
-        setl4.binary.search =  lt(a[middle],value)
+    setl4.binary.search =  lt(a[middle],value)
 .               setl4binarySearch(a,value, middle + 1, high)    :s(return)
-        setl4.binary.search =  middle                  :(return)
+    setl4.binary.search =  middle                  :(return)
 
 setl4.binary.search.end
 
-        define('setl4.concatenate(a,b)')                :(setl4.concatenate.end)
+    define('setl4.concatenate(a,b)')                :(setl4.concatenate.end)
 
-*       Concatenate argument strings.
+*   Concatenate argument strings.
 
 setl4.concatenate
 
-        setl4.concatenate = a b :(return)
+    setl4.concatenate = a b :(return)
 
 setl4.concatenate.end
 
-        define('setl4.eval(set,expr)')                  :(setl4.eval.end)
+    define('setl4.eval(set,expr)')                  :(setl4.eval.end)
 
-*       Evaluate _expr_ with 'this_ set to _set.this(set)_
+*   Evaluate _expr_ with 'this_ set to _set.this(set)_
 
 setl4.eval
 
-        this = set.this(set)
-        setl4.eval = eval(expr)                         :(return)
+    this = set.this(set)
+    setl4.eval = eval(expr)                         :(return)
 
 setl4.eval.end
 
-*       According to Paul Halmos, in his book "Naive Set Theory,"
-*       a major principle of set theory, often referred to by its
-*       German name _Aussonderungsaxiom_, is the Axiom of Specification:
+*   According to Paul Halmos, in his book "Naive Set Theory,"
+*   a major principle of set theory, often referred to by its
+*   German name _Aussonderungsaxiom_, is the Axiom of Specification:
 
-*       To every set _A_ and every condition _S(x)_ there corresponds
-*       a set _B_ whose elements are exactly those elements _x_ of _A_
-*       for which _S(x)_ holds.
+*   To every set _A_ and every condition _S(x)_ there corresponds
+*   a set _B_ whose elements are exactly those elements _x_ of _A_
+*   for which _S(x)_ holds.
 
-*       In SETL4 we say that the expression '_A_ @ _S_' "filters"
-*       _A_ by _S_. This can also be read as
-*               "the subset of _A_ such that _S_ is true"
+*   In SETL4 we say that the expression '_A_ @ _S_' "filters"
+*   _A_ by _S_. This can also be read as
+*           "the subset of _A_ such that _S_ is true"
 
-        define('setl4.filter(set,expr)kind,member,text,i,r')    :(setl4.filter.end)
+    define('setl4.filter(set,expr)kind,member,text,i,r')    :(setl4.filter.end)
 
-*       Returns that part of compound object _set for which _expr_ is true.
+*   Returns that part of compound object _set for which _expr_ is true.
 
 setl4.filter
 
-        member = datatype(set)
-        setl4.kind(kind,'map')                          :s(setl4.filter.map)
-        setl4.kind(kind,'seq')                          :s(setl4.filter.seq)
-        setl4.kind(kind,'set')                          :s(setl4.filter.set)
-        setl4.kind(kind,'str')                          :s(setl4.filter.str)
+    member = datatype(set)
+    setl4.kind(kind,'map')                          :s(setl4.filter.map)
+    setl4.kind(kind,'seq')                          :s(setl4.filter.seq)
+    setl4.kind(kind,'set')                          :s(setl4.filter.set)
+    setl4.kind(kind,'str')                          :s(setl4.filter.str)
 
 setl4.filter.map
-        setl4.filter = set.new(#set)
-        loop(set)
+    setl4.filter = set.new(#set)
+    loop(set)
 
 setl4.filter.map.next
 
-        member = next(#set)                             :f(return)
-        member = eval(expr)                             :f(setl4.filter.map.next)
-        eq(member)                                      :s(setl4.filter.map.next)
-        set.add(setl4.filter,member)                    :(setl4.filter.map.next)
+    member = next(#set)                             :f(return)
+    member = eval(expr)                             :f(setl4.filter.map.next)
+    eq(member)                                      :s(setl4.filter.map.next)
+    set.add(setl4.filter,member)                    :(setl4.filter.map.next)
 
 
 setl4.filter.seq
 
-        setl4.filter = seq.new(#set)
-        loop(set)
+    setl4.filter = seq.new(#set)
+    loop(set)
 
 
 setl4.filter.seq.next
 
-        member = next(#set)                             :f(return)
-        member = eval(expr)                             :f(seql4.filter.seq.next)
-        eq(member)                                      :s(seql4.filter.seq.next)
-        seq.add(setl4.filter,member)                    :(setl4.filter.seq.next)
+    member = next(#set)                             :f(return)
+    member = eval(expr)                             :f(seql4.filter.seq.next)
+    eq(member)                                      :s(seql4.filter.seq.next)
+    seq.add(setl4.filter,member)                    :(setl4.filter.seq.next)
 
 setl4.filter.set
 
-        setl4.filter = set.new(#set)
-        loop(set)
+    setl4.filter = set.new(#set)
+    loop(set)
 
 setl4.filter.set.next
 
-        member = next(set)                              :f(return)
+    member = next(set)                              :f(return)
 
-        ouput = '4.filter|' member '|'
-        r = eval(expr)                                  :f(setl4.filter.set.next)
-        eq(r)                                           :s(setl4.filter.set.next)
-        set.add(setl4.filter,member)                    :(setl4.filter.set.next)
+    ouput = '4.filter|' member '|'
+    r = eval(expr)                                  :f(setl4.filter.set.next)
+    eq(r)                                           :s(setl4.filter.set.next)
+    set.add(setl4.filter,member)                    :(setl4.filter.set.next)
 
 setl4.filter.str
 
-        setl4.filter = str.new(#set)
-        text = str.text(set)
+    setl4.filter = str.new(#set)
+    text = str.text(set)
 
 
 set4.filter.str.next
 
-        member = next(#set)
-        text len (1) . member =                         :f(return)
-        member = eval(expr)                             :f(strl4.filter.str.next)
-        eq(member)                                      :s(strl4.filter.str.next)
-        str.add(strl4.filter,member)                    :(setl4.filter.str.next)
+    member = next(#set)
+    text len (1) . member =                         :f(return)
+    member = eval(expr)                             :f(strl4.filter.str.next)
+    eq(member)                                      :s(strl4.filter.str.next)
+    str.add(strl4.filter,member)                    :(setl4.filter.str.next)
 
 *setl4.filter.str (orig. form)
 
-        set len(1) . member =                           :f(return)
-        member = eval(expr)                             :f(setl4.filter.string)
-        eq(member)                                      :s(setl4.filter.string)
-        setl4.filter = setl4.filter  c                  :(setl4.filter.string)
+    set len(1) . member =                           :f(return)
+    member = eval(expr)                             :f(setl4.filter.string)
+    eq(member)                                      :s(setl4.filter.string)
+    setl4.filter = setl4.filter  c                  :(setl4.filter.string)
 
 
-*       Append c to result.
+*   Append c to result.
 
 setl4.filter.end
 
-        define('setl4.kind(set,kind1,kind2,kind3,kind3,kind4)kind')     :(setl4.kind.end)
+    define('setl4.kind(set,kind1,kind2,kind3,kind3,kind4)kind')     :(setl4.kind.end)
 
-*       Tests if the kind of _set_ is one of kind1, kind2, .... Returns true if so,
-*       false otherwise.
+*   Tests if the kind of _set_ is one of kind1, kind2, .... Returns true if so,
+*   false otherwise.
 
 setl4.kind
 
-*       output = 'setl4.kind dt ' datatype(set)
-        kind = ident(datatype(set),'string') true       :s(return)
-        kind = set.kind(set)
-        setl4.kind = differ(kind1) ident(kind1,kind) true       :s(return)
-        setl4.kind = differ(kind2) ident(kind2,kind) true       :s(return)
-        setl4.kind = differ(kind3) ident(kind3,kind) true       :s(return)
-        setl4.kind = differ(kind4) ident(kind4,kind) true       :s(return)
-        setl4.kind = false                                      :(return)
+*   output = 'setl4.kind dt ' datatype(set)
+    kind = ident(datatype(set),'string') true       :s(return)
+    kind = set.kind(set)
+    setl4.kind = differ(kind1) ident(kind1,kind) true       :s(return)
+    setl4.kind = differ(kind2) ident(kind2,kind) true       :s(return)
+    setl4.kind = differ(kind3) ident(kind3,kind) true       :s(return)
+    setl4.kind = differ(kind4) ident(kind4,kind) true       :s(return)
+    setl4.kind = false                                      :(return)
 
 setl4.kind.end
 
-        define('setl4.member(elem,kind,entry,key,value)') :(setl4.member.end)
+    define('setl4.member(elem,kind,entry,key,value)') :(setl4.member.end)
 
-*       Tests if _elem_ is 'elem' of _set, where:
+*   Tests if _elem_ is 'elem' of _set, where:
 
-*       _elem_ is element of 'int' if in range, and
+*   _elem_ is element of 'int' if in range, and
 
-*       _elem_ is element of 'int' if in range, and
-*       meets requirement if 'step' in nonzero
+*   _elem_ is element of 'int' if in range, and
+*   meets requirement if 'step' in nonzero
 
-*       _elem_ is element of map _set if _map_ has entry _elem_.
+*   _elem_ is element of map _set if _map_ has entry _elem_.
 
-*       _elem_ is element of sequence _set if _set has entry _elem)
+*   _elem_ is element of sequence _set if _set has entry _elem)
 
-*       _elem_ is element of set _set if _set.in(elem,set)_ is true.
+*   _elem_ is element of set _set if _set.in(elem,set)_ is true.
 
-*       _elem_ is element of string _set if _set contains instance of _elem.
+*   _elem_ is element of string _set if _set contains instance of _elem.
 
 setl4.member
 
-        setl4.member = false
-        kind = kind(set)
-        setl4.member = false
-        setl4.kind(kind,'int')                                  :s(setl4.member.int)
-        setl4.kind(kind,'map')                                  :s(setl4.member.map)
-        setl4.kind(kind,'seq')                                  :s(setl4.member.seq)
-        setl4.kind(kind,'set')                                  :s(setl4.member.set)
-        setl4.kind(kind,'str')                                  :s(setl4.member.str)
-        setl4.kind(kind,'string')                               :s(setl4.member.string)
-        setl4.kind(kind,'map')                                  :s(setl4.member.map)
-        setl4.kind(kind,'map')                                  :s(setl4.member.map)
-        output = 'setl4.member wrong kind ' kind ' , quitting' :(end)
+    setl4.member = false
+    kind = kind(set)
+    setl4.member = false
+    setl4.kind(kind,'int')                                  :s(setl4.member.int)
+    setl4.kind(kind,'map')                                  :s(setl4.member.map)
+    setl4.kind(kind,'seq')                                  :s(setl4.member.seq)
+    setl4.kind(kind,'set')                                  :s(setl4.member.set)
+    setl4.kind(kind,'str')                                  :s(setl4.member.str)
+    setl4.kind(kind,'string')                               :s(setl4.member.string)
+    setl4.kind(kind,'map')                                  :s(setl4.member.map)
+    setl4.kind(kind,'map')                                  :s(setl4.member.map)
+    output = 'setl4.member wrong kind ' kind ' , quitting' :(end)
 
 setl4.member.int
 
-        setl4.member = lt(elem,set.low(set)) false              :s(return)
-        setl4.member = gt(elem,set.low(set)) false              :s(return)
-        setl4.member = (eq(remdr(elem - set.low(set),set.step(set))) true, false)       :(return)
+    setl4.member = lt(elem,set.low(set)) false              :s(return)
+    setl4.member = gt(elem,set.low(set)) false              :s(return)
+    setl4.member = (eq(remdr(elem - set.low(set),set.step(set))) true, false)       :(return)
 
 setl.4.member.map
 
-        key = key(elem)
+    key = key(elem)
 
-*       Cannot be member if no entry in _key_ table.
+*   Cannot be member if no entry in _key_ table.
 
-        ident(set.key(set)[key])                        :s(return)
+    ident(set.key(set)[key])                        :s(return)
 
-*       There is entry for _key_, see if it has right value.
+*   There is entry for _key_, see if it has right value.
 
-        ident(set.index[set.key(set)[key]],value)       :f(return)
-        setl4.member = true                             :(return)
+    ident(set.index[set.key(set)[key]],value)       :f(return)
+    setl4.member = true                             :(return)
 
 setl.4.member.seq
 
-        output = 'setl4.member seq not yet done' :(end)
-        ident(set.array[key,1])                         :s(return)
-*       ident(value[set],ob
+    output = 'setl4.member seq not yet done' :(end)
+    ident(set.array[key,1])                         :s(return)
+*   ident(value[set],ob
 
-                                                        :(return)
+                                                    :(return)
 
 setl4.elem.set
 
-        setl4.member = set.in(elem,set)                 :(return)
-*        set.in = (differ(set.key(set)[elem]) true, false) :(return)
+    setl4.member = set.in(elem,set)                 :(return)
+*    set.in = (differ(set.key(set)[elem]) true, false) :(return)
 
 setl.4.member.str
 
-        set break(elem)                                 :f(return)
-        set4.member = true                              :(return)
+    set break(elem)                                 :f(return)
+    set4.member = true                              :(return)
 
 setl.4.member.string
 
-        string break(elem)                              :f(return)
-        setl4.member = true                             :(return)
+    string break(elem)                              :f(return)
+    setl4.member = true                             :(return)
 
 setl4.member.end
 
-        define('setl4.new(str)')                        :(setl4.new.end)
+    define('setl4.new(str)')                        :(setl4.new.end)
 
-*       Create new set, as specified by 'str'
+*   Create new set, as specified by 'str'
 
 setl4.new
-        output = 'setl4.new: ' str '.'
-        output = 'setl4.new not yet implemented, quitting' :(setl4.quit)
+    output = 'setl4.new: ' str '.'
+    output = 'setl4.new not yet implemented, quitting' :(setl4.quit)
 
 setl4.new.end
 
-        define('setl4.next(set)dt,kind')                :(setl4.next.end)
+    define('setl4.next(set)dt,kind')                :(setl4.next.end)
 
-*       Advances iteration field 'next' and sets field 'this'
-*       to the next element of the iteration.
+*   Advances iteration field 'next' and sets field 'this'
+*   to the next element of the iteration.
 
 setl4.next
 
-        kind = kind(set)
-        setl4.kind(kind,'int')                          :s(setl4.next.int)
-        setl4.kind(kind,'map')                          :s(setl4.next.map)
-        setl4.kind(kind,'seq')                          :s(setl4.next.seq)
-        setl4.kind(kind,'set')                          :s(setl4.next.set)
-        setl4.kind(kind,'str')                          :s(setl4.next.str)
-        output = 'unsupported dt for setl4.next: "' dt '" , quitting.'
-        output = 'show|' show(set) '|'  :(end)
+    kind = kind(set)
+    setl4.kind(kind,'int')                          :s(setl4.next.int)
+    setl4.kind(kind,'map')                          :s(setl4.next.map)
+    setl4.kind(kind,'seq')                          :s(setl4.next.seq)
+    setl4.kind(kind,'set')                          :s(setl4.next.set)
+    setl4.kind(kind,'str')                          :s(setl4.next.str)
+    output = 'unsupported dt for setl4.next: "' dt '" , quitting.'
+    output = 'show|' show(set) '|'  :(end)
 
-*       When iterating over a set or map, previous deletions may have mapped some
-*       entries in the index to null. Such entries must be skipped when looking for
-*       next member in iteration.
+*   When iterating over a set or map, previous deletions may have mapped some
+*   entries in the index to null. Such entries must be skipped when looking for
+*   next member in iteration.
 
 setl4.next.int
 
 
-        ge(int.next(set),int.high(set))                 :s(freturn)
-        int.next(set) = int.next(set) + int.step(set)
-        gt(int.next(set),int.high(set))                 :s(freturn)
-        int.this(set) = int.next(set)
-        setl4.next = int.this(set)                      :(return)
+    ge(int.next(set),int.high(set))                 :s(freturn)
+    int.next(set) = int.next(set) + int.step(set)
+    gt(int.next(set),int.high(set))                 :s(freturn)
+    int.this(set) = int.next(set)
+    setl4.next = int.this(set)                      :(return)
 
 setl4.next.map
 
-        set.next(set) = set.next(set) + 1
-        gt(set.next(set),set.max(set))                  :s(freturn)
-        setl4.next = set.index(set)[set.next(set)]
-        set.this(set) = setl4.next
-        ident(setl4.next)                       :s(setl4.next.set)f(return)
+    set.next(set) = set.next(set) + 1
+    gt(set.next(set),set.max(set))                  :s(freturn)
+    setl4.next = set.index(set)[set.next(set)]
+    set.this(set) = setl4.next
+    ident(setl4.next)                       :s(setl4.next.set)f(return)
 
 setl4.next.seq
 
-        ge(seq.next(set),seq.size(set))                 :s(freturn)
-        seq.next(set) = seq.next(set) + 1
-        setl4.next = seq.get(set,seq.next(set))
-        seq.this(set) = setl4.next
-                                                        :(return)
+    ge(seq.next(set),seq.size(set))                 :s(freturn)
+    seq.next(set) = seq.next(set) + 1
+    setl4.next = seq.get(set,seq.next(set))
+    seq.this(set) = setl4.next
+                                                    :(return)
 
 setl4.next.set
 
-*       output = 'next.set ' set.next(set) ',  max ' set.max(set) '.'
-        ge(set.next(set),set.max(set))  :s(freturn)
-        set.next(set) = set.next(set) + 1
-        setl4.next = set.index(set)[set.next(set)]
-        ident(setl4.next)                               :s(setl4.next.set)
-        set.this(set) = setl4.next
-*       output = 'setl4.next.set returns ' setl4.next '.'
-                                                        :(return)
+*   output = 'next.set ' set.next(set) ',  max ' set.max(set) '.'
+    ge(set.next(set),set.max(set))  :s(freturn)
+    set.next(set) = set.next(set) + 1
+    setl4.next = set.index(set)[set.next(set)]
+    ident(setl4.next)                               :s(setl4.next.set)
+    set.this(set) = setl4.next
+*   output = 'setl4.next.set returns ' setl4.next '.'
+                                                    :(return)
 
 setl4.next.str
 
-        output = "next on str's not yet supported, quitting." :(end)
+    output = "next on str's not yet supported, quitting." :(end)
 
 setl4.next.end
 
-        define('setl4.not(expr)')                       :(setl4.not.end)
+    define('setl4.not(expr)')                       :(setl4.not.end)
 
-*       Returns not of boolean expression.
+*   Returns not of boolean expression.
 
 setl4.not
 
-        expr = integer(expr) +expr
-        setl4.not = integer(expr) (ne(expr) false, true) :(return)
+    expr = integer(expr) +expr
+    setl4.not = integer(expr) (ne(expr) false, true) :(return)
 
 setl4.not.end
 
-        define('setl4.or(a,b)')                         :(setl4.or.end)
+    define('setl4.or(a,b)')                         :(setl4.or.end)
 
-*       Returns true iff (if and only if) at least one argument is true.
+*   Returns true iff (if and only if) at least one argument is true.
 
 setl4.or
-        a = integer(a) +a
-        b = integer(b) +b
-        setl4.or = integer(a) ne(e) true                :s(return)
-        setl4.or = integer(b) ne(b) true                :s(return)
+    a = integer(a) +a
+    b = integer(b) +b
+    setl4.or = integer(a) ne(e) true                :s(return)
+    setl4.or = integer(b) ne(b) true                :s(return)
 
-*       Here if operands not both integers, so use ident/differ.
+*   Here if operands not both integers, so use ident/differ.
 
-        setl4.or = (differ(a) true, differ(b) true, false)    :(return)
+    setl4.or = (differ(a) true, differ(b) true, false)    :(return)
 
 setl4.or.end
 
-                                                        :(setl4.quit.bypass)
+                                                    :(setl4.quit.bypass)
 setl4.quit
-        output = 'Fatal error ' &lastno '.   Stopping the madness.'
-*        &dump = 3
-                                                        :(end)
+    output = 'Fatal error ' &lastno '.   Stopping the madness.'
+*    &dump = 3
+                                                    :(end)
 setl4.quit.bypass
 
 
-        define('setl4.random(n)')                       :(setl4.random.end)
+    define('setl4.random(n)')                       :(setl4.random.end)
 
-*       Return integer uniformly distributed in 1,2,...,n.
-*       If n=0 returns real uniformly distributed in the interval [0,1].
-*       The Algorithm is based on that in section 16.1 of "Algorithms in SNOBOL4,"
-*       James F. Gimpel, John Wiley and Sons, 1976.
+*   Return integer uniformly distributed in 1,2,...,n.
+*   If n=0 returns real uniformly distributed in the interval [0,1].
+*   The Algorithm is based on that in section 16.1 of "Algorithms in SNOBOL4,"
+*   James F. Gimpel, John Wiley and Sons, 1976.
 
 *RANDOM*
 setl4.random
 
-        setl4.random_var = remdr(setl4.random_var * 4676, 414971)
-        setl4.random  = setl4.random_var / 414971.0
-        setl4.random = ne(n) convert(setl4.random * n,'integer') + 1
-                                                        :(return)
+    setl4.random_var = remdr(setl4.random_var * 4676, 414971)
+    setl4.random  = setl4.random_var / 414971.0
+    setl4.random = ne(n) convert(setl4.random * n,'integer') + 1
+                                                    :(return)
 setl4.random.end
 
-        define('setl4.random.seed()s,c')                :(setl4.random.seed.end)
+    define('setl4.random.seed()s,c')                :(setl4.random.seed.end)
 
-*       Compute seed for setl4.random number generator from date and time.
+*   Compute seed for setl4.random number generator from date and time.
 
 *RANDOMSEED*
 setl4.random.seed
-        setl4.random_var =
-        s = g.date
-        s = replace(s,'/:-','   ')
+    setl4.random_var =
+    s = g.date
+    s = replace(s,'/:-','   ')
 
-*       Get all the digits in s.
+*   Get all the digits in s.
 
 setl4.random.seed.loop
 
-        s len(1) . c =                                  :f(setl4.random.seed.done)
-        ident(c,' ')                                    :s(setl4.random.seed.loop)
-        setl4.random_var = setl4.random_var c           :(setl4.random.seed.loop)
+    s len(1) . c =                                  :f(setl4.random.seed.done)
+    ident(c,' ')                                    :s(setl4.random.seed.loop)
+    setl4.random_var = setl4.random_var c           :(setl4.random.seed.loop)
 
 setl4.random.seed.done
 
-*       Reverse the seed so digits depending on time come first.
+*   Reverse the seed so digits depending on time come first.
 
-        setl4.random_var = +reverse(setl4.random_var    )
-                                                        :(return)
+    setl4.random_var = +reverse(setl4.random_var    )
+                                                    :(return)
 
 setl4.random.seed.end
 
-        define('setl4.size(set)')                       :(setl4.size.end)
+    define('setl4.size(set)')                       :(setl4.size.end)
 
-*       Return size of operand.
+*   Return size of operand.
 
 setl4.size
 
-        setl4.size = ident(datatype(set),'string') size(set)    :s(return)
-        kind = setl4.kind(set)
-        output = setl4.kind(set,'int') ' need step case for setl4.size int' :(end)
-        setl4.size = setl4.kind(kind,'int')
+    setl4.size = ident(datatype(set),'string') size(set)    :s(return)
+    kind = setl4.kind(set)
+    output = setl4.kind(set,'int') ' need step case for setl4.size int' :(end)
+    setl4.size = setl4.kind(kind,'int')
 .               set.high(set) - set.low(set) + 1                :s(return)
-        setl4.size = set.size(set)                              :(return)
+    setl4.size = set.size(set)                              :(return)
 
 setl4.size.end
 
-        define('setl4.traceoff()')                      :(setl4.traceoff.end)
+    define('setl4.traceoff()')                      :(setl4.traceoff.end)
 
-*       Initiate tracing.
+*   Initiate tracing.
 
 setl4.traceoff
-        &fsetl4.trace = &setl4.trace =
+    &fsetl4.trace = &setl4.trace =
 
-        g.scoring = g.tracing = 0
-        out('stop TRACING ')
+    g.scoring = g.tracing = 0
+    out('stop TRACING ')
 
 setl4.traceoff.end
 
-        define('setl4.traceon()')                       :(setl4.traceon.end)
+    define('setl4.traceon()')                       :(setl4.traceon.end)
 
-*       Initiate tracing.
+*   Initiate tracing.
 
 *TRACEON*
 setl4.traceon
 
-        out('start TRACING')
-*       &fsetl4.trace = &setl4.trace = 1500000
-        g.scoring = g.tracing = 1
-                                                        :(return)
+    out('start TRACING')
+*   &fsetl4.trace = &setl4.trace = 1500000
+    g.scoring = g.tracing = 1
+                                                    :(return)
 setl4.traceon.end
 
-*TODO*
-*       Returns an iterator for _map_. Use _set.next_ to retrieve
-*       the next entry in set. _set.next_ fails when no more entries remain.
+*   Use some of the undefined SPITBOL operators for SETL4 functions.
 
-*       _kind_ gives the kind of loop:
+*   Characters available for use by 'opsyn' to associate the character
+*   with a function.
 
-*               '+order'        iterate in order in which entries added. (default)
-*               '-order'        iterate in reverse order in which entries added.
-*               '+key'          iterate in incresing values of keys.
-*               '-key'          iterate in decceasing values of keys.
-*               '+val'          iterate in incresing values of values.
-*               '-key'          iterate in decreasing values of keys.
+*   binary  &  @  #  %  ~
+*   unary:  !  %  /  #  =  |
 
-*       Otherwise iterate over the keys in the order in which they were added to the set.
+*   characters still available for use by SETL4 as operators:
 
-*set.loop
+*   unary:    /
+
+*   define('setl4.op(ch,proc,n)')           :(setl4.op.end)
 *
-*        set.next(map) = 0
-* :(set.loop.order)
-*        ident(kind)                                     :s(set.loop.order)
-*        ident(kind, '+order')                           :s(set.loop.key.order.inc)
-*        ident(kind, '-order')                           :s(set.loop.key.order.dec)
-*        ident(kind, '+key')                             :s(set.loop.key.inc)
-*        ident(kind, '-key')                             :s(set.loop.key.dec)
-*        ident(kind, '+val')                             :s(set.loop.value.inc)
-*        ident(kind, '-val')                             :s(set.loop.value.dec)
+**  Use _opsyn_ to define SETL4 operator.
 *
-*set.loop.order.inc
+*setl4.op
 *
-*        set.array(map) = convert(set.table(map),'array'):(set.done)
+*   opsyn(ch,proc,n)                :s(return)
+*   output = 'fatal problem with opsyn for ' ch ', quitting.' :(setl4.quit)
 *
-*set.loop.rorder.inc
-*
-*        output = 'loop rorder not implemented '         :(nosuchlabel)
-*        set.array(map) = convert(set.table(map),'array'):(set.done)
-*
-*set.loop.key.inc
-*
-*        set.array(map) = rsort(set.table(map),1)        :(return)
-*
-*set.loop.key.dec
-*
-*        set.array(map) = sort(set.table(map),1)         :(return)
-*
-*set.loop.value.inc
-*
-*        set.array(map) = rsort(set.table(map),2)        :(return)
-*
-*set.loop.value.dec
-*
-*        set.array(map) = sort(set.table(map),-2)        :(return)
-*
-*set.loop.end
+*setl4.op.end
 
-*       Use some of the undefined SPITBOL operators for SETL4 functions.
+*   SETL4 unary operators:
 
-*       Characters available for use by 'opsyn' to associate the character
-*       with a function.
+    opsyn('=','setl4.arb', 1)
+    opsyn('|','setl4.new', 1)
+    opsyn('!','setl4.not', 1)
+    opsyn('#','setl4.size',1)
 
-*       binary  &  @  #  %  ~
-*       unary:  !  %  /  #  =  |
+*   SETL4 binary operators:
 
-*       characters still available for use by SETL4 as operators:
-
-*       unary:    /
-
-	define('setl4.op(ch,proc,n)')			:(setl4.op.end)
-
-*	Use _opsyn_ to define SETL4 operator.
-
-setl4.op
-
-	opsyn(ch,proc,n)				:s(return)
-	output = 'fatal problem with opsyn for ' ch ', quitting.' :(setl4.quit)
-
-setl4.op.end
-
-*       SETL4 unary operators:
-
-        setl4.op('=','setl4.arb', 1)
-        setl4.op('|','setl4.new', 1)
-        setl4.op('!','setl4.not', 1)
-        setl4.op('#','setl4.size',1)
-
-*       SETL4 binary operators:
-
-        setl4.op('&','setl4.and',         2)
-        setl4.op('@','setl4.eval',        2)
-        setl4.op('#','setl4.filter',      2)
-        setl4.op('~','setl4.member',      2)
-        setl4.op('^','setl4.or',          2)
+    opsyn('&','setl4.and',         2)
+    opsyn('@','setl4.eval',        2)
+    opsyn('#','setl4.filter',      2)
+    opsyn('~','setl4.member',      2)
+    opsyn('^','setl4.or',          2)
 
