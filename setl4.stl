@@ -2077,20 +2077,19 @@ setl4.next.end
 setl4.not
 
         expr = integer(expr) +expr
-        setl4.not = integer(expr) (ne(expr) false, true)        :(return)
-        setl4.not = (differ(expr) true, false)          :(return)
+        setl4.not = integer(expr) (ne(expr) false, true) :(return)
 
 setl4.not.end
 
-        define('setl4.or(a,b)')                                 :(setl4.or.end)
+        define('setl4.or(a,b)')                         :(setl4.or.end)
 
 *       Returns true iff (if and only if) at least one argument is true.
 
 setl4.or
         a = integer(a) +a
         b = integer(b) +b
-        setl4.or = integer(a) ne(e) true                        :s(return)
-        setl4.or = integer(b) ne(b) true                        :s(return)
+        setl4.or = integer(a) ne(e) true                :s(return)
+        setl4.or = integer(b) ne(b) true                :s(return)
 
 *       Here if operands not both integers, so use ident/differ.
 
@@ -2116,19 +2115,19 @@ setl4.quit.bypass
 *RANDOM*
 setl4.random
 
-        g.setl4.random_var = remdr(g.setl4.random_var * 4676, 414971)
-        setl4.random  = g.setl4.random_var / 414971.0
+        setl4.random_var = remdr(setl4.random_var * 4676, 414971)
+        setl4.random  = setl4.random_var / 414971.0
         setl4.random = ne(n) convert(setl4.random * n,'integer') + 1
                                                         :(return)
 setl4.random.end
 
-        define('setl4.random.seed()s,c')                      :(setl4.random.seed.end)
+        define('setl4.random.seed()s,c')                :(setl4.random.seed.end)
 
 *       Compute seed for setl4.random number generator from date and time.
 
 *RANDOMSEED*
 setl4.random.seed
-        g.setl4.random_var =
+        setl4.random_var =
         s = g.date
         s = replace(s,'/:-','   ')
 
@@ -2138,13 +2137,13 @@ setl4.random.seed.loop
 
         s len(1) . c =                                  :f(setl4.random.seed.done)
         ident(c,' ')                                    :s(setl4.random.seed.loop)
-        g.setl4.random_var = g.setl4.random_var c       :(setl4.random.seed.loop)
+        setl4.random_var = setl4.random_var c           :(setl4.random.seed.loop)
 
 setl4.random.seed.done
 
 *       Reverse the seed so digits depending on time come first.
 
-        g.setl4.random_var = +reverse(g.setl4.random_var    )
+        setl4.random_var = +reverse(setl4.random_var    )
                                                         :(return)
 
 setl4.random.seed.end
