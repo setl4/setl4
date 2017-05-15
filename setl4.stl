@@ -37,7 +37,7 @@
 
 *       int.even(n)
 *       int.factorial(n)
-*       int.member(int,member)
+*       int.member(member,int)
 *       int.multiple(n,m)
 *       int.odd(n)
 *       int.prime(n)set
@@ -103,7 +103,7 @@
 *       str.tokens(line)
 *       str.upper(s)
 *       str.words(line)
-*       str.writerr(lines)
+*       str.writer(lines)
 
 *       this(set)
 *       visit(set,expr)
@@ -206,7 +206,7 @@ exists.loop
 
         next(set)                                       :f(exists.done)
         e = eval(expr)                                  :f(exists.loop)
-        exists = true(e)                                :s(return)f(exists.loop)
+        exists = true(e) true				:s(return)f(exists.loop)
 
 exists.done
 
@@ -275,7 +275,7 @@ int.factorial
 
 int.factorial.end
 
-        define('int.member(int,member)')                :(int.member.end)
+        define('int.member(member,int)')                :(int.member.end)
 
 *       Tests if _member_ is a member of _int_
 
@@ -287,7 +287,7 @@ int.member
         int.member = (multiple(
 .                       (int.high(int) - int.low(int) + 1)
 .                         / int.step(int),
-.                       int.step(int)
+.                       int.step(int))
 .                       true, false)      :(return)
 
 int.member.end
@@ -425,14 +425,12 @@ map.domain
 
 map.domain.next
 
-        this = next(map.domain)
-        set.add(map.domain,key,val)             :s(map.domain.next)f(return)
+        next(map.domain)
+        set.add(map.domain,set.this(map))		:s(map.domain.next)f(return)
 
 map.domain.end
 
         define('map.equal(a,b)entry,key,value')         :(map.equal.end)
-
-*TODO* is this right?
 
 *       Test two maps for equality.
 
@@ -442,11 +440,14 @@ map.domain.end
 
 map.equal
 
-        map.equal = ne(#a,#b) false                     :s(return)
+	map.equal = false
+	ne(#a,#b)					:s(return)
 
 *       Two maps are equal iff each is a subset of the other.
 
-        map.equal = and(set.subset(a,b),set.subset(b,a)) :(return)
+	map.equal = set.equal(map.domain(a),map.domain(b)) :f(return)
+	map.equal = set.equal(map.range(a),map.range(b))   :f(return)
+	map.equal = true
 
 map.equal.end
 
@@ -502,27 +503,29 @@ next
 next.end
 
 
-        define('number.cardinal(n,word)')           :(number.cardinal.end)
+        define('int.number.cardinal(n,word)')           :(int.number.cardinal.end)
 *       If N is one, returns 'one' followed by WORD.
 *       Otherwise returns NUMBER(N) followed by WORD and 'S'.
 
-number.cardinal
+int.number.cardinal
 
         number.cardinal = (eq(n,1) 'one ' word, number(n) ' '  word 's'):(return)
 
-number.cardinal.end
+int.number.cardinal.end
 
-        define('number.number(n)')                      :(number.number.end)
+        define('int.number(n)')                      :(int.number.end)
 
 **      If N can be represented as a string of one or two words
 **      then return that string. Otherwise return N.
 
-number.number
-        number.number = eq(n) 'zero'                    :s(return)
-        number.number = g.numbers[n]
+int.number
+	output = 'int.number not implemented, quitting.' :(setl4.quit)
+        int.number = eq(n) 'zero'                    :s(return)
+        int.number = g.numbers[n]
         differ(number.number)                           :s(return)
         number.number = n                               :(return)
-number.number.end
+
+int.number.end
 
         define('number.thousands(s)n')                  :(number.thousands.end)
 
@@ -589,26 +592,24 @@ rank.string.build
 
 rank.string.sort
 
-        gt(i = i + 1,size(string))                      :s(return)
+	gt(i = i + 1,size(string))                      :s(return)
         rank = rank seq.get(seq,i)                      :(rank.string.push)
         gt(i = i + 1, size(string))                     :f(return)
 
 rank.str
 
-*TODO*
-        output = 'need to code rank.str using str.frequency' :(end)
-        output = 'need to provide code for rank.str, quiting' :(end)
+        i = str.frequency(set)
+	seq = str.set(str)
+	loop(seq)
 
+rank.str.next
+	
+	key = next(seq)					:f(return)
+	rank = rank dupl(key,str.frequency[key])	:(rank.str.next)
+	
+rank.string.next
 
-*TODO*
-*       rank.str = str.frequency(word)          :(return)
-
-        outut = 'dave, complete code for rank.str()'
-
-        g.puzzle = 'spot'
-        g.rank.str = string.frequency(g.puzzle) :(return)
-
-rank.str.end
+	str = set					:(rank.str)
 
 rank.end
 
@@ -725,7 +726,6 @@ seq.put.end
 
 *        Return set with the values in _seq_ as its members.
 
-
 seq.range
 
         kind = kind(seq)
@@ -778,6 +778,9 @@ seq.range.end
 *       The _key_ table is needed to provide constant time bounds for iterating over
 *       a set, in all of its forms.
 
+*	Since the _key_ table is needed, a set can be indexed using the key table.
+*	This allows the definition of 'get' and 'put' on sequences.
+
 *       Sequences are currently implemented using SPITBOL arrays, extending
 *       the array length dynamically as needed.
 
@@ -819,6 +822,18 @@ set.equal
         set.equal = and(set.subset(a,b),set.subset(b,a)) :(return)
 
 set.equal.end
+
+	define('set.get(set,i)')				:set.get.end)
+
+*	Return the member in set corresponding to _i_, where _i_
+*	is in the range 1 ... size(set), and corresponds to the i-th
+*	entry added to the set.
+
+set.get
+
+	set.get = set.key(set)[i]			:(return)
+
+set.get.end
 
         define('set.integers(n)i')                      :(set.integers.end)
 
@@ -908,17 +923,6 @@ set.new.int
         set.new = set(table(n),table(n))                :(return)
 
 set.new.end
-
-        define('set.notin(x,set)')                      :(set.notin.end)
-
-*       Returns _true_ iff _x_ is is not element in set _set_.
-
-set.notin
-
-        assert.dt(set,'set')
-        set.notin = (ident(set.key(set)[elem]) true, false) :(return)
-
-set.notin.end
 
         define('set.subset(a,b)member')                 :(set.subset.end)
 
@@ -1010,6 +1014,9 @@ show.integer
 
 show.map
 
+*	Call _rank_ so entries listed in rank order.
+
+	map = rank(map)
         loop(v)
         show = ' {'
 
@@ -1050,6 +1057,9 @@ show.seq.done
 
 show.set
 
+*	Call _rank_ so entries listed in rank order.
+
+	set = rank(set)
         show =  ' {'
         loop(v)
 
@@ -1091,7 +1101,6 @@ show.table.next
 
         output = tab show(key)    ' -> ' show(value)
                                                         :(show.table.next)
-
 show.string.quote
 
         show = '"'  v '"'                               :(show.done)
@@ -1179,22 +1188,32 @@ show.words.end
 
         define('str.append(str,w,ch)')                  :(str.append.end)
 
-*       _str.append_ str.appends _ch_, or ' ' if _ch_ is null, to _str_
-*       and then str.appends _w_.
+*       _str.append_ appends _ch_, or ' ' if _ch_ is null, to _str_
+*       and then appends _w_.
 
-*STR.APPEND*
 str.append
 
-        str.append = (ident(str) w, str (ident(ch) ' ' , ch) w):(return)
+        str.append = str (ident(str) w, str (ident(ch) ' ' , ch) w):(return)
 
 str.append.end
+
+	setl4.ascii.initialized = false
 
         define('str.ascii(line)c,n,name,nul,num,pos')   :(str.ascii.end)
 
 *       Return the text of line with every str.ascii character identified.
 
-*ASCII*
 str.ascii
+
+	true(setl4.ascii.initialized)			:s(str.ascii.initialized)
+
+*	Here to initialize the needed maps.
+	
+	setl4.ascii.init()
+	setl4.ascii.initialized = true;
+
+str.ascii.initialized
+
         nul = substr(&alphabet,1,1)
 
 str.ascii.next
@@ -1235,7 +1254,7 @@ str.ascii.other
 
 *       Here if none of the other cases apply, so just list the str.ascii name.
 
-        str.ascii = str.ascii g.str.ascii.name[c]
+        str.ascii = str.ascii setl4.strl4..str.ascii.name[c]
         line = substr(line,2)                           :(str.ascii.next)
 
 str.ascii.space
@@ -1257,11 +1276,10 @@ str.ascii.end
 *       Initialize maps for use by _str.ascii_.
 *       Since space (str.ascii 32) prints as space, use the name SPC for 32.
 
-*ASCII.INIT*
 str.ascii.init
 
 
-        str.ascii.init = set.map(
+        str.ascii.init = setl4.str.map(
 .       '0:NUL 16:DLE 32:SPC 48:0 64:@ 80:P  96:` 112:p '
 .       '1:SOH 17:DC1 33:!   49:1 65:A 81:Q  97:a 113:q '
 .       '2:STX 18:DC2 34:"   50:2 66:B 82:R  98:b 114:r '
@@ -1279,25 +1297,25 @@ str.ascii.init
 .       '14:SO 30:RS  46:.   62:> 78:N 94:^ 110:n 126:~ '
 .       '15:SI 31:US  47:/   63:? 79:O 95:_ 111:o 127:DEL ')
 
-        g.str.ascii.name = set.map(setl4.default.size)
-        g.str.ascii.val = set.map(setl4.default.size)
+        setl4.strl4..str.ascii.name = setl4.str.map(setl4.strl4.default.size)
+        setl4.strl4..str.ascii.val = setl4.str.map(setl4.strl4.default.size)
 
 
         loop(str.ascii.init)
 
 str.ascii.init.next
 
-        ent = set.next(str.ascii.init)                  :(str.ascii.init.finis)
+        ent = setl4.str.next(str.ascii.init)                  :(str.ascii.init.finis)
 *       Correct entry for 0 to be NUL, the NUL character
-        g.str.ascii.name[substr(&alphabet,+v + 1,1)] = name
-        g.str.ascii.val[name] = +val                    :(str.ascii.init.next)
+        setl4.strl4..str.ascii.name[substr(&alphabet,+v + 1,1)] = name
+        setl4.strl4..str.ascii.val[name] = +val                    :(str.ascii.init.next)
 
 
 
-        g.str.ascii.name[] = 'NUL'
-        g.str.ascii.val['NUL'] = 0
-        g.str.ascii.name[' '] = 'SPC'
-        g.str.ascii.val['SPC'] = 32                     :(return)
+        setl4.strl4..str.ascii.name[] = 'NUL'
+        setl4.strl4..str.ascii.val['NUL'] = 0
+        setl4.strl4..str.ascii.name[' '] = 'SPC'
+        setl4.strl4..str.ascii.val['SPC'] = 32                     :(return)
 
 str.ascii.init.end
 
@@ -1306,7 +1324,6 @@ str.ascii.init.end
 *       Convert date to form with no spaces, just dashes, to be
 *       suitable for use as part of a file name.
 
-*STR.DATENAME*
 str.datename
 
         str.datename = replace(date,' :/','---')
@@ -1319,15 +1336,14 @@ str.datename.end
 *       Return map from the characters in a str to the number of times
 *       each occurs in the str.
 
-STR.FREQUENCY*
 str.frequency
 
-        str.frequency = map(50)
+        str.frequency = map.new(size(str))
 
 str.frequency.next
 
         str len(1) . c =                                :f(str.frequency.end)
-        set.put(str.frequency,c,set.get(str.frequency,c) + 1)   :(str.frequency.next)
+        setl4.str.put(str.frequency,c,setl4.str.get(str.frequency,c) + 1)   :(str.frequency.next)
 
 str.frequency.end
 
@@ -1351,21 +1367,20 @@ str.less.end
 
 *       Convert argument to lower case.
 
-*STR.LOWER*
 str.lower
 
         str.lower = replace(s,&ucase,&lcase)            :(return)
 
 str.lower.end
 
-        define('str.new(init)')                         :(set.new.end)
+        define('str.new(init)')                         :(str.new.end)
 
-*       Create new _str_ from string _init_.
+*       Create new _str_ from str _init_.
 
 str.new
 
-        str.new = set.new(1)
-        set.text(str.new) = init                        :(return)
+        str.new = setl4.str.new(1)
+        setl4.str.text(str.new) = init                        :(return)
 
 str.new.end
 
@@ -1401,7 +1416,7 @@ str.out.2
 str.out.3
         type.ex(text3,'string')                         :s(str.out.ok)
         type.ex(text3,'integer')                        :s(str.out.ok)
-                                                        :(setl4.quit)
+                                                        :(setl4.strl4.quit)
 str.out.ok
 
         output = text1 ' [' text2 ']' text3     :(return)
@@ -1428,7 +1443,7 @@ str.prefix.end
 *       Lines
 *       -----
 
-*       Lines can be just strings or, in some cases, a line is represented by a pair:
+*       Lines can be just strs or, in some cases, a line is represented by a pair:
 
         data('line(mark,text)')
 
@@ -1446,12 +1461,10 @@ str.prefix.end
 
 *       Return a sequence of the lines in the file specified by _filename_.
 *       If _expr_ is not null, then _eval_ is called just after each
-*       line is read, with the variable _pair_ set to the associated pair.
+*       line is read, with the variable _pair_ setl4.str to the associated pair.
 *       If _eval_ fails the line is skipped.  Otherwise returns a new pair
 *       to be entered in the input seq.
 
-
-*READER*
 str.reader
 
         differ(filename) input(.file,g.channel.temp,filename):s(str.reader.opened)
@@ -1463,7 +1476,7 @@ str.reader.opened
 
 str.reader.next
 
-        set.add(map, (ident(filename) input, file)) :f(str.reader.eof)s(str.reader.next)
+        setl4.str.add(map, (ident(filename) input, file)) :f(str.reader.eof)s(str.reader.next)
 
 str.reader.eof
 
@@ -1473,24 +1486,40 @@ str.reader.eof
 
 str.reader.end
 
-        define('str.reader.string(str,delim)line')      :(str.reader.string.end)
+        define('str.reader.str(str,delim)line')      :(str.reader.str.end)
 
 *       Returns a sequence of the lines in _str_,
 *       where the delimiter character _delim_ is used to mark
-*       the end of a line. One intended use of _str.reader.string_
+*       the end of a line. One intended use of _str.reader.str_
 *       is to assist in the construction of test programs.
 
-str.reader.string
+str.reader.str
 
         delim = ident(delim) '/'
-        str.reader.string = set.seq()
+        str.reader.str = setl4.str.seq()
 
-str.reader.string.next
+str.reader.str.next
 
         str break(delim) . line delim =                 :f(return)
-        add(str.reader.string,line)                     :(str.reader.string.next)
+        add(str.reader.str,line)                     :(str.reader.str.next)
 
-str.reader.string.end
+str.reader.str.end
+
+	define('str.set(str)')				:(str.set.end)
+
+*	Returns setl4.str of characters in str _str_.
+
+str.set
+
+	str.str = setl4.str(size(str))
+	loop(str)
+
+str.set.next
+
+	next(str.set)					:f(return)
+	setl4.str.add(str.set,this(set))		:(str.set.next)
+
+str.set.end
 
         define('str.slice(str,first,last)')             :(str.slice.end)
 
@@ -1499,6 +1528,7 @@ str.slice
         str.slice = substr(str,first,last)              :(return)
 
 str.slice.end
+
         define('str.spaces(line)c')                     :(str.spaces.end)
 
 *       Returns str which has ' ' in position _i_ if the _i_-th
@@ -1540,7 +1570,7 @@ str.spaces.end
 
 *               'o'             other printable character, one of '~@#$%^&*_-+=`'.
 
-*                'q'            quoted string, starting witn '"', and continuing
+*                'q'            quoted str, starting witn '"', and continuing
 *                               to the next instance of the opening quote character.
 
 *               'r'             right closer, one of ')>]}'
@@ -1554,7 +1584,7 @@ str.spaces.end
 *               'w'             word, consisting of one of more letters in
 *                               upper or lower case or "'" or "_".
 
-*       The longest possible string meeting the rules is used when building a token.
+*       The longest possible str meeting the rules is used when building a token.
 *       For example, 'abc' is just the word 'abc', not 'a' followed by 'bc', and so forth.
 
 *       It is recommended that the tab character NOT be used as an abbreviation for
@@ -1565,21 +1595,18 @@ str.spaces.end
 *       emphasis to a token by underlining it, or enclosing it in '_' to generate
 *       markdown format, and so forth.
 
-
         define('str.tokens(line)type,pos,text,lineno')  :(str.tokens.end)
 
-
-*       Tokens scans _line_ and returns a table of the str.tokens in the line.
+*       Str.tokens scans _line_ and returns a table of the str.tokens in the line.
 *       The table has keys from 1..n, where _n_ is the number of str.tokens found.
 
 *       This function is an instance of what is called a lexiical scanner, or tokenizer,
 *       which is the first stage in a programming language compiler, or for any program
 *       that processes text files with a specified structure.
 
-*TOKENS*
 str.tokens
 
-        str.tokens = set.seq()
+        str.tokens = setl4.str.seq()
         line '*'                                        :f(str.tokens.next)
         type = 'c'
         text = line
@@ -1650,7 +1677,7 @@ str.tokens.character
 
 str.tokens.new
 
-        set.add(str.tokens,token(lineno,pos,type,text)) :(str.tokens.next)
+        setl4.str.add(str.tokens,token(lineno,pos,type,text)) :(str.tokens.next)
 
 str.tokens.end
 
@@ -1658,7 +1685,6 @@ str.tokens.end
 
 *       Convert argument to upper case.
 
-*STR.UPPER*
 str.upper
 
         str.upper = replace(s,&lcase,&ucase)            :(return)
@@ -1669,7 +1695,6 @@ str.upper.end
 
 *       Return sequence of the str.words in line, fail if no str.words.
 
-*WORDS*
 str.words
 
         str.words = map()
@@ -1682,21 +1707,22 @@ str.words.next
 
 str.words.end
 
-       define('str.writerr(lines)'       )              :(str.writerr.end)
+       define('str.writer(lines)'       )              :(str.writer.end)
 
-*       Writes a sequence of the lines in the sequence _lines_
-*       to standard output.
+*      Writes a sequence of the lines in the sequence _lines_
+*      to standard output.
 
-str.writerr
+str.writer
 
         lines = copy(lines)
         loop(lines)
 
-str.writerr.next
+str.writer.next
 
-        output = set.next(lines)                :f(return)s(str.writerr.next)
+        output = set.next(lines)                :f(return)s(str.writer.next)
 
-str.writerr.end
+str.writer.end
+
         define('this(set)dt,kind')                      :(this.end)
 
 *       Returns value found in most recent call to this.
@@ -1712,9 +1738,8 @@ this.end
 
         define('visit(set,expr)')                       :(visit.end)
 
-
-*       _visit_ loops over _set and calls _eval_ with argument
-*       _expr_  for each member so reached.
+*       _Visit_ loops over _set and calls _eval_ with argument
+*       _expr_  for each of its members.
 
 visit
 
@@ -2250,23 +2275,33 @@ setl4.traceon.end
 *       binary  &  @  #  %  ~
 *       unary:  !  %  /  #  =  |
 
-*       SETL4 unary operators:
-
-        opsyn('=','setl4.arb', 1)
-        opsyn('|','setl4.new', 1)
-        opsyn('!','setl4.not', 1)
-        opsyn('#','setl4.size',1)
-
-*       SETL4 binary operators:
-
-        opsyn('&','setl4.and',         2)
-        opsyn('@','setl4.eval',        2)
-        opsyn('#','setl4.filter',      2)
-        opsyn('~','setl4.member',      2)
-        opsyn('^','setl4.or',          2)
-
 *       characters still available for use by SETL4 as operators:
 
 *       unary:    /
 
+	define('setl4.op(ch,proc,n)')			:(setl4.op.end)
+
+*	Use _opsyn_ to define SETL4 operator.
+
+setl4.op
+
+	opsyn(ch,proc,n)				:s(return)
+	output = 'fatal problem with opsyn for ' ch ', quitting.' :(setl4.quit)
+
+setl4.op.end
+
+*       SETL4 unary operators:
+
+        setl4.op('=','setl4.arb', 1)
+        setl4.op('|','setl4.new', 1)
+        setl4.op('!','setl4.not', 1)
+        setl4.op('#','setl4.size',1)
+
+*       SETL4 binary operators:
+
+        setl4.op('&','setl4.and',         2)
+        setl4.op('@','setl4.eval',        2)
+        setl4.op('#','setl4.filter',      2)
+        setl4.op('~','setl4.member',      2)
+        setl4.op('^','setl4.or',          2)
 
