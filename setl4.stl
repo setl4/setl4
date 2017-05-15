@@ -150,14 +150,10 @@
 
 *       Returns true if its argument is false, or else false.
 
-*FALSE*
 false
 
         e = integer(e) +e
         false = integer(e) (eq(e) true, false)          :s(return)
-
-*       Argument to _false_ is not integer, so use ident/differ.
-
         false = (ident(e) true, false)                  :(return)
 
 false.end
@@ -167,7 +163,7 @@ false.end
 *       Returns true if its argument is true, or else false.
 
 true
-        true = ident(e) false                           :s(return)
+        e = integer(e) +e
         true = integer(e) (ne(e) true, false)           :s(return)
         true = (differ(e) true, false)                  :(return)
 
@@ -179,7 +175,9 @@ true.end
 
 assert.dt
 
-        assert(ident(datatype(set),typ))                :(return)
+        assert(ident(datatype(set),typ))                :s(return)
+        output = 'assertion on datatype failed ' typ    :(setl4.quit)
+        
 
 assert.dt.end
 
@@ -189,7 +187,7 @@ assert.dt.end
 
 assert
 
-        true(expr)                                      :(return)
+        true(expr)                                      :s(return)
         output = 'assertion failed, quitting' :(end)
 
 assert.end
@@ -245,13 +243,6 @@ forall.end
 *       SETL4 provides the type _int_ .
 *       An _int_ is a sequence of positive integers
 *
-*       integers:
-
-        data('int(int.low,int.high,int.size,int.next,int.this)')
-
-*       Integer Functions
-*       -----------------
-
 *       SETL4 extends the integer operations provided by SPITBOL by
 *       providing the following integer functions:
 
@@ -329,6 +320,7 @@ int.odd.end
 int.prime
 
         set = int.new(2,square.root(p))
+*TODO* check this
         int.prime = not(exists(set,'eq(remdr(p,=s))'))  :(return)
 
 int.prime.end
@@ -392,34 +384,31 @@ loop.end
 *       access to map entries, both when retrieving values and
 *       when iterating over the set.
 
+        setl4.default.size = 16
 
-        define('map.new(init)i,key,str,valr')           :(map.new.end)
+        define('map.new(init)init,key,val')        :(map.new.end)
 
-*       Create a new set.
+*       Create a new map.
 
-*       A sequence is a list of values *  separated by spaces.
-
-*               map _init_ is a list consisting of a list of key/value pairs,
-*               with a colon (:) between the key and value.
+*       _init_ is a list consisting of a list of key/value pairs,
+*       with a colon (:) between the key and value.
 
 map.new
 
-*       data('map(set.index,set.key,set.size,set.max,set.next,set.this)')
-
-        ouput = 'enter map.new'
-
-        map.new = ident(init) map(table(128),table(128)) :s(return)
-        key = convert(init,'integer')                    :f(map.new.keyval)
+        map.new = ident(init) set(table(setl4.default.size),
+.               table(setl4.default.size)) :s(return)
+        key = convert(init,'integer')                    :f(map.new.init)
         map.new = map(table(key),table(key))             :(return)
 
-map.new.keyval
+map.new.init
 
-        map.new = map(table(128),table(128))
+        map.new = set(table(setl4.default.size),table(setl4.default.size))
+        init = init ' '
 
-map.new.keyval.next
+map.new.init.next
 
         init break(':') . key ':' break(' ') . val span(' ') =  :f(return)
-        set.put(map.new,key,val)                        :(map.new.keyval.next)
+        map.put(map.new,key,val)                        :(map.new.init.next)
 
 map.new.end
 
@@ -429,16 +418,21 @@ map.new.end
 
 map.domain
 
+*TODO* this code seems wrong.
+
         map.domain = set.new(#map)
         loop(map)
 
 map.domain.next
 
-        set.add(map.domain,key(set.next(map))) :s(map.domain.next)f(return)
+        this = next(map.domain)
+        set.add(map.domain,key,val)             :s(map.domain.next)f(return)
 
 map.domain.end
 
         define('map.equal(a,b)entry,key,value')         :(map.equal.end)
+
+*TODO* is this right?
 
 *       Test two maps for equality.
 
@@ -689,7 +683,7 @@ seq.integers.end
 seq.new
 
         assert.dt(seq,'seq')
-        n = ident(n) 128
+        n = ident(n) setl4.default.size
         n = integer(n) +n
         seq.new = seq(array(n))
         seq.max(seq.new) = n                            :(return)
@@ -909,7 +903,7 @@ set.new.init
 
 set.new.int
 
-        n = (ident(init) 128,convert(init,'integer'))
+        n = (ident(init) setl4.default.size,convert(init,'integer'))
         out('set.new.init n',n)
         set.new = set(table(n),table(n))                :(return)
 
@@ -1285,8 +1279,8 @@ str.ascii.init
 .       '14:SO 30:RS  46:.   62:> 78:N 94:^ 110:n 126:~ '
 .       '15:SI 31:US  47:/   63:? 79:O 95:_ 111:o 127:DEL ')
 
-        g.str.ascii.name = set.map(128)
-        g.str.ascii.val = set.map(128)
+        g.str.ascii.name = set.map(setl4.default.size)
+        g.str.ascii.val = set.map(setl4.default.size)
 
 
         loop(str.ascii.init)
