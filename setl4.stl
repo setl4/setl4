@@ -109,6 +109,157 @@
 *   For integers, zero is "false" and all other integers are "true." 
 *   For non-integers, the null string ('') is true, and all other values are false.
 
+*   SPITBOL comparison functions report their results by success or failure, so SETL
+*   provides the following functions which return true or false.
+
+*       String operatios based on SPITBOL
+
+    str.any(_a_,_b_)    tests if the first character of _a_ is in _b_
+    str.break(_a_,_b_)  tests if _a_ contains one of the characters in _b_
+    str.notany(_a_,_b_) tests if first character in _a_ is not in _b_
+    str.span(_a_,_b_)    tests if _b_contains only characters in a
+
+*   Lexical comparisons
+
+    str.leq(_a_,_b_)    tests if a is lexically equal to b
+    str.lge(_a_,_b_)    tests if a is lexically greater than or equal to _b_
+    str.lgt(_a_,_b_)    tests if a is lexically greater than _b_
+    str.lle(_a_,_b_)    tests if _a_ is lexically less than or equal to _b_
+    str.llt(_a_,_b_)    tests if _a_ is lexically less than _b_
+    stg.lne(_a_,_b_)    tests if _a_ is lexically not equal to _b_
+
+*   Integer comparisons
+
+    int.eq(_a_,_b_)     tests if a is equal to b
+    int.ge(_a_,_b_)     tests if a is greater than or equal to _b_
+    int.gt(_a_,_b_)     tests if a is greater than _b_
+    int.le(_a_,_b_)     tests if _a_ is less than or equal to _b_
+    int.lt(_a_,_b_)     tests if _a_ is less than _b_
+    int.ne(_a_,_b_)     tests if _a_ is not equal to _b_
+
+
+    define('int.eq(a,b)')                           :(int.eq.end)
+
+*   Tests if _a_ is equal to _b_.
+
+int.eq
+
+    int.eq = (integer(a) integer(b) eq(a,b) true,false) :s(return)
+
+int.equ.end
+
+    define('int.ge(a,b)')                           :(int.eq.end)
+
+*   Tests if _a_ is greater than or equal to _b_.
+
+int.equ
+
+    int.ge = (integer(a) integer(b) ge(a,b) true,false) :s(return)
+
+int.ge.end
+
+    define('int.gt(a,b)')                           :(int.gt.end)
+
+*   Tests if _a_ is greater than _b_.
+
+int.gt
+
+    int.gt = (integer(a) integer(b) gt(a,b) true,false) :s(return)
+
+int.gt.end
+
+    define('int.le(a,b)')                           :(int.le.end)
+
+*   Tests if _a_ is less than or equal to _b_.
+
+int.le
+
+    int.le = (integer(a) integer(b) le(a,b) true,false) :s(return)
+
+int.le.end
+
+    define('int.lt(a,b)')                           :(int.lt.end)
+
+*   Tests if _a_ is less than _b_.
+
+int.lt
+
+    int.lt = (integer(a) integer(b) lt(a,b) true,false) :s(return)
+
+int.ne.end
+
+    define('int.ne(a,b)')                           :(int.ne.end)
+
+*   Tests if _a_ is not equal to _b_.
+
+int.ne
+
+    int.ne = (integer(a) integer(b) ne(a,b) true,false) :s(return)
+
+int.ne.end
+
+
+*   Lexical
+    define('str.leq(a,b)')                           :(str.eq.end)
+
+*   Tests if _a_ is lexically equal to _b_.
+
+str.eq
+
+    str.eq = (integer(a) integer(b) eq(a,b) true,false) :s(return)
+
+str.equ.end
+
+    define('str.lge(a,b)')                           :(str.eq.end)
+
+*   Tests if _a_ is lexically greater than or equal to _b_.
+
+str.lge
+
+    str.ge = (integer(a) integer(b) ge(a,b) true,false) :s(return)
+
+str.lge.end
+
+    define('str.lgt(a,b)')                           :(str.lgt.end)
+
+*   Tests if _a_ is lexically greater than _b_.
+
+str.lgt
+
+    str.lgt = (integer(a) integer(b) gt(a,b) true,false) :s(return)
+
+str.lgt.end
+
+    define('str.lle(a,b)')                           :(str.lle.end)
+
+*   Tests if _a_ is lexically less than or equal to _b_.
+
+str.lle
+
+    str.le = (integer(a) integer(b) le(a,b) true,false) :s(return)
+
+str.lle.end
+
+    define('str.llt(a,b)')                           :(str.llt.end)
+
+*   Tests if _a_ is lexically less than _b_.
+
+str.llt
+
+    str.llt = (integer(a) integer(b) llt(a,b) true,false) :s(return)
+
+str.llt.end
+
+    define('str.lne(a,b)')                           :(str.lne.end)
+
+*   Tests if _a_ is not lexically equal to _b_.
+
+str.lne
+
+    str.lne = (integer(a) integer(b) ne(a,b) true,false) :s(return)
+
+str.lne.end
+
 
 *   false(e)
 *   true(e)
@@ -120,7 +271,6 @@
 
 *   Int: sets of kind _int_
 *   ----------
-
 
 *   A set of kind _int_ represents a set of integers. The set cannot be changed
 *   once it is created. You can only loop over a set of kind _int_ or test for 
