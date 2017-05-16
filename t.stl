@@ -1,5 +1,19 @@
--include "setl4.sbl"
-*-include "util.sbl"
+-include "setl4.stl"
+
+    &dump = 2
+    s = |'set'
+    setl4.show(s)
+end
+    output = set.kind(s)
+end
+
+
+    s = setl4.split('dave shields is here')
+    output = #s
+
+end
+
+
 *	&trace = 10000
 	define('chars(word)m,c')	:(chars.end)
 

@@ -1,9 +1,58 @@
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
+    &dump = 2
+
 *   SETL4 is an extension of SPITBOL. This file consists of a set of functions
 *   operator definitions that support set-theoretic operations defined
 *   on finite sets.
+
+*   SETL4 extends SPITBOL by adding the datatype _set_ to represent
+*   finite sets. Several additional datatypes based on sets are
+*   also provided. Each is identified by its kind.
+
+*   A set is defined by the following datatype:
+
+    data('set(set.kind,set.index,set.key,set.size,set.max,set.next,'
+.               'set.this,set.loop,set.low,set.high,set.step,set.text)')
+
+*   where
+
+*           _kind_          the kind of _set_: 'int', 'map', 'seq', 'set', or 'str'.
+
+*           _index_         a SPITBOL table used to map the integer
+*                           id assigned each element to the value of the element.
+
+*           _key_           a SPITBOL table, used only for maps, to permit iteration
+
+*           _size_          the current number of members.
+
+*           _max_           the maximum id assigned an element of the set.
+
+*           _next_          the last value returned by the _next_ primitive
+*                           when iterating over a set.
+*           _loop_          is array needed when iterating in order other than which
+*                           elements were added to the set.
+
+*           _text_          is the text of the set of kind _str_
+
+*           _seq_           is the array used to maintain a sequence. _set.key_
+*                           and _set.index_ are not used for sequences.
+
+*   Note that the null value is not allowed as an element of a set, or the
+*   value of a map entry, but can be used as the value of an element in a seq.
+
+*   The _key_ table is needed to provide constant time bounds for iterating over
+*   a set, in all of its forms.
+
+*   Since the _key_ table is needed, a set can be indexed using the key table.
+*   This allows the definition of 'get' and 'put' on sequences.
+
+*   Sequences are currently implemented using SPITBOL arrays, extending
+*   the array length dynamically as needed.
+
+*   New elements can be added to a sequence using the 'push' primitive,
+*   and the most recent element can be deleted using the 'pop' primitive.
 
 *   In order to avoid clashing with the names of user-defined functions, almost
 *   all of the functions defined herein begin with one of the following strings:
@@ -59,9 +108,6 @@
 *   In SETL4, the algebra is defined both on integers and non-integers.  
 *   For integers, zero is "false" and all other integers are "true." 
 *   For non-integers, the null string ('') is true, and all other values are false.
-
-    false = 0
-    true = 1
 
 
 *   false(e)
@@ -140,8 +186,6 @@
 
 *   Set 
 *   ---
-
-*   S set is a set of elements.
 
 *   Set set functions
 *   -----------------
@@ -222,6 +266,29 @@ k
 *   setl4.size(set)
 *   setl4.traceoff()
 *   setl4.traceon()
+
+
+*   SETL4 configuration options
+*   ---------------------------
+
+*   Initial size of any hash tables created when constructing
+*   a new instance of a set.
+
+    setl4.config.table.size = 16
+
+
+*   SETL4 constants
+*   ---------------
+
+*   The values of the following variables should NEVER be changed, lest chaos ensue.
+
+    false = 0
+    true = 1
+
+
+*   SETL4 function definitions
+*   --------------------------
+
 
     define('false(e)')                              :(false.end)
 
@@ -492,8 +559,6 @@ loop.end
 *   access to map entries, both when retrieving values and
 *   when iterating over the set.
 
-    setl4.default.size = 16
-
     define('map.domain(map))')                      :(map.domain.end)
 
 *   Return set with the keys in _map_.
@@ -531,7 +596,7 @@ map.equal
 
 map.equal.end
 
-    define('map.first(map)')                            :(map.last)
+    define('map.first(map)')                            :(map.first.end)
 
 *   Returns first element in _map_.
 
@@ -553,13 +618,14 @@ map.get
 
 map.get.end
 
-    define('map.last(map)')                         :(map.last)
+    define('map.last(map)')                         :(map.last.end)
 
 *   Returns last element in _map_.
 
 map.last
 
-    map.last = set.key(map)[#map]                   :(return)
+    output = 'enter map.last'
+    map.last = set.key(map)[set.max(map)]           :(return)
 
 map.last.end
 
@@ -774,59 +840,15 @@ seq.range.end
 *   ____
 
 
-*   SETL4 extends SPITBOL by adding the datatype _set_ to represent
-*   finite sets. Several additional datatypes based on sets are
-*   also provided. Each is identified by its kind.
-
-*   A set is defined by the following datatype:
-
-    data('set(set.kind,set.index,set.key,set.size,set.max,set.next,'
-.               'set.this,set.loop,set.low,set.high,set.step,set.text,set.seq)')
-
-*   where
-
-*           _kind_          the kind of _set_: 'int', 'map', 'seq', 'set', or 'str'.
-
-*           _index_         a SPITBOL table used to map the integer
-*                           id assigned each element to the value of the element.
-
-*           _key_           a SPITBOL table, used only for maps, to permit iteration
-
-*           _size_          the current number of members.
-
-*           _max_           the maximum id assigned an element of the set.
-
-*           _next_          the last value returned by the _next_ primitive
-*                           when iterating over a set.
-*           _loop_          is array needed when iterating in order other than which
-*                           elements were added to the set.
-
-*           _text_          is the text of the set of kind _str_
-
-*           _seq_           is the array used to maintain a sequence. _set.key_
-*                           and _set.index_ are not used for sequences.
-
-*   Note that the null value is not allowed as an element of a set, or the
-*   value of a map entry, but can be used as the value of an element in a seq.
-
-*   The _key_ table is needed to provide constant time bounds for iterating over
-*   a set, in all of its forms.
-
-*   Since the _key_ table is needed, a set can be indexed using the key table.
-*   This allows the definition of 'get' and 'put' on sequences.
-
-*   Sequences are currently implemented using SPITBOL arrays, extending
-*   the array length dynamically as needed.
-
-*   New elements can be added to a sequence using the 'push' primitive,
-*   and the most recent element can be deleted using the 'pop' primitive.
-
     define('set.add(set,elem)max')                  :(set.add.end)
 
 *   Add _elem_ to set, unless already present.
 
 set.add
 
+    output = 'set.add dt ' datatype(set) ' dt elem ' datatype(elem)
+    output = ident(set) ' set is null'
+    output = ident(elem) ' elem is null'
     differ(set.key(set)[elem])                      :s(return)
     set.max(set) = set.max(set) + 1
     set.size(set) = set.size(set) + 1
@@ -857,7 +879,7 @@ set.equal
 
 set.equal.end
 
-    define('set.first(set)')                            :(set.first)
+    define('set.first(set)')                            :(set.first.end)
 
 *   Returns first element in _set_.
 
@@ -905,13 +927,13 @@ set.intersection
 
 set.intersection.end
 
-    define('set.last(set)')                            :(set.last)
+    define('set.last(set)')                         :(set.last.end)
 
 *   Returns last element in _set_.
 
 set.last
 
-    set.last = set.key(set)[1]                         :(return)
+    set.last = set.key(set)[set.max(set)]           :(return)
 
 set.last.end
 
@@ -1150,11 +1172,9 @@ show.lines.n
     empty(line)                                     :s(show.lines.n)
     differ(titled)                                  :s(show.lines.titled)
 
-*   Don not list header unless at least one non-empty line
+*   Do not list header unless at least one non-empty line
 
     out('    123456789012345')
-
-
     titled = 1
 
 show.lines.titled
@@ -1390,36 +1410,10 @@ str.lower.end
 *   in brackets, followed by TEXT3.
 
 str.out
+    output = 'str.out  |' datatype(text1) '|'  datatype(text2) '|' datatype(text3) '|'
+    output = 'str.out  |' text1 '|'  text2 '|' text3 '|'
     output = text1 (differ(text2) '[' text2 ']', '')
 .               (differ(text3) text3, ''):(return)
-
-    differ(text2)                                   :s(str.out.text2)
-
-*   Here if just text1.
-
-    output = text1                                  :(return)
-
-str.out.text2
-
-    type2 = dt(text2)
-    type3 = dt(text3)
-*   output = 'dt(type2) ' dt(type2)
-*   output = 'dt(type3) ' dt(type3)
-    ident(datatype(text2),'string')                 :s(str.out.2)
-*.                                                      :(error)
-
-str.out.2
-
-    ident(type3,'integer')                          :s(str.out.3)
-    ident(type3,'string')                           :s(out.3)
-
-str.out.3
-    type.ex(text3,'string')                         :s(str.out.ok)
-    type.ex(text3,'integer')                        :s(str.out.ok)
-                                                    :(setl4.strl4.quit)
-str.out.ok
-
-    output = text1 ' [' text2 ']' text3     :(return)
 
 str.out.end
 
@@ -1691,7 +1685,7 @@ str.upper
 
 str.upper.end
 
-       define('str.writer(lines)'       )              :(str.writer.end)
+       define('str.writer(lines)'       )           :(str.writer.end)
 
 *      Writes a sequence of the lines in the sequence _lines_
 *      to standard output.
@@ -1703,7 +1697,7 @@ str.writer
 
 str.writer.next
 
-    output = set.next(lines)                :f(return)s(str.writer.next)
+    output = set.next(lines)                        :f(return)s(str.writer.next)
 
 str.writer.end
 
@@ -1736,7 +1730,7 @@ visit.next
 
 visit.end
 
-    define('setl4.and(a,b)')                                :(setl4.and.end)
+    define('setl4.and(a,b)')                        :(setl4.and.end)
 
 *   Returns true iff (if and only if) both arguments are true.
 
@@ -1751,8 +1745,8 @@ setl4.and
 *   Here where at least one operand for 'and' is not integer, so
 *   use ident/differ to evaluate.
 
-    setl4.and = differ(a) differ(b) true                  :s(return)
-    setl4.and = false                                     :(return)
+    setl4.and = differ(a) differ(b) true            :s(return)
+    setl4.and = false                               :(return)
 
 setl4.and.end
 
@@ -1960,14 +1954,13 @@ setl4.member
     setl4.kind(kind,'str')                                  :s(setl4.member.str)
     setl4.kind(kind,'string')                               :s(setl4.member.string)
     setl4.kind(kind,'map')                                  :s(setl4.member.map)
-    setl4.kind(kind,'map')                                  :s(setl4.member.map)
     output = 'setl4.member wrong kind ' kind ' , quitting' :(end)
 
 setl4.member.int
 
     setl4.member = lt(elem,set.low(set)) false              :s(return)
     setl4.member = gt(elem,set.low(set)) false              :s(return)
-    setl4.member = (eq(remdr(elem - set.low(set),set.step(set))) true, false)       :(return)
+    setl4.member = (eq(remdr(elem - set.low(set),set.step(set))) true, false):(return)
 
 setl.4.member.map
 
@@ -1986,14 +1979,10 @@ setl.4.member.seq
 
     output = 'setl4.member seq not yet done' :(end)
     ident(set.array[key,1])                         :s(return)
-*   ident(value[set],ob
-
-                                                    :(return)
 
 setl4.elem.set
 
-    setl4.member = set.in(elem,set)                 :(return)
-*    set.in = (differ(set.key(set)[elem]) true, false) :(return)
+    setl4.member = (differ(set.key(set)[elem]) true, false) :(return)
 
 setl.4.member.str
 
@@ -2007,27 +1996,40 @@ setl.4.member.string
 
 setl4.member.end
 
-    setl4.config.table.size = 16
-
-    define('setl4.new(kind,init)i,len,n,key,val)')   :(setl4.new.end)
+    define('setl4.new(init)kind,i,len,n,key,val)')   :(setl4.new.end)
 
 *   Construct new set with initial values determined by string _init_.
 
 setl4.new
 
-*    data('set(set.kind,set.index,set.key,set.size,set.max,set.next,'
-*.               'set.this,set.loop,set.low,set.high,set.step,set.text)')
+    output = 'setl4.new init|' init '|'
+*   Argument is string. Its first word is the kind of the set, so
+*   check that kind if valid, then remove kind from _init_
+
+    kind = substr(init,1,3)
+    setl4.kind(kind,'map','seq','set','str')         :s(setl4.new.init)
+    output = 'bad kind to setl4.new ' kind ', quitting.' :(quit)
+
+setl4.new.init
+
+*   Remove kind specification and following space from _init_
+    init = substr(init,4)
+
+*   Create new instance of data type 'set'.
 
     setl4.new = set(table(setl4.config.table.size), table(setl4.config.table.size))
 
-        :($('setl4.' kind '.new'))
+*   Branch on set kind to finish initialization.
+
+    output = 'setl4.new kind ' kind
+*        :($('setl4.' kind '.new'))
+    ident(kind,'map')                               :s(setl4.map.new)
+    ident(kind,'seq')                               :s(setl4.seq.new)
+    ident(kind,'set')                               :s(setl4.set.new)
+    ident(kind,'str')                               :s(setl4.str.new)
+    output = 'bad kind to setl4.new ' kind ', quitting.' :(quit)
 
 setl4.map.new
-
-*    define('setl4.map.new(init)init,key,val')        
-*    define('setl4.seq.new(n)i,len')                :(setl4.seq.new.end)
-*    define('setl4.set.new(init)n')                 :(setl4.set.new.end)
-*    define('setl4.str.new(init)')                  :(setl4.str.new.end)
 
 *   If present, _init_ is a list consisting of a list of key/value pairs,
 *   with a colon (:) between the key and value.
@@ -2077,17 +2079,18 @@ setl4.seq.new
 
     set.index(setl4.new) =
     set.key(setl4.new) = 
-    set.index(setl4.new) =
-    set.max(setl4.seq.new) = array(n)               :(return)
+                                                    :(return)
 
 setl4.set.new
 
+    output = 'set4.set.new.init|' init '|'
     ident(init)                                     :s(return)
     init = init ' '
 
 setl4.set.new.init
 
     init break(' ') . element ' ' =                 :f(return)
+    output = 'adding element|' element '| to set'
     set.add(setl4.set.new,element)                  :(setl4.set.new.init)
 
 setl4.str.new
@@ -2192,7 +2195,7 @@ setl4.or.end
 
                                                     :(quit.bypass)
 quit
-    output = 'Fatal error ' &lastno '.   Stopping the madness.'
+    output = 'Fatal error ' &errtext ' at line ' &lastno '.   Stopping the madness.'
 *    &dump = 3
                                                     :(end)
 quit.bypass
@@ -2241,6 +2244,28 @@ setl4.random.seed.done
 
 setl4.random.seed.end
 
+    define('setl4.show(set)')                       :(setl4.show.end)
+
+*   Show the fields of an instance of _set_.
+
+setl4.show
+
+    output = 'setl4.show:'
+    output = str.out('kind',set.kind(set))
+    output = differ(set.index(set))         str.out('size(set.index(set))', #set.index(set))
+    output = differ(set.key(set))           str.out('size(set.key(set))', #set.key(set))
+    output = str.out('size',set.size(set))
+    output = str.out('max',set.max(set))
+    output = differ(set.next(set))          show(set.next(set))
+    output = differ(set.this(set))          show(set.this(set))
+    output = str.out('low', set.low(set))
+    output = str.out('step', set.low(set))
+    output = str.out('high', set.high(set))
+    output = differ(set.text(set))          str.out('text',set.text(set))
+
+                                                    :(return)
+setl4.show.end
+
     define('setl4.size(set)')                       :(setl4.size.end)
 
 *   Return size of operand.
@@ -2251,8 +2276,8 @@ setl4.size
     kind = setl4.kind(set)
     output = setl4.kind(set,'int') ' need step case for setl4.size int' :(end)
     setl4.size = setl4.kind(kind,'int')
-.               set.high(set) - set.low(set) + 1                :s(return)
-    setl4.size = set.size(set)                              :(return)
+.               set.high(set) - set.low(set) + 1    :s(return)
+    setl4.size = set.size(set)                      :(return)
 
 setl4.size.end
 
@@ -2332,7 +2357,7 @@ setl4.traceon.end
     opsyn('@','setl4.eval',  2)
     opsyn('#','setl4.filter',2)
     opsyn('~','setl4.member',2)
-    opsyn('^','setl4.or',    2)
+*    opsyn('^','setl4.or',    2)
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
