@@ -30,6 +30,7 @@
 *   '|'     |'str'  Constructor     Returns set specified by string _str_
 *   '!'     !expr   Not             True if and only if _expr_ is false
 *   '#'     #s      Size            Number of elements in set _s_
+*   '/'     /s      Split           Splits a string into a sequence of words
 
 *   SETL4 binary operators:
 
@@ -558,7 +559,7 @@ map.get.end
 
 map.last
 
-    map.last = set.key(map)[1]                      :(return)
+    map.last = set.key(map)[#map]                   :(return)
 
 map.last.end
 
@@ -1690,22 +1691,6 @@ str.upper
 
 str.upper.end
 
-    define('str.words(line)word')                   :(str.words.end)
-
-*   Return sequence of the str.words in line, fail if no str.words.
-
-str.words
-
-    str.words = map()
-    line =  line ' '
-
-str.words.next
-
-    line break(' ') . word ' ' =                    :f(return)
-    set.add(str.words,word)                         :(str.words.next)
-
-str.words.end
-
        define('str.writer(lines)'       )              :(str.writer.end)
 
 *      Writes a sequence of the lines in the sequence _lines_
@@ -2024,7 +2009,7 @@ setl4.member.end
 
     setl4.config.table.size = 16
 
-    define('set.new(kind,init)'i,len,n,key,val)')   :(setl4.new.end)
+    define('setl4.new(kind,init)i,len,n,key,val)')   :(setl4.new.end)
 
 *   Construct new set with initial values determined by string _init_.
 
@@ -2033,9 +2018,9 @@ setl4.new
 *    data('set(set.kind,set.index,set.key,set.size,set.max,set.next,'
 *.               'set.this,set.loop,set.low,set.high,set.step,set.text)')
 
-    setl4.new = set(table(setl4.config.table.size,setl4.config.table.size)
+    setl4.new = set(table(setl4.config.table.size), table(setl4.config.table.size))
 
-        :($('setl4.new.' kind '.new))
+        :($('setl4.' kind '.new'))
 
 setl4.map.new
 
@@ -2044,8 +2029,9 @@ setl4.map.new
 *    define('setl4.set.new(init)n')                 :(setl4.set.new.end)
 *    define('setl4.str.new(init)')                  :(setl4.str.new.end)
 
-*    If present, _init_ is a list consisting of a list of key/value pairs,
+*   If present, _init_ is a list consisting of a list of key/value pairs,
 *   with a colon (:) between the key and value.
+
     ident(init)                                     :s(return)
     init = init ' '
 
@@ -2270,6 +2256,24 @@ setl4.size
 
 setl4.size.end
 
+    define('setl4.split(str)word')                  :(setl4.split.end)
+
+*   Returns sequence of the words in stirng _str_.
+*   Words are separated by whitespace: one of more consecuture spaces
+*   or tabs.
+
+setl4.split
+
+    setl4.split = setl4.new('seq')
+    line =  line ' '
+
+setl4.split.next
+
+    line break(' ') . word ' ' =                    :f(return)
+    set.add(setl4.split,word)                       :(setl4.split.next)
+
+setl4.split.end
+
     define('setl4.traceoff()')                      :(setl4.traceoff.end)
 
 *   Initiate tracing.
@@ -2301,11 +2305,7 @@ setl4.traceon.end
 *   with a function.
 
 *   binary  &  @  #  %  ~
-*   unary:  !  %  /  #  =  |
-
-*   characters still available for use by SETL4 as operators:
-
-*   unary:    /
+*   unary:  !  %  /  #  =  | /
 
 *   define('setl4.op(ch,proc,n)')           :(setl4.op.end)
 *
@@ -2313,22 +2313,27 @@ setl4.traceon.end
 *
 *setl4.op
 *
-*   opsyn(ch,proc,n)                :s(return)
+*   opsyn(ch,proc,n)                        :s(return)
 *   output = 'fatal problem with opsyn for ' ch ', quitting.' :(quit)
 *
 *setl4.op.end
 
 *   SETL4 unary operators:
 
-    opsyn('=','setl4.arb', 1)
-    opsyn('|','setl4.new', 1)
-    opsyn('!','setl4.not', 1)
-    opsyn('#','setl4.size',1)
+    opsyn('=','setl4.arb',   1)
+    opsyn('|','setl4.new',   1)
+    opsyn('!','setl4.not',   1)
+    opsyn('#','setl4.size',  1)
+    opsyn('/','setl4.split', 1)
 
 *   SETL4 binary operators:
 
-    opsyn('&','setl4.and',         2)
-    opsyn('@','setl4.eval',        2)
-    opsyn('#','setl4.filter',      2)
-    opsyn('~','setl4.member',      2)
-    opsyn('^','setl4.or',          2)
+    opsyn('&','setl4.and',   2)
+    opsyn('@','setl4.eval',  2)
+    opsyn('#','setl4.filter',2)
+    opsyn('~','setl4.member',2)
+    opsyn('^','setl4.or',    2)
+
+*   Here endeth the SETL4 code.
+*   May you fare well using it.
+
