@@ -419,32 +419,6 @@ loop.end
 
     setl4.default.size = 16
 
-    define('map.new(init)init,key,val')        :(map.new.end)
-
-*   Create a new map.
-
-*   _init_ is a list consisting of a list of key/value pairs,
-*   with a colon (:) between the key and value.
-
-map.new
-
-    map.new = ident(init) set(table(setl4.default.size),
-.               table(setl4.default.size)) :s(return)
-    key = convert(init,'integer')                    :f(map.new.init)
-    map.new = map(table(key),table(key))             :(return)
-
-map.new.init
-
-    map.new = set(table(setl4.default.size),table(setl4.default.size))
-    init = init ' '
-
-map.new.init.next
-
-    init break(':') . key ':' break(' ') . val span(' ') =  :f(return)
-    map.put(map.new,key,val)                        :(map.new.init.next)
-
-map.new.end
-
     define('map.domain(map))')                      :(map.domain.end)
 
 *   Return set with the keys in _map_.
@@ -675,7 +649,7 @@ seq.extend.end
 
 seq.get
 
-    seq.get = seq.array(seq)[i]                     :f(freturn)s(return)
+    seq.get = set.index(seq)[i]                     :f(freturn)s(return)
 
 seq.get.end
 
@@ -694,21 +668,6 @@ seq.integers.next
 
 seq.integers.end
 
-    define('seq.new(n)i,len')                       :(seq.new.end)
-
-*   Create a new sequence of length _n_.
-
-
-seq.new
-
-    assert.dt(seq,'seq')
-    n = ident(n) setl4.default.size
-    n = integer(n) +n
-    seq.new = seq(array(n))
-    seq.max(seq.new) = n                            :(return)
-
-seq.new.end
-
     define('seq.push(seq,val)len')                  :(seq.push.end)
 
 seq.push
@@ -724,7 +683,7 @@ seq.push
 seq.push.room
 
     seq.size(seq) = #seq + 1
-    seq.array(seq)[#seq] = val                      :(return)
+    seq.index(seq)[#seq] = val                      :(return)
 
 seq.push.end
 
@@ -735,7 +694,7 @@ seq.push.end
 seq.put
 
     assert(ident(kind(seq),'seq'))
-    seq.array(seq)[i] = val                         :(return)
+    seq.key(seq)[i] = val                         :(return)
 
 seq.put.end
 
@@ -768,7 +727,7 @@ seq.range.end
 *   A set is defined by the following datatype:
 
     data('set(set.kind,set.index,set.key,set.size,set.max,set.next,'
-.               'set.this,set.loop,set.low,set.high,set.step,set.text)')
+.               'set.this,set.loop,set.low,set.high,set.step,set.text,set.seq)')
 
 *   where
 
@@ -789,6 +748,9 @@ seq.range.end
 *                           elements were added to the set.
 
 *           _text_          is the text of the set of kind _str_
+
+*           _seq_           is the array used to maintain a sequence. _set.key_
+*                           and _set.index_ are not used for sequences.
 
 *   Note that the null value is not allowed as an element of a set, or the
 *   value of a map entry, but can be used as the value of an element in a seq.
@@ -919,36 +881,6 @@ set.less
 
 set.less.end
 *
-    define('set.new(init)n')                        :(set.new.end)
-
-*   Create a new set.
-
-*   If _init_ is null, use a default value for the table.
-*   If _init_ is an integer, use the value for the initial size of the table.
-*   If _init_ is a string then treat it as list of initial elements, with their
-*   values separated by spaces.
-
-set.new
-    out('set.new init',init)
-    ident(init)                                     :s(set.new.int)
-    n = convert(init,'integer')                     :s(set.new.int)
-    set.new = set('set',table(n),table(n))
-    out('set.new',init)
-    init = init ' '
-
-set.new.init
-
-    init break(' ') . element ' ' =                 :f(return)
-    set.add(set.new,element)                        :(set.new.init)
-
-set.new.int
-
-    n = (ident(init) setl4.default.size,convert(init,'integer'))
-    out('set.new.init n',n)
-    set.new = set(table(n),table(n))                :(return)
-
-set.new.end
-
     define('set.subset(a,b)member')                 :(set.subset.end)
 
 *   Tests if _b_ is a subset of _a_.
@@ -1397,17 +1329,6 @@ str.lower
     str.lower = replace(s,&ucase,&lcase)            :(return)
 
 str.lower.end
-
-    define('str.new(init)')                         :(str.new.end)
-
-*   Create new _str_ from str _init_.
-
-str.new
-
-    str.new = setl4.str.new(1)
-    setl4.str.text(str.new) = init                        :(return)
-
-str.new.end
 
     define('str.out(text1,text2,text3)type1,type2')     :(str.out.end)
 
@@ -2048,16 +1969,78 @@ setl.4.member.string
 
 setl4.member.end
 
-    define('setl4.new(str)')                        :(setl4.new.end)
+    setl4.config.table.size = 16
 
-*   Create new set, as specified by 'str'
+    define('set.new(kind,init)'i,len,n,key,val)')   :(setl4.new.end)
+
+*   Construct new set with initial values determined by string _init_.
 
 setl4.new
-    output = 'setl4.new: ' str '.'
-    output = 'setl4.new not yet implemented, quitting' :(quit)
+
+*    data('set(set.kind,set.index,set.key,set.size,set.max,set.next,'
+*.               'set.this,set.loop,set.low,set.high,set.step,set.text)')
+
+    setl4.new = set(table(setl4.config.table.size,setl4.config.table.size)
+
+        :($('setl4.new.' kind '.new))
+
+setl4.map.new
+
+*    define('setl4.map.new(init)init,key,val')        
+*    define('setl4.seq.new(n)i,len')                :(setl4.seq.new.end)
+*    define('setl4.set.new(init)n')                 :(setl4.set.new.end)
+*    define('setl4.str.new(init)')                  :(setl4.str.new.end)
+
+*    If present, _init_ is a list consisting of a list of key/value pairs,
+*   with a colon (:) between the key and value.
+    ident(init)                                     :s(return)
+    init = init ' '
+
+setl4.map.new.next
+
+    init break(':') . key ':' break(' ') . val span(' ') =  :f(return)
+    map.put(setl4.map.new,key,val)                  :(setl4.map.new.next)
+
+
+setl4.seq.new
+
+
+*   Create a new sequence of length _n_.
+
+*   If _init_ is integer, allocate initial key table of that size,
+*   else use the default.
+
+    n = ident(n) setl4.config.table.size
+    n = integer(n) +n
+
+*   Discard the index table since we know the domain values.
+
+    set.index(setl4.new) =
+    set.key(setl4.new) = 
+    set.index(setl4.new) =
+    set.max(setl4.seq.new) = array(n)               :(return)
+
+setl4.set.new
+
+    ident(init)                                     :s(return)
+    init = init ' '
+
+setl4.set.new.init
+
+    init break(' ') . element ' ' =                 :f(return)
+    set.add(setl4.set.new,element)                  :(setl4.set.new.init)
+
+setl4.str.new
+
+    ident(init)                                     :s(return)
+    init = init ' '
+
+setl4.str.new.init
+
+    init len(1) . key ' ' =                         :f(return)
+    setl.add(setl4.new,key)                         :(setl4.str.new.init)
 
 setl4.new.end
-
     define('setl4.next(set)dt,kind')                :(setl4.next.end)
 
 *   Advances iteration field 'next' and sets field 'this'
@@ -2275,4 +2258,3 @@ setl4.traceon.end
     opsyn('#','setl4.filter',      2)
     opsyn('~','setl4.member',      2)
     opsyn('^','setl4.or',          2)
-
