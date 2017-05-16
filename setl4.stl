@@ -5,6 +5,25 @@
 *   operator definitions that support set-theoretic operations defined
 *   on finite sets.
 
+*   In order to avoid clashing with the names of user-defined functions, almost
+*   all of the functions defined herein begin with one of the following strings:
+
+*       'int'   'map'   'seq'   'set'   'setl4'    'str'
+
+*   The following functions have no such prefix, due to the ubiquity of their use:
+
+*       'and' 'assert'  'exists' 'false' 'forall' 'loop'  
+
+*       'mark'  'next'  'or'  'rank'  'show'  'true'
+
+
+*   SETL4 supports a variety of sets. Each has a kind, one of:
+
+*       'int'   'map'   'seq'   'set'   str'
+
+*   For each kind, there are set-theoretic functions, as well as functions
+*   that have proven to be useful. These are noted as 'utility' below.
+
 *   SETL4 unary operators:
 
 *   '='     =s      Arb             Returns arbitary (randomly selected)  element of s
@@ -26,7 +45,23 @@
 
 *   where _multiple(a,b) is true if and only if _a_ is a multiple of _b_.
 
-*   Functions, defined herein,  that extend SPITBOL to implement SETL4.
+*   Boolean Logic
+*   -------------
+
+*   Boolean logic is an algebra with just two values: true and false.
+
+*   In SPITBOL, the algebra is defined on strings: the null string is "false" 
+*   and all other strings are "true".  The SPITBOL function IDENT is used 
+*   to test for true, DIFFER for false. 
+*   Each signals their result by success (true) or failure (false).
+
+*   In SETL4, the algebra is defined both on integers and non-integers.  
+*   For integers, zero is "false" and all other integers are "true." 
+*   For non-integers, the null string ('') is true, and all other values are false.
+
+    false = 0
+    true = 1
+
 
 *   false(e)
 *   true(e)
@@ -35,10 +70,26 @@
 *   exists(set,expr)
 *   forall(set,expr)
 
+
+*   Int: sets of kind _int_
+*   ----------
+
+
+*   A set of kind _int_ represents a set of integers. The set cannot be changed
+*   once it is created. You can only loop over a set of kind _int_ or test for 
+*   membership.
+
+*   Int set functions
+*   -----------------
+
+*   int.member(member,int)
+
+*   Int utility functions
+*   ---------------------
+
 *   int.cardinal(n,word)
 *   int.even(n)
 *   int.factorial(n)
-*   int.member(member,int)
 *   int.number(n)
 *   int.multiple(n,m)
 *   int.odd(n)
@@ -48,7 +99,15 @@
 
 *   loop(set)
 
-*   map.new(init)
+
+*   Map: sets of kind 'map'
+*   --------
+*   A map is a set of ordered pairs.
+
+*   Map set functions
+*   -----------------
+
+
 *   map.domain(map)
 *   map.equal(a,b)
 *   map.first(map)
@@ -57,18 +116,34 @@
 *   map.put(map,key,val)
 *   map.test(map,key)
 
+
 *   mark(line)
 *   next(set)
 *   rank(set)
 
+*   Seq: set of kind _seq_
+
+*   A sequence (_seq_) is a map defined on the positive integers 1 .. n
+*   Sequences are implemented using SPITBOL arrays, and so are very efficient.
+
+
+*   Seq set functions
+*   -----------------
+
 *   seq.add(seq,val)
-*   seq.extend(seq,len)
 *   seq.get(seq,i)
 *   seq.integers(n)
-*   seq.new(n)
 *   seq.push(seq,val)
 *   seq.put(seq,i,val)
 *   seq.range(seq)
+
+*   Set 
+*   ---
+
+*   S set is a set of elements.
+
+*   Set set functions
+*   -----------------
 
 *   set.add(set,elem)
 *   set.difference(a,b)
@@ -78,15 +153,28 @@
 *   set.intersection(a,b)
 *   set.less(set,elem)
 *   set.last(set)
-*   set.new(init)
 *   set.subset(a,b)
 *   set.union(a,b)
 
+*   Show: display SETL4 object
+
+*   The function _show_ is used to represent the value of a SETL4 object
+*   in a human-readable form.
+
+*   Objcts are shown in the order defined by the function _rank_.
+k
 *   show(v,lvl)
 *   show.line(line)
 *   show.lines(lines,title)
 *   show.quote(str)
 *   show.words(words)
+
+*   Str: set of characters
+
+*   _Str_ is used to treat a character string as a set of characters.
+
+*   Str utility functions
+*   -----------------
 
 *   str.append(str,w,ch)
 *   str.ascii(line)
@@ -96,7 +184,6 @@
 *   str.lower(s)
 *   str.spaces(line)c
 *   str.less(str,sub)
-*   str.new(init)
 *   str.out(text1,text2,text3)
 *   str.prefix(str,pre)
 *   str.reader(filename,expr)
@@ -110,6 +197,13 @@
 *   this(set)
 *   visit(set,expr)
 
+*   Setl4 functions
+
+*   Functions with names starting with 'setl4' are internal to the implementation.
+*   Most of them implement the SETL4 operator such  as "^" and "&".
+*   You can access them directly, but do so at your peril.
+
+*
 *   setl4.and(a,b)
 *   setl4.arb(set)
 *   setl4.binary.search(tbl,value)
@@ -127,26 +221,6 @@
 *   setl4.size(set)
 *   setl4.traceoff()
 *   setl4.traceon()
-
-*   Boolean Logic
-*   -------------
-
-*   Boolean logic is a form of algebra with just two values:
-*            true and false.
-
-
-*   In SPITBOL, the algebra is defined on strings:
-*   the null string is "false" and all other strings are "true".
-*   IDENT is used to test for true, DIFFER for false.
-*   Each signals their result by success (true) or failure (false).
-
-*   In SETL4, the algebra is defined both on the integers and
-*   on non-integers.  For integers, zero is "false" and all
-*   other integers are "true." For non-integers, the null
-*   string ('') is true, and all other values are false.
-
-    false = 0
-    true = 1
 
     define('false(e)')                              :(false.end)
 
@@ -344,12 +418,12 @@ int.odd.end
 
 int.prime
 
-    set = int.new(2,square.root(p))
+    set = setl4.new('int 2 ' square.root(p))
     int.prime = not(exists(set,'eq(remdr(p,=s))'))  :(return)
 
 int.prime.end
 
-    define('int.square.root(n)')               :(int.square.root.end)
+    define('int.square.root(n)')                    :(int.square.root.end)
 
 *   Returns square root of integer _n_, rounded up.
 
@@ -622,27 +696,6 @@ seq.add
 
 seq.add.end
 
-    define('seq.extend(seq,len)ara,i')              :(seq.extend.end)
-
-*   Increase length of sequence to be _len_.
-
-seq.extend
-
-    ara = array(len)
-
-seq.extend.copy
-
-    gt(i = i + 1, seq,length(seq))                  :s(seq.extend.done)
-    ara[i] = seq.array(seq)[i]                      :(seq.extend.copy)
-
-seq.extend.done
-
-    seq.length(seq) = len
-    seq.array(seq) = ara
-                                                    :(return)
-
-seq.extend.end
-
     define('seq.get(seq,i)')                        :(seq.get.end)
 
 *   Gets the value of element _i_ in the sequence _seq_
@@ -678,7 +731,7 @@ seq.push
 
 *   Here to extend length of array by fifty per cent.
 
-    seq.extend(seq,(3 * len) / 2)
+    setl4.seq.extend(seq,(3 * len) / 2)
 
 seq.push.room
 
@@ -2000,6 +2053,27 @@ setl4.map.new.next
 
     init break(':') . key ':' break(' ') . val span(' ') =  :f(return)
     map.put(setl4.map.new,key,val)                  :(setl4.map.new.next)
+
+    define('setl4.seq.extend(seq,len)ara,i')              :(setl4.seq.extend.end)
+
+*   Increase length of sequence to be _len_.
+
+setl4.seq.extend
+
+    ara = array(len)
+
+setl4.seq.extend.copy
+
+    gt(i = i + 1, seq,length(seq))                  :s(setl4.seq.extend.done)
+    ara[i] = seq.array(seq)[i]                      :(setl4.seq.extend.copy)
+
+setl4.seq.extend.done
+
+    seq.length(seq) = len
+    seq.array(seq) = ara
+                                                    :(return)
+
+setl4.seq.extend.end
 
 
 setl4.seq.new
