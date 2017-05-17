@@ -1,4 +1,4 @@
-*   Copyright 2017, David Shields
+*`   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
     &dump = 2
@@ -414,7 +414,7 @@ k
 *   setl4.filter(set,expr)
 *   setl4.kind(set,kind1,kind2,kind3,kind3,kind4)
 *   setl4.member(elem,kind,entry,key,value)
-*   setl4.set.new(str)
+*   setl4.new(str)
 *   setl4.next(set)
 *   setl4.not(expr)
 *   setl4.or(a,b)
@@ -641,7 +641,7 @@ int.odd.end
 
 int.prime
 
-    set = setl4.set.new('int 2 ' square.root(p))
+    set = setl4.new('int 2 ' square.root(p))
     int.prime = not(exists(set,'eq(remdr(p,=s))'))  :(return)
 
 int.prime.end
@@ -739,7 +739,7 @@ map.domain.next
 
 map.domain.end
 
-    define('map.equal(a,b)entry)                        :(map.equal.end)
+    define('map.equal(a,b)entry')                        :(map.equal.end)
 
 *   Test two maps for equality.
 
@@ -896,7 +896,7 @@ rank.str.set
 rank.str.next
     
     i = next(seq)                                   :f(return)
-    rank.str = rank.str dupl(i,freq[i])             :(rank.str.next_
+    rank.str = rank.str dupl(i,freq[i])             :(rank.str.next)
 
 rank.string
 
@@ -938,7 +938,7 @@ seq.get.end
 
 seq.integers
 
-    seq.integers = setl4.set.new('seq ' n)
+    seq.integers = setl4.new('seq ' n)
 
 seq.integers.next
 
@@ -1106,7 +1106,6 @@ set.last
 
 set.last.end
 
-*TODO resume review here  Wednesday
 
     define('set.subset(a,b)member')                 :(set.subset.end)
 
@@ -1120,10 +1119,10 @@ set.subset
 
 set.subset.next
 
-    member = set.next(b)                            :f(set.subset.done)
-    set.in(member,a)                                :s(set.subset.next)f(return)
+    member = set.next(b)                            :f(set.subset.true)
+    setl4.member(member,a)                          :s(set.subset.next)f(return)
 
-set.subset.done
+set.subset.true
 
     set.subset = true                               :(return)
 
@@ -1146,9 +1145,7 @@ set.union.a
 
 *   Make copy of a by making copy of a's table.
 
-    set.union = set.new(#a)
-    set.table(set.union) = copy(set.table(a))
-
+    set.union = copy(a)
     loop(b)
 
 set.union.b
@@ -1164,7 +1161,6 @@ set.union.end
 *   _lev_ is non-zero when called to list member or element
 *   of a compound object.
 
-*SHOW*
 show
     typ = datatype(v)
                                                     :($('show.' typ))
@@ -1300,7 +1296,6 @@ show.end
 
 *   Show a line with spaces replaced by '.'
 
-*SHOW.LINE*
 show.line
 
     show.line = replace(line,' ','.')               :(return)
@@ -1311,7 +1306,6 @@ show.line.end
 
 *   Show the lines that are not empty in an array of lines
 
-*SHOW.LINES*
 show.lines
 
     title  = 'lines' (differ(title) ' ' title, '')
@@ -1362,8 +1356,8 @@ show.words
 show.words.end
 
 
-*   Strings
-*   -------
+*   Strings (str's)
+*   ---------------
 
 *   SETL4 provides additional operations, based on set theory,
 *    on strings in the form of "str's".
@@ -1378,8 +1372,6 @@ str.append
     str.append = str (ident(str) w, str (ident(ch) ' ' , ch) w):(return)
 
 str.append.end
-
-    setl4.ascii.initialized = false
 
     define('str.ascii(line)c,n,name,nul,num,pos')   :(str.ascii.end)
 
@@ -1414,6 +1406,7 @@ str.ascii.next
     &alphabet break(c) . pos                        :f(str.ascii.other)
     pos = size(pos)
     gt(pos,26)                                      :s(str.ascii.other)
+*TODO here fix g. usage
     str.ascii = str.ascii g.str.ascii.name[c] '(^'
 .               substr('ABCDEFGHIJKLMNOPQRSTUVWXYZ',pos,1) ')'
     line len(1) =                                   :(str.ascii.next)
@@ -1479,8 +1472,8 @@ str.ascii.init
 .       '14:SO 30:RS  46:.   62:> 78:N 94:^ 110:n 126:~ '
 .       '15:SI 31:US  47:/   63:? 79:O 95:_ 111:o 127:DEL ')
 
-    setl4.strl4..str.ascii.name = setl4.str.map(setl4.strl4.default.size)
-    setl4.strl4..str.ascii.val = setl4.str.map(setl4.strl4.default.size)
+    str.ascii.name = str.map(setl4.strl4.default.size)
+    str.ascii.val = str.map(setl4.strl4.default.size)
 
 
     loop(str.ascii.init)
@@ -1497,11 +1490,11 @@ str.ascii.init.next
     setl4.strl4..str.ascii.name[] = 'NUL'
     setl4.strl4..str.ascii.val['NUL'] = 0
     setl4.strl4..str.ascii.name[' '] = 'SPC'
-    setl4.strl4..str.ascii.val['SPC'] = 32                     :(return)
+    setl4.strl4..str.ascii.val['SPC'] = 32                :(return)
 
 str.ascii.init.end
 
-    define('str.datename(date)s')                   :(str.datename.end)
+    define('str.datename(date)s')                         :(str.datename.end)
 
 *   Convert date to form with no spaces, just dashes, to be
 *   suitable for use as part of a file name.
@@ -1510,10 +1503,10 @@ str.datename
 
     str.datename = replace(date,' :/','---')
     str.datename = substr(str.datename,12,8) '-' substr(str.datename,1,10)
-                                                    :(return)
+                                                           :(return)
 str.datename.end
 
-    define('str.frequency(str)')                    :(str.frequency.end)
+    define('str.frequency(str)')                        :(str.frequency.end)
 
 *   Return map from the characters in a str to the number of times
 *   each occurs in the str.
@@ -1531,10 +1524,11 @@ str.frequency.end
 
     define('str.less(str,sub)before,after')         :(str.less.end)
 
-**      Less removes the first instance of each character in SUB from *str*,
-**      where SUB is a substr of *str*.
+*   _Less_ removes the first instance of each character in _sub_ from _str_,
+*   where _sub_ is a substr of _str_.
 
 str.less
+
     ident(str)                                      :s(return)
     str.less = str
 
@@ -2011,7 +2005,7 @@ setl4.filter.map.next
 
 setl4.filter.seq
 
-    setl4.filter = setl4.set.new()
+    setl4.filter = setl4.new()
     loop(set)
 
 
@@ -2080,7 +2074,7 @@ setl4.kind
 
 setl4.kind.end
 
-    define('setl4.member(elem,kind,entry,key,value)') :(setl4.member.end)
+    define('setl4.member(elem,set)kind,entry,key,value)') :(setl4.member.end)
 
 *   Tests if _elem_ is 'elem' of _set, where:
 
@@ -2151,36 +2145,36 @@ setl.4.member.string
 
 setl4.member.end
 
-    define('setl4.set.new(init)kind,i,len,n,key,val)')   :(setl4.set.new.end)
+    define('setl4.new(init)kind,i,len,n,key,val)')   :(setl4.new.end)
 
 *   Construct new set with initial values determined by string _init_.
 
-setl4.set.new
+setl4.new
 
     kind = substr(init,1,3)
-    setl4.kind(kind,'map','seq','set','str')         :s(setl4.set.new.init)
-    output = 'bad kind to setl4.set.new ' kind ', quitting.' :(quit)
+    setl4.kind(kind,'map','seq','set','str')         :s(setl4.new.init)
+    output = 'bad kind to setl4.new ' kind ', quitting.' :(quit)
 
-setl4.set.new.init
+setl4.new.init
 
 *   Remove kind specification and following space from _init_
     init = substr(init,4)
 
 *   Create new instance of data type 'set'.
 
-    setl4.set.new = set(table(setl4.config.size), table(setl4.config.size))
+    setl4.new = set(table(setl4.config.size), table(setl4.config.size))
 
 *   Branch on set kind to finish initialization.
 
-    output = 'setl4.set.new kind ' kind
+    output = 'setl4.new kind ' kind
 *        :($('setl4.' kind '.new'))
-    ident(kind,'map')                               :s(setl4.map.new)
-    ident(kind,'seq')                               :s(setl4.seq.new)
-    ident(kind,'set')                               :s(setl4.set.new)
-    ident(kind,'str')                               :s(setl4.str.new)
-    output = 'bad kind to setl4.set.new ' kind ', quitting.' :(quit)
+    ident(kind,'map')                               :s(setl4.new.map)
+    ident(kind,'seq')                               :s(setl4.new.seq)
+    ident(kind,'set')                               :s(setl4.new.new)
+    ident(kind,'str')                               :s(setl4.new.str)
+    output = 'bad kind to setl4.new ' kind ', quitting.' :(quit)
 
-setl4.map.new
+setl4.new.map
 
 *   If present, _init_ is a list consisting of a list of key/value pairs,
 *   with a colon (:) between the key and value.
@@ -2191,26 +2185,26 @@ setl4.map.new
 setl4.map.new.next
 
     init break(':') . key ':' break(' ') . val span(' ') =  :f(return)
-    map.put(setl4.map.new,key,val)                  :(setl4.map.new.next)
+    map.put(setl4.new.map,key,val)                  :(setl4.new.map.next)
 
-setl4.seq.new
+setl4.new.seq
 
 
-    set.seq(setl4.set.new) = array(setl4.config.size)
-    set.index(setl4.set.new) =
-    set.key(setl4.set.new) =                        :(return)
+    set.seq(setl4.new) = array(setl4.config.size)
+    set.index(setl4.new) =
+    set.key(setl4.new) =                        :(return)
 
-setl4.set.new
+setl4.new
 
     output = 'set4.set.new.init|' init '|'
     ident(init)                                     :s(return)
     init = init ' '
 
-setl4.set.new.init
+setl4.new.init
 
     init break(' ') . element ' ' =                 :f(return)
     output = 'adding element|' element '| to set'
-    set.add(setl4.set.new,element)                  :(setl4.set.new.init)
+    set.add(setl4.new,element)                  :(setl4.new.init)
 
 setl4.str.new
 
@@ -2220,9 +2214,9 @@ setl4.str.new
 setl4.str.new.init
 
     init len(1) . key ' ' =                         :f(return)
-    setl.add(setl4.set.new,key)                         :(setl4.str.new.init)
+    setl.add(setl4.new,key)                         :(setl4.str.new.init)
 
-setl4.set.new.end
+setl4.new.end
     define('setl4.next(set)dt,kind')                :(setl4.next.end)
 
 *   Advances iteration field 'next' and sets field 'this'
@@ -2423,7 +2417,7 @@ setl4.size.end
 
 setl4.split
 
-    setl4.split = setl4.set.new('seq')
+    setl4.split = setl4.new('seq')
     line =  line ' '
 
 setl4.split.next
@@ -2480,7 +2474,7 @@ setl4.traceon.end
 *   SETL4 unary operators:
 
     opsyn('=','setl4.arb',   1)
-    opsyn('|','setl4.set.new',   1)
+    opsyn('|','setl4.new',   1)
     opsyn('!','setl4.not',   1)
     opsyn('#','setl4.size',  1)
     opsyn('/','setl4.split', 1)
@@ -2493,6 +2487,16 @@ setl4.traceon.end
     opsyn('~','setl4.member',2)
 *    opsyn('^','setl4.or',    2)
 
+*   Global variables
+*   ----------------
+
+    setl4.ascii.name = setl4.new('map')
+    setl4.ascii.val =  setl4.new('map')
+    setl4.ascii.initialized = false
+
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
 
+:set tabstop=4
+:set expandtab
+:set shiftwidth=4
