@@ -112,30 +112,36 @@
 *   SPITBOL comparison functions report their results by success or failure, so SETL
 *   provides the following functions which return true or false.
 
-*       String operatios based on SPITBOL
 
-    str.any(_a_,_b_)    tests if the first character of _a_ is in _b_
-    str.break(_a_,_b_)  tests if _a_ contains one of the characters in _b_
-    str.notany(_a_,_b_) tests if first character in _a_ is not in _b_
-    str.span(_a_,_b_)    tests if _b_contains only characters in a
+*   String operations based on SPITBOL
+*   ----------------------------------
+
+*   str.any(_a_,_b_)    tests if the first character of _a_ is in _b_
+*   str.break(_a_,_b_)  tests if _a_ contains one of the characters in _b_
+*   str.notany(_a_,_b_) tests if first character in _a_ is not in _b_
+*   str.span(_a_,_b_)    tests if _b_contains only characters in a
+
 
 *   Lexical comparisons
+-   -------------------
 
-    str.leq(_a_,_b_)    tests if a is lexically equal to b
-    str.lge(_a_,_b_)    tests if a is lexically greater than or equal to _b_
-    str.lgt(_a_,_b_)    tests if a is lexically greater than _b_
-    str.lle(_a_,_b_)    tests if _a_ is lexically less than or equal to _b_
-    str.llt(_a_,_b_)    tests if _a_ is lexically less than _b_
-    stg.lne(_a_,_b_)    tests if _a_ is lexically not equal to _b_
+*   str.leq(_a_,_b_)    tests if a is lexically equal to b
+*   str.lge(_a_,_b_)    tests if a is lexically greater than or equal to _b_
+*   str.lgt(_a_,_b_)    tests if a is lexically greater than _b_
+*   str.lle(_a_,_b_)    tests if _a_ is lexically less than or equal to _b_
+*   str.llt(_a_,_b_)    tests if _a_ is lexically less than _b_
+*   stg.lne(_a_,_b_)    tests if _a_ is lexically not equal to _b_
+
 
 *   Integer comparisons
+*   -------------------
 
-    int.eq(_a_,_b_)     tests if a is equal to b
-    int.ge(_a_,_b_)     tests if a is greater than or equal to _b_
-    int.gt(_a_,_b_)     tests if a is greater than _b_
-    int.le(_a_,_b_)     tests if _a_ is less than or equal to _b_
-    int.lt(_a_,_b_)     tests if _a_ is less than _b_
-    int.ne(_a_,_b_)     tests if _a_ is not equal to _b_
+*   int.eq(_a_,_b_)     tests if a is equal to b
+*   int.ge(_a_,_b_)     tests if a is greater than or equal to _b_
+*   int.gt(_a_,_b_)     tests if a is greater than _b_
+*   int.le(_a_,_b_)     tests if _a_ is less than or equal to _b_
+*   int.lt(_a_,_b_)     tests if _a_ is less than _b_
+*   int.ne(_a_,_b_)     tests if _a_ is not equal to _b_
 
 
     define('int.eq(a,b)')                           :(int.eq.end)
@@ -146,13 +152,13 @@ int.eq
 
     int.eq = (integer(a) integer(b) eq(a,b) true,false) :s(return)
 
-int.equ.end
+int.eq.end
 
     define('int.ge(a,b)')                           :(int.eq.end)
 
 *   Tests if _a_ is greater than or equal to _b_.
 
-int.equ
+int.ge
 
     int.ge = (integer(a) integer(b) ge(a,b) true,false) :s(return)
 
@@ -186,7 +192,7 @@ int.lt
 
     int.lt = (integer(a) integer(b) lt(a,b) true,false) :s(return)
 
-int.ne.end
+int.lt.end
 
     define('int.ne(a,b)')                           :(int.ne.end)
 
