@@ -13,7 +13,7 @@
 
 *   A set is defined by the following datatype:
 
-    data('set(set.kind,set.index,set.key,set.size,set.max,set.next,'
+    data('set(set.kind,set.index,set.key,set.size,set.next,'
 .               'set.this,set.loop,set.low,set.high,set.step,set.text)')
 
 *   where
@@ -26,8 +26,6 @@
 *           _key_           a SPITBOL table, used only for maps, to permit iteration
 
 *           _size_          the current number of members.
-
-*           _max_           the maximum id assigned an element of the set.
 
 *           _next_          the last value returned by the _next_ primitive
 *                           when iterating over a set.
@@ -319,7 +317,8 @@ str.lne.end
 *   map.get(map,key)
 *   map.last(map)
 *   map.put(map,key,val)
-*   map.test(map,key)
+*   map.range(map)
+*   map.defined(map,key)
 
 
 *   mark(line)
@@ -328,7 +327,7 @@ str.lne.end
 
 *   Seq: set of kind _seq_
 
-*   A sequence (_seq_) is a map defined on the positive integers 1 .. n
+*   A sequence (_seq_) is a map on the positive integers 1 .. n
 *   Sequences are implemented using SPITBOL arrays, and so are very efficient.
 
 
@@ -455,7 +454,7 @@ k
 false
 
     e = integer(e) +e
-    false = integer(e) (eq(e) true, false)          :s(return)
+    false = integer(e) eq(e) true                   :s(return)
     false = (ident(e) true, false)                  :(return)
 
 false.end
@@ -466,7 +465,7 @@ false.end
 
 true
     e = integer(e) +e
-    true = integer(e) (ne(e) true, false)           :s(return)
+    true = integer(e) ne(e) true                    :s(return)
     true = (differ(e) true, false)                  :(return)
 
 true.end
@@ -496,8 +495,7 @@ assert.end
 
     define('exists(set,expr)e')                     :(exists.end)
 
-*   Tests if there is an element in _set such that _eval(expr)_
-*   is false.
+*   Tests if there is an element in _set such that _eval(expr)_ is true.
 
 exists
 
@@ -506,11 +504,11 @@ exists
 
 exists.loop
 
-    next(set)                                       :f(exists.done)
+    next(set)                                       :f(exists.true)
     e = eval(expr)                                  :f(exists.loop)
-    exists = true(e) true               :s(return)f(exists.loop)
+    exists = true(e) true                           :s(return)f(exists.loop)
 
-exists.done
+exists.true
 
     exists = true                                   :(return)
 
@@ -527,13 +525,12 @@ forall
 
 forall.loop
 
-    next(set)                                       :f(forall.done)
+    next(set)                                       :f(forall.true)
 
-*   If _eval(expr)_ fails, forall is false.
     e = eval(expr)                                  :f(return)
     true(e)                                         :s(forall.loop)f(return)
 
-forall.done
+forall.true
 
     forall = true                                   :(return)
 
@@ -543,7 +540,7 @@ forall.end
 *   --------
 
 *   SETL4 provides the type _int_ .
-*   An _int_ is a sequence of positive integers
+*   An _int_ is a sequence of positive integers.
 *
 *   SETL4 extends the integer operations provided by SPITBOL by
 *   providing the following integer functions:
@@ -596,7 +593,7 @@ int.member
     int.member = lt(member,set.low(int))    false   :s(return)
     int.member = gt(member,set.high(int))   false   :s(return)
     int.member = (multiple(
-.                       (int.high(int) - int.low(int) + 1)
+.                       (int.high(int) - int.low(int))
 .                         / int.step(int),
 .                       int.step(int))
 .                       true, false)      :(return)
@@ -613,7 +610,7 @@ int.multiple
 
 int.multiple.end
 
-    define('int.number(n)')                      :(int.number.end)
+    define('int.number(n)')                          :(int.number.end)
 
 **      If _n_ can be represented as a string of one or two words
 **      then return that string. Otherwise return _n_.
@@ -717,40 +714,49 @@ loop.end
 *   access to map entries, both when retrieving values and
 *   when iterating over the set.
 
-    define('map.domain(map))')                      :(map.domain.end)
+    define('map.defined(map,key)')                      :(map.defined.end)
 
-*   Return set with the keys in _map_.
+*   Tests if the map _map_ has an entry for _key_.
+
+map.defined
+
+    map.defined = (differ(set.key(map)[key]) true,false) :(return)
+
+map.defined.end
+
+    define('map.domain(map)elem)')                      :(map.domain.end)
+
+*   Return set of the keys in _map_.
 
 map.domain
 
-    map.domain = set.new(#map)
+    map.domain = set.new()
     loop(map)
 
 map.domain.next
 
-    next(map.domain)
-    set.add(map.domain,set.this(map))       :s(map.domain.next)f(return)
+    set.add(map.domain,key(next(map)))                  :s(map.domain.next)f(return)
 
 map.domain.end
 
-    define('map.equal(a,b)entry,key,value')         :(map.equal.end)
+    define('map.equal(a,b)entry)                        :(map.equal.end)
 
 *   Test two maps for equality.
-
-*   Two maps are equal if they have the same size and the value
-*   of the first map for each element in its domain is the same
-*   as the value of the second map for the corresponding element.
 
 map.equal
 
     map.equal = false
-    ne(#a,#b)                   :s(return)
+    ne(#a,#b)                                           :s(return)
+    loop(a)
 
-*   Two maps are equal iff each is a subset of the other.
+map.equal.next
 
-    map.equal = set.equal(map.domain(a),map.domain(b)) :f(return)
-    map.equal = set.equal(map.range(a),map.range(b))   :f(return)
-    map.equal = true
+    entry = next(a)                                     :f(map.equal.true)
+    ident(map.get(a,key(entry)),map.get(b,key(entry)))  :f(return)s(map.equal.next)
+
+map.equal.true
+
+    map.equal = true                                    :(return)
 
 map.equal.end
 
@@ -783,14 +789,14 @@ map.get.end
 map.last
 
     output = 'enter map.last'
-    map.last = set.key(map)[set.max(map)]           :(return)
+    map.last = set.key(map)[set.size(map)]           :(return)
 
 map.last.end
 
-    define('map.put(map,key,val)v')                 :(map.put.end)
+    define('map.put(map,key,value)v')               :(map.put.end)
 
 *   Sets the value of the entry for key _key_ in map _map_ to be _val_,
-*   creating a new entry if there is no current entry for _key_.
+*   creating a new entry if necessary.
 
 map.put
 
@@ -799,35 +805,40 @@ map.put
 
 *   Here to create new entry in map, and then merge to set new value.
 
-    set.max(map) = set.max(map) + 1
-    set.key(map)[key] = set.max(map)
+    set.size(map) = set.size(map) + 1
+    set.key(map)[key] = set.size(map)
 
 map.put.value
 
-    set.index(map)[set.key(map)[key]] = entry(key,val)      :(return)
+    set.index(map)[set.key(map)[key]] = entry(key,value):(return)
 
 map.put.end
 
-    define('map.test(map,key)')                     :(map.test.end)
+    define('map.range(map)elem)')                  :(map.range.end)
 
-*   Tests if the map _map_ has an entry for _key_.
+*   Return set of the values in _map_.
 
-map.test
+map.range
 
-    map.test = (differ(set.key(map)[key]) true,false) :(return)
+    map.range = set.new()
+    loop(map)
 
-map.test.end
+map.range.next
+
+    set.add(map.range,value(next(map)))             :s(map.range.next)f(return)
+
+map.range.end
 
     define('next(set)')                             :(next.end)
 
 next
 
-    next = setl4.next(set)                      :s(return)f(freturn)
+    next = setl4.next(set)                          :s(return)f(freturn)
 
 next.end
 
 
-    define('rank(set)ara,i,entry,key,seq,value')    :(rank.end)
+    define('rank(set)ara,freq,i,entry,key,seq,str,value')    :(rank.end)
 
 *   Rank returns a sorted version of its operand such that
 *   elements are in increasing order. For example,
@@ -847,7 +858,7 @@ rank
 rank.map
 
     ara = sort(set.key,1)
-    rank = set.new(#set)
+    rank = map.new()
 
 rank.map.next
 
@@ -857,50 +868,39 @@ rank.map.next
 rank.set
 
     ara = sort(set.key,1)
-    rank = set.new(#set)
+    rank = set.new()
 
 rank.set.next
 
-    entry = ara[i = i + 1,1]                        :f(return)
-    set.put(rank,key(entry),value(entry))           :(rank.set.next)
-
-rank.string
-
-*   Rank a string by building table from integers
-*   1..size(string) and then sorting on value.
-
-    seq = seq.new(size(string))
-
-rank.string.build
-
-    gt(i = i + 1, size(string))                     :s(rank.string.sort)
-*   seq.push(seq,substr(                            :(rank.string.build)
-    output = 'rank.string not implemented, quitting.' :(quit)
-*TODO sort this out
-    ara = sort(set.key(seq),1)
-    i = 0
-    rank = ''
-
-rank.string.sort
-
-    gt(i = i + 1,size(string))                      :s(return)
-    rank = rank seq.get(seq,i)                      :(rank.string.push)
-    gt(i = i + 1, size(string))                     :f(return)
+    set.add(rank,ara[i = i + 1,1])                  :f(return)s(rank.set.next)
 
 rank.str
 
-    i = str.frequency(set)
-    seq = str.set(str)
+    str = set.text(set)
+
+rank.str.string
+
+    freq = str.frequency(str)
+    seq = set.new()
+
+rank.str.collect
+
+    str len(1) . i =                                :f(rank.str.set)
+    set.add(seq,i)                                  :(rank.str.collect)
+
+rank.str.set
+
+    seq = rank(seq)
     loop(seq)
 
 rank.str.next
     
-    key = next(seq)                 :f(return)
-    rank = rank dupl(key,str.frequency[key])    :(rank.str.next)
-    
-rank.string.next
+    i = next(seq)                                   :f(return)
+    rank.str = rank.str dupl(i,freq[i])             :(rank.str.next_
 
-    str = set                   :(rank.str)
+rank.string
+
+    str = set                                       :(rank.str.string)
 
 rank.end
 
@@ -917,6 +917,7 @@ rank.end
 
 seq.add
 
+    setl4.seq.room(seq)
     seq.add = seq.push(seq,val)                     :(return)
 
 seq.add.end
@@ -937,42 +938,35 @@ seq.get.end
 
 seq.integers
 
-    seq.integers = seq.new(n)
+    seq.integers = setl4.set.new('seq ' n)
 
 seq.integers.next
 
     gt(i = i + 1, n)                                :s(return)
+    setl4.seq.room(seq)
     seq.push(seq.integers,i)                        :(seq.integers.next)
 
 seq.integers.end
 
-    define('seq.push(seq,val)len')                  :(seq.push.end)
+    define('seq.push(seq,value)max')                :(seq.push.end)
 
 seq.push
 
     assert.dt(seq,'seq')
-    len = seq.size(seq)
-    lt(len,seq.max(seq))                            :s(seq.push.room)
-
-*   Here to extend length of array by fifty per cent.
-
-    setl4.seq.extend(seq,(3 * len) / 2)
-
-seq.push.room
-
-    seq.size(seq) = #seq + 1
-    seq.index(seq)[#seq] = val                      :(return)
+    setl4.seq.room(seq)
+    set.size(seq) = #seq + 1
+    set.index(seq)[#seq] = value                    :(return)
 
 seq.push.end
 
-    define('seq.put(seq,i,val)v,len')               :(seq.put.end)
+    define('seq.put(seq,i,value)v,len')             :(seq.put.end)
 
-*   Sets the value of element _i_ in the sequence _seq_ to be _val_.
+*   Sets the value of element _i_ in the sequence _seq_ to be _value_.
 
 seq.put
 
     assert(ident(kind(seq),'seq'))
-    seq.key(seq)[i] = val                         :(return)
+    seq.key(seq)[i] = value                         :(return)
 
 seq.put.end
 
@@ -985,14 +979,15 @@ seq.range
 
     kind = kind(seq)
     output = differ(kind,'seq') 'range called on non-seq, quitting' :s(end)
-    seq.range = set.new('seq',#seq)
+    seq.range = set.new()
     loop(seq)
 
 seq.range.next
 
-    seq.range.add(value(seq.next(seq)))             :f(return)s(seq.range.next)
+    set.add(seq.range,value(seq.next(seq)))         :f(return)s(seq.range.next)
 
 seq.range.end
+
 
 *   Sets
 *   ____
@@ -1008,11 +1003,9 @@ set.add
     output = ident(set) ' set is null'
     output = ident(elem) ' elem is null'
 *    differ(set.key(set)[elem])                      :s(return)
-    set.max(set) = set.max(set) + 1
     set.size(set) = set.size(set) + 1
-    max = set.max(set)
-    set.index(set)[max] = elem
-    set.key(set)[elem] = max                        :(return)
+    set.index(set)[set.size(map)] = elem
+    set.key(set)[elem] = set.size(map)               :(return)
 
 set.add.end
 
@@ -1047,18 +1040,6 @@ set.first
 
 set.first.end
 
-    define('set.get(set,i)')                            :(set.get.end)
-
-*   Return the member in set corresponding to _i_, where _i_
-*   is in the range 1 ... size(set), and corresponds to the i-th
-*   entry added to the set.
-
-set.get
-
-    set.get = set.key(set)[i]           :(return)
-
-set.get.end
-
     define('set.integers(n)i')                      :(set.integers.end)
 
 *   Return set containing integers 1 .. _n_
@@ -1091,7 +1072,7 @@ set.intersection.end
 
 set.last
 
-    set.last = set.key(set)[set.max(set)]           :(return)
+    set.last = set.key(set)[set.size(set)]           :(return)
 
 set.last.end
 
@@ -1527,7 +1508,7 @@ str.datename.end
 
 str.frequency
 
-    str.frequency = map.new(size(str))
+    str.frequency = map.new()
 
 str.frequency.next
 
@@ -2018,7 +1999,7 @@ setl4.filter.map.next
 
 setl4.filter.seq
 
-    setl4.filter = seq.new(#set)
+    setl4.filter = setl4.set.new()
     loop(set)
 
 
@@ -2298,7 +2279,7 @@ setl4.next.int
 setl4.next.map
 
     set.next(set) = set.next(set) + 1
-    gt(set.next(set),set.max(set))                  :s(freturn)
+    gt(set.next(set),set.size(set))                  :s(freturn)
     setl4.next = set.index(set)[set.next(set)]
     set.this(set) = setl4.next
     ident(setl4.next)                       :s(setl4.next.set)f(return)
@@ -2313,8 +2294,8 @@ setl4.next.seq
 
 setl4.next.set
 
-*   output = 'next.set ' set.next(set) ',  max ' set.max(set) '.'
-    ge(set.next(set),set.max(set))  :s(freturn)
+*   output = 'next.set ' set.next(set) ',  max ' set.size(set) '.'
+    ge(set.next(set),set.size(set))  :s(freturn)
     set.next(set) = set.next(set) + 1
     setl4.next = set.index(set)[set.next(set)]
     ident(setl4.next)                               :s(setl4.next.set)
@@ -2406,6 +2387,21 @@ setl4.random.seed.done
 
 setl4.random.seed.end
 
+    define('setl4.seq.room('seq')len)               :(setl4.seq.room.end)
+
+*  Ensures that sequence _seq_ has room for a new entry, expanding it if necessary.
+
+setl4.seq.room
+
+    len = prototype(set.seq(seq))
+    le(set.size(seq),len)                           :s(return)
+
+*   Here to extend length of array by fifty per cent.
+
+    setl4.seq.extend(seq,(3 * len) / 2)             :(return)
+
+setl4.seq.room
+    
     define('setl4.show(set)')                       :(setl4.show.end)
 
 *   Show the fields of an instance of _set_.
@@ -2417,7 +2413,7 @@ setl4.show
     output = differ(set.index(set))         str.out('size(set.index(set))', #set.index(set))
     output = differ(set.key(set))           str.out('size(set.key(set))', #set.key(set))
     output = str.out('size',set.size(set))
-    output = str.out('max',set.max(set))
+    output = str.out('max',set.size(set))
     output = differ(set.next(set))          show(set.next(set))
     output = differ(set.this(set))          show(set.this(set))
     output = str.out('low', set.low(set))
