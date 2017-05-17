@@ -116,32 +116,32 @@
 *   String operations based on SPITBOL
 *   ----------------------------------
 
-*   str.any(_a_,_b_)    tests if the first character of _a_ is in _b_
-*   str.break(_a_,_b_)  tests if _a_ contains one of the characters in _b_
-*   str.notany(_a_,_b_) tests if first character in _a_ is not in _b_
-*   str.span(_a_,_b_)    tests if _b_contains only characters in a
+*   str.any(a,b)    tests if the first character of a is in b
+*   str.break(a,b)  tests if a contains one of the characters in b
+*   str.notany(a,b) tests if first character in a is not in b
+*   str.span(a,b)   tests if bcontains only characters in a
 
 
 *   Lexical comparisons
 -   -------------------
 
-*   str.leq(_a_,_b_)    tests if a is lexically equal to b
-*   str.lge(_a_,_b_)    tests if a is lexically greater than or equal to _b_
-*   str.lgt(_a_,_b_)    tests if a is lexically greater than _b_
-*   str.lle(_a_,_b_)    tests if _a_ is lexically less than or equal to _b_
-*   str.llt(_a_,_b_)    tests if _a_ is lexically less than _b_
-*   stg.lne(_a_,_b_)    tests if _a_ is lexically not equal to _b_
+*   str.leq(a,b)    tests if a is lexically equal to b
+*   str.lge(a,b)    tests if a is lexically greater than or equal to b
+*   str.lgt(a,b)    tests if a is lexically greater than b
+*   str.lle(a,b)    tests if a is lexically less than or equal to b
+*   str.llt(a,b)    tests if a is lexically less than b
+*   stg.lne(a,b)    tests if a is lexically not equal to b
 
 
 *   Integer comparisons
 *   -------------------
 
-*   int.eq(_a_,_b_)     tests if a is equal to b
-*   int.ge(_a_,_b_)     tests if a is greater than or equal to _b_
-*   int.gt(_a_,_b_)     tests if a is greater than _b_
-*   int.le(_a_,_b_)     tests if _a_ is less than or equal to _b_
-*   int.lt(_a_,_b_)     tests if _a_ is less than _b_
-*   int.ne(_a_,_b_)     tests if _a_ is not equal to _b_
+*   int.eq(a,b)     tests if a is equal to b
+*   int.ge(a,b)     tests if a is greater than or equal to b
+*   int.gt(a,b)     tests if a is greater than b
+*   int.le(a,b)     tests if a is less than or equal to b
+*   int.lt(a,b)     tests if a is less than b
+*   int.ne(a,b)     tests if a is not equal to b
 
 
     define('int.eq(a,b)')                           :(int.eq.end)
@@ -154,7 +154,7 @@ int.eq
 
 int.eq.end
 
-    define('int.ge(a,b)')                           :(int.eq.end)
+    define('int.ge(a,b)')                           :(int.ge.end)
 
 *   Tests if _a_ is greater than or equal to _b_.
 
@@ -206,23 +206,25 @@ int.ne.end
 
 
 *   Lexical
-    define('str.leq(a,b)')                           :(str.eq.end)
+
+    define('str.leq(a,b)')                           :(str.leq.end)
 
 *   Tests if _a_ is lexically equal to _b_.
 
-str.eq
+str.leq
 
-    str.eq = (integer(a) integer(b) eq(a,b) true,false) :s(return)
+    str.leq = leq(a,b) true                         
+    str.leq = (leq(a,b) true,false) :s(return)
+          
+str.leq.end
 
-str.equ.end
-
-    define('str.lge(a,b)')                           :(str.eq.end)
+    define('str.lge(a,b)')                           :(str.lge.end)
 
 *   Tests if _a_ is lexically greater than or equal to _b_.
 
 str.lge
 
-    str.ge = (integer(a) integer(b) ge(a,b) true,false) :s(return)
+    str.ge = (ge(a,b) true,false) :s(return)
 
 str.lge.end
 
@@ -232,7 +234,7 @@ str.lge.end
 
 str.lgt
 
-    str.lgt = (integer(a) integer(b) gt(a,b) true,false) :s(return)
+    str.lgt = (gt(a,b) true,false) :s(return)
 
 str.lgt.end
 
@@ -242,7 +244,7 @@ str.lgt.end
 
 str.lle
 
-    str.le = (integer(a) integer(b) le(a,b) true,false) :s(return)
+    str.le = (le(a,b) true,false) :s(return)
 
 str.lle.end
 
@@ -252,7 +254,7 @@ str.lle.end
 
 str.llt
 
-    str.llt = (integer(a) integer(b) llt(a,b) true,false) :s(return)
+    str.llt = (llt(a,b) true,false) :s(return)
 
 str.llt.end
 
@@ -262,7 +264,7 @@ str.llt.end
 
 str.lne
 
-    str.lne = (integer(a) integer(b) ne(a,b) true,false) :s(return)
+    str.lne = (ne(a,b) true,false) :s(return)
 
 str.lne.end
 
@@ -1005,7 +1007,7 @@ set.add
     output = 'set.add dt ' datatype(set) ' dt elem ' datatype(elem)
     output = ident(set) ' set is null'
     output = ident(elem) ' elem is null'
-    differ(set.key(set)[elem])                      :s(return)
+*    differ(set.key(set)[elem])                      :s(return)
     set.max(set) = set.max(set) + 1
     set.size(set) = set.size(set) + 1
     max = set.max(set)
@@ -1566,8 +1568,12 @@ str.lower.end
 *   in brackets, followed by TEXT3.
 
 str.out
+
+    text1 = differ(datatype(text1),'string') 
+    text2 = differ(datatype(text2),'string') 
+    text1 = differ(datatype(text3),'string') 
     output = 'str.out  |' datatype(text1) '|'  datatype(text2) '|' datatype(text3) '|'
-    output = 'str.out  |' text1 '|'  text2 '|' text3 '|'
+    outp3t = 'str.out  |' text1 '|'  text2 '|' text3 '|'
     output = text1 (differ(text2) '[' text2 ']', '')
 .               (differ(text3) text3, ''):(return)
 
@@ -2070,7 +2076,7 @@ setl4.filter.end
 
 setl4.kind
 
-*   output = 'setl4.kind dt ' datatype(set)
+   output = 'setl4.kind dt ' datatype(set)
     kind = ident(datatype(set),'string') true       :s(return)
     kind = set.kind(set)
     setl4.kind = differ(kind1) ident(kind1,kind) true       :s(return)
