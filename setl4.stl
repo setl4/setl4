@@ -958,7 +958,6 @@ seq.integers.end
 
 seq.push
 
-    output = 'enter seq.push, datatype seq ' datatype(seq)
     setl4.show(seq)
     assert.dt(seq,'set')
     assert(ident(set.kind(seq),'seq'))
@@ -1164,13 +1163,14 @@ set.union.b
 
 set.union.end
 
-    define('show(v,lvl)i,ent,type,line,hdr')        :(show.end)
+    define('show(v,label,lvl)i,ent,type,line,hdr')        :(show.end)
 
 *   Show the value of expression _v_.
 *   _lev_ is non-zero when called to list member or element
 *   of a compound object.
 
 show
+    differ(label) str.out('show: ' str.upper(label))
     typ = datatype(v)
                                                     :($('show.' typ))
 
@@ -1212,7 +1212,7 @@ show.map
 show.map.next
 
     member = next(v)                                :f(show.map.done)
-    show = show ' ' show(member,1)
+    show = show ' ' show(member,,1)
     lt(set.size(show),100)                          :s(show.map.next)
     output = show ' '
     show =                                          :(show.map.next)
@@ -1235,7 +1235,7 @@ show.seq
 show.seq.next
 
     member = next(v)                                :f(show.seq.done)
-    show = (ident(show) '[ ', show ' ') show(member,1)
+    show = (ident(show) '[ ', show ' ') show(member,,1)
     lt(set.size(show),100)                          :s(show.seq.next)
     output = show ' '
     show =                                          :(show.seq.next)
@@ -1256,8 +1256,8 @@ show.set.next
 
     member = next(v)                                :f(show.set.done)
 
-    show = (ident(show,'{') '{ ', show ' ') show(member,1)
-*   show = show ' '  show(member,1)
+    show = (ident(show,'{') '{ ', show ' ') show(member,,1)
+*   show = show ' '  show(member,,1)
     lt(set.size(show),100)                          :s(show.set.next)
     output = show
     show =                                          :(show.set.next)
@@ -1848,24 +1848,20 @@ str.words
 
     str = str ' '
     tmp = str
-    output = 'enter str.words tmp|' tmp '|'
 
 str.words.count
 
     tmp setl4.break.whitespace . w setl4.span.whitespace  = :f(str.words.seq)
-    output = 'str.words.count word|' w '|'
     n = n + 1                                       :(str.words.count)
 
 str.words.seq
 
-    output = 'str.words seq n|' n '|'
     str.words = setl4.new('seq ' n)
     setl4.show(str.words)
     
 str.words.next
 
     str setl4.break.whitespace . w setl4.span.whitespace  = :f(return)
-    output = 'str.words.next w|' w '|'
     seq.push(str.words,w)                           :(str.words.next)
 
 str.words.end
@@ -2011,7 +2007,6 @@ setl4.filter.end
 
 setl4.kind
 
-   output = 'setl4.kind dt ' datatype(set)
     kind = ident(datatype(set),'string') true       :s(return)
     kind = set.kind(set)
     setl4.kind = differ(kind1) ident(kind,kind1) true       :s(return)
@@ -2101,7 +2096,6 @@ setl4.member.end
 
 setl4.new
 
-    output = 'setl4.new |' init '|'
     kind = substr(init,1,3)
     init = substr(init,4)
 
@@ -2124,7 +2118,6 @@ setl4.new.init
 
 *   Branch on set kind to finish initialization.
 
-    output = 'setl4.new kind|' kind '|'
         :($('setl4.new.' kind))
     ident(kind,'int')                               :s(setl4.new.int)
     ident(kind,'map')                               :s(setl4.new.map)
@@ -2135,13 +2128,10 @@ setl4.new.init
 
 setl4.new.int
 
-    output = 'at setl4.new.int |' init '|'
     ident(init) error('setl4.new initialization information needed')
     setl4.new = set('int')
-    set.skip(setl4.new) = 1
-    output = 'setl4.new.int show'
+    set.step(setl4.new) = 1
     setl4.show(setl4.new)
-    output = 'setl4.new.int show done'
     seq = str.words(init)
 
 *   Ignore extra arguments to int constructor.
@@ -2170,7 +2160,7 @@ setl4.new.int.3
 *   If three arguments, low is first, high is second, step is third.
 
     set.low(setl4.new) = seq.get(seq,1)
-    set.low(setl4.new) = seq.get(seq,2)             
+    set.high(setl4.new) = seq.get(seq,2)             
     set.step(setl4.new) = seq.get(seq,3)            :(return)
 
 setl4.new.map
@@ -2195,14 +2185,12 @@ setl4.new.seq
 
 setl4.new.set
 
-    output = 'set4.set.new.init|' init '|'
     ident(init)                                     :s(return)
     init = init ' '
 
 setl4.new.set.init
 
     init break(' ') . element ' ' =                 :f(return)
-    output = 'adding element|' element '| to set'
     set.add(setl4.new,element)                      :(setl4.new.set.init)
 
 setl4.new.str
@@ -2226,9 +2214,7 @@ setl4.new.end
 
 setl4.next
 
-    kind = kind(set)
-    setl4.kind(kind,'int')                          :s(setl4.next.int)
-
+    kind = set.kind(set)
     set.next(set) = set.next(set) + (setl4.kind(set,'int') set.step(set),1)
     next = set.next(set)
     gt(next,(setl4.kind(set,'int') set.high(set), set.size(set))) :s(freturn)
@@ -2340,13 +2326,14 @@ setl4.seq.room
 
 setl4.seq.room.end
     
-    define('setl4.show(set)')                       :(setl4.show.end)
+    define('setl4.show(set,label)')                 :(setl4.show.end)
 
 *   Show the fields of an instance of _set_.
 
 setl4.show
 
                                str.out('{')
+    differ(label)              str.out('show: ' str.upper(label))
                                str.out('kind',set.kind(set))
     ne(set.size(set))          str.out('size',set.size(set))
     differ(set.index(set))     str.out('size(set.index(set))', size(set.index(set)))
@@ -2354,8 +2341,8 @@ setl4.show
     differ(set.next(set))      show(set.next(set))
     differ(set.this(set))      show(set.this(set))
     ne(set.low(set))           str.out('low',set.low(set))
-    ne(set.high(set))          str.out('step',set.low(set))
     ne(set.step(set))          str.out('high',set.high(set))
+    ne(set.high(set))          str.out('step',set.low(set))
     differ(set.text(set))      str.out('text',set.text(set))
     differ(set.seq(set))       str.out('seq',prototype(set.seq(set)))
                                str.out('}')
@@ -2371,7 +2358,6 @@ setl4.size
 
     setl4.size = ident(datatype(set),'string') size(set)    :s(return)
     kind = setl4.kind(set)
-    output = setl4.kind(set,'int') ' need step case for setl4.size int' :(end)
     setl4.size = setl4.kind(kind,'int')
 .               set.high(set) - set.low(set) + 1    :s(return)
     setl4.size = set.size(set)                      :(return)

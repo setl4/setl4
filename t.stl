@@ -1,22 +1,22 @@
 -include "setl4.stl"
 
 
-
     output = 'seq test'
+end
 *   s = |'seq 10'
     s = setl4.new('seq 10')
-    setl4.show(s)
+    setl4.show(s,'first seq')
 
 *   output = 'words test'
 
     seq = str.words('10 50 5')
-    setl4.show(seq)
+    setl4.show(seq,'seq test')
 
    output = 'int test'
 
 *    q = setl4.new('int 10 50 5')
     q = setl4.new('int 10')
-    setl4.show(q)
+    setl4.show(q,'q int test')
 
 end
 
