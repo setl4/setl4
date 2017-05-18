@@ -1,9 +1,27 @@
 -include "setl4.stl"
 
-    &dump = 2
-    s = |'set'
+
+
+    output = 'seq test'
+*   s = |'seq 10'
+    s = setl4.new('seq 10')
     setl4.show(s)
+
+*   output = 'words test'
+
+    seq = str.words('10 50 5')
+    setl4.show(seq)
+
+   output = 'int test'
+
+*    q = setl4.new('int 10 50 5')
+    q = setl4.new('int 10')
+    setl4.show(q)
+
 end
+
+
+
     output = set.kind(s)
 end
 

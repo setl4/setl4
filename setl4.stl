@@ -14,7 +14,7 @@
 *   A set is defined by the following datatype:
 
     data('set(set.kind,set.index,set.key,set.size,set.next,'
-.               'set.this,set.loop,set.low,set.high,set.step,set.text)')
+.               'set.this,set.loop,set.low,set.high,set.step,set.text,set.seq)')
 
 *   where
 
@@ -429,7 +429,16 @@ k
 *   Initial size of any hash tables created when constructing
 *   a new instance of a set.
 
-    setl4.config.size = 16
+*   Use large value for now, to avoid need for expansion during initial testing.
+*    setl4.config.size = 16
+    setl4.config.size = 120
+
+*   SETL4 global variables
+*   ----------------------
+
+
+    setl4.break.whitespace = break(' ' char(9))
+    setl4.span.whitespace =  span(' ' char(9))
 
 
 *   SETL4 constants
@@ -474,8 +483,8 @@ true.end
 
 assert.dt
 
-    assert(ident(datatype(set),typ))                :s(return)
-    output = 'assertion on datatype failed ' typ    :(quit)
+    assert(ident(datatype(obj),typ))                :s(return)
+    error('assertion on datatype failed ' typ )
     
 
 assert.dt.end
@@ -614,7 +623,7 @@ int.multiple.end
 **      then return that string. Otherwise return _n_.
 
 int.number
-    output = 'int.number not implemented, quitting.' :(quit)
+    error('int.number not implemented, quitting.' )
     int.number = eq(n) 'zero'                    :s(return)
     int.number = g.numbers[n]
     differ(int.number)                           :s(return)
@@ -744,7 +753,7 @@ map.domain.end
 map.equal
 
     map.equal = false
-    ne(#a,#b)                                           :s(return)
+    ne(set.size(a),set.size(b))                         :s(return)
     loop(a)
 
 map.equal.next
@@ -850,8 +859,7 @@ rank
     rank = setl4kind(set,'int','seq') copy(set)     :s(return)
     setl4kind(set,'map','set','str')                :s($('rank.' setl4kind(set)))
     ident(datatype(set),'string')                   :s(rank.string)
-    output 'rank unsupported operand type ' datatype(set)
-.                ', quitting.' :(quit)
+    error('rank unsupported operand type ' datatype(set) )
 
 rank.map
 
@@ -926,7 +934,7 @@ seq.add.end
 
 seq.get
 
-    seq.get = set.index(seq)[i]                     :f(freturn)s(return)
+    seq.get = set.seq(seq)[i]                     :f(freturn)s(return)
 
 seq.get.end
 
@@ -946,14 +954,17 @@ seq.integers.next
 
 seq.integers.end
 
-    define('seq.push(seq,value)max')                :(seq.push.end)
+    define('seq.push(seq,value)')                   :(seq.push.end)
 
 seq.push
 
-    assert.dt(seq,'seq')
+    output = 'enter seq.push, datatype seq ' datatype(seq)
+    setl4.show(seq)
+    assert.dt(seq,'set')
+    assert(ident(set.kind(seq),'seq'))
     setl4.seq.room(seq)
-    set.size(seq) = #seq + 1
-    set.index(seq)[#seq] = value                    :(return)
+    set.size(seq) = set.size(seq) + 1
+    set.seq(seq)[set.size(seq)] = value                    :(return)
 
 seq.push.end
 
@@ -964,7 +975,7 @@ seq.push.end
 seq.put
 
     assert(ident(kind(seq),'seq'))
-    seq.key(seq)[i] = value                         :(return)
+    set.seq(seq)[i] = value                         :(return)
 
 seq.put.end
 
@@ -982,7 +993,7 @@ seq.range
 
 seq.range.next
 
-    set.add(seq.range,value(seq.next(seq)))         :f(return)s(seq.range.next)
+    set.add(seq.range,set.next(seq))                :f(return)s(seq.range.next)
 
 seq.range.end
 
@@ -991,7 +1002,7 @@ seq.range.end
 *   ____
 
 
-    define('set.add(set,elem)max')                  :(set.add.end)
+    define('set.add(set,elem)')                     :(set.add.end)
 
 *   Add _elem_ to set, unless already present.
 
@@ -1079,7 +1090,7 @@ set.intersection
 
 *   Make _a_ the smaller set.
 
-    le(#a,#b)                                       :s(set.intersection.next)
+    le(set.size(a),set.size(b))                     :s(set.intersection.next)
     set.intersection = a
     a = b
     b = set.intersection
@@ -1112,7 +1123,7 @@ set.last.end
 set.subset
 
     set.subset = false
-    gt(#b,#a)                                       :s(return)
+    gt(set.size(b),set.size(a))                     :s(return)
     loop(b)
 
 set.subset.next
@@ -1134,7 +1145,7 @@ set.union
 
 *   Arrange so set a is the larger set.
 
-    ge(#a,#b)                                       :s(set.union.a)
+    ge(set.size(a),set.size(b))                     :s(set.union.a)
     set.union = a
     a = b
     b = set.union
@@ -1202,7 +1213,7 @@ show.map.next
 
     member = next(v)                                :f(show.map.done)
     show = show ' ' show(member,1)
-    lt(#show,100)                                   :s(show.map.next)
+    lt(set.size(show),100)                          :s(show.map.next)
     output = show ' '
     show =                                          :(show.map.next)
 
@@ -1225,7 +1236,7 @@ show.seq.next
 
     member = next(v)                                :f(show.seq.done)
     show = (ident(show) '[ ', show ' ') show(member,1)
-    lt(#show,100)                                   :s(show.seq.next)
+    lt(set.size(show),100)                          :s(show.seq.next)
     output = show ' '
     show =                                          :(show.seq.next)
 
@@ -1247,7 +1258,7 @@ show.set.next
 
     show = (ident(show,'{') '{ ', show ' ') show(member,1)
 *   show = show ' '  show(member,1)
-    lt(#show,100)                                   :s(show.set.next)
+    lt(set.size(show),100)                          :s(show.set.next)
     output = show
     show =                                          :(show.set.next)
 
@@ -1554,13 +1565,7 @@ str.lower.end
 
 str.out
 
-    text1 = differ(datatype(text1),'string') 
-    text2 = differ(datatype(text2),'string') 
-    text1 = differ(datatype(text3),'string') 
-    output = 'str.out  |' datatype(text1) '|'  datatype(text2) '|' datatype(text3) '|'
-    outp3t = 'str.out  |' text1 '|'  text2 '|' text3 '|'
-    output = text1 (differ(text2) '[' text2 ']', '')
-.               (differ(text3) text3, ''):(return)
+    output = text1 (differ(text2) '[' text2 ']', '') (differ(text3) text3, ''):(return)
 
 str.out.end
 
@@ -1832,14 +1837,45 @@ str.upper
 
 str.upper.end
 
-       define('str.writer(lines)'       )           :(str.writer.end)
+    define('str.words(str)n,tmp,w')                 :(str.words.end)
 
-*      Writes a sequence of the lines in the sequence _lines_
-*      to standard output.
+*   Return sequence consisting of the words in _str_, where the 
+*   words are separated by one or more consecutive spaces and tabs.
+
+str.words
+
+*   Make first pass over string to get number of words, _n_.
+
+    str = str ' '
+    tmp = str
+    output = 'enter str.words tmp|' tmp '|'
+
+str.words.count
+
+    tmp setl4.break.whitespace . w setl4.span.whitespace  = :f(str.words.seq)
+    output = 'str.words.count word|' w '|'
+    n = n + 1                                       :(str.words.count)
+
+str.words.seq
+
+    output = 'str.words seq n|' n '|'
+    str.words = setl4.new('seq ' n)
+    setl4.show(str.words)
+    
+str.words.next
+
+    str setl4.break.whitespace . w setl4.span.whitespace  = :f(return)
+    output = 'str.words.next w|' w '|'
+    seq.push(str.words,w)                           :(str.words.next)
+
+str.words.end
+
+    define('str.writer(lines)')                    :(str.writer.end)
+
+*   Writes the lines in the sequence _lines_ to standard output.
 
 str.writer
 
-    lines = copy(lines)
     loop(lines)
 
 str.writer.next
@@ -2065,15 +2101,16 @@ setl4.member.end
 
 setl4.new
 
+    output = 'setl4.new |' init '|'
     kind = substr(init,1,3)
     init = substr(init,4)
 
 *   Strip leading spaces from remaining part of _init_.
 
     init span(' ') =
-    output = ne(size(kind),3) 'setl4.new missing kind specification, quitting.' :(quit)
+    ne(size(kind),3) error('setl4.new missing kind specification')
     setl4.kind(kind,'int','map','seq','set','str')         :s(setl4.new.init)
-    output = 'bad kind to setl4.new ' kind ', quitting.' :(quit)
+    error('bad kind to setl4.new ' kind )
 
     ident(kind,'int')                               :s(setl4.new.map)
 
@@ -2083,47 +2120,52 @@ setl4.new.init
 
 *   Create new instance of data type 'set'.
 
-    setl4.new = set(table(setl4.config.size), table(setl4.config.size))
+    setl4.new = set(kind,table(setl4.config.size), table(setl4.config.size))
 
 *   Branch on set kind to finish initialization.
 
-    output = 'setl4.new kind ' kind
-        :($('setl4.' kind '.new'))
+    output = 'setl4.new kind|' kind '|'
+        :($('setl4.new.' kind))
+    ident(kind,'int')                               :s(setl4.new.int)
     ident(kind,'map')                               :s(setl4.new.map)
     ident(kind,'seq')                               :s(setl4.new.seq)
     ident(kind,'set')                               :s(setl4.new.new)
     ident(kind,'str')                               :s(setl4.new.str)
-    output = 'bad kind to setl4.new ' kind ', quitting.' :(quit)
+    error('bad kind to setl4.new ' kind)
 
 setl4.new.int
 
-    output = ident(init) 'setl4.new initialization information needed, quitting.' :(quit)
+    output = 'at setl4.new.int |' init '|'
+    ident(init) error('setl4.new initialization information needed')
     setl4.new = set('int')
+    set.skip(setl4.new) = 1
+    output = 'setl4.new.int show'
+    setl4.show(setl4.new)
+    output = 'setl4.new.int show done'
     seq = str.words(init)
-    set.skip(seq) = 1
 
 *   Ignore extra arguments to int constructor.
 
-    set.size(seq) = gt(#seq,3) 3
-    eq(#seq,1)                                      :s(setl4.new.seq.1)
-    eq(#seq,2)                                      :s(setl4.new.seq.2)
-    eq(#seq,3)                                      :s(setl4.new.seq.3)
+    set.size(seq) = gt(set.size(seq),3) 3
+    eq(set.size(seq),1)                             :s(setl4.new.int.1)
+    eq(set.size(seq),2)                             :s(setl4.new.int.2)
+    eq(set.size(seq),3)                             :s(setl4.new.int.3)
 
-setl4.new.seq.1
+setl4.new.int.1
 
 *   If one argument, low is one, high is the argument.
 
     set.low(setl4.new) = 1
     set.high(setl4.new) = seq.get(seq,1)            :(return)
 
-setl4.new.seq.2
+setl4.new.int.2
 
 *   If two arguments, low is low, high is second.
 
     set.low(setl4.new) = seq.get(seq,1)
     set.low(setl4.new) = seq.get(seq,2)             :(return)
 
-setl4.new.seq.3
+setl4.new.int.3
 
 *   If three arguments, low is first, high is second, step is third.
 
@@ -2146,9 +2188,10 @@ setl4.new.map.next
 
 setl4.new.seq
 
-    set.seq(setl4.new) = array(setl4.config.size)
     set.index(setl4.new) =
-    set.key(setl4.new) =                        :(return)
+    set.key(setl4.new) =                        
+    set.seq(setl4.new) = array(setl4.config.size)
+                                                    :(return)
 
 setl4.new.set
 
@@ -2228,13 +2271,16 @@ setl4.or
 
 setl4.or.end
 
-                                                    :(quit.bypass)
-quit
-    output = 'Fatal error ' &errtext ' at line ' &lastno '.   Stopping the madness.'
-*    &dump = 3
-                                                    :(end)
-quit.bypass
+    define('error(str)')                            :(error.end)
 
+*   Report cause of error and quit execution
+
+error
+
+    &dump = 2
+    output = 'Fatal error: ' str                    :(end)
+
+error.end
 
     define('setl4.random(n)')                       :(setl4.random.end)
 
@@ -2300,18 +2346,19 @@ setl4.seq.room.end
 
 setl4.show
 
-    output = 'setl4.show:'
-    output = str.out('kind',set.kind(set))
-    output = differ(set.index(set))         str.out('size(set.index(set))', #set.index(set))
-    output = differ(set.key(set))           str.out('size(set.key(set))', #set.key(set))
-    output = str.out('size',set.size(set))
-    output = str.out('max',set.size(set))
-    output = differ(set.next(set))          show(set.next(set))
-    output = differ(set.this(set))          show(set.this(set))
-    output = str.out('low', set.low(set))
-    output = str.out('step', set.low(set))
-    output = str.out('high', set.high(set))
-    output = differ(set.text(set))          str.out('text',set.text(set))
+                               str.out('{')
+                               str.out('kind',set.kind(set))
+    ne(set.size(set))          str.out('size',set.size(set))
+    differ(set.index(set))     str.out('size(set.index(set))', size(set.index(set)))
+    differ(set.key(set))       str.out('size(set.key(set))', size(set.key(set)))
+    differ(set.next(set))      show(set.next(set))
+    differ(set.this(set))      show(set.this(set))
+    ne(set.low(set))           str.out('low',set.low(set))
+    ne(set.high(set))          str.out('step',set.low(set))
+    ne(set.step(set))          str.out('high',set.high(set))
+    differ(set.text(set))      str.out('text',set.text(set))
+    differ(set.seq(set))       str.out('seq',prototype(set.seq(set)))
+                               str.out('}')
 
                                                     :(return)
 setl4.show.end
@@ -2374,6 +2421,8 @@ setl4.traceon
                                                     :(return)
 setl4.traceon.end
 
+*HERE*
+ :(bypass)
 *   Use some of the undefined SPITBOL operators for SETL4 functions.
 
 *   Characters available for use by 'opsyn' to associate the character
@@ -2389,7 +2438,7 @@ setl4.traceon.end
 *setl4.op
 *
 *   opsyn(ch,proc,n)                        :s(return)
-*   output = 'fatal problem with opsyn for ' ch ', quitting.' :(quit)
+*   error('fatal problem with opsyn for ' ch ')
 *
 *setl4.op.end
 *   SETL4 unary operators:
@@ -2418,4 +2467,6 @@ setl4.traceon.end
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
+bypass
 
+ output = 'passed bypass'
