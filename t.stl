@@ -2,7 +2,6 @@
 
 
     output = 'seq test'
-end
 *   s = |'seq 10'
     s = setl4.new('seq 10')
     setl4.show(s,'first seq')
@@ -11,6 +10,7 @@ end
 
     seq = str.words('10 50 5')
     setl4.show(seq,'seq test')
+end
 
    output = 'int test'
 

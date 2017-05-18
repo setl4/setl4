@@ -678,14 +678,16 @@ int.thousands.end
 
     define('loop(set)dt')                           :(loop.end)
 
-*   Set up for loop.
+*   Set up for loop. Set set.next field so that on first call to _next()_
+*   the index will be advanced to the first element in the set.
 
 loop
 
+    str.out('loop kind ',set.kind(set))
 *   Returns loop member in interation over compound object _set.
 
-    set.next(set) = 
-.           (setl4.kind(set.kind(set),'int') set.low(set) - 1, 0) :(return)
+    set.next(set) = ident(set.kind(set),'int') set.low(set) - set.step(set) :s(return)
+    set.next(set) =  0                              :(return)
 
 loop.end
 
@@ -1887,8 +1889,6 @@ str.writer.end
 this
 
     kind = kind(set)
-    output = setl4.kind(kind,'str') "next on str's not yet supported, quitting." :(end)
-
     this = set.this(set)
 
 this.end
@@ -2145,24 +2145,37 @@ setl4.new.int.1
 
 *   If one argument, low is one, high is the argument.
 
-    set.low(setl4.new) = 1
-    set.high(setl4.new) = seq.get(seq,1)            :(return)
+    set.low(setl4.new) =  1
+    set.high(setl4.new) = seq.get(seq,1)            
+    set.step(set) = 1
+                                                    :(setl4.new.int.done)
 
 setl4.new.int.2
 
 *   If two arguments, low is low, high is second.
 
-    set.low(setl4.new) = seq.get(seq,1)
-    set.low(setl4.new) = seq.get(seq,2)             :(return)
+    set.low(setl4.new) =  seq.get(seq,1)
+    set.high(setl4.new) = seq.get(seq,2)             
+    set.step(set) = 1
+                                                    :(setl4.new.int.done)
 
 setl4.new.int.3
 
 *   If three arguments, low is first, high is second, step is third.
 
-    set.low(setl4.new) = seq.get(seq,1)
+    set.low(setl4.new) =  seq.get(seq,1)
     set.high(setl4.new) = seq.get(seq,2)             
-    set.step(setl4.new) = seq.get(seq,3)            :(return)
+    set.step(setl4.new) = seq.get(seq,3)            
+                                                    :(setl4.new.int.done)
 
+setl4.new.int.done
+
+*   Set _next_ so that  incrmeneting it on first call to _setl4.next_  will point to first element in set
+
+    str.out('at setl4.new.int.done')
+    set.next(setl4.new) = set.low(setl4.new) - set.step(setl4.new) 
+    str.out('set4.ind.done next',set.next(setl4.new))
+                                                    :(return)
 setl4.new.map
 
 *   If present, _init_ is a list consisting of a list of key/value pairs,
@@ -2205,27 +2218,38 @@ setl4.new.str.init
 setl4.new.end
 
 
-    define('setl4.next(set)dt,kind,next')                :(setl4.next.end)
+    define('setl4.next(set)kind,next')              :(setl4.next.end)
 
 *   Advances iteration field 'next' and sets field 'this' to the next element of the iteration.
-*   The code is much the same for all cases except 'int'.
-
+*   Fails if not more elements remain.
 
 
 setl4.next
 
     kind = set.kind(set)
-    set.next(set) = set.next(set) + (setl4.kind(set,'int') set.step(set),1)
+    set.next(set) = ident(set.kind(set),'int') set.next(set) + set.step(set) :s(setl4.next.this)
+    set.next(set) = set.next(set) + 1
+
+setl4.next.this
+
+    ident(set.kind(set),'int') gt(set.next(set),set.high(set))      :s(freturn)
+    gt(set.next(set),set.size(set))                 :s(freturn)
     next = set.next(set)
-    gt(next,(setl4.kind(set,'int') set.high(set), set.size(set))) :s(freturn)
+    show(setl4.new,'setl4.next')
     set.this(set) = 
 .       (
 .       setl4.kind(kind,'int')          next,
 .       setl4.kind(kind,'map','set')    set.index(set)[next],
 .       setl4.kind(kind,'seq')          set.seq[next],
 .       setl4.kind(kind,'str')          substr(set.text(set),next,1)
+.       ident(datatype(set),'string')    substr(set,next,1)
 .       )
-    setl4.next = set.this(set)                      :(return)
+
+*   Set _this_ to make available for expressions using _eval_
+
+    this = set.this(set)
+    show(this,'setl4.next.this')
+    setl4.next = this                               :(return)
 
 setl4.next.end
 
@@ -2338,8 +2362,8 @@ setl4.show
     ne(set.size(set))          str.out('size',set.size(set))
     differ(set.index(set))     str.out('size(set.index(set))', size(set.index(set)))
     differ(set.key(set))       str.out('size(set.key(set))', size(set.key(set)))
-    differ(set.next(set))      show(set.next(set))
-    differ(set.this(set))      show(set.this(set))
+    differ(set.next(set))      str.out('next',set.next(set))
+    differ(set.this(set))      str.out('this',show(set.this(set)))
     ne(set.low(set))           str.out('low',set.low(set))
     ne(set.step(set))          str.out('high',set.high(set))
     ne(set.high(set))          str.out('step',set.low(set))
