@@ -1,4 +1,4 @@
-*`   Copyright 2017, David Shields
+*    Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
     &dump = 2
@@ -59,14 +59,12 @@
 
 *   The following functions have no such prefix, due to the ubiquity of their use:
 
-*       'and' 'assert'  'exists' 'false' 'forall' 'loop'  
-
-*       'mark'  'next'  'or'  'rank'  'show'  'true'
+*       and  assert  exists false forall loop  mark  next  or  rank  show  true
 
 
 *   SETL4 supports a variety of sets. Each has a kind, one of:
 
-*       'int'   'map'   'seq'   'set'   str'
+*       int   map   seq   set   str
 
 *   For each kind, there are set-theoretic functions, as well as functions
 *   that have proven to be useful. These are noted as 'utility' below.
@@ -1899,52 +1897,22 @@ setl4.and
 
 setl4.and.end
 
-    define('setl4.arb(set)n')                        :(setl4.arb.end)
+    define('setl4.arb(set)n,r')                     :(setl4.arb.end)
 
 *   Returns arbitary (randomly selected) element of _set_.
 
-
 setl4.arb
 
-    setl4.arb = integer(set) setl4.random(+set)      :s(return)
-    setl4.arb = string(set) subset(set,setl4.random(set),1) :s(return)
-    n = random(1,setl4.size(set))
-    setl4.kind(set,'int')                           :s(setl4.arb.int)
-    setl4.kind(set,'map')                           :s(setl4.arb.map)
-    setl4.kind(set,'seq')                           :s(setl4.arb.seq)
-    setl4.kind(set,'set')                           :s(setl4.arb.set)
-    setl4.kind(set,'str')                           :s(setl4.arb.str)
-
-setl4.arb.int
-
-    output = 'setl4.arb not done for int' :(end)
-
-setl4.arb.map
-
-setl4.arb.seq
-
-setl4.arb.set
-
-setl4.arb.str
-
+    setl4.arb = integer(set) setl4.random(+set)     :s(return)
+    r = setl4.random(set.size(set))
+    setl4.arb = (
+.       setl4.kind(set,'int')         set.low(set) + (r - 1) * set.step(set),
+.       setl4.kind(set,'map','set')   set.index(set)[r],
+.       setl4.kind(set,'seq')         set.seq(set)[r],
+.       setl4.kind(set,'str')         substr(set.text(set),r,1),
+.       ident(datatype(set),'string') substr(set,r,1))
+                                                    :(return)
 setl4.arb.end
-
-    define('setl4.binary.search(tbl,value)high,low,middle') :(setl4.binary.search.end)
-
-*   Perform to find element of _set_correspoding to _value) using a binary search.
-*   Based on Go code for binary search: http://rosettacode.org/wiki/Binary_search#Go
-
-setl4.binary.search
-
-    output = lt(high,low) 'setl4.binary.search high<low, quitting.' :(end)
-    middle = (low + high) / 2
-    setl4.binary.search = gt(a[middle],value)
-.               setl4.binary.search = setl4.binary.search(a,value, low, middle -1) :s(return)
-    setl4.binary.search =  lt(a[middle],value)
-.               setl4binarySearch(a,value, middle + 1, high)    :s(return)
-    setl4.binary.search =  middle                  :(return)
-
-setl4.binary.search.end
 
     define('setl4.concatenate(a,b)')                :(setl4.concatenate.end)
 
@@ -1963,7 +1931,7 @@ setl4.concatenate.end
 setl4.eval
 
     this = set.this(set)
-    setl4.eval = eval(expr)                         :(return)
+    fetl4.eval = eval(expr)                         :(return)
 
 setl4.eval.end
 
@@ -1979,84 +1947,28 @@ setl4.eval.end
 *   _A_ by _S_. This can also be read as
 *           "the subset of _A_ such that _S_ is true"
 
-    define('setl4.filter(set,expr)kind,member,text,i,r')    :(setl4.filter.end)
 
-*   Returns that part of compound object _set for which _expr_ is true.
+    define('setl4.filter(set,expr)e,this')         :(setl4.filter.end)
+
+*   Returns the subset of set or map _set_ for which _expr_ is true.
 
 setl4.filter
 
-    member = datatype(set)
-    setl4.kind(kind,'map')                          :s(setl4.filter.map)
-    setl4.kind(kind,'seq')                          :s(setl4.filter.seq)
-    setl4.kind(kind,'set')                          :s(setl4.filter.set)
-    setl4.kind(kind,'str')                          :s(setl4.filter.str)
+    setl.filter = set.new(set.kind(set))
 
-setl4.filter.map
-    setl4.filter = set.new(#set)
     loop(set)
 
-setl4.filter.map.next
+setl4.filter.loop
 
-    member = next(#set)                             :f(return)
-    member = eval(expr)                             :f(setl4.filter.map.next)
-    eq(member)                                      :s(setl4.filter.map.next)
-    set.add(setl4.filter,member)                    :(setl4.filter.map.next)
-
-
-setl4.filter.seq
-
-    setl4.filter = setl4.new()
-    loop(set)
-
-
-setl4.filter.seq.next
-
-    member = next(#set)                             :f(return)
-    member = eval(expr)                             :f(seql4.filter.seq.next)
-    eq(member)                                      :s(seql4.filter.seq.next)
-    seq.add(setl4.filter,member)                    :(setl4.filter.seq.next)
-
-setl4.filter.set
-
-    setl4.filter = set.new(#set)
-    loop(set)
-
-setl4.filter.set.next
-
-    member = next(set)                              :f(return)
-
-    ouput = '4.filter|' member '|'
-    r = eval(expr)                                  :f(setl4.filter.set.next)
-    eq(r)                                           :s(setl4.filter.set.next)
-    set.add(setl4.filter,member)                    :(setl4.filter.set.next)
-
-setl4.filter.str
-
-    setl4.filter = str.new(#set)
-    text = str.text(set)
-
-
-set4.filter.str.next
-
-    member = next(#set)
-    text len (1) . member =                         :f(return)
-    member = eval(expr)                             :f(strl4.filter.str.next)
-    eq(member)                                      :s(strl4.filter.str.next)
-    str.add(strl4.filter,member)                    :(setl4.filter.str.next)
-
-*setl4.filter.str (orig. form)
-
-    set len(1) . member =                           :f(return)
-    member = eval(expr)                             :f(setl4.filter.string)
-    eq(member)                                      :s(setl4.filter.string)
-    setl4.filter = setl4.filter  c                  :(setl4.filter.string)
-
-
-*   Append c to result.
+    this = next(set)                                :f(return)
+    e = eval(expr)                                  :f(setl4.filter.loop)
+    false(e)                                        :s(set.4.filter.loop)
+    setl4.kind(set,'set') setl4.add(setl4.filter,this)  :(setl4.filter.loop)
+    map.put(setl4.filter,key(this),value(this))     :(setl4.filter.loop)
 
 setl4.filter.end
 
-    define('setl4.kind(set,kind1,kind2,kind3,kind3,kind4)kind')     :(setl4.kind.end)
+    define('setl4.kind(set,kind1,kind2,kind3,kind3,kind4,kind5)kind')     :(setl4.kind.end)
 
 *   Tests if the kind of _set_ is one of kind1, kind2, .... Returns true if so,
 *   false otherwise.
@@ -2066,11 +1978,12 @@ setl4.kind
    output = 'setl4.kind dt ' datatype(set)
     kind = ident(datatype(set),'string') true       :s(return)
     kind = set.kind(set)
-    setl4.kind = differ(kind1) ident(kind1,kind) true       :s(return)
-    setl4.kind = differ(kind2) ident(kind2,kind) true       :s(return)
-    setl4.kind = differ(kind3) ident(kind3,kind) true       :s(return)
-    setl4.kind = differ(kind4) ident(kind4,kind) true       :s(return)
-    setl4.kind = false                                      :(return)
+    setl4.kind = differ(kind1) ident(kind,kind1) true       :s(return)
+    setl4.kind = differ(kind2) ident(kind,kind2) true       :s(return)
+    setl4.kind = differ(kind3) ident(kind,kind3) true       :s(return)
+    setl4.kind = differ(kind4) ident(kind,kind4) true       :s(return)
+    setl4.kind = differ(kind5) ident(kind,kind5) true       :s(return)
+    setl4.kind = false                                      :(return) 
 
 setl4.kind.end
 
@@ -2145,20 +2058,28 @@ setl.4.member.string
 
 setl4.member.end
 
-    define('setl4.new(init)kind,i,len,n,key,val)')   :(setl4.new.end)
+
+    define('setl4.new(init)kind,i,len,n,key,seq,val)')   :(setl4.new.end)
 
 *   Construct new set with initial values determined by string _init_.
 
 setl4.new
 
     kind = substr(init,1,3)
-    setl4.kind(kind,'map','seq','set','str')         :s(setl4.new.init)
+    init = substr(init,4)
+
+*   Strip leading spaces from remaining part of _init_.
+
+    init span(' ') =
+    output = ne(size(kind),3) 'setl4.new missing kind specification, quitting.' :(quit)
+    setl4.kind(kind,'int','map','seq','set','str')         :s(setl4.new.init)
     output = 'bad kind to setl4.new ' kind ', quitting.' :(quit)
+
+    ident(kind,'int')                               :s(setl4.new.map)
 
 setl4.new.init
 
 *   Remove kind specification and following space from _init_
-    init = substr(init,4)
 
 *   Create new instance of data type 'set'.
 
@@ -2167,12 +2088,48 @@ setl4.new.init
 *   Branch on set kind to finish initialization.
 
     output = 'setl4.new kind ' kind
-*        :($('setl4.' kind '.new'))
+        :($('setl4.' kind '.new'))
     ident(kind,'map')                               :s(setl4.new.map)
     ident(kind,'seq')                               :s(setl4.new.seq)
     ident(kind,'set')                               :s(setl4.new.new)
     ident(kind,'str')                               :s(setl4.new.str)
     output = 'bad kind to setl4.new ' kind ', quitting.' :(quit)
+
+setl4.new.int
+
+    output = ident(init) 'setl4.new initialization information needed, quitting.' :(quit)
+    setl4.new = set('int')
+    seq = str.words(init)
+    set.skip(seq) = 1
+
+*   Ignore extra arguments to int constructor.
+
+    set.size(seq) = gt(#seq,3) 3
+    eq(#seq,1)                                      :s(setl4.new.seq.1)
+    eq(#seq,2)                                      :s(setl4.new.seq.2)
+    eq(#seq,3)                                      :s(setl4.new.seq.3)
+
+setl4.new.seq.1
+
+*   If one argument, low is one, high is the argument.
+
+    set.low(setl4.new) = 1
+    set.high(setl4.new) = seq.get(seq,1)            :(return)
+
+setl4.new.seq.2
+
+*   If two arguments, low is low, high is second.
+
+    set.low(setl4.new) = seq.get(seq,1)
+    set.low(setl4.new) = seq.get(seq,2)             :(return)
+
+setl4.new.seq.3
+
+*   If three arguments, low is first, high is second, step is third.
+
+    set.low(setl4.new) = seq.get(seq,1)
+    set.low(setl4.new) = seq.get(seq,2)             
+    set.step(setl4.new) = seq.get(seq,3)            :(return)
 
 setl4.new.map
 
@@ -2182,100 +2139,64 @@ setl4.new.map
     ident(init)                                     :s(return)
     init = init ' '
 
-setl4.map.new.next
+setl4.new.map.next
 
     init break(':') . key ':' break(' ') . val span(' ') =  :f(return)
     map.put(setl4.new.map,key,val)                  :(setl4.new.map.next)
 
 setl4.new.seq
 
-
     set.seq(setl4.new) = array(setl4.config.size)
     set.index(setl4.new) =
     set.key(setl4.new) =                        :(return)
 
-setl4.new
+setl4.new.set
 
     output = 'set4.set.new.init|' init '|'
     ident(init)                                     :s(return)
     init = init ' '
 
-setl4.new.init
+setl4.new.set.init
 
     init break(' ') . element ' ' =                 :f(return)
     output = 'adding element|' element '| to set'
-    set.add(setl4.new,element)                  :(setl4.new.init)
+    set.add(setl4.new,element)                      :(setl4.new.set.init)
 
-setl4.str.new
+setl4.new.str
 
-    ident(init)                                     :s(return)
-    init = init ' '
+    str.text(setl4.new) = init                      :(return)
 
-setl4.str.new.init
+setl4.new.str.init
 
     init len(1) . key ' ' =                         :f(return)
-    setl.add(setl4.new,key)                         :(setl4.str.new.init)
+    setl.add(setl4.new,key)                         :(setl4.new.str.init)
 
 setl4.new.end
-    define('setl4.next(set)dt,kind')                :(setl4.next.end)
 
-*   Advances iteration field 'next' and sets field 'this'
-*   to the next element of the iteration.
+
+    define('setl4.next(set)dt,kind,next')                :(setl4.next.end)
+
+*   Advances iteration field 'next' and sets field 'this' to the next element of the iteration.
+*   The code is much the same for all cases except 'int'.
+
+
 
 setl4.next
 
     kind = kind(set)
     setl4.kind(kind,'int')                          :s(setl4.next.int)
-    setl4.kind(kind,'map')                          :s(setl4.next.map)
-    setl4.kind(kind,'seq')                          :s(setl4.next.seq)
-    setl4.kind(kind,'set')                          :s(setl4.next.set)
-    setl4.kind(kind,'str')                          :s(setl4.next.str)
-    output = 'unsupported dt for setl4.next: "' dt '" , quitting.'
-    output = 'show|' show(set) '|'  :(end)
 
-*   When iterating over a set or map, previous deletions may have mapped some
-*   entries in the index to null. Such entries must be skipped when looking for
-*   next member in iteration.
-
-setl4.next.int
-
-
-    ge(int.next(set),int.high(set))                 :s(freturn)
-    int.next(set) = int.next(set) + int.step(set)
-    gt(int.next(set),int.high(set))                 :s(freturn)
-    int.this(set) = int.next(set)
-    setl4.next = int.this(set)                      :(return)
-
-setl4.next.map
-
-    set.next(set) = set.next(set) + 1
-    gt(set.next(set),set.size(set))                  :s(freturn)
-    setl4.next = set.index(set)[set.next(set)]
-    set.this(set) = setl4.next
-    ident(setl4.next)                       :s(setl4.next.set)f(return)
-
-setl4.next.seq
-
-    ge(seq.next(set),seq.size(set))                 :s(freturn)
-    seq.next(set) = seq.next(set) + 1
-    setl4.next = seq.get(set,seq.next(set))
-    seq.this(set) = setl4.next
-                                                    :(return)
-
-setl4.next.set
-
-*   output = 'next.set ' set.next(set) ',  max ' set.size(set) '.'
-    ge(set.next(set),set.size(set))  :s(freturn)
-    set.next(set) = set.next(set) + 1
-    setl4.next = set.index(set)[set.next(set)]
-    ident(setl4.next)                               :s(setl4.next.set)
-    set.this(set) = setl4.next
-*   output = 'setl4.next.set returns ' setl4.next '.'
-                                                    :(return)
-
-setl4.next.str
-
-    output = "next on str's not yet supported, quitting." :(end)
+    set.next(set) = set.next(set) + (setl4.kind(set,'int') set.step(set),1)
+    next = set.next(set)
+    gt(next,(setl4.kind(set,'int') set.high(set), set.size(set))) :s(freturn)
+    set.this(set) = 
+.       (
+.       setl4.kind(kind,'int')          next,
+.       setl4.kind(kind,'map','set')    set.index(set)[next],
+.       setl4.kind(kind,'seq')          set.seq[next],
+.       setl4.kind(kind,'str')          substr(set.text(set),next,1)
+.       )
+    setl4.next = set.this(set)                      :(return)
 
 setl4.next.end
 
@@ -2286,7 +2207,8 @@ setl4.next.end
 setl4.not
 
     expr = integer(expr) +expr
-    setl4.not = integer(expr) (ne(expr) false, true) :(return)
+    setl4.not = integer(expr) (ne(expr) false, true) :s(return)
+    setl4.not = (differ(expr) false, true)          :(return)
 
 setl4.not.end
 
@@ -2297,7 +2219,7 @@ setl4.not.end
 setl4.or
     a = integer(a) +a
     b = integer(b) +b
-    setl4.or = integer(a) ne(e) true                :s(return)
+    setl4.or = integer(a) ne(a) true                :s(return)
     setl4.or = integer(b) ne(b) true                :s(return)
 
 *   Here if operands not both integers, so use ident/differ.
@@ -2357,7 +2279,7 @@ setl4.random.seed.done
 
 setl4.random.seed.end
 
-    define('setl4.seq.room('seq')len)               :(setl4.seq.room.end)
+    define('setl4.seq.room(seq)len')                :(setl4.seq.room.end)
 
 *   Ensures that sequence _seq_ has room for a new entry, expanding it if necessary.
 
@@ -2370,7 +2292,7 @@ setl4.seq.room
 
     setl4.seq.extend(seq,(3 * len) / 2)             :(return)
 
-setl4.seq.room
+setl4.seq.room.end
     
     define('setl4.show(set)')                       :(setl4.show.end)
 
@@ -2470,7 +2392,6 @@ setl4.traceon.end
 *   output = 'fatal problem with opsyn for ' ch ', quitting.' :(quit)
 *
 *setl4.op.end
-
 *   SETL4 unary operators:
 
     opsyn('=','setl4.arb',   1)
@@ -2479,7 +2400,7 @@ setl4.traceon.end
     opsyn('#','setl4.size',  1)
     opsyn('/','setl4.split', 1)
 
-*   SETL4 binary operators:
+
 
     opsyn('&','setl4.and',   2)
     opsyn('@','setl4.eval',  2)
@@ -2490,13 +2411,11 @@ setl4.traceon.end
 *   Global variables
 *   ----------------
 
-    setl4.ascii.name = setl4.new('map')
-    setl4.ascii.val =  setl4.new('map')
-    setl4.ascii.initialized = false
+*   SETL4 binary operators:
+*    setl4.ascii.name = setl4.new('map')
+*    setl4.ascii.val =  setl4.new('map')
+*    setl4.ascii.initialized = false
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
 
-:set tabstop=4
-:set expandtab
-:set shiftwidth=4
