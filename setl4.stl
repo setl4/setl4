@@ -361,6 +361,7 @@ str.lne.end
 *   Objcts are shown in the order defined by the function _rank_.
 k
 *   show(v,lvl)
+*   show.b(e)
 *   show.line(line)
 *   show.lines(lines,title)
 *   show.quote(str)
@@ -443,8 +444,10 @@ k
 
 *   The values of the following variables should NEVER be changed, lest chaos ensue.
 
-    false = 0
-    true = 1
+    FALSE = 0
+    TRUE = 1
+
+    THIS = 'THIS'
 
 
 *   SETL4 function definitions
@@ -453,24 +456,24 @@ k
 
     define('false(e)')                              :(false.end)
 
-*   Returns true if its argument is false, or else false.
+*   Returns TRUE if its argument is false, or else FALSE.
 
 false
 
     e = integer(e) +e
-    false = integer(e) eq(e) true                   :s(return)
-    false = (ident(e) true, false)                  :(return)
+    false = integer(e) (eq(e,FALSE) TRUE,FALSE)     :s(return)
+    false = (ident(e) TRUE, FALSE)                  :(return)
 
 false.end
 
     define('true(e)')                              :(true.end)
 
-*   Returns true if its argument is true, or else false.
+*   Returns TRUE if its argument is true, or else FALSE.
 
 true
     e = integer(e) +e
-    true = integer(e) ne(e) true                    :s(return)
-    true = (differ(e) true, false)                  :(return)
+    true = integer(e) (eq(e,FALSE) FALSE,TRUE)     :s(return)
+    true = (differ(e) TRUE, FALSE)                  :(return)
 
 true.end
 
@@ -488,7 +491,7 @@ assert.dt.end
 
     define('assert(expr)')                          :(assert.end)
 
-*   Verify that _expr_ is true, end execution otherwise.
+*   Verify that _expr_ is TRUE, end execution otherwise.
 
 assert
 
@@ -499,32 +502,54 @@ assert.end
 
     define('exists(set,expr)e')                     :(exists.end)
 
-*   Tests if there is an element in _set such that _eval(expr)_ is true.
+*   Tests if there is an element in _set such that _eval(expr)_ is TRUE.
 
 exists
 
-    exists = false
+    output = ident(expr) 'exists expr is null'
+    str.out('exists expr',expr)
+    exists = FALSE
     loop(set)
 
 exists.loop
 
-    next(set)                                       :f(exists.true)
-    e = eval(expr)                                  :f(exists.loop)
-    exists = true(e) true                           :s(return)f(exists.loop)
-
-exists.true
-
-    exists = true                                   :(return)
+    str.out('at exists.loop')
+    next(set)                                       :f(return)
+    str.out('this',$THIs)
+    str.out('exists.next',set.next(set))
+    e = x.eval(expr)                                :f(exists.loop)
+    str.out('eval didn not fail')
+    false(e) str.out('x.eval returned false')
+    false(e)                                        :s(exists.loop)
+    str.out('eval exists expr this',$THIS)
+    str.out('eval exists expr ',e)
+    str.out('true(e) after eval',true(e))
+    exists = true(e) TRUE                           :s(return)f(exists.loop)
 
 exists.end
+    define('x.eval(e)')          :(x.eval.end)
+
+x.eval
+    str.out('x.eval',e)
+    str.out('x.eval this',$THIS)
+ :(end)
+    e = eval(e)                 :f(x.eval.f)
+    x.eval = (ne(e) TRUE,FALSE)
+    str.out('x.eval',x.eval)
+    :(return)
+x.eval.f
+    x.eval = FALSE
+    str.out('x.eval false',e) 
+                            :(return)
+x.eval.end
 
     define('forall(set,expr)e')                     :(forall.end)
 
-*   Tests if _expr_ is true for all the members of _set.
+*   Tests if _expr_ is TRUE for all the members of _set.
 
 forall
 
-    forall = false
+    forall = FALSE
     loop(set)
 
 forall.loop
@@ -536,7 +561,7 @@ forall.loop
 
 forall.true
 
-    forall = true                                   :(return)
+    forall = TRUE                                   :(return)
 
 forall.end
 
@@ -569,7 +594,7 @@ int.int.cardinal.end
 
     define('int.even(n)')                           :(int.even.end)
 
-*   Returns true iff _n_ is even.
+*   Returns TRUE iff _n_ is even.
 
 int.even
 
@@ -594,13 +619,13 @@ int.factorial.end
 int.member
 
     member = +member
-    int.member = lt(member,set.low(int))    false   :s(return)
-    int.member = gt(member,set.high(int))   false   :s(return)
+    int.member = lt(member,set.low(int))    FALSE   :s(return)
+    int.member = gt(member,set.high(int))   FALSE   :s(return)
     int.member = (multiple(
 .                       (int.high(int) - int.low(int))
 .                         / int.step(int),
 .                       int.step(int))
-.                       true, false)      :(return)
+.                       TRUE, FALSE)      :(return)
 
 int.member.end
 
@@ -610,7 +635,7 @@ int.member.end
 
 int.multiple
 
-    int.multiple = (eq(remdr(n,m)) true, false)      :(return)
+    int.multiple = (eq(remdr(n,m)) TRUE, FALSE)      :(return)
 
 int.multiple.end
 
@@ -634,7 +659,7 @@ int.number.end
 
 int.odd
 
-    int.odd = (ne(remdr(n,2)) true,false)           :(return)
+    int.odd = (ne(remdr(n,2)) TRUE,FALSE)           :(return)
 
 int.odd.end
 
@@ -725,7 +750,7 @@ loop.end
 
 map.defined
 
-    map.defined = (differ(set.key(map)[key]) true,false) :(return)
+    map.defined = (differ(set.key(map)[key]) TRUE,FALSE) :(return)
 
 map.defined.end
 
@@ -750,7 +775,7 @@ map.domain.end
 
 map.equal
 
-    map.equal = false
+    map.equal = FALSE
     ne(set.size(a),set.size(b))                         :s(return)
     loop(a)
 
@@ -840,7 +865,14 @@ map.range.end
 
 next
 
-    next = setl4.next(set)                          :s(return)f(freturn)
+    $THIS = next
+    next = setl4.next(set)                          :s(next.t)f(next.f)
+
+next.f
+    str.out('next fails',next)                      :(freturn)
+
+next.t
+    str.out('next succeeds', next)                  :(return)
 
 next.end
 
@@ -1045,7 +1077,7 @@ set.first
 
 set.first.end
 
-    define('set.from(set,elem)this')                    :(set.from.end)
+    define('set.from(set,elem)')                        :(set.from.end)
 
 *   Return set consisting of all the elements of _a_ except _elem_.
 
@@ -1118,7 +1150,7 @@ set.last.end
 
 set.subset
 
-    set.subset = false
+    set.subset = FALSE
     gt(set.size(b),set.size(a))                     :s(return)
     loop(b)
 
@@ -1184,7 +1216,7 @@ show.array.1
 
 show.array.2
     first = ara[add1(.i),1]                         :f(show.array.done)
-    out(lpad(i,3) tab show(first) tab show(ara[i,2])) :(show.array.2)
+    str.out(lpad(i,3) tab show(first) tab show(ara[i,2])) :(show.array.2)
 
 show.entry
 
@@ -1297,6 +1329,17 @@ show.done
                                                     :(return)
 
 show.end
+    
+    define('show.b(e)')                             :(show.b.end)
+
+*   Show value of _e_ as boolean: TRUE or FALSE
+
+show.b
+
+    integer(e) str.out((ne(e) 'TRUE', 'FALSE'))     :s(return)
+    str.out((differ(e) 'TRUE', 'FALSE'))            :(return)
+
+show.b.end
 
     define('show.line(line)')                       :(show.line.end)
 
@@ -1882,7 +1925,10 @@ str.writer.end
 
 this
 
-    this = set.next(set)
+    $THIS = set.next(set)                            
+    show('this',$THIS)
+    this = .THIS
+                                                    :(nreturn)
 
 this.end
 
@@ -1912,13 +1958,13 @@ setl4.and
 
     a = integer(a) +a
     b = integer(b) +b
-    setl4.and = integer(a) integer(b) (ne(a * b) true, false)    :s(return)
+    setl4.and = integer(a) integer(b) (ne(a * b) TRUE, FALSE)    :s(return)
 
 *   Here where at least one operand for 'and' is not integer, so
 *   use ident/differ to evaluate.
 
     setl4.and = differ(a) differ(b) true            :s(return)
-    setl4.and = false                               :(return)
+    setl4.and = FALSE                               :(return)
 
 setl4.and.end
 
@@ -1973,7 +2019,7 @@ setl4.eval.end
 *           "the subset of _A_ such that _S_ is true"
 
 
-    define('setl4.filter(set,expr)e,this')         :(setl4.filter.end)
+    define('setl4.filter(set,expr)e')               :(setl4.filter.end)
 
 *   Returns the subset of set or map _set_ for which _expr_ is true.
 
@@ -2002,12 +2048,12 @@ setl4.kind
 
     kind = ident(datatype(set),'string') true       :s(return)
     kind = set.kind(set)
-    setl4.kind = differ(kind1) ident(kind,kind1) true       :s(return)
-    setl4.kind = differ(kind2) ident(kind,kind2) true       :s(return)
-    setl4.kind = differ(kind3) ident(kind,kind3) true       :s(return)
-    setl4.kind = differ(kind4) ident(kind,kind4) true       :s(return)
-    setl4.kind = differ(kind5) ident(kind,kind5) true       :s(return)
-    setl4.kind = false                                      :(return) 
+    setl4.kind = differ(kind1) ident(kind,kind1) TRUE       :s(return)
+    setl4.kind = differ(kind2) ident(kind,kind2) TRUE       :s(return)
+    setl4.kind = differ(kind3) ident(kind,kind3) TRUE       :s(return)
+    setl4.kind = differ(kind4) ident(kind,kind4) TRUE       :s(return)
+    setl4.kind = differ(kind5) ident(kind,kind5) TRUE       :s(return)
+    setl4.kind = FALSE                                      :(return) 
 
 setl4.kind.end
 
@@ -2046,7 +2092,7 @@ setl4.member.int
 
     setl4.member = lt(elem,set.low(set)) false              :s(return)
     setl4.member = gt(elem,set.low(set)) false              :s(return)
-    setl4.member = (eq(remdr(elem - set.low(set),set.step(set))) true, false):(return)
+    setl4.member = (eq(remdr(elem - set.low(set),set.step(set))) TRUE, FALSE):(return)
 
 setl.4.member.map
 
@@ -2059,7 +2105,7 @@ setl.4.member.map
 *   There is entry for _key_, see if it has right value.
 
     ident(set.index[set.key(set)[key]],value)       :f(return)
-    setl4.member = true                             :(return)
+    setl4.member = TRUE                             :(return)
 
 setl.4.member.seq
 
@@ -2068,17 +2114,17 @@ setl.4.member.seq
 
 setl4.elem.set
 
-    setl4.member = (differ(set.key(set)[elem]) true, false) :(return)
+    setl4.member = (differ(set.key(set)[elem]) TRUE, FALSE) :(return)
 
 setl.4.member.str
 
     set break(elem)                                 :f(return)
-    set4.member = true                              :(return)
+    set4.member = TRUE                              :(return)
 
 setl.4.member.string
 
     string break(elem)                              :f(return)
-    setl4.member = true                             :(return)
+    setl4.member = TRUE                             :(return)
 
 setl4.member.end
 
@@ -2219,17 +2265,21 @@ setl4.next
 
     differ(kind = set.kind(set),'int')              :s(setl4.next.notint)
 
+*    str.out('set4.next enter int')
 *   Here to find next element in set of type _int_.
 
-    next =  set.next(set) + set.step(set)
-    le(next,set.high(set))                          :f(freturn)
-    setl4.next = set.next(set) =  this = next       :(return)
+    next = set.next(set) = set.next(set) + set.step(set)
+    gt(next,set.high(set))                          :s(freturn)
+    $THIS = next
+    setl4.next = next                       
+*    str.out('setl4.next exits this',this)
+*    str.out('setl4.next exits this',this)
+                                                    :(return)
 
 setl4.next.notint
 
-    set.next(set) = set.next(set) + 1
-    le(set.next(set),set.size(set))                 :f(freturn)
-    next = set.next(set)
+    next = set.next(set) = set.next(set) + 1
+    le(next,set.size(set))                          :f(freturn)
     set.next(set) = 
 .       (
 .       setl4.kind(kind,'int')          next,
@@ -2238,7 +2288,8 @@ setl4.next.notint
 .       setl4.kind(kind,'str')          substr(set.text(set),next,1)
 .       ident(datatype(set),'string')   substr(set,next,1)
 .       )
-    setl4.next = set.next(set) = this = next 
+    $THIS = next
+    setl4.next = set.next(set) = next 
                                                     :(return)
 
 setl4.next.end
@@ -2250,8 +2301,8 @@ setl4.next.end
 setl4.not
 
     expr = integer(expr) +expr
-    setl4.not = integer(expr) (ne(expr) false, true) :s(return)
-    setl4.not = (differ(expr) false, true)          :(return)
+    setl4.not = integer(expr) (ne(expr) FALSE, TRUE) :s(return)
+    setl4.not = (differ(expr) FALSE, TRUE)          :(return)
 
 setl4.not.end
 
@@ -2262,12 +2313,12 @@ setl4.not.end
 setl4.or
     a = integer(a) +a
     b = integer(b) +b
-    setl4.or = integer(a) ne(a) true                :s(return)
-    setl4.or = integer(b) ne(b) true                :s(return)
+    setl4.or = integer(a) ne(a) TRUE                :s(return)
+    setl4.or = integer(b) ne(b) TRUE                :s(return)
 
 *   Here if operands not both integers, so use ident/differ.
 
-    setl4.or = (differ(a) true, differ(b) true, false)    :(return)
+    setl4.or = (differ(a) TRUE, differ(b) TRUE, FALSE)    :(return)
 
 setl4.or.end
 

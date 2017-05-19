@@ -1,0 +1,39 @@
+
+-include "setl4.stl"
+    &dump = 2
+    s = setl4.new('int 5 25 5')
+    loop(s)
+
+loop.i
+
+    str.out(next(s)) :f(loop.i.done)s(loop.i)
+
+loop.i.done
+
+    output = 
+    output = 
+    str.out('exists test one')
+    r = exists(s,'eq($THIS,5')
+    show.b(r)
+    output = 
+    output = 
+
+    output = 
+    str.out('exists test two')
+    r = exists(s,'eq($THIS,6')
+    show.b(r)
+end
+
+    &dump = 2
+    s = setl4.new('int 5 25 5')
+*    setl4.show(s,'after 5 25 5 build')
+    loop(s)
+l.1                 :f(l.1.f)
+    setl4.show(s,'s before call to next')
+    this = next(s)
+*    setl4.show(s,'s after call to next')
+    str.out('this',this)
+    &dump = 2 :(end)
+    output = this :(l.1)
+l.1.f
+end
