@@ -114,154 +114,6 @@
 *   str.notany(a,b) tests if first character in a is not in b
 *   str.span(a,b)   tests if bcontains only characters in a
 
-
-*   Lexical comparisons
--   -------------------
-
-*   str.leq(a,b)    tests if a is lexically equal to b
-*   str.lge(a,b)    tests if a is lexically greater than or equal to b
-*   str.lgt(a,b)    tests if a is lexically greater than b
-*   str.lle(a,b)    tests if a is lexically less than or equal to b
-*   str.llt(a,b)    tests if a is lexically less than b
-*   stg.lne(a,b)    tests if a is lexically not equal to b
-
-
-*   Integer comparisons
-*   -------------------
-
-*   int.eq(a,b)     tests if a is equal to b
-*   int.ge(a,b)     tests if a is greater than or equal to b
-*   int.gt(a,b)     tests if a is greater than b
-*   int.le(a,b)     tests if a is less than or equal to b
-*   int.lt(a,b)     tests if a is less than b
-*   int.ne(a,b)     tests if a is not equal to b
-
-
-    define('int.eq(a,b)')                           :(int.eq.end)
-
-*   Tests if _a_ is equal to _b_.
-
-int.eq
-
-    int.eq = (integer(a) integer(b) eq(a,b) true,false) :s(return)
-
-int.eq.end
-
-    define('int.ge(a,b)')                           :(int.ge.end)
-
-*   Tests if _a_ is greater than or equal to _b_.
-
-int.ge
-
-    int.ge = (integer(a) integer(b) ge(a,b) true,false) :s(return)
-
-int.ge.end
-
-    define('int.gt(a,b)')                           :(int.gt.end)
-
-*   Tests if _a_ is greater than _b_.
-
-int.gt
-
-    int.gt = (integer(a) integer(b) gt(a,b) true,false) :s(return)
-
-int.gt.end
-
-    define('int.le(a,b)')                           :(int.le.end)
-
-*   Tests if _a_ is less than or equal to _b_.
-
-int.le
-
-    int.le = (integer(a) integer(b) le(a,b) true,false) :s(return)
-
-int.le.end
-
-    define('int.lt(a,b)')                           :(int.lt.end)
-
-*   Tests if _a_ is less than _b_.
-
-int.lt
-
-    int.lt = (integer(a) integer(b) lt(a,b) true,false) :s(return)
-
-int.lt.end
-
-    define('int.ne(a,b)')                           :(int.ne.end)
-
-*   Tests if _a_ is not equal to _b_.
-
-int.ne
-
-    int.ne = (integer(a) integer(b) ne(a,b) true,false) :s(return)
-
-int.ne.end
-
-
-*   Lexical
-
-    define('str.leq(a,b)')                           :(str.leq.end)
-
-*   Tests if _a_ is lexically equal to _b_.
-
-str.leq
-
-    str.leq = leq(a,b) true                         
-    str.leq = (leq(a,b) true,false) :s(return)
-          
-str.leq.end
-
-    define('str.lge(a,b)')                           :(str.lge.end)
-
-*   Tests if _a_ is lexically greater than or equal to _b_.
-
-str.lge
-
-    str.ge = (ge(a,b) true,false) :s(return)
-
-str.lge.end
-
-    define('str.lgt(a,b)')                           :(str.lgt.end)
-
-*   Tests if _a_ is lexically greater than _b_.
-
-str.lgt
-
-    str.lgt = (gt(a,b) true,false) :s(return)
-
-str.lgt.end
-
-    define('str.lle(a,b)')                           :(str.lle.end)
-
-*   Tests if _a_ is lexically less than or equal to _b_.
-
-str.lle
-
-    str.le = (le(a,b) true,false) :s(return)
-
-str.lle.end
-
-    define('str.llt(a,b)')                           :(str.llt.end)
-
-*   Tests if _a_ is lexically less than _b_.
-
-str.llt
-
-    str.llt = (llt(a,b) true,false) :s(return)
-
-str.llt.end
-
-    define('str.lne(a,b)')                           :(str.lne.end)
-
-*   Tests if _a_ is not lexically equal to _b_.
-
-str.lne
-
-    str.lne = (ne(a,b) true,false) :s(return)
-
-str.lne.end
-
-
 *   false(e)
 *   true(e)
 *   assert.dt(obj,typ)
@@ -515,13 +367,11 @@ exists.loop
 
     str.out('at exists.loop')
     next(set)                                       :f(return)
-    str.out('this',$THIs)
     str.out('exists.next',set.next(set))
     e = x.eval(expr)                                :f(exists.loop)
     str.out('eval didn not fail')
     false(e) str.out('x.eval returned false')
     false(e)                                        :s(exists.loop)
-    str.out('eval exists expr this',$THIS)
     str.out('eval exists expr ',e)
     str.out('true(e) after eval',true(e))
     exists = true(e) TRUE                           :s(return)f(exists.loop)
@@ -531,7 +381,6 @@ exists.end
 
 x.eval
     str.out('x.eval',e)
-    str.out('x.eval this',$THIS)
  :(end)
     e = eval(e)                 :f(x.eval.f)
     x.eval = (ne(e) TRUE,FALSE)
@@ -865,7 +714,7 @@ map.range.end
 
 next
 
-    $THIS = next
+*   $THIS = next
     next = setl4.next(set)                          :s(next.t)f(next.f)
 
 next.f
@@ -1077,7 +926,7 @@ set.first
 
 set.first.end
 
-    define('set.from(set,elem)')                        :(set.from.end)
+    define('set.from(set,elem)this')                    :(set.from.end)
 
 *   Return set consisting of all the elements of _a_ except _elem_.
 
@@ -1919,18 +1768,18 @@ str.writer.next
 
 str.writer.end
 
-    define('this(set)')                             :(this.end)
-
-*   Returns value found in most recent call to this.
-
-this
-
-    $THIS = set.next(set)                            
-    show('this',$THIS)
-    this = .THIS
-                                                    :(nreturn)
-
-this.end
+*    define('this(set)')                             :(this.end)
+*
+**   Returns value found in most recent call to this.
+*
+*this
+*
+*    $THIS = set.next(set)                            
+*    show('this',$THIS)
+*    this = .THIS
+*                                                    :(nreturn)
+*
+*this.end
 
     define('visit(set,expr)')                       :(visit.end)
 
@@ -1995,14 +1844,14 @@ setl4.concatenate
 
 setl4.concatenate.end
 
-    define('setl4.eval(set,expr)')                  :(setl4.eval.end)
+    define('setl4.eval(set,expr)this')               :(setl4.eval.end)
 
-*   Evaluate _expr_ with 'this_ set to _set.next(set)_
+*   Evaluate _expr_ 
 
 setl4.eval
 
     this = set.next(set)
-    fetl4.eval = eval(expr)                         :(return)
+    setl4.eval = eval(expr)                         :(return)
 
 setl4.eval.end
 
@@ -2019,7 +1868,7 @@ setl4.eval.end
 *           "the subset of _A_ such that _S_ is true"
 
 
-    define('setl4.filter(set,expr)e')               :(setl4.filter.end)
+    define('setl4.filter(set,expr)e,this')           :(setl4.filter.end)
 
 *   Returns the subset of set or map _set_ for which _expr_ is true.
 
@@ -2256,8 +2105,7 @@ setl4.new.end
 
     define('setl4.next(set)kind,next')              :(setl4.next.end)
 
-*   Advance iteration by setting field _set.next_, as well 
-*   as the variable _this_, to the next element in the set.
+*   Advance iteration by setting field _set.next_.
 *   Fail if no more elements remain.
 
 
@@ -2270,10 +2118,7 @@ setl4.next
 
     next = set.next(set) = set.next(set) + set.step(set)
     gt(next,set.high(set))                          :s(freturn)
-    $THIS = next
     setl4.next = next                       
-*    str.out('setl4.next exits this',this)
-*    str.out('setl4.next exits this',this)
                                                     :(return)
 
 setl4.next.notint
@@ -2518,3 +2363,4 @@ setl4.traceon.end
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
 bypass
+ output = 'THIS is |' THIS '|'

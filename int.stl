@@ -5,22 +5,22 @@
     loop(s)
 
 loop.i
-
-    str.out(next(s)) :f(loop.i.done)s(loop.i)
+    this = next(s)      :f(loop.i.done)
+    output = this       :(loop.i)
 
 loop.i.done
 
     output = 
     output = 
     str.out('exists test one')
-    r = exists(s,'eq($THIS,5')
+    r = exists(s,'eq(this,5')
     show.b(r)
     output = 
     output = 
 
     output = 
     str.out('exists test two')
-    r = exists(s,'eq($THIS,6')
+    r = exists(s,'eq(this,6')
     show.b(r)
 end
 
