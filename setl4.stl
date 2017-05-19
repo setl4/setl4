@@ -13,8 +13,7 @@
 
 *   A set is defined by the following datatype:
 
-    data('set(set.kind,set.index,set.key,set.size,set.next,'
-.               'set.this,set.loop,set.low,set.high,set.step,set.text,set.seq)')
+    data('set(set.kind,set.index,set.key,set.size,set.next,set.loop,set.low,set.high,set.step,set.text,set.seq)')
 
 *   where
 
@@ -29,8 +28,6 @@
 
 *           _next_          the last value returned by the _next_ primitive
 *                           when iterating over a set.
-*           _loop_          is array needed when iterating in order other than which
-*                           elements were added to the set.
 
 *           _text_          is the text of the set of kind _str_
 
@@ -683,7 +680,6 @@ int.thousands.end
 
 loop
 
-    str.out('loop kind ',set.kind(set))
 *   Returns loop member in interation over compound object _set.
 
     set.next(set) = ident(set.kind(set),'int') set.low(set) - set.step(set) :s(return)
@@ -809,6 +805,8 @@ map.last.end
 
 map.put
 
+    key = integer(key) +key
+    value = integer(value) +value
     v = set.key(map)[key]
     differ(v)                                       :s(map.put.value)
 
@@ -960,9 +958,9 @@ seq.integers.end
 
 seq.push
 
-    setl4.show(seq)
     assert.dt(seq,'set')
     assert(ident(set.kind(seq),'seq'))
+    value = integer(value) +value
     setl4.seq.room(seq)
     set.size(seq) = set.size(seq) + 1
     set.seq(seq)[set.size(seq)] = value                    :(return)
@@ -1009,10 +1007,7 @@ seq.range.end
 
 set.add
 
-    output = 'set.add dt ' datatype(set) ' dt elem ' datatype(elem)
-    output = ident(set) ' set is null'
-    output = ident(elem) ' elem is null'
-*    differ(set.key(set)[elem])                      :s(return)
+    elem = integer(elem) +elem
     set.size(set) = set.size(set) + 1
     set.index(set)[set.size(map)] = elem
     set.key(set)[elem] = set.size(map)               :(return)
@@ -1665,7 +1660,7 @@ str.set
 str.set.next
 
     next(str.set)                   :f(return)
-    setl4.str.add(str.set,this(set))        :(str.set.next)
+    setl4.str.add(str.set,next(set))        :(str.set.next)
 
 str.set.end
 
@@ -1859,7 +1854,6 @@ str.words.count
 str.words.seq
 
     str.words = setl4.new('seq ' n)
-    setl4.show(str.words)
     
 str.words.next
 
@@ -1882,14 +1876,13 @@ str.writer.next
 
 str.writer.end
 
-    define('this(set)dt,kind')                      :(this.end)
+    define('this(set)')                             :(this.end)
 
 *   Returns value found in most recent call to this.
 
 this
 
-    kind = kind(set)
-    this = set.this(set)
+    this = set.next(set)
 
 this.end
 
@@ -1958,11 +1951,11 @@ setl4.concatenate.end
 
     define('setl4.eval(set,expr)')                  :(setl4.eval.end)
 
-*   Evaluate _expr_ with 'this_ set to _set.this(set)_
+*   Evaluate _expr_ with 'this_ set to _set.next(set)_
 
 setl4.eval
 
-    this = set.this(set)
+    this = set.next(set)
     fetl4.eval = eval(expr)                         :(return)
 
 setl4.eval.end
@@ -2131,7 +2124,6 @@ setl4.new.int
     ident(init) error('setl4.new initialization information needed')
     setl4.new = set('int')
     set.step(setl4.new) = 1
-    setl4.show(setl4.new)
     seq = str.words(init)
 
 *   Ignore extra arguments to int constructor.
@@ -2154,8 +2146,8 @@ setl4.new.int.2
 
 *   If two arguments, low is low, high is second.
 
-    set.low(setl4.new) =  seq.get(seq,1)
-    set.high(setl4.new) = seq.get(seq,2)             
+    set.low(setl4.new) =  +seq.get(seq,1)
+    set.high(setl4.new) = +seq.get(seq,2)             
     set.step(set) = 1
                                                     :(setl4.new.int.done)
 
@@ -2163,18 +2155,17 @@ setl4.new.int.3
 
 *   If three arguments, low is first, high is second, step is third.
 
-    set.low(setl4.new) =  seq.get(seq,1)
-    set.high(setl4.new) = seq.get(seq,2)             
-    set.step(setl4.new) = seq.get(seq,3)            
+    set.low(setl4.new) =  +seq.get(seq,1)
+    set.high(setl4.new) = +seq.get(seq,2)             
+    set.step(setl4.new) = +seq.get(seq,3)            
                                                     :(setl4.new.int.done)
 
 setl4.new.int.done
 
-*   Set _next_ so that  incrmeneting it on first call to _setl4.next_  will point to first element in set
+*   Set _next_ so that  incrmenting it on first call to _setl4.next_  
+*   will point to first element in set
 
-    str.out('at setl4.new.int.done')
     set.next(setl4.new) = set.low(setl4.new) - set.step(setl4.new) 
-    str.out('set4.ind.done next',set.next(setl4.new))
                                                     :(return)
 setl4.new.map
 
@@ -2219,8 +2210,8 @@ setl4.new.end
 
     define('setl4.next(set)kind,next')              :(setl4.next.end)
 
-*   Advance iteration by setting fields _set.next_, _set.this_, 
-*   as well as the variable _this_,  to the next element in the set.
+*   Advance iteration by setting field _set.next_, as well 
+*   as the variable _this_, to the next element in the set.
 *   Fail if no more elements remain.
 
 
@@ -2232,15 +2223,14 @@ setl4.next
 
     next =  set.next(set) + set.step(set)
     le(next,set.high(set))                          :f(freturn)
-    setl4.next = set.next(set) = set.this(set) = next :(return)
+    setl4.next = set.next(set) =  this = next       :(return)
 
 setl4.next.notint
 
     set.next(set) = set.next(set) + 1
     le(set.next(set),set.size(set))                 :f(freturn)
     next = set.next(set)
-*    show(setl4.new,'setl4.next')
-    set.this(set) = 
+    set.next(set) = 
 .       (
 .       setl4.kind(kind,'int')          next,
 .       setl4.kind(kind,'map','set')    set.index(set)[next],
@@ -2248,8 +2238,7 @@ setl4.next.notint
 .       setl4.kind(kind,'str')          substr(set.text(set),next,1)
 .       ident(datatype(set),'string')   substr(set,next,1)
 .       )
-    setl4.next = set.next(set) = set.this(set) = next 
-    show(this,'setl4.next.this')
+    setl4.next = set.next(set) = this = next 
                                                     :(return)
 
 setl4.next.end
@@ -2364,7 +2353,6 @@ setl4.show
     differ(set.index(set))     str.out('size(set.index(set))', size(set.index(set)))
     differ(set.key(set))       str.out('size(set.key(set))', size(set.key(set)))
     differ(set.next(set))      str.out('next',set.next(set))
-    differ(set.this(set))      str.out('this',show(set.this(set)))
     ne(set.low(set))           str.out('low',set.low(set))
     ne(set.step(set))          str.out('high',set.high(set))
     ne(set.high(set))          str.out('step',set.low(set))
@@ -2479,5 +2467,3 @@ setl4.traceon.end
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
 bypass
-
- output = 'passed bypass'
