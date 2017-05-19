@@ -2217,39 +2217,40 @@ setl4.new.str.init
 
 setl4.new.end
 
-
     define('setl4.next(set)kind,next')              :(setl4.next.end)
 
-*   Advances iteration field 'next' and sets field 'this' to the next element of the iteration.
-*   Fails if not more elements remain.
+*   Advance iteration by setting fields _set.next_, _set.this_, 
+*   as well as the variable _this_,  to the next element in the set.
+*   Fail if no more elements remain.
 
 
 setl4.next
 
-    kind = set.kind(set)
-    set.next(set) = ident(set.kind(set),'int') set.next(set) + set.step(set) :s(setl4.next.this)
+    differ(kind = set.kind(set),'int')              :s(setl4.next.notint)
+
+*   Here to find next element in set of type _int_.
+
+    next =  set.next(set) + set.step(set)
+    le(next,set.high(set))                          :f(freturn)
+    setl4.next = set.next(set) = set.this(set) = next :(return)
+
+setl4.next.notint
+
     set.next(set) = set.next(set) + 1
-
-setl4.next.this
-
-    ident(set.kind(set),'int') gt(set.next(set),set.high(set))      :s(freturn)
-    gt(set.next(set),set.size(set))                 :s(freturn)
+    le(set.next(set),set.size(set))                 :f(freturn)
     next = set.next(set)
-    show(setl4.new,'setl4.next')
+*    show(setl4.new,'setl4.next')
     set.this(set) = 
 .       (
 .       setl4.kind(kind,'int')          next,
 .       setl4.kind(kind,'map','set')    set.index(set)[next],
 .       setl4.kind(kind,'seq')          set.seq[next],
 .       setl4.kind(kind,'str')          substr(set.text(set),next,1)
-.       ident(datatype(set),'string')    substr(set,next,1)
+.       ident(datatype(set),'string')   substr(set,next,1)
 .       )
-
-*   Set _this_ to make available for expressions using _eval_
-
-    this = set.this(set)
+    setl4.next = set.next(set) = set.this(set) = next 
     show(this,'setl4.next.this')
-    setl4.next = this                               :(return)
+                                                    :(return)
 
 setl4.next.end
 
