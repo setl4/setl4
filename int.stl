@@ -1,26 +1,29 @@
 
 -include "setl4.stl"
     &dump = 2
-    s = setl4.new('int 5 25 5')
-    loop(s)
+    str.out('test one')
+    output = 
 
-loop.i
-    this = next(s)      :f(loop.i.done)
-    output = this       :(loop.i)
-
-loop.i.done
-
+    str.out("exists(s,'int.eq(=s,5)'")
+    r = exists(s,'int.eq(=s,5)')
+    show.b(r)
     output = 
     output = 
-    str.out('exists test one')
-    r = exists(s,'eq(this,5')
+    str.out("forall(s,'int.eq(=s,5)'")
+    r = forall(s,'int.eq(=s,5)')
     show.b(r)
     output = 
     output = 
 
     output = 
-    str.out('exists test two')
-    r = exists(s,'eq(this,6')
+    str.out('test two')
+    output = 
+    str.out("exists(s,'int.eq(=s,6)'")
+    r = exists(s,'int.eq(=s,6)')
+    show.b(r)
+    output = 
+    str.out("forall(s,'int.eq(=s,6)'")
+    r = forall(s,'int.eq(=s,6)')
     show.b(r)
 end
 

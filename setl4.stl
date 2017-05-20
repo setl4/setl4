@@ -116,7 +116,7 @@
 
 *   false(e)
 *   true(e)
-*   assert.dt(obj,typ)
+*   assert.dt(obj,type)
 *   assert(expr)
 *   exists(set,expr)
 *   forall(set,expr)
@@ -299,9 +299,6 @@ k
     FALSE = 0
     TRUE = 1
 
-    THIS = 'THIS'
-
-
 *   SETL4 function definitions
 *   --------------------------
 
@@ -313,7 +310,7 @@ k
 false
 
     e = integer(e) +e
-    false = integer(e) (eq(e,FALSE) TRUE,FALSE)     :s(return)
+    false = integer(e) (eq(e) TRUE,FALSE)           :s(return)
     false = (ident(e) TRUE, FALSE)                  :(return)
 
 false.end
@@ -324,7 +321,7 @@ false.end
 
 true
     e = integer(e) +e
-    true = integer(e) (eq(e,FALSE) FALSE,TRUE)     :s(return)
+    true = integer(e) (ne(e) TRUE,FALSE)            :s(return)
     true = (differ(e) TRUE, FALSE)                  :(return)
 
 true.end
@@ -348,7 +345,7 @@ assert.dt.end
 assert
 
     true(expr)                                      :s(return)
-    output = 'assertion failed, quitting' :(end)
+    error('assertion failed, quitting') 
 
 assert.end
 
@@ -358,61 +355,71 @@ assert.end
 
 exists
 
-    output = ident(expr) 'exists expr is null'
-    str.out('exists expr',expr)
-    exists = FALSE
     loop(set)
 
 exists.loop
 
-    str.out('at exists.loop')
-    next(set)                                       :f(return)
-    str.out('exists.next',set.next(set))
-    e = x.eval(expr)                                :f(exists.loop)
-    str.out('eval didn not fail')
-    false(e) str.out('x.eval returned false')
-    false(e)                                        :s(exists.loop)
-    str.out('eval exists expr ',e)
-    str.out('true(e) after eval',true(e))
-    exists = true(e) TRUE                           :s(return)f(exists.loop)
+    next(set)                                       :f(exists.fail)
+    str.out('exists.loop.next',set.next(set))
+    e = eval(expr)                                  :f(exists.loop)
+    str.out('exists.loop',e)
+    integer(e) eq(+e)                               :s(exists.loop)
+    ident(e)                                        :s(exists.loop)
+    exists = TRUE                                   :(return)
+
+exists.fail
+
+    exists = FALSE                                  :(return)
+
 
 exists.end
-    define('x.eval(e)')          :(x.eval.end)
-
-x.eval
-    str.out('x.eval',e)
- :(end)
-    e = eval(e)                 :f(x.eval.f)
-    x.eval = (ne(e) TRUE,FALSE)
-    str.out('x.eval',x.eval)
-    :(return)
-x.eval.f
-    x.eval = FALSE
-    str.out('x.eval false',e) 
-                            :(return)
-x.eval.end
 
     define('forall(set,expr)e')                     :(forall.end)
 
-*   Tests if _expr_ is TRUE for all the members of _set.
+*   Tests if _expr_ is true for all elements of _set_.
 
 forall
 
-    forall = FALSE
     loop(set)
 
 forall.loop
 
     next(set)                                       :f(forall.true)
-
-    e = eval(expr)                                  :f(return)
-    true(e)                                         :s(forall.loop)f(return)
+    str.out('forall.loop.next',set.next(set))
+    e = eval(expr)                                  :f(forall.loop)
+    str.out('forall.loop',e)
+    integer(e) ne(+e)                               :s(forall.loop)
+    differ(e)                                       :s(forall.loop)
+    forall = FALSE                                  :(return)
 
 forall.true
 
     forall = TRUE                                   :(return)
 
+
 forall.end
+
+*    define('forall(set,expr)e')                     :(forall.end)
+*
+**   Tests if _expr_ is TRUE for all the members of _set.
+*
+*forall
+*
+*    forall = FALSE
+*    loop(set)
+*
+*forall.loop
+*
+*    next(set)                                       :f(forall.true)
+*
+*    e = eval(expr)                                  :f(return)
+*    true(e)                                         :s(forall.loop)f(return)
+*
+*forall.true
+*
+*    forall = TRUE                                   :(return)
+*
+*forall.end
 
 *   Integers (int's)
 *   --------
@@ -714,14 +721,7 @@ map.range.end
 
 next
 
-*   $THIS = next
-    next = setl4.next(set)                          :s(next.t)f(next.f)
-
-next.f
-    str.out('next fails',next)                      :(freturn)
-
-next.t
-    str.out('next succeeds', next)                  :(return)
+    next = setl4.next(set)                          :s(return)f(freturn)
 
 next.end
 
@@ -1049,8 +1049,8 @@ set.union.end
 
 show
     differ(label) str.out('show: ' str.upper(label))
-    typ = datatype(v)
-                                                    :($('show.' typ))
+    type = datatype(v)
+                                                    :($('show.' type))
 
 show.array
 
@@ -1768,18 +1768,17 @@ str.writer.next
 
 str.writer.end
 
-*    define('this(set)')                             :(this.end)
-*
-**   Returns value found in most recent call to this.
-*
-*this
-*
-*    $THIS = set.next(set)                            
-*    show('this',$THIS)
-*    this = .THIS
-*                                                    :(nreturn)
-*
-*this.end
+    define('setl4.this(set)')                       :(setl4.this.end)
+
+*   Returns value found in most recent call to next.
+
+setl4.this
+
+    setl4.this = set.next(set)                       
+    show(setl4.this)
+                                                    :(return)
+
+setl4.this.end
 
     define('visit(set,expr)')                       :(visit.end)
 
@@ -1935,7 +1934,7 @@ setl4.member
     setl4.kind(kind,'str')                                  :s(setl4.member.str)
     setl4.kind(kind,'string')                               :s(setl4.member.string)
     setl4.kind(kind,'map')                                  :s(setl4.member.map)
-    output = 'setl4.member wrong kind ' kind ' , quitting' :(end)
+    error('setl4.member wrong kind ' kind ' , quitting')
 
 setl4.member.int
 
@@ -1958,7 +1957,7 @@ setl.4.member.map
 
 setl.4.member.seq
 
-    output = 'setl4.member seq not yet done' :(end)
+    error('setl4.member seq not yet done')
     ident(set.array[key,1])                         :s(return)
 
 setl4.elem.set
@@ -2113,7 +2112,6 @@ setl4.next
 
     differ(kind = set.kind(set),'int')              :s(setl4.next.notint)
 
-*    str.out('set4.next enter int')
 *   Here to find next element in set of type _int_.
 
     next = set.next(set) = set.next(set) + set.step(set)
@@ -2133,7 +2131,6 @@ setl4.next.notint
 .       setl4.kind(kind,'str')          substr(set.text(set),next,1)
 .       ident(datatype(set),'string')   substr(set,next,1)
 .       )
-    $THIS = next
     setl4.next = set.next(set) = next 
                                                     :(return)
 
@@ -2317,6 +2314,7 @@ setl4.traceon
 setl4.traceon.end
 
 *HERE*
+    opsyn('=','setl4.this',   1)
  :(bypass)
 *   Use some of the undefined SPITBOL operators for SETL4 functions.
 
@@ -2338,7 +2336,7 @@ setl4.traceon.end
 *setl4.op.end
 *   SETL4 unary operators:
 
-    opsyn('=','setl4.arb',   1)
+*    opsyn('=','setl4.arb',   1)
     opsyn('|','setl4.new',   1)
     opsyn('!','setl4.not',   1)
     opsyn('#','setl4.size',  1)
@@ -2363,4 +2361,5 @@ setl4.traceon.end
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
 bypass
- output = 'THIS is |' THIS '|'
+
+-include "compare.stl"
