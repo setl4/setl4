@@ -68,19 +68,19 @@
 
 *   SETL4 unary operators:
 
-*   '='     =s      Iteration       Returns the current element of an iteration
-*   '|'     |'str'  Constructor     Returns set specified by string _str_
-*   '!'     !expr   Not             True if and only if _expr_ is false
-*   '#'     #s      Size            Number of elements in set _s_
-*   '/'     /s      Split           Splits a string into a sequence of words
+*   '='     =s      Iteration                   Returns the current element of an iteration
+*   '|'     |'str'  Constructor                 Returns set specified by string _str_
+*   '!'     !expr   Not                         True if and only if _expr_ is false
+*   '#'     #s      Size                        Number of elements in set _s_
+*   '/'     /s      Split                       Splits a string into a sequence of words
 
 *   SETL4 binary operators:
 
-*   '&'     a & b   And             True if and only if both _a_ and _b_ are true
-*   '@'     s @ e   Eval            Evaluates _e_ at current element of set _s_
-*   '#'     s # e   Filter          Returns subset of set _s_ for which _e_ is true
-*   '~'     m ~ s   Membership      Tests if _m_ is member of set _s_
-*   '^'     a ^ b   Or              True if and only if _a_ or _b_ is true
+*   '&'     a & b   And                         True if and only if both _a_ and _b_ are true
+*   '@'     s @ e   Eval                        Evaluates _e_ at current element of set _s_
+*   '#'     s # e   Filter                      Returns subset of set _s_ for which _e_ is true
+*   '~'     m ~ s   Membership                  Tests if _m_ is member of set _s_
+*   '^'     a ^ b   Or                          True if and only if _a_ or _b_ is true
 
 *   For example, the folowing SETL4 expression determines if integer _P_ is prime:
 
@@ -117,23 +117,23 @@
 *   Lexical comparisons
 -   -------------------
 
-*   str.leq(a,b)    tests if a is lexically equal to b
-*   str.lge(a,b)    tests if a is lexically greater than or equal to b
-*   str.lgt(a,b)    tests if a is lexically greater than b
-*   str.lle(a,b)    tests if a is lexically less than or equal to b
-*   str.llt(a,b)    tests if a is lexically less than b
-*   stg.lne(a,b)    tests if a is lexically not equal to b
+*   str.leq(a,b)                                Tests if a is lexically equal to b
+*   str.lge(a,b)                                Tests if a is lexically greater than or equal to b
+*   str.lgt(a,b)                                Tests if a is lexically greater than b
+*   str.lle(a,b)                                Tests if a is lexically less than or equal to b
+*   str.llt(a,b)                                Tests if a is lexically less than b
+*   stg.lne(a,b)                                Tests if a is lexically not equal to b
 
 
 *   Integer comparisons
 *   -------------------
 
-*   int.eq(a,b)     tests if a is equal to b
-*   int.ge(a,b)     tests if a is greater than or equal to b
-*   int.gt(a,b)     tests if a is greater than b
-*   int.le(a,b)     tests if a is less than or equal to b
-*   int.lt(a,b)     tests if a is less than b
-*   int.ne(a,b)     tests if a is not equal to b
+*   int.eq(a,b)                                 Tests if _a is equal to _b_
+*   int.ge(a,b)                                 Tests if _a is greater than or equal to _b_
+*   int.gt(a,b)                                 Tests if _a is greater than _b_
+*   int.le(a,b)                                 Tests if _a is less than or equal to _b_
+*   int.lt(a,b)                                 Tests if _a is less than _b_
+*   int.ne(a,b)                                 Tests if _a is not equal to _b_
 
 
     define('int.eq(a,b)')                           :(int.eq.end)
@@ -264,17 +264,17 @@ str.lne.end
 *   String operations based on SPITBOL
 *   ----------------------------------
 
-*   str.any(a,b)    tests if the first character of a is in b
-*   str.break(a,b)  tests if a contains one of the characters in b
-*   str.notany(a,b) tests if first character in a is not in b
-*   str.span(a,b)   tests if bcontains only characters in a
+*   str.any(a,b)                                Tests if the first character of _a_ is in _b_
+*   str.break(a,b)                              Tests if _a_ contains one of the characters in _b_
+*   str.notany(a,b)                             Tests if first character in _a_ is not in _b_
+*   str.span(a,b)                               Tests if _b_ contains only characters in _a_
 
-*   false(e)
-*   true(e)
-*   assert.dt(obj,type)
-*   assert(expr)
-*   exists(set,expr)
-*   forall(set,expr)
+*   false(e)                                    Returns TRUE if and only if _e_ is FALSE
+*   true(e)                                     Returns TRUE if and only if _e_ is TRUE
+*   assert.dt(obj,type)                         Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise
+*   assert(expr)                                Tests that _expr_ is true, ends execution otherwise
+*   exists(set,expr)                            Tests if _expr_ is true for at least one element in set _set_
+*   forall(set,expr)                            Tests if _expr_ is true for at all elements in set _set_
 
 
 *   Int: sets of kind _int_
@@ -287,22 +287,22 @@ str.lne.end
 *   Int set functions
 *   -----------------
 
-*   int.member(member,int)
+*   int.member(member,int)                      Tests if _member_ is member of set _int_ if type 'int'
 
 *   Int utility functions
 *   ---------------------
 
 *   int.cardinal(n,word)
-*   int.even(n)
-*   int.factorial(n)
+*   int.even(n)                                 Tests if _n_ is even
+*   int.factorial(n)                            Returns n!  = n * (n -1) * ... * 1
 *   int.number(n)
 *   int.multiple(n,m)
-*   int.odd(n)
-*   int.prime(n)set
-*   int.square.root(n)
+*   int.even(n)                                 Tests if _n_ is odd
+*   int.prime(n)                                Tests if _n_ is prime
+*   int.square.root(n)                          Returns integer square root on _n_
 *   int.thousands(s)
 
-*   loop(set)
+*   loop(set)                                   Set up iteration over _set_ using _next_
 
 
 *   Map: sets of kind 'map'
@@ -381,26 +381,34 @@ k
 *   Str utility functions
 *   -----------------
 
-*   str.append(str,w,ch)
+*   str.append(str,w,ch)                            Appends _ch_ (or space if _ch_ is null) to _str_, then appends _w_
 *   str.ascii(line)
 *   str.ascii.init(init)
-*   str.datename(date)
-*   str.frequency(str)
-*   str.lower(s)
-*   str.spaces(line)c
-*   str.less(str,sub)
-*   str.out(text1,text2,text3)
-*   str.prefix(str,pre)
-*   str.reader(filename,expr)
-*   str.reader.string(str,delim)
-*   str.slice(str,first,last)
-*   str.tokens(line)
-*   str.upper(s)
-*   str.words(line)
-*   str.writer(lines)
+*   str.datename(date)                              Returns string based on current time suitable for use as filename
+*   str.frequency(str)                              Returns map giving frequency of characters in _str_
+*   str.digits()                                    Returns list of digits: '0 1 2 .. 9'
+*   str.lletters()                                  Returns list of lower case letters : 'a b c ... z'
+*   str.letters()                                   Returns list of letters : 'a b c ... z A B ... Z''
+*   str.lower(s)                                    Returns _s_ with upper case letters replaced by lower case equivalent
+*   str.less(str,sub)                               Removes the first instance of each character in _sub_ from _str_,
+*                                                   where _sub_ is a substr of _str_.
+*   str.out(text1,text2,text3)                      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null,
+*                                                   then _text3_ if _text3_ is not null.
+*   str.prefix(str,pre)                             Takes a list of space-separated words in _str_ and prefixes each
+*                                                   with the string _pre_
+*   str.reader(filename,expr)                       Returns sequence of lines in file _filename_, using _expr_ (if given)
+*                                                   to filter out lines to be ignored.
+*   str.reader.string(str,delim)                    Like _str.reader(filename..)_ but reads lines from a string with lines
+*                                                   separated by delimiter _delim_
+*   str.slice(str,first,last)                       Same as SPITBOL _substr(str,first,last)_
+*   str.tokens(line)                                Returns sequence of the tokens in _line_
+*   str.uletters()                                  Returns list of upper case letters : 'A B C ... Z''
+*   str.upper(s)                                    Returns _s_ with lower case letters replaced by upper case equivalent
+*   str.words(line)                                 Returns list of words in _line_, where words are separated by one of
+*                                                   more spaces or tab characters
+*   str.writer(lines)                               Writes sequence _lines_ to standard output.
 
-*   this(set)
-*   visit(set,expr)
+*   visit(set,expr)                                 Visits each element of set _set_ and evaluates _expr_ for that element
 
 *   Setl4 functions
 
@@ -409,22 +417,23 @@ k
 *   You can access them directly, but do so at your peril.
 
 *
-*   setl4.and(a,b)
-*   setl4.binary.search(tbl,value)
-*   setl4.concatenate(a,b)
-*   setl4.eval(set,expr)
-*   setl4.filter(set,expr)
-*   setl4.kind(set,kind1,kind2,kind3,kind3,kind4)
-*   setl4.member(elem,kind,entry,key,value)
-*   setl4.new(str)
-*   setl4.next(set)
-*   setl4.not(expr)
-*   setl4.or(a,b)
-*   setl4.random(n)
-*   setl4.random.seed()
-*   setl4.size(set)
-*   setl4.traceoff()
-*   setl4.traceon()
+*   setl4.and(a,b)                                  And: true if and only if _a_ and _b_ are true
+*   setl4.binary.search(tbl,value)                  Binary search
+*   setl4.concatenate(a,b)                          Concatenates strings _a_ and _b_
+*   setl4.eval(set,expr)                            Evaluates _expr_ for for current iterate of _set_
+*   setl4.filter(set,expr)                          Filter:; returns subset of _set_ for which _expr_ is true
+*   setl4.kind(set,kind1,kind2,kind3,kind3,kind4)   Tests if the kind of set _set_ is one of the specfied kinds.
+*   setl4.member(elem,set)                          Tests if _elem_ is a member of set _set_
+*   setl4.new(str)                                  Returns new set specified by _st_
+*   setl4.next(set)                                 Returns next element in iteration defined by prevous _loop_,
+*                                                   fails if no more elements
+*   setl4.not(expr)                                 Not: true if and only if _expr_ is false
+*   setl4.and(a,b)                                  Or: true if and only if _a_ of _b_ is true
+*   setl4.random(n)                                 Returns random element
+*   setl4.random.seed()                             Sets random number seed to initialize _random_
+*   setl4.size(set)                                 Returns number of elements in set _set_
+*   setl4.traceoff()                                Turns off tracing
+*   setl4.traceon()                                 Turns on tracing
 
 
 *   SETL4 Configuration Options
@@ -1417,7 +1426,7 @@ show.words.end
 
 str.append
 
-    str.append = str (ident(str) w, str (ident(ch) ' ' , ch) w):(return)
+    str.append = str (ident(str) w, (ident(ch) ' ' , ch) w):(return)
 
 str.append.end
 
@@ -1554,7 +1563,23 @@ str.datename
                                                            :(return)
 str.datename.end
 
-    define('str.frequency(str)')                        :(str.frequency.end)
+    define('str.digits()str,ch')                    :(str.digits.end)
+
+*   Return string consisting of the digits 0 .. 9 separated by a space.
+
+str.digits
+
+    str.digits = 
+    str = '0123456789'
+    
+str.digits.next
+
+    str len(1) . ch =                               :f(return)
+    str.digits = str.append(str.digits,ch)          :(str.digits.next)
+
+str.digits.end
+
+    define('str.frequency(str)')                    :(str.frequency.end)
 
 *   Return map from the characters in a str to the number of times
 *   each occurs in the str.
@@ -1586,6 +1611,38 @@ str.less.ch
     str.less = before after                         :(str.less.ch)
 
 str.less.end
+
+    define('str.lletters()str,ch')                  :(str.lletters.end)
+
+*   Return string consisting of the lower case letters separated by a space.
+
+str.lletters
+
+    str.lletters = 
+    str = &lcase
+    
+str.lletters.next
+
+    str len(1) . ch =                               :f(return)
+    str.lletters = str.append(str.lletters,ch)      :(str.lletters.next)
+
+str.lletters.end
+
+    define('str.letters()str,ch')                   :(str.letters.end)
+
+*   Return string consisting of the lower case letters separated by a space.
+
+str.letters
+
+    str.letters = 
+    str = &lcase &ucase
+    
+str.letters.next
+
+    str len(1) . ch =                                 :f(return)
+    str.letters = str.append(str.letters,ch)          :(str.letters.next)
+
+str.letters.end
 
     define('str.lower(s)')                          :(str.lower.end)
 
@@ -1624,6 +1681,22 @@ str.prefix.1
     str.prefix = append(str.prefix, pre word,'A')   :(str.prefix.1)
 
 str.prefix.end
+
+    define('str.uletters()str,ch')                  :(str.uletters.end)
+
+*   Return string consisting of the upper case letters separated by a space.
+
+str.uletters
+
+    str.uletters = 
+    str = &ucase
+    
+str.uletters.next
+
+    str len(1) . ch =                                 :f(return)
+    str.uletters = str.append(str.uletters,ch)      :(str.uletters.next)
+
+str.uletters.end
 
 *   Lines
 *   -----
@@ -1713,18 +1786,6 @@ str.slice
     str.slice = substr(str,first,last)              :(return)
 
 str.slice.end
-
-    define('str.spaces(line)c')                     :(str.spaces.end)
-
-*   Returns str which has ' ' in position _i_ if the _i_-th
-*   characer in _str_ is a space (' '), or '*' otherwise.
-
-str.spaces
-
-    line len(1) . c                                 :f(return)
-    str.spaces = str.spaces (ident(c,' ') ' ', '*') :(str.spaces)
-
-str.spaces.end
 
 *   Tokens: Lexical Scanning
 *   ------------------------
@@ -2482,6 +2543,4 @@ setl4.traceon.end
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
-bypass
 
--include "compare.stl"
