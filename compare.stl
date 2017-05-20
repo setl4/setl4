@@ -26,7 +26,7 @@
 
 int.eq
 
-    int.eq = (integer(a) integer(b) eq(a,b) true,false) :s(return)
+    int.eq = (integer(a) integer(b) eq(a,b) TRUE, FALSE) :s(return)
 
 int.eq.end
 
@@ -36,7 +36,7 @@ int.eq.end
 
 int.ge
 
-    int.ge = (integer(a) integer(b) ge(a,b) true,false) :s(return)
+    int.ge = (integer(a) integer(b) ge(a,b) TRUE, FALSE) :s(return)
 
 int.ge.end
 
@@ -46,7 +46,7 @@ int.ge.end
 
 int.gt
 
-    int.gt = (integer(a) integer(b) gt(a,b) true,false) :s(return)
+    int.gt = (integer(a) integer(b) gt(a,b) TRUE, FALSE) :s(return)
 
 int.gt.end
 
@@ -56,7 +56,7 @@ int.gt.end
 
 int.le
 
-    int.le = (integer(a) integer(b) le(a,b) true,false) :s(return)
+    int.le = (integer(a) integer(b) le(a,b) TRUE, FALSE) :s(return)
 
 int.le.end
 
@@ -66,7 +66,7 @@ int.le.end
 
 int.lt
 
-    int.lt = (integer(a) integer(b) lt(a,b) true,false) :s(return)
+    int.lt = (integer(a) integer(b) lt(a,b) TRUE, FALSE) :s(return)
 
 int.lt.end
 
@@ -76,7 +76,7 @@ int.lt.end
 
 int.ne
 
-    int.ne = (integer(a) integer(b) ne(a,b) true,false) :s(return)
+    int.ne = (integer(a) integer(b) ne(a,b) TRUE, FALSE) :s(return)
 
 int.ne.end
 
@@ -90,7 +90,7 @@ int.ne.end
 str.leq
 
     str.leq = leq(a,b) true                         
-    str.leq = (leq(a,b) true,false) :s(return)
+    str.leq = (leq(a,b) TRUE, FALSE) :s(return)
           
 str.leq.end
 
@@ -100,7 +100,7 @@ str.leq.end
 
 str.lge
 
-    str.ge = (ge(a,b) true,false) :s(return)
+    str.ge = (ge(a,b) TRUE, FALSE) :s(return)
 
 str.lge.end
 
@@ -110,7 +110,7 @@ str.lge.end
 
 str.lgt
 
-    str.lgt = (gt(a,b) true,false) :s(return)
+    str.lgt = (gt(a,b) TRUE, FALSE) :s(return)
 
 str.lgt.end
 
@@ -120,7 +120,7 @@ str.lgt.end
 
 str.lle
 
-    str.le = (le(a,b) true,false) :s(return)
+    str.le = (le(a,b) TRUE, FALSE)                   :s(return)
 
 str.lle.end
 
@@ -130,7 +130,7 @@ str.lle.end
 
 str.llt
 
-    str.llt = (llt(a,b) true,false) :s(return)
+    str.llt = (llt(a,b) TRUE, FALSE) :s(return)
 
 str.llt.end
 
@@ -140,7 +140,7 @@ str.llt.end
 
 str.lne
 
-    str.lne = (ne(a,b) true,false) :s(return)
+    str.lne = (ne(a,b) TRUE, FALSE) :s(return)
 
 str.lne.end
 

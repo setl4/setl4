@@ -1,4 +1,4 @@
-*    Copyright 2017, David Shields
+*   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
     &dump = 2
@@ -68,7 +68,7 @@
 
 *   SETL4 unary operators:
 
-*   '='     =s      Arb             Returns arbitary (randomly selected)  element of s
+*   '='     =s      Iteration       Returns the current element of an iteration
 *   '|'     |'str'  Constructor     Returns set specified by string _str_
 *   '!'     !expr   Not             True if and only if _expr_ is false
 *   '#'     #s      Size            Number of elements in set _s_
@@ -88,6 +88,15 @@
 
 *   where _multiple(a,b) is true if and only if _a_ is a multiple of _b_.
 
+*   Global variables
+*   ----------------
+
+*   SETL4 binary operators:
+
+*    setl4.ascii.name = setl4.new('map')
+*    setl4.ascii.val =  setl4.new('map')
+*    setl4.ascii.initialized = false
+
 *   Boolean Logic
 *   -------------
 
@@ -103,7 +112,153 @@
 *   For non-integers, the null string ('') is true, and all other values are false.
 
 *   SPITBOL comparison functions report their results by success or failure, so SETL
-*   provides the following functions which return true or false.
+*   provides the following functions which return TRUE or FALSE.
+
+*   Lexical comparisons
+-   -------------------
+
+*   str.leq(a,b)    tests if a is lexically equal to b
+*   str.lge(a,b)    tests if a is lexically greater than or equal to b
+*   str.lgt(a,b)    tests if a is lexically greater than b
+*   str.lle(a,b)    tests if a is lexically less than or equal to b
+*   str.llt(a,b)    tests if a is lexically less than b
+*   stg.lne(a,b)    tests if a is lexically not equal to b
+
+
+*   Integer comparisons
+*   -------------------
+
+*   int.eq(a,b)     tests if a is equal to b
+*   int.ge(a,b)     tests if a is greater than or equal to b
+*   int.gt(a,b)     tests if a is greater than b
+*   int.le(a,b)     tests if a is less than or equal to b
+*   int.lt(a,b)     tests if a is less than b
+*   int.ne(a,b)     tests if a is not equal to b
+
+
+    define('int.eq(a,b)')                           :(int.eq.end)
+
+*   Tests if _a_ is equal to _b_.
+
+int.eq
+
+    int.eq = (integer(a) integer(b) eq(a,b) TRUE, FALSE) :s(return)
+
+int.eq.end
+
+    define('int.ge(a,b)')                           :(int.ge.end)
+
+*   Tests if _a_ is greater than or equal to _b_.
+
+int.ge
+
+    int.ge = (integer(a) integer(b) ge(a,b) TRUE, FALSE) :s(return)
+
+int.ge.end
+
+    define('int.gt(a,b)')                           :(int.gt.end)
+
+*   Tests if _a_ is greater than _b_.
+
+int.gt
+
+    int.gt = (integer(a) integer(b) gt(a,b) TRUE, FALSE) :s(return)
+
+int.gt.end
+
+    define('int.le(a,b)')                           :(int.le.end)
+
+*   Tests if _a_ is less than or equal to _b_.
+
+int.le
+
+    int.le = (integer(a) integer(b) le(a,b) TRUE, FALSE) :s(return)
+
+int.le.end
+
+    define('int.lt(a,b)')                           :(int.lt.end)
+
+*   Tests if _a_ is less than _b_.
+
+int.lt
+
+    int.lt = (integer(a) integer(b) lt(a,b) TRUE, FALSE) :s(return)
+
+int.lt.end
+
+    define('int.ne(a,b)')                           :(int.ne.end)
+
+*   Tests if _a_ is not equal to _b_.
+
+int.ne
+
+    int.ne = (integer(a) integer(b) ne(a,b) TRUE, FALSE) :s(return)
+
+int.ne.end
+
+
+*   Lexical
+
+    define('str.leq(a,b)')                           :(str.leq.end)
+
+*   Tests if _a_ is lexically equal to _b_.
+
+str.leq
+
+    str.leq = leq(a,b) true                         
+    str.leq = (leq(a,b) TRUE, FALSE) :s(return)
+          
+str.leq.end
+
+    define('str.lge(a,b)')                           :(str.lge.end)
+
+*   Tests if _a_ is lexically greater than or equal to _b_.
+
+str.lge
+
+    str.ge = (ge(a,b) TRUE, FALSE) :s(return)
+
+str.lge.end
+
+    define('str.lgt(a,b)')                           :(str.lgt.end)
+
+*   Tests if _a_ is lexically greater than _b_.
+
+str.lgt
+
+    str.lgt = (gt(a,b) TRUE, FALSE) :s(return)
+
+str.lgt.end
+
+    define('str.lle(a,b)')                           :(str.lle.end)
+
+*   Tests if _a_ is lexically less than or equal to _b_.
+
+str.lle
+
+    str.le = (le(a,b) TRUE, FALSE)                   :s(return)
+
+str.lle.end
+
+    define('str.llt(a,b)')                           :(str.llt.end)
+
+*   Tests if _a_ is lexically less than _b_.
+
+str.llt
+
+    str.llt = (llt(a,b) TRUE, FALSE) :s(return)
+
+str.llt.end
+
+    define('str.lne(a,b)')                           :(str.lne.end)
+
+*   Tests if _a_ is not lexically equal to _b_.
+
+str.lne
+
+    str.lne = (ne(a,b) TRUE, FALSE) :s(return)
+
+str.lne.end
 
 
 *   String operations based on SPITBOL
@@ -255,7 +410,6 @@ k
 
 *
 *   setl4.and(a,b)
-*   setl4.arb(set)
 *   setl4.binary.search(tbl,value)
 *   setl4.concatenate(a,b)
 *   setl4.eval(set,expr)
@@ -273,7 +427,7 @@ k
 *   setl4.traceon()
 
 
-*   SETL4 configuration options
+*   SETL4 Configuration Options
 *   ---------------------------
 
 *   Initial size of any hash tables created when constructing
@@ -302,7 +456,6 @@ k
 *   SETL4 function definitions
 *   --------------------------
 
-
     define('false(e)')                              :(false.end)
 
 *   Returns TRUE if its argument is false, or else FALSE.
@@ -329,6 +482,23 @@ true.end
     define('assert.dt(obj,typ)')                    :(assert.dt.end)
 
 *   Verify that _obj_ has datatype _typ_, end execution if not.
+
+    define('arb(set)n,r')                           :(arb.end)
+
+*   Returns arbitary (randomly selected) element of _set_.
+
+arb
+
+    arb = integer(set) setl4.random(+set)           :s(return)
+    r = setl4.random(set.size(set))
+    arb = (
+.       setl4.kind(set,'int')         set.low(set) + (r - 1) * set.step(set),
+.       setl4.kind(set,'map','set')   set.index(set)[r],
+.       setl4.kind(set,'seq')         set.seq(set)[r],
+.       setl4.kind(set,'str')         substr(set.text(set),r,1),
+.       ident(datatype(set),'string') substr(set,r,1))
+                                                    :(return)
+arb.end
 
 assert.dt
 
@@ -1796,23 +1966,6 @@ setl4.and
 
 setl4.and.end
 
-    define('setl4.arb(set)n,r')                     :(setl4.arb.end)
-
-*   Returns arbitary (randomly selected) element of _set_.
-
-setl4.arb
-
-    setl4.arb = integer(set) setl4.random(+set)     :s(return)
-    r = setl4.random(set.size(set))
-    setl4.arb = (
-.       setl4.kind(set,'int')         set.low(set) + (r - 1) * set.step(set),
-.       setl4.kind(set,'map','set')   set.index(set)[r],
-.       setl4.kind(set,'seq')         set.seq(set)[r],
-.       setl4.kind(set,'str')         substr(set.text(set),r,1),
-.       ident(datatype(set),'string') substr(set,r,1))
-                                                    :(return)
-setl4.arb.end
-
     define('setl4.concatenate(a,b)')                :(setl4.concatenate.end)
 
 *   Concatenate argument strings.
@@ -2293,9 +2446,6 @@ setl4.traceon
                                                     :(return)
 setl4.traceon.end
 
-*HERE*
-    opsyn('=','setl4.this',   1)
- :(bypass)
 *   Use some of the undefined SPITBOL operators for SETL4 functions.
 
 *   Characters available for use by 'opsyn' to associate the character
@@ -2316,7 +2466,7 @@ setl4.traceon.end
 *setl4.op.end
 *   SETL4 unary operators:
 
-*    opsyn('=','setl4.arb',   1)
+    opsyn('=','setl4.this',   1)
     opsyn('|','setl4.new',   1)
     opsyn('!','setl4.not',   1)
     opsyn('#','setl4.size',  1)
@@ -2329,14 +2479,6 @@ setl4.traceon.end
     opsyn('#','setl4.filter',2)
     opsyn('~','setl4.member',2)
 *    opsyn('^','setl4.or',    2)
-
-*   Global variables
-*   ----------------
-
-*   SETL4 binary operators:
-*    setl4.ascii.name = setl4.new('map')
-*    setl4.ascii.val =  setl4.new('map')
-*    setl4.ascii.initialized = false
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
