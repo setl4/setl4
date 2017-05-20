@@ -360,17 +360,16 @@ exists
 exists.loop
 
     next(set)                                       :f(exists.fail)
-    str.out('exists.loop.next',set.next(set))
+*    str.out('exists.loop.next',set.next(set))
     e = eval(expr)                                  :f(exists.loop)
-    str.out('exists.loop',e)
+*    str.out('exists.loop e',e)
     integer(e) eq(+e)                               :s(exists.loop)
-    ident(e)                                        :s(exists.loop)
+    ident(e) 				            :s(exists.loop)
     exists = TRUE                                   :(return)
 
 exists.fail
 
     exists = FALSE                                  :(return)
-
 
 exists.end
 
@@ -385,41 +384,22 @@ forall
 forall.loop
 
     next(set)                                       :f(forall.true)
-    str.out('forall.loop.next',set.next(set))
+*    str.out('forall.loop.next',set.next(set))
     e = eval(expr)                                  :f(forall.loop)
-    str.out('forall.loop',e)
-    integer(e) ne(+e)                               :s(forall.loop)
-    differ(e)                                       :s(forall.loop)
-    forall = FALSE                                  :(return)
+*    str.out('forall.loop',e)
+    integer(e) eq(+e)                               :s(forall.false)
+    ident(e)                                        :s(forall.false)
+    						    :(forall.loop)
+
+forall.false
+
+    forall = FAlSE                                   :(return)
 
 forall.true
 
-    forall = TRUE                                   :(return)
-
+    forall = TRUE				     :(return)
 
 forall.end
-
-*    define('forall(set,expr)e')                     :(forall.end)
-*
-**   Tests if _expr_ is TRUE for all the members of _set.
-*
-*forall
-*
-*    forall = FALSE
-*    loop(set)
-*
-*forall.loop
-*
-*    next(set)                                       :f(forall.true)
-*
-*    e = eval(expr)                                  :f(return)
-*    true(e)                                         :s(forall.loop)f(return)
-*
-*forall.true
-*
-*    forall = TRUE                                   :(return)
-*
-*forall.end
 
 *   Integers (int's)
 *   --------
@@ -562,7 +542,7 @@ int.thousands.end
 loop
 
 *   Returns loop member in interation over compound object _set.
-
+*	setl4.show(set)
     set.next(set) = ident(set.kind(set),'int') set.low(set) - set.step(set) :s(return)
     set.next(set) =  0                              :(return)
 
@@ -1775,7 +1755,7 @@ str.writer.end
 setl4.this
 
     setl4.this = set.next(set)                       
-    show(setl4.this)
+*    show(setl4.this)
                                                     :(return)
 
 setl4.this.end

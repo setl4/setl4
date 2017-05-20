@@ -1,6 +1,10 @@
 
 -include "setl4.stl"
+
     &dump = 2
+
+    s = setl4.new('int 5 25 5')
+
     str.out('test one')
     output = 
 
@@ -22,8 +26,8 @@
     r = exists(s,'int.eq(=s,6)')
     show.b(r)
     output = 
-    str.out("forall(s,'int.eq(=s,6)'")
-    r = forall(s,'int.eq(=s,6)')
+    str.out("forall(s,'int.ne(=s,6)'")
+    r = forall(s,'int.ne(=s,6)')
     show.b(r)
 end
 
