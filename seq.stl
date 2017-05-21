@@ -1,14 +1,21 @@
 
--include "stl"
+-include "setl4.stl"
 
-    &dump = 2
+*    &dump = 2
 
     s = new('seq 10')
+*    show(s,'test sequence 10')
+    seq.add(s,10)
+    seq.add(s,20)
     show(s)
 
     str.out('test membership- expect TRUE/FALSE')
-    show.b( member(5,s))
-    show.b( member(16,s))
+*    show.b( member(5,s))
+*    show.b( member(16,s))
+    out1 = member(10,s)
+    out2  = member(16,s)
+    &dump = 2
+    :(end)
     output = 
     output = 
 

@@ -363,22 +363,22 @@ and
 
 and.end
 
-    define('arb(set)n,r')                           :(arb.end)
+    define('arbitrary(set)n,r')                           :(arbitrary.end)
 
-*   Returns arbitary (randomly selected) element of _set_.
+*   Returns arbitrary (randomly selected) element of _set_.
 
-arb
+arbitrary
 
-    arb = integer(set) random(+set)           :s(return)
+    arbitrary = integer(set) random(+set)           :s(return)
     r = random(set.size(set))
-    arb = (
+    arbitrary = (
 .       iskind(set,'int')         set.low(set) + (r - 1) * set.step(set),
 .       iskind(set,'map','set')   set.index(set)[r],
 .       iskind(set,'seq')         set.seq(set)[r],
 .       iskind(set,'str')         substr(set.text(set),r,1),
 .       ident(datatype(set),'string') substr(set,r,1))
                                                     :(return)
-arb.end
+arbitrary.end
 
     define('assert(expr)')                          :(assert.end)
 
@@ -523,7 +523,7 @@ forall.loop
 
 forall.false
 
-    forall = FAlSE                                   :(return)
+    forall = FALSE                                   :(return)
 
 forall.true
 
@@ -713,21 +713,25 @@ int.ne
 
 int.ne.end
 
-    define('iskind(set,kind1,kind2,kind3,kind3,kind4,kind5)kind')     :(iskind.end)
+    define('iskind(kind,kind1,kind2,kind3,kind3,kind4,kind5)')     :(iskind.end)
 
 *   Tests if the kind of _set_ is one of kind1, kind2, .... Returns true if so,
 *   false otherwise.
 
 iskind
 
-    kind = ident(datatype(set),'string') true       :s(return)
-    kind = set.kind(set)
-    iskind = differ(kind1) ident(kind,kind1) TRUE   :s(return)
-    iskind = differ(kind2) ident(kind,kind2) TRUE   :s(return)
-    iskind = differ(kind3) ident(kind,kind3) TRUE   :s(return)
-    iskind = differ(kind4) ident(kind,kind4) TRUE   :s(return)
-    iskind = differ(kind5) ident(kind,kind5) TRUE   :s(return)
-    iskind = FALSE                                  :(return) 
+    str.out('iskind',kind)
+    str.out('iskind kind1',kind1)
+    str.out('iskind kind2',kind2)
+    str.out('iskind kind3',kind3)
+    str.out('iskind kind4',kind4)
+    str.out('iskind kind5',kind5)
+ :(end)
+    differ(kind1) ident(kind,kind1)                 :s(return)
+    differ(kind2) ident(kind,kind2)                 :s(return)
+    differ(kind3) ident(kind,kind3)                 :s(return)
+    differ(kind4) ident(kind,kind4)                 :s(return)
+    differ(kind5) ident(kind,kind5)                 :s(return)
 
 iskind.end
 
@@ -892,11 +896,11 @@ map.range.end
 
 member
 
+    str.out('enter member ',set.kind(set))
 *    output = 'member ' datatype(set)
 *    show(set)
     member = FALSE
     kind = set.kind(set)
-    member = false
     iskind(kind,'int')                              :s(member.int)
     iskind(kind,'map')                              :s(member.map)
     iskind(kind,'seq')                              :s(member.seq)
@@ -926,6 +930,7 @@ member.map
 
 member.seq
 
+    str.out('@member.seq')
     gt(i = i + 1,set.size(set))                     :f(return)
     this = set.array(set)[i]                        :f(return)
     equal(this,elem)                                :s(member.true)f(member.seq) 
@@ -987,8 +992,8 @@ new.init
 
 new.int
 
-    ident(init) error('new initialization information needed')
     new = set('int')
+    ident(init) error('new initialization information needed')
     set.step(new) = 1
     seq = str.words(init)
 
@@ -1034,6 +1039,8 @@ new.int.done
     set.next(new) = set.low(new) - set.step(new) 
                                                     :(return)
 new.map
+    
+    new = set('map')
 
 *   If present, _init_ is a list consisting of a list of key/value pairs,
 *   with a colon (:) between the key and value.
@@ -1048,6 +1055,7 @@ new.map.next
 
 new.seq
 
+    new = set('seq')
     set.index(new) =
     set.key(new) =                        
     set.seq(new) = array(setl4.config.size)
@@ -1065,6 +1073,7 @@ new.set.init
 
 new.str
 
+    new = set('str')
     str.text(new) = init                            :(return)
 
 new.str.init
@@ -1536,7 +1545,7 @@ show.map
 
     map = rank(map)
     loop(v)
-    show = ' {'
+    str.out('{ map #' set.size(v))
 
 show.map.next
 
@@ -1558,9 +1567,8 @@ show.pair
 
 show.seq
 
-    str.out('show.seq')
+    str.out('[ seq #' set.size(v))
     loop(v)
-    show = ' ['
 
 show.seq.next
 
@@ -1579,7 +1587,7 @@ show.set
 *   Call _rank_ so entries listed in rank order.
 
     set = rank(set)
-    show =  ' {'
+    str.out('{ set #' set.size(v))
     loop(v)
 
 show.set.next
