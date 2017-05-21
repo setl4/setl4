@@ -3,12 +3,12 @@
 
     &dump = 2
 
-    s = setl4.new('int 5 25 5')
+    s = setl4.new('seq 10')
     show(s)
 
     str.out('test membership- expect TRUE/FALSE')
     show.b( setl4.member(5,s))
-    show.b( setl4.member(6,s))
+    show.b( setl4.member(16,s))
     output = 
     output = 
 
@@ -29,12 +29,12 @@
 
     str.out('test exists/forall with element not in set - expect FALSE/TRUE')
     output = 
-    str.out("exists(s,'int.eq(=s,6)'")
-    r = exists(s,'int.eq(=s,6)')
+    str.out("exists(s,'int.eq(=s,16)'")
+    r = exists(s,'int.eq(=s,16)')
     show.b(r)
     output = 
-    str.out("forall(s,'int.ne(=s,6)'")
-    r = forall(s,'int.ne(=s,6)')
+    str.out("forall(s,'int.ne(=s,16)'")
+    r = forall(s,'int.ne(=s,16)')
     show.b(r)
     output = 
     output = 

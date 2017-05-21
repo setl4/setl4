@@ -1,7 +1,7 @@
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
-    &dump = 2
+*TODO - need separate out iterator from set data structure. May have multiple loops over same set at onece.
 
 *   SETL4 is an extension of SPITBOL. This file consists of a set of functions
 *   operator definitions that support set-theoretic operations defined
@@ -10,53 +10,6 @@
 *   SETL4 extends SPITBOL by adding the datatype _set_ to represent
 *   finite sets. Several additional datatypes based on sets are
 *   also provided. Each is identified by its kind.
-
-*   A set is defined by the following datatype:
-
-    data('set(set.kind,set.index,set.key,set.size,set.next,set.loop,set.low,set.high,set.step,set.text,set.seq)')
-
-*   where
-
-*           _kind_          the kind of _set_: 'int', 'map', 'seq', 'set', or 'str'.
-
-*           _index_         a SPITBOL table used to map the integer
-*                           id assigned each element to the value of the element.
-
-*           _key_           a SPITBOL table, used only for maps, to permit iteration
-
-*           _size_          the current number of members.
-
-*           _next_          the last value returned by the _next_ primitive
-*                           when iterating over a set.
-
-*           _text_          is the text of the set of kind _str_
-
-*           _seq_           is the array used to maintain a sequence. _set.key_
-*                           and _set.index_ are not used for sequences.
-
-*   Note that the null value is not allowed as an element of a set, or the
-*   value of a map entry, but can be used as the value of an element in a seq.
-
-*   The _key_ table is needed to provide constant time bounds for iterating over
-*   a set, in all of its forms.
-
-*   Since the _key_ table is needed, a set can be indexed using the key table.
-*   This allows the definition of 'get' and 'put' on sequences.
-
-*   Sequences are currently implemented using SPITBOL arrays, extending
-*   the array length dynamically as needed.
-
-*   New elements can be added to a sequence using the 'push' primitive,
-*   and the most recent element can be deleted using the 'pop' primitive.
-
-*   In order to avoid clashing with the names of user-defined functions, almost
-*   all of the functions defined herein begin with one of the following strings:
-
-*       'int'   'map'   'seq'   'set'   'setl4'    'str'
-
-*   The following functions have no such prefix, due to the ubiquity of their use:
-
-*       and  assert  exists false forall loop  mark  next  or  rank  show  true
 
 
 *   SETL4 supports a variety of sets. Each has a kind, one of:
@@ -114,151 +67,6 @@
 *   SPITBOL comparison functions report their results by success or failure, so SETL
 *   provides the following functions which return TRUE or FALSE.
 
-*   Lexical comparisons
--   -------------------
-
-*   str.leq(a,b)                                Tests if a is lexically equal to b
-*   str.lge(a,b)                                Tests if a is lexically greater than or equal to b
-*   str.lgt(a,b)                                Tests if a is lexically greater than b
-*   str.lle(a,b)                                Tests if a is lexically less than or equal to b
-*   str.llt(a,b)                                Tests if a is lexically less than b
-*   stg.lne(a,b)                                Tests if a is lexically not equal to b
-
-
-*   Integer comparisons
-*   -------------------
-
-*   int.eq(a,b)                                 Tests if _a is equal to _b_
-*   int.ge(a,b)                                 Tests if _a is greater than or equal to _b_
-*   int.gt(a,b)                                 Tests if _a is greater than _b_
-*   int.le(a,b)                                 Tests if _a is less than or equal to _b_
-*   int.lt(a,b)                                 Tests if _a is less than _b_
-*   int.ne(a,b)                                 Tests if _a is not equal to _b_
-
-
-    define('int.eq(a,b)')                           :(int.eq.end)
-
-*   Tests if _a_ is equal to _b_.
-
-int.eq
-
-    int.eq = (integer(a) integer(b) eq(a,b) TRUE, FALSE) :s(return)
-
-int.eq.end
-
-    define('int.ge(a,b)')                           :(int.ge.end)
-
-*   Tests if _a_ is greater than or equal to _b_.
-
-int.ge
-
-    int.ge = (integer(a) integer(b) ge(a,b) TRUE, FALSE) :s(return)
-
-int.ge.end
-
-    define('int.gt(a,b)')                           :(int.gt.end)
-
-*   Tests if _a_ is greater than _b_.
-
-int.gt
-
-    int.gt = (integer(a) integer(b) gt(a,b) TRUE, FALSE) :s(return)
-
-int.gt.end
-
-    define('int.le(a,b)')                           :(int.le.end)
-
-*   Tests if _a_ is less than or equal to _b_.
-
-int.le
-
-    int.le = (integer(a) integer(b) le(a,b) TRUE, FALSE) :s(return)
-
-int.le.end
-
-    define('int.lt(a,b)')                           :(int.lt.end)
-
-*   Tests if _a_ is less than _b_.
-
-int.lt
-
-    int.lt = (integer(a) integer(b) lt(a,b) TRUE, FALSE) :s(return)
-
-int.lt.end
-
-    define('int.ne(a,b)')                           :(int.ne.end)
-
-*   Tests if _a_ is not equal to _b_.
-
-int.ne
-
-    int.ne = (integer(a) integer(b) ne(a,b) TRUE, FALSE) :s(return)
-
-int.ne.end
-
-
-*   Lexical
-
-    define('str.leq(a,b)')                           :(str.leq.end)
-
-*   Tests if _a_ is lexically equal to _b_.
-
-str.leq
-
-    str.leq = leq(a,b) true                         
-    str.leq = (leq(a,b) TRUE, FALSE) :s(return)
-          
-str.leq.end
-
-    define('str.lge(a,b)')                           :(str.lge.end)
-
-*   Tests if _a_ is lexically greater than or equal to _b_.
-
-str.lge
-
-    str.ge = (ge(a,b) TRUE, FALSE) :s(return)
-
-str.lge.end
-
-    define('str.lgt(a,b)')                           :(str.lgt.end)
-
-*   Tests if _a_ is lexically greater than _b_.
-
-str.lgt
-
-    str.lgt = (gt(a,b) TRUE, FALSE) :s(return)
-
-str.lgt.end
-
-    define('str.lle(a,b)')                           :(str.lle.end)
-
-*   Tests if _a_ is lexically less than or equal to _b_.
-
-str.lle
-
-    str.le = (le(a,b) TRUE, FALSE)                   :s(return)
-
-str.lle.end
-
-    define('str.llt(a,b)')                           :(str.llt.end)
-
-*   Tests if _a_ is lexically less than _b_.
-
-str.llt
-
-    str.llt = (llt(a,b) TRUE, FALSE) :s(return)
-
-str.llt.end
-
-    define('str.lne(a,b)')                           :(str.lne.end)
-
-*   Tests if _a_ is not lexically equal to _b_.
-
-str.lne
-
-    str.lne = (ne(a,b) TRUE, FALSE) :s(return)
-
-str.lne.end
 
 
 *   String operations based on SPITBOL
@@ -287,16 +95,26 @@ str.lne.end
 *   Int set functions
 *   -----------------
 
-*   int.member(member,int)                      Tests if _member_ is member of set _int_ if type 'int'
 
-*   Int utility functions
+*   Integer comparisons
+*   -------------------
+
+*   int.eq(a,b)                                 Tests if _a is equal to _b_
+*   int.ge(a,b)                                 Tests if _a is greater than or equal to _b_
+*   int.gt(a,b)                                 Tests if _a is greater than _b_
+*   int.le(a,b)                                 Tests if _a is less than or equal to _b_
+*   int.lt(a,b)                                 Tests if _a is less than _b_
+*   int.ne(a,b)                                 Tests if _a is not equal to _b_
+
+*   Int Utility Functions
 *   ---------------------
 
-*   int.cardinal(n,word)
+*   int.cardinal(n,word)                        Returns 'one ' followed by word if _n_ is one, else returns '_n_ words'
 *   int.even(n)                                 Tests if _n_ is even
 *   int.factorial(n)                            Returns n!  = n * (n -1) * ... * 1
-*   int.number(n)
-*   int.multiple(n,m)
+*   int.number(n)                               Returns _n_ as one or two words if possible, else returns _n_
+*                                               For example, _int.number(51)_ is "fifty one".
+*   int.multiple(n,m)                           Tests if _n_ is a multiple of _m_
 *   int.even(n)                                 Tests if _n_ is odd
 *   int.prime(n)                                Tests if _n_ is prime
 *   int.square.root(n)                          Returns integer square root on _n_
@@ -313,19 +131,20 @@ str.lne.end
 *   -----------------
 
 
-*   map.domain(map)
-*   map.equal(a,b)
-*   map.first(map)
-*   map.get(map,key)
-*   map.last(map)
-*   map.put(map,key,val)
-*   map.range(map)
-*   map.defined(map,key)
+*   map.domain(map)                             Returns set of elements in the domain of _map_
+*   map.first(map)                              Returns the first element in a map
+*   map.get(map,key)                            Gets the value of map _map_ for _key_
+*   map.last(map)                               Returns the last element in a map.
+*   map.put(map,key,val)                        Sets the value of map _map_ for key _key_ to be _value_
+*   map.range(map)                              Returns set of elements in the range of _map_
+*   map.defined(map,key)                        Tests if map _map_ if defined for _key_
 
 
 *   mark(line)
-*   next(set)
-*   rank(set)
+*   next(set)                                   Returns the next iterate in loop over _set_, fails if no more remain
+*   rank(set)                                   Returns the rank, or normal form, of a set or string.
+*                                               For example, _rank('albuquerque')_ is 'abeelqqruuu';
+*                                               the rank of a map is the map with keys sorted in ascending order.
 
 *   Seq: set of kind _seq_
 
@@ -336,12 +155,13 @@ str.lne.end
 *   Seq set functions
 *   -----------------
 
-*   seq.add(seq,val)
-*   seq.get(seq,i)
-*   seq.integers(n)
-*   seq.push(seq,val)
-*   seq.put(seq,i,val)
-*   seq.range(seq)
+*   seq.add(seq,val)                            Adds _val_ to sequence _seq)
+*   seq.get(seq,i)                              Returns value of element _i_ of sequence _seq_
+*   seq.integers(n)                             Returns sequence consiting of integers 1 .. n
+*   seq.push(seq,val)                           Adds _val to sequence _seq_
+*   seq.pop(seq)                                Removes last element of sequence _seq_ and returns its value
+*   seq.put(seq,i,val)                          Sets value of elment _i_ in sequence _seq_ to _val)
+*   seq.range(seq)                              Returns set of range values of sequence _seq
 
 *   Set 
 *   ---
@@ -349,34 +169,42 @@ str.lne.end
 *   Set set functions
 *   -----------------
 
-*   set.add(set,elem)
-*   set.difference(a,b)
-*   set.equal(a,b)
-*   set.first(set)
-*   set.from(set,elem)
-*   set.integers(n)
-*   set.intersection(a,b)
-*   set.last(set)
-*   set.subset(a,b)
-*   set.union(a,b)
+*   set.add(set,elem)                           Adds element _elem_ to set _set_ if not yet a member of the set.
+*   set.difference(a,b)                         Returns set of members of set _a_ not in the set _b_
+*   set.first(set)                              Returns first element in set
+*   set.from(set,elem)                          Returns set consisting of members of _set_ except for_elem_
+*   set.integers(n)                             Returns set of integers 1 ... n
+*   set.intersection(a,b)                       Returns set of members which belong to both sets _a_ and _b_
+*   set.last(set)                               Returns last element in set
+*   set.subset(a,b)                             Tests if every member of _b_ is also a member of _a_
+*   set.union(a,b)                              Returns set consisting of all the members of _a_ and _b_
 
 *   Show: display SETL4 object
 
 *   The function _show_ is used to represent the value of a SETL4 object
-*   in a human-readable form.
+*   in a human-readable form. The result is written to standard output.
+*   Objects are shown in the order defined by the function _rank_.
 
-*   Objcts are shown in the order defined by the function _rank_.
-k
-*   show(v,lvl)
-*   show.b(e)
-*   show.line(line)
-*   show.lines(lines,title)
-*   show.quote(str)
-*   show.words(words)
+*   show(v,lvl)                                 Show value of _v_, with _lvl_ set non-zero when listing member of set
+*   show.b(e)                                   Show value of _b_ as boolean (TRUE or FALSE)
+*   show.line(line)                             Show string _line_ with spaces replaced by '.'
+*   show.lines(lines,title)                     Show non-empty lines in array of lines, with title 'title'
+*   show.quote(str)                             Show string with surrounding quotes 
+*   show.words(words)                           Show a sequence of words, separated by space character
 
 *   Str: set of characters
 
 *   _Str_ is used to treat a character string as a set of characters.
+
+*   Lexical comparisons
+-   -------------------
+
+*   str.leq(a,b)                                Tests if a is lexically equal to b
+*   str.lge(a,b)                                Tests if a is lexically greater than or equal to b
+*   str.lgt(a,b)                                Tests if a is lexically greater than b
+*   str.lle(a,b)                                Tests if a is lexically less than or equal to b
+*   str.llt(a,b)                                Tests if a is lexically less than b
+*   str.lne(a,b)                                Tests if a is lexically not equal to b
 
 *   Str utility functions
 *   -----------------
@@ -435,6 +263,53 @@ k
 *   setl4.traceoff()                                Turns off tracing
 *   setl4.traceon()                                 Turns on tracing
 
+*   A set is defined by the following datatype:
+
+    data('set(set.kind,set.index,set.key,set.size,set.next,set.loop,set.low,set.high,set.step,set.text,set.seq)')
+
+*   where
+
+*           _kind_          the kind of _set_: 'int', 'map', 'seq', 'set', or 'str'.
+
+*           _index_         a SPITBOL table used to map the integer
+*                           id assigned each element to the value of the element.
+
+*           _key_           a SPITBOL table, used only for maps, to permit iteration
+
+*           _size_          the current number of members.
+
+*           _next_          the last value returned by the _next_ primitive
+*                           when iterating over a set.
+
+*           _text_          is the text of the set of kind _str_
+
+*           _seq_           is the array used to maintain a sequence. _set.key_
+*                           and _set.index_ are not used for sequences.
+
+*   Note that the null value is not allowed as an element of a set, or the
+*   value of a map entry, but can be used as the value of an element in a seq.
+
+*   The _key_ table is needed to provide constant time bounds for iterating over
+*   a set, in all of its forms.
+
+*   Since the _key_ table is needed, a set can be indexed using the key table.
+*   This allows the definition of 'get' and 'put' on sequences.
+
+*   Sequences are currently implemented using SPITBOL arrays, extending
+*   the array length dynamically as needed.
+
+*   New elements can be added to a sequence using the 'push' primitive,
+*   and the most recent element can be deleted using the 'pop' primitive.
+
+*   In order to avoid clashing with the names of user-defined functions, almost
+*   all of the functions defined herein begin with one of the following strings:
+
+*       'int'   'map'   'seq'   'set'   'setl4'    'str'
+
+*   The following functions have no such prefix, due to the ubiquity of their use:
+
+*       and  assert  exists false forall loop  mark  next  or  rank  show  true
+
 
 *   SETL4 Configuration Options
 *   ---------------------------
@@ -446,7 +321,7 @@ k
 *    setl4.config.size = 16
     setl4.config.size = 120
 
-*   SETL4 global variables
+*   SETL4 Global Variables
 *   ----------------------
 
 
@@ -479,9 +354,10 @@ false.end
 
     define('true(e)')                              :(true.end)
 
-*   Returns TRUE if its argument is true, or else FALSE.
+*   Returns TRUE if _e_ is true, or else FALSE.
 
 true
+
     e = integer(e) +e
     true = integer(e) (ne(e) TRUE,FALSE)            :s(return)
     true = (differ(e) TRUE, FALSE)                  :(return)
@@ -601,6 +477,7 @@ forall.end
 *   If N is one, returns 'one' followed by WORD.
 *   Otherwise returns NUMBER(N) followed by WORD and 'S'.
 
+
 int.int.cardinal
 
     int.cardinal = (eq(n,1) 'one ' word, number(n) ' '  word 's'):(return)
@@ -627,23 +504,6 @@ int.factorial
 
 int.factorial.end
 
-    define('int.member(member,int)')                :(int.member.end)
-
-*   Tests if _member_ is a member of _int_
-
-int.member
-
-    member = +member
-    int.member = lt(member,set.low(int))    FALSE   :s(return)
-    int.member = gt(member,set.high(int))   FALSE   :s(return)
-    int.member = (multiple(
-.                       (int.high(int) - int.low(int))
-.                         / int.step(int),
-.                       int.step(int))
-.                       TRUE, FALSE)      :(return)
-
-int.member.end
-
     define('int.multiple(n,m)')                      :(int.multiple.end)
 
 *   Tests if _n_ is a multiple of _m_.
@@ -656,8 +516,7 @@ int.multiple.end
 
     define('int.number(n)')                          :(int.number.end)
 
-**      If _n_ can be represented as a string of one or two words
-**      then return that string. Otherwise return _n_.
+*  If _n_ can be represented as a string of one or two words then return that string. Otherwise return _n_.
 
 int.number
     error('int.number not implemented, quitting.' )
@@ -712,6 +571,72 @@ int.thousands
     int.thousands = int.thousands(substr(s,1,n - 3)) ',' substr(s, n - 2, 3):(return)
 
 int.thousands.end
+
+*   Integer Comparison Functions
+*   --------------------
+
+*   The following functions comparing integer values return TRUE or FALSE.
+*   They are needed since SPITBOL signals the results of a comparison by success or failure.
+
+    define('int.eq(a,b)')                           :(int.eq.end)
+
+*   Tests if _a_ is equal to _b_.
+
+int.eq
+
+    int.eq = (integer(a) integer(b) eq(a,b) TRUE, FALSE) :s(return)
+
+int.eq.end
+
+    define('int.ge(a,b)')                           :(int.ge.end)
+
+*   Tests if _a_ is greater than or equal to _b_.
+
+int.ge
+
+    int.ge = (integer(a) integer(b) ge(a,b) TRUE, FALSE) :s(return)
+
+int.ge.end
+
+    define('int.gt(a,b)')                           :(int.gt.end)
+
+*   Tests if _a_ is greater than _b_.
+
+int.gt
+
+    int.gt = (integer(a) integer(b) gt(a,b) TRUE, FALSE) :s(return)
+
+int.gt.end
+
+    define('int.le(a,b)')                           :(int.le.end)
+
+*   Tests if _a_ is less than or equal to _b_.
+
+int.le
+
+    int.le = (integer(a) integer(b) le(a,b) TRUE, FALSE) :s(return)
+
+int.le.end
+
+    define('int.lt(a,b)')                           :(int.lt.end)
+
+*   Tests if _a_ is less than _b_.
+
+int.lt
+
+    int.lt = (integer(a) integer(b) lt(a,b) TRUE, FALSE) :s(return)
+
+int.lt.end
+
+    define('int.ne(a,b)')                           :(int.ne.end)
+
+*   Tests if _a_ is not equal to _b_.
+
+int.ne
+
+    int.ne = (integer(a) integer(b) ne(a,b) TRUE, FALSE) :s(return)
+
+int.ne.end
 
     define('loop(set)dt')                           :(loop.end)
 
@@ -784,27 +709,6 @@ map.domain.next
 
 map.domain.end
 
-    define('map.equal(a,b)entry')                        :(map.equal.end)
-
-*   Test two maps for equality.
-
-map.equal
-
-    map.equal = FALSE
-    ne(set.size(a),set.size(b))                         :s(return)
-    loop(a)
-
-map.equal.next
-
-    entry = next(a)                                     :f(map.equal.true)
-    ident(map.get(a,key(entry)),map.get(b,key(entry)))  :f(return)s(map.equal.next)
-
-map.equal.true
-
-    map.equal = true                                    :(return)
-
-map.equal.end
-
     define('map.first(map)')                            :(map.first.end)
 
 *   Returns first element in _map_.
@@ -823,7 +727,7 @@ map.get
 
     id = set.key(map)[key]
     ident(id)                                       :s(return)
-    map.get = set.index(map)[id]                    :(return)
+    map.get = value(set.index(map)[id])             :(return)
 
 map.get.end
 
@@ -892,11 +796,13 @@ next.end
 *           rank('asxybza') is 'aabsxyz'.
 *   Sets are ranked in increasing order of their members.
 *   Maps are ranked in increasing order of their keys.
-*   Sequences and int's are always maintained in rank order.
+*   Sequences (seq's) and int's are always maintained in rank order.
 
 rank
-
-    rank = setl4kind(set,'int','seq') copy(set)     :s(return)
+ :(return)
+    str.out('rank kind',set.kind(set))
+    set = copy(set)
+    setl4.kind(set,'int','seq')                     :s(rank.seq)
     setl4kind(set,'map','set','str')                :s($('rank.' setl4kind(set)))
     ident(datatype(set),'string')                   :s(rank.string)
     error('rank unsupported operand type ' datatype(set) )
@@ -910,6 +816,13 @@ rank.map.next
 
     entry = ara[i = i + 1,1]                        :f(return)
     map.put(rank,key(entry),value(entry))           :(rank.map.next)
+
+rank.seq
+rank.int
+
+*   Sequences and strings are always in rank order
+
+                                                    :(return)
 
 rank.set
 
@@ -1003,7 +916,7 @@ seq.push
     value = integer(value) +value
     setl4.seq.room(seq)
     set.size(seq) = set.size(seq) + 1
-    set.seq(seq)[set.size(seq)] = value                    :(return)
+    set.seq(seq)[set.size(seq)] = value             :(return)
 
 seq.push.end
 
@@ -1063,17 +976,6 @@ set.difference
     set.difference = a @ !'set.member(=a,b)'          :(return)
 
 set.difference.end
-
-    define('set.equal(a,b)')                        :(set.equal.end)
-
-*   Tests if two sets are equal.
-*   Two sets are equal iff each is a subset of the other.
-
-set.equal
-
-    set.equal = and(set.subset(a,b),set.subset(b,a)) :(return)
-
-set.equal.end
 
     define('set.first(set)')                            :(set.first.end)
 
@@ -1200,17 +1102,21 @@ set.union.b
 
 set.union.end
 
-    define('show(v,label,lvl)i,ent,type,line,hdr')        :(show.end)
+    define('show(v,label,lvl)i,kind,,ent,type,line,hdr')        :(show.end)
 
 *   Show the value of expression _v_.
 *   _lev_ is non-zero when called to list member or element
 *   of a compound object.
 
 show
-    differ(label) str.out('show: ' str.upper(label))
-    type = datatype(v)
-                                                    :($('show.' type))
 
+    differ(label) str.out('show: ' str.upper(label))
+
+*   If not set, branch on datatype, else branch on kind of set.
+
+    type = datatype(v)
+    differ(dt,'set')                                :($('show.' type))
+                                                    :($('show.' set.kind(v)))
 show.array
 
     proto = prototype(ara)
@@ -1266,6 +1172,7 @@ show.pair
 
 show.seq
 
+    str.out('show.seq')
     loop(v)
     show = ' ['
 
@@ -1295,7 +1202,7 @@ show.set.next
 
     show = (ident(show,'{') '{ ', show ' ') show(member,,1)
 *   show = show ' '  show(member,,1)
-    lt(set.size(show),100)                          :s(show.set.next)
+    lt(set.size(v),100)                             :s(show.set.next)
     output = show
     show =                                          :(show.set.next)
 
@@ -1698,6 +1605,74 @@ str.uletters.next
 
 str.uletters.end
 
+*   Lexical Comparison Functions
+*   ----------------------------
+
+*   The following lexical comparison functions return TRUE or FALSE.
+*   They are needed since the SPITBOL functions signal the result by success or failure.
+
+    define('str.leq(a,b)')                           :(str.leq.end)
+
+*   Tests if _a_ is lexically equal to _b_.
+
+str.leq
+
+    str.leq = leq(a,b) true                         
+    str.leq = (leq(a,b) TRUE, FALSE) :s(return)
+          
+str.leq.end
+
+    define('str.lge(a,b)')                           :(str.lge.end)
+
+*   Tests if _a_ is lexically greater than or equal to _b_.
+
+str.lge
+
+    str.ge = (ge(a,b) TRUE, FALSE) :s(return)
+
+str.lge.end
+
+    define('str.lgt(a,b)')                           :(str.lgt.end)
+
+*   Tests if _a_ is lexically greater than _b_.
+
+str.lgt
+
+    str.lgt = (gt(a,b) TRUE, FALSE) :s(return)
+
+str.lgt.end
+
+    define('str.lle(a,b)')                           :(str.lle.end)
+
+*   Tests if _a_ is lexically less than or equal to _b_.
+
+str.lle
+
+    str.le = (le(a,b) TRUE, FALSE)                   :s(return)
+
+str.lle.end
+
+    define('str.llt(a,b)')                           :(str.llt.end)
+
+*   Tests if _a_ is lexically less than _b_.
+
+str.llt
+
+    str.llt = (llt(a,b) TRUE, FALSE) :s(return)
+
+str.llt.end
+
+    define('str.lne(a,b)')                           :(str.lne.end)
+
+*   Tests if _a_ is not lexically equal to _b_.
+
+str.lne
+
+    str.lne = (ne(a,b) TRUE, FALSE) :s(return)
+
+str.lne.end
+
+
 *   Lines
 *   -----
 
@@ -2099,7 +2074,7 @@ setl4.kind
 
 setl4.kind.end
 
-    define('setl4.member(elem,set)kind,entry,key,value)') :(setl4.member.end)
+    define('setl4.member(elem,set)kind,entry,i,key,this,value)') :(setl4.member.end)
 
 *   Tests if _elem_ is 'elem' of _set, where:
 
@@ -2118,8 +2093,10 @@ setl4.kind.end
 
 setl4.member
 
-    setl4.member = false
-    kind = kind(set)
+*    output = 'setl4.member ' datatype(set)
+*    show(set)
+    setl4.member = FALSE
+    kind = set.kind(set)
     setl4.member = false
     setl4.kind(kind,'int')                                  :s(setl4.member.int)
     setl4.kind(kind,'map')                                  :s(setl4.member.map)
@@ -2146,13 +2123,13 @@ setl.4.member.map
 
 *   There is entry for _key_, see if it has right value.
 
-    ident(set.index[set.key(set)[key]],value)       :f(return)
-    setl4.member = TRUE                             :(return)
+    equal(set.index[set.key(set)[key]],value)       :f(return)s(setl4.member.true)
 
 setl.4.member.seq
 
-    error('setl4.member seq not yet done')
-    ident(set.array[key,1])                         :s(return)
+    gt(i = i + 1,set.size(set))                     :f(return)
+    this = set.array(set)[i]                        :f(return)
+    equal(this,elem)                                :s(setl4.member.true)f(setl4.member.seq) 
 
 setl4.elem.set
 
@@ -2160,12 +2137,15 @@ setl4.elem.set
 
 setl.4.member.str
 
-    set break(elem)                                 :f(return)
-    set4.member = TRUE                              :(return)
+    set break(elem)                                 :f(return)s(setl4.member.true)
+s(setl4.member.true)
 
 setl.4.member.string
 
-    string break(elem)                              :f(return)
+    string break(elem)                              :f(return)s(setl4.member.true)
+
+setl4.member.true
+
     setl4.member = TRUE                             :(return)
 
 setl4.member.end
