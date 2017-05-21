@@ -3,12 +3,12 @@
 
     &dump = 2
 
-    s = setl4.new('int 5 25 5')
+    s = new('int 5 25 5')
     show(s)
 
     str.out('test membership- expect TRUE/FALSE')
-    show.b( setl4.member(5,s))
-    show.b( setl4.member(6,s))
+    show.b( member(5,s))
+    show.b( member(6,s))
     output = 
     output = 
 
