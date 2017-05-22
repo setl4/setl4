@@ -975,15 +975,15 @@ member.seq
 *    equal(this,elem)                                :s(member.true)f(member.seq) 
     ident(this,elem)                                :s(member.true)f(member.seq) 
 
-setl4.elem.set
+member.set
 
     member = (differ(set.key(set)[elem]) TRUE, FALSE) :(return)
 
-setl4.member.str
+member.str
 
     set break(elem)                                 :f(return)s(member.true)
 
-setl4.member.string
+member.string
 
     string break(elem)                              :f(return)s(member.true)
 
@@ -994,12 +994,12 @@ member.true
 member.end
 
 
-    define('new(init)kind,i,len,n,key,seq,val)')   :(new.end)
+    define('new(str)init,kind,i,len,n,key,seq,val)')   :(new.end)
 
 *   Construct new set with initial values determined by string _init_.
 
 new
-
+    init = str
     kind = substr(init,1,3)
     ne(size(kind),3) error('new missing kind specification')
     iskind(kind,'int','map','seq','set','str')         :s(new.init)
@@ -1088,28 +1088,35 @@ new.seq
                                                     :(return)
 new.set
 
+    str.out('new.set init',show.quote(init))
     new = set('set',table(setl4.config.size),table(setl4.config.size))
     ident(init)                                     :s(return)
     init = init ' '
 
 new.set.init
 
-    init break(' ') . element ' ' =                 :f(return)
-    set.add(new,element)                            :(new.set.init)
+    str.out('new.set.init',show.quote(init))
+*    init break(' ') . key setl4.span.whitespace =   :f(return)
+    init ' ' =
+    init break(' ') . key ' '    =   :f(return)
+    str.out('new.set.init key',key)
+    set.add(new,key)
+    show(new)
+                                                    :(new.set.init)
 
 new.str
 
-    new = set('str')
+    new = set('seq')
     str.text(new) = init                            :(return)
 
 new.str.init
 
     init len(1) . key ' ' =                         :f(return)
-    setl.add(new,key)                               :(new.str.init)
+    seq.push(new,key)                               :(new.str.init)
 
 new.end
 
-    define('next(set)kind,next')                    :(next.end)
+    define('next(set)kind,key,next,value')          :(next.end)
 
 *   Advance iteration by setting field _set.next_.
 *   Fail if no more elements remain.
@@ -1137,8 +1144,6 @@ next.notint
 .       ident(datatype(set),'string')   substr(set,next,1)
 .       )
         next = this
-                                                    :(return)
-
 next.end
 
     define('not(expr)')                             :(not.end)
@@ -1376,14 +1381,20 @@ seq.range.end
 
     define('set.add(set,elem)')                     :(set.add.end)
 
-*   Add _elem_ to set, unless already present.
+*   Add _elem_ to set _set_ if not already present.
 
 set.add
 
     elem = integer(elem) +elem
+    str.out('enter set.add',elem)
+    differ(set.key(set)[elem])                      :s(return)
     set.size(set) = set.size(set) + 1
-    set.index(set)[set.size(map)] = elem
-    set.key(set)[elem] = set.size(map)              :(return)
+    set.index(set)[set.size(set)] = elem
+
+*   Set _set.key(set)_ to indicate _elem_ is in the set.
+
+    str.out('adding set elem',elem)
+    set.key(set)[elem] = 1                        :(return)
 
 set.add.end
 
@@ -1610,16 +1621,19 @@ show.set
 
 *   Call _rank_ so entries listed in rank order.
 
-    set = rank(set)
+*    set = rank(v)
+    str.out('show.set size',set.size(v))
     show = '{ set'
     loop(v)
 
 show.set.next
 
-    elem = next(v)                                :f(show.set.done)
-
+    key = next(v)                                   :f(show.set.done)
+    key = datatype(key,'string') show.quote(key)
+    str.out('key',key)
+    str.out('set.next elem ',elem)
     show = (ident(show,'{') '{ ', show ' ') show(elem,,1)
-*   show = show ' '  show(elem,,1)
+    show = show ' '  show(elem,,1)
     lt(set.size(v),100)                             :s(show.set.next)
     output = show
     show =                                          :(show.set.next)
