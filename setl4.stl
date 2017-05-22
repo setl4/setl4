@@ -47,14 +47,12 @@
 *   Microsoft (DOS/NT/Windows), Intel x86_64 (Unix/Linux), and x86_64 Apple iOS.  
 
 
-*   What is SETL4?
-*   --------------
+*   What is SETL?
+*   -------------
 
-
-*   SETL4 is an extension of SPITBOL. It is based on SETL, a programming language 
-*   with  finite sets as the fundamental data type that  was created by by 
-*   Jacob T. "Jack" Schwartz of the Courant Institute of Mathematical Sciences 
-*   (CIMS) of New York University (NYU).
+*   SETL is  a programming language with  finite sets as the fundamental data type.
+*   It was created by Jacob T. "Jack" Schwartz of the Courant Institute of 
+*   Mathematical Sciences (CIMS) of New York University (NYU).
 
 *   Jack founded the SETL project in 1970. It was later funded by two 
 *   five-year grants from the Office of Naval Research.
@@ -63,7 +61,9 @@
 *   Devloped on the DEC Vax 11/780, Ada/Ed was ported to the IBM PC (DOS)
 *   by a team led by Dave Shields.
 
-*   SETL also served in part as a source of some of the features of Python.
+
+*   Why the name SETL4?
+*   -------------------
 
 *   The SETL Project produced three implementations of SETL. The first was
 *   written by Dave Shields, the second by Henry S. (Hank) Warren while on 
@@ -71,6 +71,10 @@
 
 *   SETL4 is the fourth implementation of SETL produced by a member 
 *   (Dave Shields) of the NYU SETL project, hence the name SETL4.
+
+
+*   Brief Introduction to SETL4
+*   ---------------------------
 
 *   SETL4 extends SPITBOL by adding the datatype _set_ to represent
 *   finite sets. 
@@ -88,39 +92,51 @@
 
 *   where _multiple(a,b) is true if and only if _a_ is a multiple of _b_.
 
-*   Several additional datatypes theory are also provided:
+*   Additonal SETL4 data types
+*   --------------------------
 
-*       _entry_     _line_  _pair_  _token_
+*   SETL4 provides the following data types in addtion to _set_: 
+
+*       _entry_   _line_   _pair_    _token_
+
+*   where 
+
+*       pair(first,second)          is ordered pair of two objects;
+*       entry(key,value)            is an entry in a map;
+*       line(mark,text)             is a string of text and an associated mark, or tag; and
+*       token(lineno,ndx,type,text) is a lexeme, or lexical token.
+
+*   Int: Set of kind 'int'
+*   ----------------------'
+
+*   A set of kind _int_ represents a sequence of positive integers.
+*   The set cannot be changed once it is created. You can only loop 
+*   over a set of kind _int_ or test for membership.
 
 
-*   Int: sets of kind _int_
-*   ----------
-
-*   A set of kind _int_ represents a set of integers. The set cannot be changed
-*   once it is created. You can only loop over a set of kind _int_ or test for 
-*   membership.
-
-*   Map: sets of kind 'map'
-*   --------
+*   Map: Set of kind 'map'
+*   ----------------------
 *   A map is a set of ordered pairs.
 
-*   Seq: sets of kind 'seq'
+
+*   Seq: Set of kind 'seq'
+*   ---------------------
 
 *   A sequence (_seq_) is a map on the positive integers 1 .. n
 *   Sequences are implemented using SPITBOL arrays, and so are very efficient.
 
-*   Set: set of kind 'set'
-*   -----------------------
+
+*   Set: Set of kind 'set'
+*   ----------------------
 
 *   A set is a collection of distinct elements.
 
-*   Str: set of kind 'str'
+
+*   Str: Set of kind 'str'
+*   ----------------------
 
 *   A string sequence (_str_) is a sequence of characters.
 
-*   Str: set of characters
-
-*   _Str_ is used to treat a character string as a set of characters.
 
 *   Show
 *   ----
@@ -130,6 +146,7 @@
 
 
 *   SETL4 Binary Operators:
+*   -----------------------
 
 *   '&'     a & b   And                         True if and only if both _a_ and _b_ are true
 *   '@'     s @ e   Eval                        Evaluates _e_ at current element of set _s_
@@ -137,7 +154,9 @@
 *   '~'     m ~ s   Membership                  Tests if _m_ is member of set _s_
 *   '^'     a ^ b   Or                          True if and only if _a_ or _b_ is true
 
+
 *   SETL4 Unary Operators:
+*   ----------------------
 
 *   '='     =s      Iteration                   Returns the current element of an iteration
 *   '|'     |'str'  Constructor                 Returns set specified by string _str_
@@ -145,12 +164,14 @@
 *   '#'     #s      Size                        Number of elements in set _s_
 *   '/'     /s      Split                       Splits a string into a sequence of words
 
+
 *   Global variables
 *   ----------------
 
     setl4.ascii.name = 
     setl4.ascii.value =  
     setl4.random_var =
+
 
 *   Boolean Logic
 *   -------------
@@ -169,7 +190,8 @@
 *   SPITBOL comparison functions report their results by success or failure, so SETL
 *   provides the following functions which return TRUE or FALSE.
 
-*   SETL4 functions
+
+*   SETL4 Functions
 *   ---------------
 *
 *   and(a,b)                                    And: true if and only if _a_ and _b_ are true
@@ -285,6 +307,10 @@
 *   true(e)                                     Returns TRUE if and only if _e_ is TRUE
 *   visit(set,expr)                             Visits each element of set _set_ and evaluates _expr_ for that element
 
+
+*   Set Data Type
+*   -------------
+
 *   A set is defined by the following datatype:
 
     data('set(set.kind,set.index,set.key,set.size,set.next,set.loop,set.low,set.high,set.step,set.text,set.seq,set.this)')
@@ -363,7 +389,7 @@
     setl4.span.whitespace =  span(' ' char(9))
 
 
-*   SETL4 function definitions
+*   SETL4 Function Definitions
 *   --------------------------
 
     define('and(a,b)')                              :(and.end)
