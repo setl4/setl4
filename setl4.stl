@@ -209,14 +209,14 @@ kkkk
 *   filter(set,expr)                Filter:; returns subset of _set_ for which _expr_ is true
 *   iskind(kind,kind1,kind2,kind3,kind3,kind4)  Tests if _kind_ is one of the specfied kinds: _kind1_, _kind2_, ...
 *   int.cardinal(n,word)            Returns 'one ' followed by word if _n_ is one, else returns '_n_ words'
-*   int.eq(a,b)                     Tests if _a is equal to _b_
+*   i.eq(a,b)                       integer is equal to 
 *   int.even(n)                     Tests if _n_ is even
 *   int.factorial(n)                Returns n!  = n * (n -1) * ... * 1
-*   int.ge(a,b)                     Tests if _a is greater than or equal to _b_
-*   int.gt(a,b)                     Tests if _a is greater than _b_
-*   int.le(a,b)                     Tests if _a is less than or equal to _b_
-*   int.lt(a,b)                     Tests if _a is less than _b_
-*   int.ne(a,b)                     Tests if _a is not equal to _b_
+*   i.ge(a,b)                       integer greater than or equal
+*   i.gt(a,b)                       integer greater than 
+*   i.le(a,b)                       integer less than or equal
+*   i.lt(a,b)                       integer less than 
+*   i.ne(a,b)                       integer not equal
 
 *   int.number(n)                   Returns _n_ as one or two words if possible, else returns _n_
 *                                   For example, _int.number(51)_ is "fifty one".
@@ -225,6 +225,12 @@ kkkk
 *   int.prime(n)                    Tests if _n_ is prime
 *   int.square.root(n)              Returns integer square root on _n_
 *   int.thousands(s)
+*   l.eq(a,b)                       lexical equal
+*   l.ge(a,b)                       lexical greater than or equal to 
+*   l.gt(a,b)                       lexical greater than 
+*   l.le(a,b)                       lexical less than or equal to 
+*   l.lt(a,b)                       lexical less than 
+*   l.ne(a,b)                       lexical not equal to 
 *   loop(set)                       Set up iteration over _set_ using _next_
 *   map.domain(map)                 Returns set of elements in the domain of _map_
 *   map.first(map)                  Returns the first element in a map
@@ -259,6 +265,9 @@ kkkk
 *   set.last(set)                   Returns last element in set
 *   set.subset(a,b)                 Tests if every member of _b_ is also a member of _a_
 *   set.union(a,b)                  Returns set consisting of all the members of _a_ and _b_
+*   setl4.ascii.init(init)
+*   setl4.size(set)                 Returns number of elements in set _set_
+*   setl4.traceoff()                Turns off tracing
 *   show(v,lvl)                     Show value of _v_, with _lvl_ set non-zero when listing member of set
 *   show.b(e)                       Show value of _b_ as boolean (TRUE or FALSE)
 *   show.line(line)                 Show string _line_ with spaces replaced by '.'
@@ -268,23 +277,14 @@ kkkk
 *   str.any(a,b)                    Tests if the first character of _a_ is in _b_
 *   str.append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then appends _w_
 *   str.ascii(line)
-*   setl4.ascii.init(init)
-*   setl4.size(set)                 Returns number of elements in set _set_
-*   setl4.traceoff()                Turns off tracing
 *   setl4.traceon()                 Turns on tracing
 *   str.break(a,b)                  Tests if _a_ contains one of the characters in _b_
 *   str.datename(date)              Returns string based on current time suitable for use as filename
 *   str.digits()                    Returns list of digits: '0 1 2 .. 9'
 *   str.frequency(str)              Returns map giving frequency of characters in _str_
-*   str.leq(a,b)                    Tests if _a_ is lexically equal to _b_
 *   str.letters()                   Returns list of letters : 'a b c ... z A B ... Z''
-*   str.lge(a,b)                    Tests if _a_ is lexically greater than or equal to _b_
-*   str.lgt(a,b)                    Tests if _a_ is lexically greater than _b_
 *   str.less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
-*   str.lle(a,b)                    Tests if _a_ is lexically less than or equal to _b_
-*   str.lletters()                  Returns list of lower case letters : 'a b c ... z'
-*   str.llt(a,b)                    Tests if _a_ is lexically less than _b_
-*   str.lne(a,b)                    Tests if _a_ is lexically not equal to _b_
+*   s.lletters()                    Returns list of lower case letters : 'a b c ... z'
 *   str.lower(s)                    Returns _s_ with upper case letters replaced by lower case equivalent
 *   str.notany(a,b)                 Tests if first character in _a_ is not in _b_
 *   str.span(a,b)                   Tests if _b_ contains only characters in _a_
@@ -698,65 +698,65 @@ int.thousands.end
 *   The following functions comparing integer values return TRUE or FALSE.
 *   They are needed since SPITBOL signals the results of a comparison by success or failure.
 
-    define('int.eq(a,b)')                           :(int.eq.end)
+    define('i.eq(a,b)')                           :(i.eq.end)
 
 *   Tests if _a_ is equal to _b_.
 
-int.eq
+i.eq
 
-    int.eq = (integer(a) integer(b) eq(a,b) TRUE, FALSE) :(return)
+    i.eq = (integer(a) integer(b) eq(a,b) TRUE, FALSE) :(return)
 
-int.eq.end
+i.eq.end
 
-    define('int.ge(a,b)')                           :(int.ge.end)
+    define('i.ge(a,b)')                           :(i.ge.end)
 
 *   Tests if _a_ is greater than or equal to _b_.
 
-int.ge
+i.ge
 
-    int.ge = (integer(a) integer(b) ge(a,b) TRUE, FALSE) :s(return)
+    i.ge = (integer(a) integer(b) ge(a,b) TRUE, FALSE) :s(return)
 
-int.ge.end
+i.ge.end
 
-    define('int.gt(a,b)')                           :(int.gt.end)
+    define('i.gt(a,b)')                           :(i.gt.end)
 
 *   Tests if _a_ is greater than _b_.
 
-int.gt
+i.gt
 
-    int.gt = (integer(a) integer(b) gt(a,b) TRUE, FALSE) :s(return)
+    i.gt = (integer(a) integer(b) gt(a,b) TRUE, FALSE) :s(return)
 
-int.gt.end
+i.gt.end
 
-    define('int.le(a,b)')                           :(int.le.end)
+    define('i.le(a,b)')                           :(i.le.end)
 
 *   Tests if _a_ is less than or equal to _b_.
 
-int.le
+i.le
 
-    int.le = (integer(a) integer(b) le(a,b) TRUE, FALSE) :s(return)
+    i.le = (integer(a) integer(b) le(a,b) TRUE, FALSE) :s(return)
 
-int.le.end
+i.le.end
 
-    define('int.lt(a,b)')                           :(int.lt.end)
+    define('i.lt(a,b)')                           :(i.lt.end)
 
 *   Tests if _a_ is less than _b_.
 
-int.lt
+i.lt
 
-    int.lt = (integer(a) integer(b) lt(a,b) TRUE, FALSE) :s(return)
+    i.lt = (integer(a) integer(b) lt(a,b) TRUE, FALSE) :s(return)
 
-int.lt.end
+i.lt.end
 
-    define('int.ne(a,b)')                           :(int.ne.end)
+    define('i.ne(a,b)')                           :(i.ne.end)
 
 *   Tests if _a_ is not equal to _b_.
 
-int.ne
+i.ne
 
-    int.ne = (integer(a) integer(b) ne(a,b) TRUE, FALSE) :s(return)
+    i.ne = (integer(a) integer(b) ne(a,b) TRUE, FALSE) :s(return)
 
-int.ne.end
+i.ne.end
 
     define('iskind(kind,kind1,kind2,kind3,kind4,kind5)') :(iskind.end)
 
@@ -1270,10 +1270,10 @@ rank.str.set
     seq = rank(seq)
     loop(seq)
 
-rank.str.next
+rank.l.next
     
     i = next(seq)                                   :f(return)
-    rank.str = rank.str dupl(i,freq[i])             :(rank.str.next)
+    rank.str = rank.str dupl(i,freq[i])             :(rank.l.next)
 
 rank.string
 
@@ -1317,11 +1317,11 @@ seq.integers
 
     seq.integers = new('seq ' n)
 
-seq.integers.next
+seq.integerl.next
 
     gt(i = i + 1, n)                                :s(return)
     setl4.seq.room(seq)
-    seq.push(seq.integers,i)                        :(seq.integers.next)
+    seq.push(seq.integers,i)                        :(seq.integerl.next)
 
 seq.integers.end
 
@@ -1433,10 +1433,10 @@ set.integers
     set.integers = set.new(n)
     i = 0
 
-set.integers.next
+set.integerl.next
 
     gt(i = i + 1,n)                                 :s(return)
-    set.add(set.integers,i)                         :(set.integers.next)
+    set.add(set.integers,i)                         :(set.integerl.next)
 
 set.integers.end
 
@@ -1860,7 +1860,7 @@ setl4.ascii.init
 
 setl4.ascii.init.next
 
-    entry = setl4.str.next(setl4.ascii.init)                  :(setl4.ascii.init.finis)
+    entry = setl4.l.next(setl4.ascii.init)                  :(setl4.ascii.init.finis)
 *   Correct entry for 0 to be NUL, the NUL character
     str.ascii.name[substr(&alphabet,+v + 1,1)] = name
     str.ascii.value[name] = +value                  :(setl4.ascii.init.next)
@@ -1892,10 +1892,10 @@ str.digits
     str.digits = 
     str = '0123456789'
     
-str.digits.next
+str.digitl.next
 
     str len(1) . ch =                               :f(return)
-    str.digits = str.append(str.digits,ch)          :(str.digits.next)
+    str.digits = str.append(str.digits,ch)          :(str.digitl.next)
 
 str.digits.end
 
@@ -1932,21 +1932,21 @@ str.less.ch
 
 str.less.end
 
-    define('str.lletters()str,ch')                  :(str.lletters.end)
+    define('s.lletters()str,ch')                  :(s.lletters.end)
 
 *   Return string consisting of the lower case letters separated by a space.
 
-str.lletters
+s.lletters
 
-    str.lletters = 
+    s.lletters = 
     str = &lcase
     
-str.lletters.next
+s.lletterl.next
 
     str len(1) . ch =                              :f(return)
-    str.lletters = str.append(str.lletters,ch)     :(str.lletters.next)
+    s.lletters = str.append(s.lletters,ch)     :(s.lletterl.next)
 
-str.lletters.end
+s.lletters.end
 
     define('str.letters()str,ch')                  :(str.letters.end)
 
@@ -1957,10 +1957,10 @@ str.letters
     str.letters = 
     str = &lcase &ucase
     
-str.letters.next
+str.letterl.next
 
     str len(1) . ch =                              :f(return)
-    str.letters = str.append(str.letters,ch)       :(str.letters.next)
+    str.letters = str.append(str.letters,ch)       :(str.letterl.next)
 
 str.letters.end
 
@@ -2011,10 +2011,10 @@ str.uletters
     str.uletters = 
     str = &ucase
     
-str.uletters.next
+str.uletterl.next
 
     str len(1) . ch =                                :f(return)
-    str.uletters = str.append(str.uletters,ch)       :(str.uletters.next)
+    str.uletters = str.append(str.uletters,ch)       :(str.uletterl.next)
 
 str.uletters.end
 
@@ -2024,66 +2024,66 @@ str.uletters.end
 *   The following lexical comparison functions return TRUE or FALSE.
 *   They are needed since the SPITBOL functions signal the result by success or failure.
 
-    define('str.leq(a,b)')                           :(str.leq.end)
+    define('l.eq(a,b)')                             :(l.eq.end)
 
-*   Tests if _a_ is lexically equal to _b_.
+*   Tests if _a_ is  equal to _b_.
 
-str.leq
+l.eq
 
-    str.leq = leq(a,b) true                         
-    str.leq = (leq(a,b) TRUE, FALSE) :s(return)
+    l.eq = leq(a,b) true                         
+    l.eq = (leq(a,b) TRUE, FALSE) :s(return)
           
-str.leq.end
+l.eq.end
 
-    define('str.lge(a,b)')                           :(str.lge.end)
+    define('l.ge(a,b)')                             :(l.ge.end)
 
-*   Tests if _a_ is lexically greater than or equal to _b_.
+*   Tests if _a_ is  greater than or equal to _b_.
 
-str.lge
+l.ge
 
-    str.ge = (ge(a,b) TRUE, FALSE) :s(return)
+    str.ge = (lge(a,b) TRUE, FALSE) :s(return)
 
-str.lge.end
+l.ge.end
 
-    define('str.lgt(a,b)')                           :(str.lgt.end)
+    define('l.gt(a,b)')                             :(l.gt.end)
 
-*   Tests if _a_ is lexically greater than _b_.
+*   Tests if _a_ is  greater than _b_.
 
-str.lgt
+l.gt
 
-    str.lgt = (gt(a,b) TRUE, FALSE) :s(return)
+    l.gt = (lgt(a,b) TRUE, FALSE) :s(return)
 
-str.lgt.end
+l.gt.end
 
-    define('str.lle(a,b)')                           :(str.lle.end)
+    define('l.leq(a,b)')                           :(l.le.end)
 
-*   Tests if _a_ is lexically less than or equal to _b_.
+*   Tests if _a_ is  less than or equal to _b_.
 
-str.lle
+l.le
 
-    str.le = (le(a,b) TRUE, FALSE)                   :s(return)
+    l.le = (lle(a,b) TRUE, FALSE)                   :s(return)
 
-str.lle.end
+l.le.end
 
-    define('str.llt(a,b)')                           :(str.llt.end)
+    define('l.lt(a,b)')                             :(l.lt.end)
 
-*   Tests if _a_ is lexically less than _b_.
+*   Tests if _a_ is  less than _b_.
 
-str.llt
+l.lt
 
-    str.llt = (llt(a,b) TRUE, FALSE) :s(return)
+    l.lt = (llt(a,b) TRUE, FALSE) :s(return)
 
-str.llt.end
+l.lt.end
 
-    define('str.lne(a,b)')                           :(str.lne.end)
+    define('l.ne(a,b)')                             :(l.ne.end)
 
-*   Tests if _a_ is not lexically equal to _b_.
+*   Tests if _a_ is not  equal to _b_.
 
-str.lne
+l.ne
 
-    str.lne = (ne(a,b) TRUE, FALSE) :s(return)
+    l.ne = (lne(a,b) TRUE, FALSE) :s(return)
 
-str.lne.end
+l.ne.end
 
 
 *   Lines
@@ -2144,10 +2144,10 @@ str.reader.str
     delim = ident(delim) '/'
     str.reader.str = setl4.str.seq()
 
-str.reader.str.next
+str.reader.l.next
 
     str break(delim) . line delim =                 :f(return)
-    add(str.reader.str,line)                        :(str.reader.str.next)
+    add(str.reader.str,line)                        :(str.reader.l.next)
 
 str.reader.str.end
 
@@ -2241,16 +2241,16 @@ str.slice.end
 str.tokens
 
     str.tokens = setl4.str.seq()
-    line '*'                                        :f(str.tokens.next)
+    line '*'                                        :f(str.tokenl.next)
     type = 'c'
     text = line
-    line =                                          :(str.tokens.new)
+    line =                                          :(str.tokenl.new)
 
-str.tokens.next
+str.tokenl.next
 
     line ' '                                        :s(str.tokens.space)
     line any('0123456789')                          :s(str.tokens.integer)
-    line any('(<[{')                                :s(str.tokens.left)
+    line any('(<[{')                                :s(str.tokenl.left)
     line any('.;,?!')                               :s(str.tokens.punctuation)
     line '"'                                        :s(str.tokens.quote)
     line any('~@#$%^&*_-+=')                                        :s(str.tokens.other)
@@ -2264,7 +2264,7 @@ str.tokens.next
 str.tokens.integer
 
     type = 'i'
-    line span('0123456789') . text =                :(str.tokens.new)
+    line span('0123456789') . text =                :(str.tokenl.new)
 
 str.tokens.punctuation
 
@@ -2282,7 +2282,7 @@ str.tokens.quote
 
     type = 'q'
     line '"' break('"') . text '"' =
-    text = '"' text '"'                             :(str.tokens.new)
+    text = '"' text '"'                             :(str.tokenl.new)
 
 str.tokens.right
 
@@ -2291,7 +2291,7 @@ str.tokens.right
 str.tokens.space
 
     type = 's'
-    line span(' ')  . text =                        :(str.tokens.new)
+    line span(' ')  . text =                        :(str.tokenl.new)
 
 str.tokens.tab
 
@@ -2301,17 +2301,17 @@ str.tokens.word
 
 *FIX*
     type = 'w'
-    line span(&ucase &lcase "_" "'") . text =       :(str.tokens.new)
+    line span(&ucase &lcase "_" "'") . text =       :(str.tokenl.new)
 
 str.tokens.character
 
 *   Here if token is single character.
 
-    line len(1) . text                              :(str.tokens.new)
+    line len(1) . text                              :(str.tokenl.new)
 
-str.tokens.new
+str.tokenl.new
 
-    setl4.str.add(str.tokens,token(lineno,pos,type,text)) :(str.tokens.next)
+    setl4.str.add(str.tokens,token(lineno,pos,type,text)) :(str.tokenl.next)
 
 str.tokens.end
 
@@ -2346,10 +2346,10 @@ str.words.seq
 
     str.words = new('seq ' n)
     
-str.words.next
+str.wordl.next
 
     str setl4.break.whitespace . w setl4.span.whitespace  = :f(return)
-    seq.push(str.words,w)                           :(str.words.next)
+    seq.push(str.words,w)                           :(str.wordl.next)
 
 str.words.end
 
