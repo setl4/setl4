@@ -71,20 +71,35 @@
 
 
 
-*   String operations based on SPITBOL
-*   ----------------------------------
-
-*   str.any(a,b)                                Tests if the first character of _a_ is in _b_
-*   str.break(a,b)                              Tests if _a_ contains one of the characters in _b_
-*   str.notany(a,b)                             Tests if first character in _a_ is not in _b_
-*   str.span(a,b)                               Tests if _b_ contains only characters in _a_
-
-*   false(e)                                    Returns TRUE if and only if _e_ is FALSE
-*   true(e)                                     Returns TRUE if and only if _e_ is TRUE
-*   assert.type(obj,type)                         Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise
+*   SETL4 functions
+*   ---------------
+*
+*   and(a,b)                                    And: true if and only if _a_ and _b_ are true
 *   assert(expr)                                Tests that _expr_ is true, ends execution otherwise
+*   assert.type(obj,type)                       Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise
+*   at(set,expr)                                Evaluates _expr_ for for current iterate of _set_
+*   binary.search(tbl,value)                    Binary search
+*   concatenate(a,b)                            Concatenates strings _a_ and _b_
 *   exists(set,expr)                            Tests if _expr_ is true for at least one element in set _set_
+*   false(e)                                    Returns TRUE if and only if _e_ is FALSE
 *   forall(set,expr)                            Tests if _expr_ is true for at all elements in set _set_
+*   filter(set,expr)                            Filter:; returns subset of _set_ for which _expr_ is true
+*   iskind(kind,kind1,kind2,kind3,kind3,kind4)  Tests if _kind_ is one of the specfied kinds: _kind1_, _kind2_, ...
+*   loop(set)                                   Set up iteration over _set_ using _next_
+*   member(elem,set)                            Tests if _elem_ is a member of set _set_
+*   new(str)                                    Returns new set specified by _st_
+*   next(set)                                   Returns next element in iteration defined by prevous _loop_,
+*                                               fails if no more elements
+*   not(expr)                                   Not: true if and only if _expr_ is false
+*   or(a,b)                                     Or: true if and only if _a_ of _b_ is true
+*   random(n)                                   Returns random element
+*   random.seed()                               Sets random number seed to initialize _random_
+*   setl4.size(set)                             Returns number of elements in set _set_
+*   setl4.traceoff()                            Turns off tracing
+*   setl4.traceon()                             Turns on tracing
+*   this(set)                                   Returns current iteration value for _set_
+*   true(e)                                     Returns TRUE if and only if _e_ is TRUE
+*   visit(set,expr)                             Visits each element of set _set_ and evaluates _expr_ for that element
 
 
 *   Int: sets of kind _int_
@@ -98,8 +113,8 @@
 *   -----------------
 
 
-*   Integer comparisons
-*   -------------------
+*   Int Comparisons
+*   ---------------
 
 *   int.eq(a,b)                                 Tests if _a is equal to _b_
 *   int.ge(a,b)                                 Tests if _a is greater than or equal to _b_
@@ -122,7 +137,6 @@
 *   int.square.root(n)                          Returns integer square root on _n_
 *   int.thousands(s)
 
-*   loop(set)                                   Set up iteration over _set_ using _next_
 
 
 *   Map: sets of kind 'map'
@@ -198,7 +212,7 @@
 
 *   _Str_ is used to treat a character string as a set of characters.
 
-*   Lexical comparisons
+*   String Lexical comparisons
 -   -------------------
 
 *   str.leq(a,b)                                Tests if a is lexically equal to b
@@ -208,7 +222,15 @@
 *   str.llt(a,b)                                Tests if a is lexically less than b
 *   str.lne(a,b)                                Tests if a is lexically not equal to b
 
-*   Str utility functions
+*   String operations based on SPITBOL
+*   ----------------------------------
+
+*   str.any(a,b)                                Tests if the first character of _a_ is in _b_
+*   str.break(a,b)                              Tests if _a_ contains one of the characters in _b_
+*   str.notany(a,b)                             Tests if first character in _a_ is not in _b_
+*   str.span(a,b)                               Tests if _b_ contains only characters in _a_
+
+*   String utility functions
 *   -----------------
 
 *   str.append(str,w,ch)                        Appends _ch_ (or space if _ch_ is null) to _str_, then appends _w_
@@ -237,33 +259,6 @@
 *   str.words(line)                             Returns list of words in _line_, where words are separated by one of
 *                                               more spaces or tab characters
 *   str.writer(lines)                           Writes sequence _lines_ to standard output.
-
-*   visit(set,expr)                             Visits each element of set _set_ and evaluates _expr_ for that element
-
-*   Setl4 functions
-
-*   Functions with names starting with 'setl4' are internal to the implementation.
-*   Most of them implement the SETL4 operator such  as "^" and "&".
-*   You can access them directly, but do so at your peril.
-
-*
-*   and(a,b)                                    And: true if and only if _a_ and _b_ are true
-*   binary.search(tbl,value)                    Binary search
-*   concatenate(a,b)                            Concatenates strings _a_ and _b_
-*   at(set,expr)                        Evaluates _expr_ for for current iterate of _set_
-*   filter(set,expr)                            Filter:; returns subset of _set_ for which _expr_ is true
-*   iskind(kind,kind1,kind2,kind3,kind3,kind4)  Tests if _kind_ is one of the specfied kinds: _kind1_, _kind2_, ...
-*   member(elem,set)                            Tests if _elem_ is a member of set _set_
-*   new(str)                                    Returns new set specified by _st_
-*   next(set)                                   Returns next element in iteration defined by prevous _loop_,
-*                                               fails if no more elements
-*   not(expr)                                   Not: true if and only if _expr_ is false
-*   and(a,b)                                    Or: true if and only if _a_ of _b_ is true
-*   random(n)                                   Returns random element
-*   random.seed()                               Sets random number seed to initialize _random_
-*   setl4.size(set)                             Returns number of elements in set _set_
-*   setl4.traceoff()                            Turns off tracing
-*   setl4.traceon()                             Turns on tracing
 
 *   A set is defined by the following datatype:
 
@@ -1092,6 +1087,7 @@ next.notint
 .       iskind(kind,'str')          substr(set.text(set),next,1)
 .       ident(datatype(set),'string')   substr(set,next,1)
 .       )
+        next = this
                                                     :(return)
 
 next.end
