@@ -2,32 +2,134 @@
 *   Licensed under the MIT license.
 
 *TODO - need separate out iterator from set data structure. May have multiple loops over same set at onece.
+*TODO - need equal for general equality test on sets, maps, etc.
 
-*   SETL4 is an extension of SPITBOL. This file consists of a set of functions
-*   operator definitions that support set-theoretic operations defined
-*   on finite sets.
+*   SETL4 is an implementation of SETL written in SPITBOL.
+
+
+*   What is SPITBOL?
+*   ----------------
+
+*   SNOBOL is a general programming with special emphasis on processing strings and text.
+*   It was  developed at Bell Labs in the 1960's by a team led by Ralph Griswold.
+*   Their final version was called SNOBOL4.
+
+*   Macro SPITBOL, or SPITBOL, is a very efficient implemenation of SNOBOL4.
+*   Created by Robert B. K. Dewar and Ken Belcher in 1969, SPITBOL/360 
+*   was written in IBM/360 assembly language, in what Dewar called
+*   "aggressive assembly."
+*
+*   For example, SNOBOL4 requires maintaining a count of the number of 
+*   statements executed and the ability to stop execution when a specified 
+*   number of statements have been executed.  SPITBOL/360 does this by
+*   computing an unnormalized floating point constant such that successive 
+*   increments result in floating point overflow when the limit is reached.
+
+*   Dewar and Belcher also wrote Realia COBOL, a COBOL compiler for Intel/x86 
+*   written in COBOL. It produced very efficient code, better
+*   code than, for example, that produced by IBM's product COBOL compiler.
+
+*   Dewar ported SPITBOL/360 to several machines. Around 1973, while working
+*   with Anthony P. (Tony) McCann of Leeds University, he developed
+*   Minimal, a portable assembly language. Dewar and McCann then rewrote
+*   SPITBOL in Minimal, producing Macro SPITBOL, or SPITBOL. 
+*   The implementation has proved very stable, with few changes in
+*   several decades.
+
+*   Macro SPITBOL is remarkably small. The code consists of about 28,000
+*   lines: 2000 lines of comments defining Minimal, 5000 lines of constant/data 
+*   declarations, and 21,000 lines of code.  Every line has a comment.
+*   The executable for x86 Linux is 144 kilobytes.
+
+*   SPITBOL was implemented for many machines and operating systems by
+*   a small team that included Steve Duff, Mark Emmer, Bob Goldberg, and Dave Shields:
+*   ICL 1900, Univac, CDC 6600, IBM PC, Apple Macintosh, SUN Solaris Sparc, 
+*   Microsoft (DOS/NT/Windows), Intel x86_64 (Unix/Linux), and x86_64 Apple iOS.  
+
+
+*   What is SETL4?
+*   --------------
+
+
+*   SETL4 is an extension of SPITBOL. It is based on SETL, a programming language 
+*   with  finite sets as the fundamental data type that  was created by by 
+*   Jacob T. "Jack" Schwartz of the Courant Institute of Mathematical Sciences 
+*   (CIMS) of New York University (NYU).
+
+*   Jack founded the SETL project in 1970. It was later funded by two 
+*   five-year grants from the Office of Naval Research.
+
+*   SETL was used to write NYU Ada/Ed, the first validated Ada compiler.
+*   Devloped on the DEC Vax 11/780, Ada/Ed was ported to the IBM PC (DOS)
+*   by a team led by Dave Shields.
+
+*   SETL also served in part as a source of some of the features of Python.
+
+*   The SETL Project produced three implementations of SETL. The first was
+*   written by Dave Shields, the second by Henry S. (Hank) Warren while on 
+*   leave from IBM, and the third by Robert B. K. Dewar and Art Grand.
+
+*   SETL4 is the fourth implementation of SETL produced by a member 
+*   (Dave Shields) of the NYU SETL project, hence the name SETL4.
 
 *   SETL4 extends SPITBOL by adding the datatype _set_ to represent
-*   finite sets. Several additional datatypes based on sets are
-*   also provided. Each is identified by its kind.
-
+*   finite sets. 
 
 *   SETL4 supports a variety of sets. Each has a kind, one of:
 
-*       int   map   seq   set   str
+*       _int_   _map_   _seq_   _set_   _str_
 
-*   For each kind, SETL4 provides set-theoretic functions,
-*    as well as other functions that have proven to be useful.
+*   For each kind, SETL4 provides set-theoretic functions, 
+*   as well as other functions that have proven to be useful.
 
-*   SETL4 unary operators:
+*   For example, the folowing SETL4 expression determines if the integer _P_ is prime:
 
-*   '='     =s      Iteration                   Returns the current element of an iteration
-*   '|'     |'str'  Constructor                 Returns set specified by string _str_
-*   '!'     !expr   Not                         True if and only if _expr_ is false
-*   '#'     #s      Size                        Number of elements in set _s_
-*   '/'     /s      Split                       Splits a string into a sequence of words
+*           !exists(|'int 2 P' @ 'multiple(P,this)')
 
-*   SETL4 binary operators:
+*   where _multiple(a,b) is true if and only if _a_ is a multiple of _b_.
+
+*   Several additional datatypes theory are also provided:
+
+*       _entry_     _line_  _pair_  _token_
+
+
+*   Int: sets of kind _int_
+*   ----------
+
+*   A set of kind _int_ represents a set of integers. The set cannot be changed
+*   once it is created. You can only loop over a set of kind _int_ or test for 
+*   membership.
+
+*   Map: sets of kind 'map'
+*   --------
+*   A map is a set of ordered pairs.
+
+*   Seq: sets of kind 'seq'
+
+*   A sequence (_seq_) is a map on the positive integers 1 .. n
+*   Sequences are implemented using SPITBOL arrays, and so are very efficient.
+
+*   Set: set of kind 'set'
+*   -----------------------
+
+*   A set is a collection of distinct elements.
+
+*   Str: set of kind 'str'
+
+*   A string sequence (_str_) is a sequence of characters.
+
+*   Str: set of characters
+
+*   _Str_ is used to treat a character string as a set of characters.
+
+*   Show
+*   ----
+
+*   The function _show_ writes out the value of a SETL4 object in a readable 
+*   form. Objects are shown in the order defined by the function _rank_.
+
+
+*   SETL4 Binary Operators:
 
 *   '&'     a & b   And                         True if and only if both _a_ and _b_ are true
 *   '@'     s @ e   Eval                        Evaluates _e_ at current element of set _s_
@@ -35,22 +137,20 @@
 *   '~'     m ~ s   Membership                  Tests if _m_ is member of set _s_
 *   '^'     a ^ b   Or                          True if and only if _a_ or _b_ is true
 
-*   For example, the folowing SETL4 expression determines if integer _P_ is prime:
+*   SETL4 Unary Operators:
 
-*           !exists(|'int 2 P' @ 'multiple(P,this)')
-
-*   where _multiple(a,b) is true if and only if _a_ is a multiple of _b_.
+*   '='     =s      Iteration                   Returns the current element of an iteration
+*   '|'     |'str'  Constructor                 Returns set specified by string _str_
+*   '!'     !expr   Not                         True if and only if _expr_ is false
+*   '#'     #s      Size                        Number of elements in set _s_
+*   '/'     /s      Split                       Splits a string into a sequence of words
 
 *   Global variables
 *   ----------------
 
+    setl4.ascii.name = 
+    setl4.ascii.value =  
     setl4.random_var =
-
-*   SETL4 binary operators:
-
-*    setl4.ascii.name = new('map')
-*    setl4.ascii.val =  new('map')
-*    setl4.ascii.initialized = false
 
 *   Boolean Logic
 *   -------------
@@ -69,12 +169,12 @@
 *   SPITBOL comparison functions report their results by success or failure, so SETL
 *   provides the following functions which return TRUE or FALSE.
 
-
-
 *   SETL4 functions
 *   ---------------
 *
 *   and(a,b)                                    And: true if and only if _a_ and _b_ are true
+*   arb(n)                                      Returns arbitary (randomly chosen) integer in 1 .. _n_
+*   arb(set)                                    Returns arbitary (randomly chosen) element of _set_
 *   assert(expr)                                Tests that _expr_ is true, ends execution otherwise
 *   assert.type(obj,type)                       Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise
 *   at(set,expr)                                Evaluates _expr_ for for current iterate of _set_
@@ -85,7 +185,32 @@
 *   forall(set,expr)                            Tests if _expr_ is true for at all elements in set _set_
 *   filter(set,expr)                            Filter:; returns subset of _set_ for which _expr_ is true
 *   iskind(kind,kind1,kind2,kind3,kind3,kind4)  Tests if _kind_ is one of the specfied kinds: _kind1_, _kind2_, ...
+*   int.cardinal(n,word)                        Returns 'one ' followed by word if _n_ is one, else returns '_n_ words'
+*   int.eq(a,b)                                 Tests if _a is equal to _b_
+*   int.even(n)                                 Tests if _n_ is even
+*   int.factorial(n)                            Returns n!  = n * (n -1) * ... * 1
+*   int.ge(a,b)                                 Tests if _a is greater than or equal to _b_
+*   int.gt(a,b)                                 Tests if _a is greater than _b_
+*   int.le(a,b)                                 Tests if _a is less than or equal to _b_
+*   int.lt(a,b)                                 Tests if _a is less than _b_
+*   int.ne(a,b)                                 Tests if _a is not equal to _b_
+
+*   int.number(n)                               Returns _n_ as one or two words if possible, else returns _n_
+*                                               For example, _int.number(51)_ is "fifty one".
+*   int.multiple(n,m)                           Tests if _n_ is a multiple of _m_
+*   int.odd(n)                                  Tests if _n_ is odd
+*   int.prime(n)                                Tests if _n_ is prime
+*   int.square.root(n)                          Returns integer square root on _n_
+*   int.thousands(s)
 *   loop(set)                                   Set up iteration over _set_ using _next_
+*   map.domain(map)                             Returns set of elements in the domain of _map_
+*   map.first(map)                              Returns the first element in a map
+*   map.get(map,key)                            Gets the value of map _map_ for _key_
+*   map.last(map)                               Returns the last element in a map.
+*   map.put(map,key,val)                        Sets the value of map _map_ for key _key_ to be _value_
+*   map.range(map)                              Returns set of elements in the range of _map_
+*   map.defined(map,key)                        Tests if map _map_ if defined for _key_
+*   mark(line)
 *   member(elem,set)                            Tests if _elem_ is a member of set _set_
 *   new(str)                                    Returns new set specified by _st_
 *   next(set)                                   Returns next element in iteration defined by prevous _loop_,
@@ -94,83 +219,7 @@
 *   or(a,b)                                     Or: true if and only if _a_ of _b_ is true
 *   random(n)                                   Returns random element
 *   random.seed()                               Sets random number seed to initialize _random_
-*   setl4.size(set)                             Returns number of elements in set _set_
-*   setl4.traceoff()                            Turns off tracing
-*   setl4.traceon()                             Turns on tracing
-*   this(set)                                   Returns current iteration value for _set_
-*   true(e)                                     Returns TRUE if and only if _e_ is TRUE
-*   visit(set,expr)                             Visits each element of set _set_ and evaluates _expr_ for that element
-
-
-*   Int: sets of kind _int_
-*   ----------
-
-*   A set of kind _int_ represents a set of integers. The set cannot be changed
-*   once it is created. You can only loop over a set of kind _int_ or test for 
-*   membership.
-
-*   Int set functions
-*   -----------------
-
-
-*   Int Comparisons
-*   ---------------
-
-*   int.eq(a,b)                                 Tests if _a is equal to _b_
-*   int.ge(a,b)                                 Tests if _a is greater than or equal to _b_
-*   int.gt(a,b)                                 Tests if _a is greater than _b_
-*   int.le(a,b)                                 Tests if _a is less than or equal to _b_
-*   int.lt(a,b)                                 Tests if _a is less than _b_
-*   int.ne(a,b)                                 Tests if _a is not equal to _b_
-
-*   Int Utility Functions
-*   ---------------------
-
-*   int.cardinal(n,word)                        Returns 'one ' followed by word if _n_ is one, else returns '_n_ words'
-*   int.even(n)                                 Tests if _n_ is even
-*   int.factorial(n)                            Returns n!  = n * (n -1) * ... * 1
-*   int.number(n)                               Returns _n_ as one or two words if possible, else returns _n_
-*                                               For example, _int.number(51)_ is "fifty one".
-*   int.multiple(n,m)                           Tests if _n_ is a multiple of _m_
-*   int.even(n)                                 Tests if _n_ is odd
-*   int.prime(n)                                Tests if _n_ is prime
-*   int.square.root(n)                          Returns integer square root on _n_
-*   int.thousands(s)
-
-
-
-*   Map: sets of kind 'map'
-*   --------
-*   A map is a set of ordered pairs.
-
-*   Map set functions
-*   -----------------
-
-
-*   map.domain(map)                             Returns set of elements in the domain of _map_
-*   map.first(map)                              Returns the first element in a map
-*   map.get(map,key)                            Gets the value of map _map_ for _key_
-*   map.last(map)                               Returns the last element in a map.
-*   map.put(map,key,val)                        Sets the value of map _map_ for key _key_ to be _value_
-*   map.range(map)                              Returns set of elements in the range of _map_
-*   map.defined(map,key)                        Tests if map _map_ if defined for _key_
-
-
-*   mark(line)
-*   next(set)                                   Returns the next iterate in loop over _set_, fails if no more remain
 *   rank(set)                                   Returns the rank, or normal form, of a set or string.
-*                                               For example, _rank('albuquerque')_ is 'abeelqqruuu';
-*                                               the rank of a map is the map with keys sorted in ascending order.
-
-*   Seq: set of kind _seq_
-
-*   A sequence (_seq_) is a map on the positive integers 1 .. n
-*   Sequences are implemented using SPITBOL arrays, and so are very efficient.
-
-
-*   Seq set functions
-*   -----------------
-
 *   seq.add(seq,val)                            Adds _val_ to sequence _seq)
 *   seq.get(seq,i)                              Returns value of element _i_ of sequence _seq_
 *   seq.integers(n)                             Returns sequence consiting of integers 1 .. n
@@ -178,13 +227,6 @@
 *   seq.pop(seq)                                Removes last element of sequence _seq_ and returns its value
 *   seq.put(seq,i,val)                          Sets value of elment _i_ in sequence _seq_ to _val)
 *   seq.range(seq)                              Returns set of range values of sequence _seq
-
-*   Set 
-*   ---
-
-*   Set set functions
-*   -----------------
-
 *   set.add(set,elem)                           Adds element _elem_ to set _set_ if not yet a member of the set.
 *   set.difference(a,b)                         Returns set of members of set _a_ not in the set _b_
 *   set.first(set)                              Returns first element in set
@@ -194,55 +236,35 @@
 *   set.last(set)                               Returns last element in set
 *   set.subset(a,b)                             Tests if every member of _b_ is also a member of _a_
 *   set.union(a,b)                              Returns set consisting of all the members of _a_ and _b_
-
-*   Show: display SETL4 object
-
-*   The function _show_ is used to represent the value of a SETL4 object
-*   in a human-readable form. The result is written to standard output.
-*   Objects are shown in the order defined by the function _rank_.
-
 *   show(v,lvl)                                 Show value of _v_, with _lvl_ set non-zero when listing member of set
 *   show.b(e)                                   Show value of _b_ as boolean (TRUE or FALSE)
 *   show.line(line)                             Show string _line_ with spaces replaced by '.'
 *   show.lines(lines,title)                     Show non-empty lines in array of lines, with title 'title'
 *   show.quote(str)                             Show string with surrounding quotes 
 *   show.words(words)                           Show a sequence of words, separated by space character
-
-*   Str: set of characters
-
-*   _Str_ is used to treat a character string as a set of characters.
-
-*   String Lexical comparisons
--   -------------------
-
-*   str.leq(a,b)                                Tests if a is lexically equal to b
-*   str.lge(a,b)                                Tests if a is lexically greater than or equal to b
-*   str.lgt(a,b)                                Tests if a is lexically greater than b
-*   str.lle(a,b)                                Tests if a is lexically less than or equal to b
-*   str.llt(a,b)                                Tests if a is lexically less than b
-*   str.lne(a,b)                                Tests if a is lexically not equal to b
-
-*   String operations based on SPITBOL
-*   ----------------------------------
-
 *   str.any(a,b)                                Tests if the first character of _a_ is in _b_
-*   str.break(a,b)                              Tests if _a_ contains one of the characters in _b_
-*   str.notany(a,b)                             Tests if first character in _a_ is not in _b_
-*   str.span(a,b)                               Tests if _b_ contains only characters in _a_
-
-*   String utility functions
-*   -----------------
-
 *   str.append(str,w,ch)                        Appends _ch_ (or space if _ch_ is null) to _str_, then appends _w_
 *   str.ascii(line)
-*   str.ascii.init(init)
+*   setl4.ascii.init(init)
+*   setl4.size(set)                             Returns number of elements in set _set_
+*   setl4.traceoff()                            Turns off tracing
+*   setl4.traceon()                             Turns on tracing
+*   str.break(a,b)                              Tests if _a_ contains one of the characters in _b_
 *   str.datename(date)                          Returns string based on current time suitable for use as filename
-*   str.frequency(str)                          Returns map giving frequency of characters in _str_
 *   str.digits()                                Returns list of digits: '0 1 2 .. 9'
-*   str.lletters()                              Returns list of lower case letters : 'a b c ... z'
+*   str.frequency(str)                          Returns map giving frequency of characters in _str_
+*   str.leq(a,b)                                Tests if _a_ is lexically equal to _b_
 *   str.letters()                               Returns list of letters : 'a b c ... z A B ... Z''
-*   str.lower(s)                                Returns _s_ with upper case letters replaced by lower case equivalent
+*   str.lge(a,b)                                Tests if _a_ is lexically greater than or equal to _b_
+*   str.lgt(a,b)                                Tests if _a_ is lexically greater than _b_
 *   str.less(str,sub)                           Removes the first instance of each character in _sub_ from _str_,
+*   str.lle(a,b)                                Tests if _a_ is lexically less than or equal to _b_
+*   str.lletters()                              Returns list of lower case letters : 'a b c ... z'
+*   str.llt(a,b)                                Tests if _a_ is lexically less than _b_
+*   str.lne(a,b)                                Tests if _a_ is lexically not equal to _b_
+*   str.lower(s)                                Returns _s_ with upper case letters replaced by lower case equivalent
+*   str.notany(a,b)                             Tests if first character in _a_ is not in _b_
+*   str.span(a,b)                               Tests if _b_ contains only characters in _a_
 *                                               where _sub_ is a substr of _str_.
 *   str.out(text1,text2,text3)                  Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null,
 *                                               then _text3_ if _text3_ is not null.
@@ -259,6 +281,9 @@
 *   str.words(line)                             Returns list of words in _line_, where words are separated by one of
 *                                               more spaces or tab characters
 *   str.writer(lines)                           Writes sequence _lines_ to standard output.
+*   this(set)                                   Returns current iteration value for _set_
+*   true(e)                                     Returns TRUE if and only if _e_ is TRUE
+*   visit(set,expr)                             Visits each element of set _set_ and evaluates _expr_ for that element
 
 *   A set is defined by the following datatype:
 
@@ -322,21 +347,21 @@
 *    setl4.config.size = 16
     setl4.config.size = 120
 
-*   SETL4 Global Variables
-*   ----------------------
-
-
-    setl4.break.whitespace = break(' ' char(9))
-    setl4.span.whitespace =  span(' ' char(9))
-
-
-*   SETL4 constants
+*   SETL4 Constants
 *   ---------------
 
 *   The values of the following variables should NEVER be changed, lest chaos ensue.
 
     FALSE = 0
     TRUE = 1
+
+*   SETL4 Global Variables
+*   ----------------------
+
+    setl4.ascii.initialized = false
+    setl4.break.whitespace = break(' ' char(9))
+    setl4.span.whitespace =  span(' ' char(9))
+
 
 *   SETL4 function definitions
 *   --------------------------
@@ -362,23 +387,23 @@ and
 
 and.end
 
-    define('arbitrary(set)kind,n,r')                           :(arbitrary.end)
+    define('arb(set)kind,n,r')                           :(arb.end)
 
-*   Returns arbitrary (randomly selected) element of _set_.
+*   Returns arb (randomly selected) element of _set_.
 
-arbitrary
+arb
 
     kind = set.kind(set)
-    arbitrary = integer(set) random(+set)           :s(return)
+    arb = integer(set) random(+set)           :s(return)
     r = random(set.size(set))
-    arbitrary = (
+    arb = (
 .       iskind(kind,'int')         set.low(set) + (r - 1) * set.step(set),
 .       iskind(kind,'map','set')   set.index(set)[r],
 .       iskind(kind,'seq')         set.seq(set)[r],
 .       iskind(kind,'str')         substr(set.text(set),r,1),
 .       ident(datatype(set),'string') substr(set,r,1))
                                                     :(return)
-arbitrary.end
+arb.end
 
     define('assert(expr)')                          :(assert.end)
 
@@ -1712,14 +1737,14 @@ str.append.end
 
 str.ascii
 
-    true(setl4.ascii.initialized)                   :s(str.ascii.initialized)
+    true(setl4.ascii.initialized)                   :s(setl4.ascii.initialized)
 
 *   Here to initialize the needed maps.
     
     setl4.ascii.init()
     setl4.ascii.initialized = true;
 
-str.ascii.initialized
+setl4.ascii.initialized
 
     nul = substr(&alphabet,1,1)
 
@@ -1779,15 +1804,15 @@ str.ascii.done
 
 str.ascii.end
 
-    define('str.ascii.init(init)name,val')          :(str.ascii.init.end)
+    define('setl4.ascii.init(init)entry,name,value') :(setl4.ascii.init.end)
 
 *   Initialize maps for use by _str.ascii_.
 *   Since space (str.ascii 32) prints as space, use the name SPC for 32.
 
-str.ascii.init
+setl4.ascii.init
 
 
-    str.ascii.init = setl4.str.map(
+    setl4.ascii.init = setl4.str.map(
 .       '0:NUL 16:DLE 32:SPC 48:0 64:@ 80:P  96:` 112:p '
 .       '1:SOH 17:DC1 33:!   49:1 65:A 81:Q  97:a 113:q '
 .       '2:STX 18:DC2 34:"   50:2 66:B 82:R  98:b 114:r '
@@ -1806,26 +1831,21 @@ str.ascii.init
 .       '15:SI 31:US  47:/   63:? 79:O 95:_ 111:o 127:DEL ')
 
     str.ascii.name = str.map(efault.size)
-    str.ascii.val = str.map(efault.size)
+    str.ascii.value = str.map(efault.size)
+    loop(setl4.ascii.init)
 
+setl4.ascii.init.next
 
-    loop(str.ascii.init)
-
-str.ascii.init.next
-
-    ent = setl4.str.next(str.ascii.init)                  :(str.ascii.init.finis)
+    entry = setl4.str.next(setl4.ascii.init)                  :(setl4.ascii.init.finis)
 *   Correct entry for 0 to be NUL, the NUL character
     str.ascii.name[substr(&alphabet,+v + 1,1)] = name
-    str.ascii.val[name] = +val                    :(str.ascii.init.next)
-
-
-
+    str.ascii.value[name] = +value                  :(setl4.ascii.init.next)
     str.ascii.name[] = 'NUL'
-    str.ascii.val['NUL'] = 0
+    str.ascii.value['NUL'] = 0
     str.ascii.name[' '] = 'SPC'
-    str.ascii.val['SPC'] = 32                       :(return)
+    str.ascii.value['SPC'] = 32                     :(return)
 
-str.ascii.init.end
+setl4.ascii.init.end
 
     define('str.datename(date)s')                  :(str.datename.end)
 
@@ -1839,7 +1859,7 @@ str.datename
                                                    :(return)
 str.datename.end
 
-    define('str.digits()str,ch')                    :(str.digits.end)
+    define('str.digits()str,ch')                   :(str.digits.end)
 
 *   Return string consisting of the digits 0 .. 9 separated by a space.
 
@@ -2495,4 +2515,3 @@ setl4.traceon.end
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
-
