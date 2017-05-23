@@ -272,7 +272,7 @@ kkkk
 *   show.b(e)                       Show value of _b_ as boolean (TRUE or FALSE)
 *   show.line(line)                 Show string _line_ with spaces replaced by '.'
 *   show.lines(lines,title)         Show non-empty lines in array of lines, with title 'title'
-*   show.quote(str)                 Show string with surrounding quotes 
+*   show.q(str)                     Show string with enclosed in appropriate quote character (" or ') 
 *   show.words(words)               Show a sequence of words, separated by space character
 *   str.any(a,b)                    Tests if the first character of _a_ is in _b_
 *   str.append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then appends _w_
@@ -488,12 +488,15 @@ error.end
 
 exists
 
+    str.out('exists EXPR',show.q(expr))
     loop(set)
 
 exists.loop
 
     this = next(set)                                       :f(exists.fail)
+    str.out('exists.loop this',this)
     e = eval(expr)                                  :f(exists.loop)
+    str.out('exists E',e)
     integer(e) eq(+e)                               :s(exists.loop)
     ident(e) 				                        :s(exists.loop)
     exists = TRUE                                   :(return)
@@ -610,7 +613,7 @@ int.int.cardinal.end
 
 int.even
 
-    int.even = (eq(remdr(n,2)) true,false)          :(int.even.end)
+    int.even = (eq(remdr(n,2)) TRUE,FALSE)          :(int.even.end)
 
 int.even.end
 
@@ -704,6 +707,8 @@ int.thousands.end
 
 i.eq
 
+    str.out('ieq a',a)
+    str.out('ieq b',b)
     i.eq = (integer(a) integer(b) eq(a,b) TRUE, FALSE) :(return)
 
 i.eq.end
@@ -781,45 +786,37 @@ iskind.end
 
 loop
 
-*   Returns loop member in interation over compound object _set.
-*	setl4.show(set)
-
-    set.next(set) = ident(set.kind(set),'int') set.low(set) - set.step(set) :s(return)
-    set.next(set) =  0                              :(return)
+    set.next(set) = (iskind(set,'int') set.low(set) - set.step(set),0) :(return)
 
 loop.end
 
 *   Maps
 *   --------------
 
-*   A _pair_ joins two values together.
+*   In mathematics, a map, or function, defined on a finite set is a set of 
+*   ordered pairs that define a relation between the first element of a pair, 
+*   its _key_, and the second element of the pair, the value of the map for _key_.
+
+*   An ordered _pair_ is represented in SETL4 by the following data type:
 
     data('pair(first,second)')
 
-*   In mathematics, a map, or function, defined on a finite set is a set of 
-*   ordered pairs that define a relation between the first element of a pair, 
-*   its _key_, and the value of the map for _key_.
-
-*   SETL4 represents a map entry as follows:
-
-    data('entry(key,value)')
-
-*   where _key_ is the key, and _value_ is the value of the
-*   map for _key_.
+*   where _key_ is the key, and _value_ is the value of the map for _key_.
 
 *   The SPITBOL datatype TABLE provides the machinery to implement maps.
-*   SPITBOL provides no way to determine the number of domain values,
-*   or size, of a map other than converting the map to an array, which is
-*   the only way to iterate over a set.
+*   SPITBOL provides no way to determine the number of entries in a table
+*   other than converting the map to an array. This is the only way in 
+*   SPITBOL to iterate over a SPITBOL table.
 
-*   Each new entry added to a map is given an integer id,
-*   starting with one.  The field _set.index_ maps the id's
-*   to the associated entries.
+*   For this reason, maps are implemented using two tables: _set.index_ and _set.key_.
+*   Each new entry added to a map is given an integer id, starting with one.  
+*   The field _set.index_ maps the id's to the associated pairs.
+*   The entries in _set.index_ allow efficient iteration over the map. 
+*
+*   The table _set.key_ maps keys in the map to the corresponding id in _set.index_,
+*   from which the entry for the key can be found. The entries in _set.key_
+*   permit efficient retrieval of the map's value for a given key.
 
-*   The field _set.key_ maps the keys used in entries to
-*   their associated id's, and is needed to allow constant-time
-*   access to map entries, both when retrieving values and
-*   when iterating over the set.
 
     define('map.defined(map,key)')                 :(map.defined.end)
 
@@ -936,7 +933,6 @@ map.range.end
 
 member
 
-*    str.out('member dt',datatype(set))
     differ(datatype(set),'set') str.out('member',set)
     member = FALSE
     kind = set.kind(set)
@@ -951,8 +947,8 @@ member
 
 member.int
 
-    member = lt(elem,set.low(set)) false              :s(return)
-    member = gt(elem,set.low(set)) false              :s(return)
+    member = lt(elem,set.low(set)) FALSE              :s(return)
+    member = gt(elem,set.low(set)) FALSE              :s(return)
     member = (eq(remdr(elem - set.low(set),set.step(set))) TRUE, FALSE):(return)
 
 member.map
@@ -1088,14 +1084,14 @@ new.seq
                                                     :(return)
 new.set
 
-    str.out('new.set init',show.quote(init))
+    str.out('new.set init',show.q(init))
     new = set('set',table(setl4.config.size),table(setl4.config.size))
     ident(init)                                     :s(return)
     init = init ' '
 
 new.set.init
 
-    str.out('new.set.init',show.quote(init))
+    str.out('new.set.init',show.q(init))
 *    init break(' ') . key setl4.span.whitespace =   :f(return)
     init ' ' =
     init break(' ') . key ' '    =   :f(return)
@@ -1129,7 +1125,7 @@ next
 *   Here to find next element in set of type _int_.
 
     next = set.next(set) = set.next(set) + set.step(set)
-    le(next,set.high(set))                          :s(return)f(freturn)
+    le(next,set.high(set))                          :f(freturn)
 
 next.notint
 
@@ -1143,7 +1139,11 @@ next.notint
 .       iskind(kind,'str')          substr(set.text(set),next,1)
 .       ident(datatype(set),'string')   substr(set,next,1)
 .       )
-        next = this
+        next = set.this(set)
+    str.out('next',next)
+    str.out('this',this)
+                                                    :(return)
+
 next.end
 
     define('not(expr)')                             :(not.end)
@@ -1339,7 +1339,7 @@ seq.push
     value = integer(value) +value
     setl4.seq.room(seq)
     set.size(seq) = set.size(seq) + 1
-    str.out('seq.add',value)
+*    str.out('seq.add',value)
     set.seq(seq)[set.size(seq)] = value             
                                                     :(return)
 
@@ -1568,7 +1568,7 @@ show.entry
 
 show.int
 
-    show = 'integers(' int.low(v) '..' int.high(v) ') ' :(show.done)
+    show = '[int: low ' set.low(v) ' high ' set.high(v) ' step ' set.step(v)  '] ' :(show.done)
 
 show.integer
 
@@ -1629,7 +1629,7 @@ show.set
 show.set.next
 
     key = next(v)                                   :f(show.set.done)
-    key = datatype(key,'string') show.quote(key)
+    key = datatype(key,'string') show.q(key)
     str.out('key',key)
     str.out('set.next elem ',elem)
     show = (ident(show,'{') '{ ', show ' ') show(elem,,1)
@@ -1644,7 +1644,7 @@ show.set.done
                                                     :(show.done)
 show.str
 
-    show = show.quote(str.text(set))                :(show.done)
+    show = show.str(str.text(set))                :(show.done)
 
 show.string
 
@@ -1652,7 +1652,7 @@ show.string
 
     show = integer(v) v                             :s(show.done)
 
-    show = show.quote(v)                            :(show.done)
+    show = show.q(v)                            :(show.done)
 
 
 show.table
@@ -1724,21 +1724,21 @@ show.lines.titled
 
 show.lines.end
 
-    define('show.quote(str)')                       :(show.quote.end)
+    define('show.q(str)')                           :(show.q.end)
 
 *   Show string _str_ enclosed in quotes
 
-show.quote
+show.q
 
-    str break('"')                                  :s(show.quote.double)
+    str break("'")                                  :s(show.q.double)
 
-    show.quote = '"' str '"'                        :(return)
+    show.str = "'" str "'"                          :(return)
 
-show.quote.double
+show.q.double
 
-    show.quote = "'" str "'"                        :(return)
+    show.q = '"' str '"'                            :(return)
 
-show.quote.end
+show.q.end
 
     define('show.words(words)i,pos')                :(show.words.end)
 
@@ -1995,7 +1995,8 @@ str.lower.end
 
 str.out
 
-    output = text1 (differ(text2) '[' text2 ']', '') (differ(text3) text3, ''):(return)
+    output = text1 (ident(text2) '', '[' text2 ']') (differ(text3) text3, '') :(return)
+*    output = text1 (differ(text2) '[' (ident(text2) null ']', '') (differ(text3) text3, ''):(return)
 
 str.out.end
 
@@ -2388,7 +2389,7 @@ str.writer.end
 this
 
     this = set.this(set)                       
-*    show(this)
+    str.out('this',this)
                                                     :(return)
 
 this.end

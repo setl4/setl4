@@ -2,13 +2,12 @@
 -include "setl4.stl"
 
 *    &dump = 2
-
-    s = new('set 10')
-*    show(s,'test setuence 10')
-    set.add(s,10)
-    set.add(s,5)
-    set.add(s,20)
-    set.add(s,5)
+    &stlimit = 9000
+    s = new('set 5 10 20 5 6')
+*    set.add(s,10)
+*    set.add(s,5)
+*    set.add(s,20)
+*    set.add(s,5)
     show(s)
 
     str.out('test membership- expect TRUE/FALSE')
