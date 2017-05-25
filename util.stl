@@ -1,0 +1,844 @@
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+*TODO - need separate out iterator from set data structure. May have multiple loops over same set at onece.
+*TODO - need equal for general equality test on sets, maps, etc.
+
+*   SETL4 is an implementation of SETL written in SPITBOL.
+
+*   Boolean Logic
+*   -------------
+
+*   Boolean logic is an algebra with just two values: true and false.
+kkkk
+*   In SPITBOL, the algebra is defined on strings: the null string is "false" 
+*   and all other strings are "true".  The SPITBOL function IDENT is used 
+*   to test for true, DIFFER for false. 
+*   Each signals their result by success (true) or failure (false).
+
+*   In SETL4, the algebra is defined both on integers and non-integers.  
+*   For integers, zero is "false" and all other integers are "true." 
+*   For non-integers, the null string ('') is true, and all other values are false.
+
+*   SPITBOL comparison functions report their results by success or failure, so SETL
+*   provides the following functions which return TRUE or FALSE.
+
+
+*   SETL4 Functions
+*   ---------------
+*
+*   and(a,b)                        And: true if and only if _a_ and _b_ are true
+*   arb(n)                          Returns arbitary (randomly chosen) integer in 1 .. _n_
+*   arb(set)                        Returns arbitary (randomly chosen) element of _set_
+*   assert(expr)                    Tests that _expr_ is true, ends execution otherwise
+*   assert.type(obj,type)           Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise
+*   at(set,expr)                    Evaluates _expr_ for for current iterate of _set_
+*   binary.search(tbl,value)        Binary search
+*   concatenate(a,b)                Concatenates strings _a_ and _b_
+*   exists(set,expr)                Tests if _expr_ is true for at least one element in set _set_
+*   false(e)                        Returns TRUE if and only if _e_ is FALSE
+*   forall(set,expr)                Tests if _expr_ is true for at all elements in set _set_
+*   filter(set,expr)                Filter:; returns subset of _set_ for which _expr_ is true
+*   iskind(kind,kind1,kind2,kind3,kind3,kind4)  Tests if _kind_ is one of the specfied kinds: _kind1_, _kind2_, ...
+*   int.cardinal(n,word)            Returns 'one ' followed by word if _n_ is one, else returns '_n_ words'
+*   i.eq(a,b)                       integer is equal to 
+*   int.even(n)                     Tests if _n_ is even
+*   int.factorial(n)                Returns n!  = n * (n -1) * ... * 1
+*   i.ge(a,b)                       integer greater than or equal
+*   i.gt(a,b)                       integer greater than 
+*   i.le(a,b)                       integer less than or equal
+*   i.lt(a,b)                       integer less than 
+*   i.ne(a,b)                       integer not equal
+
+*   int.number(n)                   Returns _n_ as one or two words if possible, else returns _n_
+*                                   For example, _int.number(51)_ is "fifty one".
+*   int.multiple(n,m)               Tests if _n_ is a multiple of _m_
+*   int.odd(n)                      Tests if _n_ is odd
+*   int.prime(n)                    Tests if _n_ is prime
+*   int.square.root(n)              Returns integer square root on _n_
+*   int.thousands(s)
+*   l.eq(a,b)                       lexical equal
+*   l.ge(a,b)                       lexical greater than or equal to 
+*   l.gt(a,b)                       lexical greater than 
+*   l.le(a,b)                       lexical less than or equal to 
+*   l.lt(a,b)                       lexical less than 
+*   l.ne(a,b)                       lexical not equal to 
+*   loop(set)                       Set up iteration over _set_ using _next_
+*   map.domain(map)                 Returns set of elements in the domain of _map_
+*   map.first(map)                  Returns the first element in a map
+*   map.get(map,key)                Gets the value of map _map_ for _key_
+*   map.last(map)                   Returns the last element in a map.
+*   map.put(map,key,val)            Sets the value of map _map_ for key _key_ to be _value_
+*   map.range(map)                  Returns set of elements in the range of _map_
+*   map.defined(map,key)            Tests if map _map_ if defined for _key_
+*   mark(line)                      Annotates, or marks, a line
+*   member(elem,set)                Tests if _elem_ is a member of set _set_
+*   new(str)                        Returns new set specified by _st_
+*   next(set)                       Returns next element in iteration defined by prevous _loop_,
+*                                   fails if no more elements
+*   not(expr)                       Not: true if and only if _expr_ is false
+*   or(a,b)                         Or: true if and only if _a_ of _b_ is true
+*   random(n)                       Returns random element
+*   random.seed()                   Sets random number seed to initialize _random_
+*   rank(set)                       Returns the rank, or normal form, of a set or string.
+*   seq.add(seq,val)                Adds _val_ to sequence _seq)
+*   seq.get(seq,i)                  Returns value of element _i_ of sequence _seq_
+*   seq.integers(n)                 Returns sequence consiting of integers 1 .. n
+*   seq.push(seq,val)               Adds _val to sequence _seq_
+*   seq.pop(seq)                    Removes last element of sequence _seq_ and returns its value
+*   seq.put(seq,i,val)              Sets value of elment _i_ in sequence _seq_ to _val)
+*   seq.range(seq)                  Returns set of range values of sequence _seq
+*   set.add(set,elem)               Adds element _elem_ to set _set_ if not yet a member of the set.
+*   set.difference(a,b)             Returns set of members of set _a_ not in the set _b_
+*   set.first(set)                  Returns first element in set
+*   set.from(set,elem)              Returns set consisting of members of _set_ except for_elem_
+*   set.integers(n)                 Returns set of integers 1 ... n
+*   set.intersection(a,b)           Returns set of members which belong to both sets _a_ and _b_
+*   set.last(set)                   Returns last element in set
+*   set.subset(a,b)                 Tests if every member of _b_ is also a member of _a_
+*   set.union(a,b)                  Returns set consisting of all the members of _a_ and _b_
+*   .ascii.init(init)
+*   setl4.size(set)                 Returns number of elements in set _set_
+*   setl4.traceoff()                Turns off tracing
+*   show(v,lvl)                     Show value of _v_, with _lvl_ set non-zero when listing member of set
+*   show.b(e)                       Show value of _b_ as boolean (TRUE or FALSE)
+*   show.line(line)                 Show string _line_ with spaces replaced by '.'
+*   show.lines(lines,title)         Show non-empty lines in array of lines, with title 'title'
+*   show.q(str)                     Show string with enclosed in appropriate quote character (" or ') 
+*   show.words(words)               Show a sequence of words, separated by space character
+*   .any(a,b)                    Tests if the first character of _a_ is in _b_
+*   .append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then appends _w_
+*   .ascii(line)
+*   setl4.traceon()                 Turns on tracing
+*   .break(a,b)                  Tests if _a_ contains one of the characters in _b_
+*   .datename(date)              Returns string based on current time suitable for use as filename
+*   .digits()                    Returns list of digits: '0 1 2 .. 9'
+*   .frequency(str)              Returns map giving frequency of characters in _str_
+*   .letters()                   Returns list of letters : 'a b c ... z A B ... Z''
+*   .less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
+*   s.lletters()                    Returns list of lower case letters : 'a b c ... z'
+*   .lower(s)                    Returns _s_ with upper case letters replaced by lower case equivalent
+*   .notany(a,b)                 Tests if first character in _a_ is not in _b_
+*   .span(a,b)                   Tests if _b_ contains only characters in _a_
+*                                   where _sub_ is a substr of _str_.
+*   .out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null,
+*                                   then _text3_ if _text3_ is not null.
+*   .prefix(str,pre)             Takes a list of space-separated words in _str_ and prefixes each
+*                                   with the string _pre_
+*   .reader(filename,expr)       Returns sequence of lines in file _filename_, using _expr_ (if given)
+*                                   to filter out lines to be ignored.
+*   .reader.string(str,delim)    Like _.reader(filename..)_ but reads lines from a string with lines
+*                                   separated by delimiter _delim_
+*   .slice(str,first,last)       Same as SPITBOL _substr(str,first,last)_
+*   .tokens(line)                Returns sequence of the tokens in _line_
+*   .uletters()                  Returns list of upper case letters : 'A B C ... Z''
+*   .upper(s)                    Returns _s_ with lower case letters replaced by upper case equivalent
+*   .words(line)                 Returns list of words in _line_, where words are separated by one of
+*                                   more spaces or tab characters
+*   .writer(lines)               Writes sequence _lines_ to standard output.
+*   this(set)                       Returns current iteration value for _set_
+*   true(e)                         Returns TRUE if and only if _e_ is TRUE
+*   visit(set,expr)                 Visits each element of set _set_ and evaluates _expr_ for that element
+
+
+*   SETL4 Function Definitions
+*   --------------------------
+
+*   Integers (int's)
+*   --------
+
+*   SETL4 provides the type _int_ .
+*   An _int_ is a sequence of positive integers.
+*
+*   SETL4 extends the integer operations provided by SPITBOL by
+*   providing the following integer functions:
+
+*            int.even(n)       true iff _n_ is even.
+*            int.factorial(n)  returns the value of
+*                                   n! = _n_ * (n - 1) * ... *
+*            int.multiple(n,m) true iff _n_ is multiple of _m_
+*            int.odd(n)        true iff _n_ is odd.
+*            int.prime(n)      true iff _n_ is a prime number
+*            int.square.root   square root rounded up to next integer.
+
+    define('int.int.cardinal(n,word)')           :(int.int.cardinal.end)
+*   If N is one, returns 'one' followed by WORD.
+*   Otherwise returns NUMBER(N) followed by WORD and 'S'.
+
+
+int.int.cardinal
+
+    int.cardinal = (eq(n,1) 'one ' word, number(n) ' '  word 's'):(return)
+
+int.int.cardinal.end
+
+    define('int.even(n)')                           :(int.even.end)
+
+*   Returns TRUE iff _n_ is even.
+
+int.even
+
+    int.even = (eq(remdr(n,2)) TRUE,FALSE)          :(int.even.end)
+
+int.even.end
+
+    define('int.factorial(n)')                      :(int.factorial.end)
+
+*   Returns n! = n*(n-1)*(n-2) ... 1
+
+int.factorial
+
+    int.factorial = (eq(n,1) 1, n * int.factorial(n -1))    :(return)
+
+int.factorial.end
+
+    define('int.multiple(n,m)')                      :(int.multiple.end)
+
+*   Tests if _n_ is a multiple of _m_.
+
+int.multiple
+
+    int.multiple = (eq(remdr(n,m)) TRUE, FALSE)      :(return)
+
+int.multiple.end
+
+    define('int.number(n)')                          :(int.number.end)
+
+*  If _n_ can be represented as a string of one or two words then return that string. Otherwise return _n_.
+
+int.number
+    error('int.number not implemented, quitting.' )
+    int.number = eq(n) 'zero'                       :s(return)
+    int.number = g.numbers[n]
+    differ(int.number)                              :s(return)
+    int.number = n                                  :(return)
+
+int.number.end
+
+    define('int.odd(n)')                            :(int.odd.end)
+
+*   Returns true iff _n_ is odd.
+
+int.odd
+
+    int.odd = (ne(remdr(n,2)) TRUE,FALSE)           :(return)
+
+int.odd.end
+
+
+    define('int.prime(n)set')                       :(int.prime.end)
+
+*   Returns true iff _n_ is prime.
+
+int.prime
+
+    set = new('int 2 ' square.root(p))
+    int.prime = not(exists(set,'eq(remdr(p,=s))'))  :(return)
+
+int.prime.end
+
+    define('int.square.root(n)')                    :(int.square.root.end)
+
+*   Returns square root of integer _n_, rounded up.
+
+int.square.root
+
+    int.square.root = convert(sqrt(convert(n,'real')),
+                               'integer') + 1 :(return)
+
+int.square.root.end
+
+    define('int.thousands(s)n')                  :(int.thousands.end)
+
+*   Format s with comma's every three digits from right.
+
+int.thousands
+
+    n = size(s)
+    int.thousands = le(n,3) s                    :s(return)
+    int.thousands = int.thousands(substr(s,1,n - 3)) ',' substr(s, n - 2, 3):(return)
+
+int.thousands.end
+
+
+*   Strings (str's)
+*   ---------------
+
+*   SETL4 provides additional operations, based on set theory,
+*    on strings in the form of "str's".
+
+    define('.append(str,w,ch)')                  :(.append.end)
+
+*   _.append_ appends _ch_, or ' ' if _ch_ is null, to _str_
+*   and then appends _w_.
+
+append
+
+    .append = str (ident(str) w, (ident(ch) ' ' , ch) w):(return)
+
+append.end
+
+    define('.ascii(line)c,n,name,nul,num,pos')   :(.ascii.end)
+
+*   Return the text of line with every .ascii character identified.
+
+ascii
+
+    true(.ascii.initialized)                   :s(.ascii.initialized)
+
+*   Here to initialize the needed maps.
+    
+    .ascii.init()
+    .ascii.initialized = true;
+
+ascii.initialized
+
+    nul = substr(&alphabet,1,1)
+
+ascii.next
+
+*   Add space after previous character if result not null.
+
+    .ascii = differ(.ascii) .ascii ' '
+    c = substr(line,1,1)                            :f(.ascii.done)
+    ident(c,nul)                                    :s(.ascii.null)
+    line any('0123456789')                          :s(.ascii.integer)
+    line any(&lcase &ucase)                         :s(.ascii.letter)
+    line ' '                                        :s(.ascii.space)
+
+*   Check for control character (code <=26)
+
+    &alphabet break(c) . pos                        :f(.ascii.other)
+    pos = size(pos)
+    gt(pos,26)                                      :s(.ascii.other)
+*TODO here fix g. usage
+    .ascii = .ascii g..ascii.name[c] '(^'
+               substr('ABCDEFGHIJKLMNOPQRSTUVWXYZ',pos,1) ')'
+    line len(1) =                                   :(.ascii.next)
+
+ascii.integer
+
+    line span('0123456789') . text =
+    .ascii = .ascii  text                     :(.ascii.next)
+
+ascii.letter
+
+    line span(&lcase &ucase) . text =
+    .ascii = .ascii  text                     :(.ascii.next)
+
+ascii.null
+
+    .ascii = .ascii 'NUL'                     :(.ascii.next)
+
+ascii.other
+
+*   Here if none of the other cases apply, so just list the .ascii name.
+
+    .ascii = .ascii .ascii.name[c]
+    line = substr(line,2)                           :(.ascii.next)
+
+ascii.space
+
+    line span(' ') . text =
+
+    .ascii =  .ascii 'SPC'
+    .ascii = gt(size(text),1) .ascii 'SPC*' size(text)
+    .ascii = .ascii
+                                                    :(.ascii.next)
+ascii.done
+
+    .ascii = trim(.ascii)                     :(return)
+
+ascii.end
+
+    define('.ascii.init(init)entry,name,value') :(.ascii.init.end)
+
+*   Initialize maps for use by _.ascii_.
+*   Since space (.ascii 32) prints as space, use the name SPC for 32.
+
+ascii.init
+
+
+    .ascii.init = setl4..map(
+       '0:NUL 16:DLE 32:SPC 48:0 64:@ 80:P  96:` 112:p '
+       '1:SOH 17:DC1 33:!   49:1 65:A 81:Q  97:a 113:q '
+       '2:STX 18:DC2 34:"   50:2 66:B 82:R  98:b 114:r '
+       '3:ETX 19:DC3 35:#   51:3 67:C 83:S  99:c 115:s '
+       '4:EOT 20 DC4 36:$   52:4 68:D 84:T 100:d 116:t '
+       '5:ENQ 21:NAK 37:%   53:5 69:E 85:U 101:e 117:u '
+       '6:ACK 22:SYN 38:&   54:6 70:F 86:V 102:f 118:v '
+       "7:BEL 23:ETB 39:'   55:7 71:G 87:W 103:g 119:w "
+       '8:BS  24:CAN 40:(   56:8 72:H 88:X 104:h 120:x '
+       '9:HT  25:EM  41:)   57:9 73:I 89:Y 105:i 121:y '
+       '10:LF 26:SUB 42:*   58:  74:J 90:Z 106:j 122:z '
+       '11:VT 27:ESC 43:+   59:; 75:K 91:[ 107:k 123:{ '
+       '12:FF 28:FS  44:,   60:< 76:L 92:\ 108:l 124:| '
+       '13:CR 29:GS  45:-   61:= 77:M 93:] 109:m 125:} '
+       '14:SO 30:RS  46:.   62:> 78:N 94:^ 110:n 126:~ '
+       '15:SI 31:US  47:/   63:? 79:O 95:_ 111:o 127:DEL ')
+
+    .ascii.name = .map(efault.size)
+    .ascii.value = .map(efault.size)
+    loop(.ascii.init)
+
+ascii.init.next
+
+    entry = setl4.l.next(.ascii.init)                  :(.ascii.init.finis)
+*   Correct entry for 0 to be NUL, the NUL character
+    .ascii.name[substr(&alphabet,+v + 1,1)] = name
+    .ascii.value[name] = +value                  :(.ascii.init.next)
+    .ascii.name[] = 'NUL'
+    .ascii.value['NUL'] = 0
+    .ascii.name[' '] = 'SPC'
+    .ascii.value['SPC'] = 32                     :(return)
+
+ascii.init.end
+
+    define('.datename(date)s')                  :(.datename.end)
+
+*   Convert date to form with no spaces, just dashes, to be
+*   suitable for use as part of a file name.
+
+datename
+
+    .datename = replace(date,' :/','---')
+    .datename = substr(.datename,12,8) '-' substr(.datename,1,10)
+                                                   :(return)
+datename.end
+
+    define('.digits()str,ch')                   :(.digits.end)
+
+*   Return string consisting of the digits 0 .. 9 separated by a space.
+
+digits
+
+    .digits = 
+    str = '0123456789'
+    
+digitl.next
+
+    str len(1) . ch =                               :f(return)
+    .digits = .append(.digits,ch)          :(.digitl.next)
+
+digits.end
+
+    define('.frequency(str)')                    :(.frequency.end)
+
+*   Return map from the characters in a str to the number of times
+*   each occurs in the .
+
+frequency
+
+    .frequency = map.new()
+
+frequency.next
+
+    str len(1) . c =                                :f(.frequency.end)
+    setl4..put(.frequency,c,setl4..get(.frequency,c) + 1)   :(.frequency.next)
+
+frequency.end
+
+    define('.less(str,sub)before,after')         :(.less.end)
+
+*   _Less_ removes the first instance of each character in _sub_ from _str_,
+*   where _sub_ is a substr of _str_.
+
+less
+
+    ident(str)                                      :s(return)
+    .less = str
+
+less.ch
+    sub len(1) . ch =                               :f(return)
+    .less break(ch) . before  ch rem . after
+    .less = before after                         :(.less.ch)
+
+less.end
+
+    define('s.lletters()str,ch')                  :(s.lletters.end)
+
+*   Return string consisting of the lower case letters separated by a space.
+
+s.lletters
+
+    s.lletters = 
+    str = &lcase
+    
+s.lletterl.next
+
+    str len(1) . ch =                              :f(return)
+    s.lletters = .append(s.lletters,ch)     :(s.lletterl.next)
+
+s.lletters.end
+
+    define('.letters()str,ch')                  :(.letters.end)
+
+*   Return string consisting of the lower case letters separated by a space.
+
+letters
+
+    .letters = 
+    str = &lcase &ucase
+    
+letterl.next
+
+    str len(1) . ch =                              :f(return)
+    .letters = .append(.letters,ch)       :(.letterl.next)
+
+letters.end
+
+    define('.lower(s)')                          :(.lower.end)
+
+*   Convert argument to lower case.
+
+lower
+
+    .lower = replace(s,&ucase,&lcase)            :(return)
+
+lower.end
+
+    define('.out(text1,text2,text3)type1,type2') :(.out.end)
+
+*   Output a line conisting of TEXT1, TEXT2 enclosed
+*   in brackets, followed by TEXT3.
+
+out
+
+    output = text1 (ident(text2) '', '[' text2 ']') (differ(text3) text3, '') :(return)
+*    output = text1 (differ(text2) '[' (ident(text2) null ']', '') (differ(text3) text3, ''):(return)
+
+out.end
+
+    define('.prefix(str,pre)word')               :(.prefix.end)
+
+*   Prefix takes a list of space-separated words str and .prefixes each
+*   with the str pre.
+
+prefix
+
+    str = str ' ';* so each word followed by space
+
+prefix.1
+
+    str break(' ') . word span(' ')  =              :f(return)
+    add1(..prefixcount)
+    .prefix = append(.prefix, pre word,'A')   :(.prefix.1)
+
+prefix.end
+
+    define('.uletters()str,ch')                  :(.uletters.end)
+
+*   Return string consisting of the upper case letters separated by a space.
+
+uletters
+
+    .uletters = 
+    str = &ucase
+    
+uletterl.next
+
+    str len(1) . ch =                                :f(return)
+    .uletters = .append(.uletters,ch)       :(.uletterl.next)
+
+uletters.end
+
+
+*   Lines
+*   -----
+
+*   Lines can be just strs or, in some cases, a line is represented by a pair:
+
+    data('line(mark,text)')
+
+*   where
+
+*           _mark_ is defined by the value returned by an instance
+*           of the _eval_ function ...
+
+*           _text_ is the text of the line.
+
+*   For example, the _reader_ function reads a file and returns a
+*   sequence of _lines_.
+
+    define('.reader(filename,expr)line,mark')    :(.reader.end)
+
+*   Return a sequence of the lines in the file specified by _filename_.
+*   If _expr_ is not null, then _eval_ is called just after each
+*   line is read, with the variable _pair_ setl4.str to the associated pair.
+*   If _eval_ fails the line is skipped.  Otherwise returns a new pair
+*   to be entered in the input seq.
+
+reader
+
+    differ(filename) input(.file,g.channel.temp,filename):s(.reader.opened)
+    out('unable to open .reader file ' filename '.') :(freturn)
+
+reader.opened
+
+    .reader = map(1024)
+
+reader.next
+
+    setl4..add(map, (ident(filename) input, file)) :f(.reader.eof)s(.reader.next)
+
+reader.eof
+
+*   Here at end of file; close temporary file if one was needed.
+
+    differ(filename) endfile(g.channel.temp)        :(return)
+
+reader.end
+
+    define('.reader.str(str,delim)line')         :(.reader..end)
+
+*   Returns a sequence of the lines in _str_,
+*   where the delimiter character _delim_ is used to mark
+*   the end of a line. One intended use of _.reader.str_
+*   is to assist in the construction of test programs.
+
+reader.str
+
+    delim = ident(delim) '/'
+    .reader.str = setl4..seq()
+
+reader.l.next
+
+    str break(delim) . line delim =                 :f(return)
+    add(.reader.str,line)                        :(.reader.l.next)
+
+reader..end
+
+    define('.set(str)')              :(.set.end)
+
+*   Returns setl4.str of characters in str _str_.
+
+set
+
+    .str = setl4.str(size(str))
+    loop(str)
+
+set.next
+
+    next(.set)                   :f(return)
+    setl4..add(.set,next(set))                :(.set.next)
+
+set.end
+
+    define('.slice(str,first,last)')             :(.slice.end)
+
+slice
+
+    .slice = substr(str,first,last)              :(return)
+
+slice.end
+
+*   Tokens: Lexical Scanning
+*   ------------------------
+
+
+*   A token is represented as an instance of the datatype _token_ as follows:
+
+    data('token(lineno,ndx,type,text)')
+
+*   where:
+*           _lineno_        is the line number within the file;
+*           _ndx_           is the index of the first character of the
+*                           token in the line;
+*           _type_          is the token's type, as described below; and
+*           _text_          is the text of the token.
+
+*   The type is represented by a single character, as follows:
+
+*           'c'             comment, indicated by asterisk (*) in the first column.
+*                           The text consists of the entire line.
+
+*           'i'             integer, consisting of one or more digits ('0123456789')
+
+*           'l'             left opener, one of '(<[{'
+
+*           'p'             punctation, one of '.;,?!', or single quote ('),
+*                           or double quote ("),
+
+*           'o'             other printable character, one of '~@#$%^&*_-+=`'.
+
+*            'q'            quoted str, starting witn '"', and continuing
+*                           to the next instance of the opening quote character.
+
+*           'r'             right closer, one of ')>]}'
+
+*           's'             space, consistine of one or more spaces (spaces)
+
+*           't'             tab character
+
+*           'u'             unprintable character, for example control-k
+
+*           'w'             word, consisting of one of more letters in
+*                           upper or lower case or "'" or "_".
+
+*   The longest possible str meeting the rules is used when building a token.
+*   For example, 'abc' is just the word 'abc', not 'a' followed by 'bc', and so forth.
+
+*   It is recommended that the tab character NOT be used as an abbreviation for
+*   one or more spaces in the input file. If tabs are used, then _pos_ is ill-defined.
+*   If tabs are not used, then _pos_ indicates the true position in the line of
+*   the first character of the token, and so error messages and references to the
+*   token will be exact.  For example, _pos_ could be used to indicate where to give
+*   emphasis to a token by underlining it, or enclosing it in '_' to generate
+*   markdown format, and so forth.
+
+    define('.tokens(line)type,pos,text,lineno')  :(.tokens.end)
+
+*   Str.tokens scans _line_ and returns a table of the .tokens in the line.
+*   The table has keys from 1..n, where _n_ is the number of .tokens found.
+
+*   This function is an instance of what is called a lexiical scanner, or tokenizer,
+*   which is the first stage in a programming language compiler, or for any program
+*   that processes text files with a specified structure.
+
+tokens
+
+    .tokens = setl4..seq()
+    line '*'                                        :f(.tokenl.next)
+    type = 'c'
+    text = line
+    line =                                          :(.tokenl.new)
+
+tokenl.next
+
+    line ' '                                        :s(.tokens.space)
+    line any('0123456789')                          :s(.tokens.integer)
+    line any('(<[{')                                :s(.tokenl.left)
+    line any('.;,?!')                               :s(.tokens.punctuation)
+    line '"'                                        :s(.tokens.quote)
+    line any('~@#$%^&*_-+=')                                        :s(.tokens.other)
+    line any(')>]}')                                :s(.tokens.right)
+    line char(9)                                    :s(.tokens.tab)
+    line any(&lcase &ucase)                         :s(.tokens.word)
+
+*   Here for unprintable
+                                                    :(.tokens.unprintable)
+
+tokens.integer
+
+    type = 'i'
+    line span('0123456789') . text =                :(.tokenl.new)
+
+tokens.punctuation
+
+    type = 'p'                                       :(.tokens.character)
+
+tokens.other
+
+    type = 'o'                                      :(.tokens.character)
+
+*.tokens.other
+
+    type = 'o'                                      :(.tokens.character)
+
+tokens.quote
+
+    type = 'q'
+    line '"' break('"') . text '"' =
+    text = '"' text '"'                             :(.tokenl.new)
+
+tokens.right
+
+    type = 'r'                                      :(.tokens.character)
+
+tokens.space
+
+    type = 's'
+    line span(' ')  . text =                        :(.tokenl.new)
+
+tokens.tab
+
+    type = 't'                                      :(.tokens.character)
+
+tokens.word
+
+*FIX*
+    type = 'w'
+    line span(&ucase &lcase "_" "'") . text =       :(.tokenl.new)
+
+tokens.character
+
+*   Here if token is single character.
+
+    line len(1) . text                              :(.tokenl.new)
+
+tokenl.new
+
+    setl4..add(.tokens,token(lineno,pos,type,text)) :(.tokenl.next)
+
+tokens.end
+
+    define('.upper(s)')                          :(.upper.end)
+
+*   Convert argument to upper case.
+
+upper
+
+    .upper = replace(s,&lcase,&ucase)            :(return)
+
+upper.end
+
+    define('.words(str)n,tmp,w')                 :(.words.end)
+
+*   Return sequence consisting of the words in _str_, where the 
+*   words are separated by one or more consecutive spaces and tabs.
+
+words
+
+*   Make first pass over string to get number of words, _n_.
+
+    str = str ' '
+    tmp = str
+
+words.count
+
+    tmp setl4.break.whitespace . w setl4.span.whitespace  = :f(.words.seq)
+    n = n + 1                                       :(.words.count)
+
+words.seq
+
+    .words = new('seq ' n)
+    
+wordl.next
+
+    str setl4.break.whitespace . w setl4.span.whitespace  = :f(return)
+    seq.push(.words,w)                           :(.wordl.next)
+
+words.end
+
+    define('.writer(lines)')                    :(.writer.end)
+
+*   Writes the lines in the sequence _lines_ to standard output.
+
+writer
+
+    loop(lines)
+
+writer.next
+
+    output = set.next(lines)                        :f(return)s(.writer.next)
+
+writer.end
+
+    define('split(str)word')                  :(split.end)
+
+*   Returns sequence of the words in stirng _str_.
+*   Words are separated by whitespace: one of more consecuture spaces
+*   or tabs.
+
+split
+
+    split = new('seq')
+    line =  line ' '
+
+split.next
+
+    line break(' ') . word ' ' =                    :f(return)
+    set.add(split,word)                             :(split.next)
+
+split.end
+
