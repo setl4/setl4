@@ -1,0 +1,133 @@
+    define('set.add(set,elem)')                     :(set.add.end)
+
+*   Add _elem_ to set _set_ if not already present.
+
+set.add
+
+    elem = integer(elem) +elem
+    str.out('enter set.add',elem)
+    differ(set.key(set)[elem])                      :s(return)
+    set.size(set) = set.size(set) + 1
+    set.index(set)[set.size(set)] = elem
+
+*   Set _set.key(set)_ to indicate _elem_ is in the set.
+
+    str.out('adding set elem',elem)
+    set.key(set)[elem] = 1                        :(return)
+
+set.add.end
+
+    define('set.difference(a,b)elem')               :(set.difference.end)
+
+*   Returns set defined by set of elements of _a_ that are not in _b_.
+
+set.difference
+
+    set.difference = a @ !'set.member(=a,b)'       :(return)
+
+set.difference.end
+
+    define('set.from(set,elem)this')               :(set.from.end)
+
+*   Return set consisting of all the elements of _a_ except _elem_.
+
+set.from
+
+    set.from = set.copy(set)
+    loop(set)
+
+set.from.next
+
+    this = next(set)                               :f(return)
+    ident(this,elem)                               :s(set.from.next)
+    set.add(set.from,this)                         :(set.from.next)
+
+set.from.end
+
+    define('set.integers(n)i')                      :(set.integers.end)
+
+*   Return set containing integers 1 .. _n_
+
+set.integers
+
+    set.integers = set.new(n)
+    i = 0
+
+set.integerl.next
+
+    gt(i = i + 1,n)                                 :s(return)
+    set.add(set.integers,i)                         :(set.integerl.next)
+
+set.integers.end
+
+    define('set.intersection(a,b)elem')             :(set.intersection.end)
+
+*   Returns intersection of sets _a_ and _b_.
+
+set.intersection
+
+*   Make _a_ the smaller set.
+
+    le(set.size(a),set.size(b))                     :s(set.intersection.next)
+    set.intersection = a
+    a = b
+    b = set.intersection
+    set.intersectino = set.new('set')
+    loop(a)
+
+set.intersection.next
+
+    next(a)                                         :f(return)
+    set.member(=a,b)                                :f(set.intersection.next)
+    set.add(set.intersection,=a)                    :(set.intersection.next)
+
+set.intersection.end
+
+    define('set.subset(a,b)member')                 :(set.subset.end)
+
+*   Tests if _b_ is a subset of _a_.
+
+set.subset
+
+    set.subset = FALSE
+    gt(set.size(b),set.size(a))                     :s(return)
+    loop(b)
+
+set.subset.next
+
+    member = set.next(b)                            :f(set.subset.true)
+    member(member,a)                                :s(set.subset.next)f(return)
+
+set.subset.true
+
+    set.subset = true                               :(return)
+
+set.subset.end
+
+    define('set.union(a,b)elem')                    :(set.union.end)
+
+*   Returns union of sets _a_ and _b_.
+
+set.union
+
+*   Arrange so set a is the larger set.
+
+    ge(set.size(a),set.size(b))                     :s(set.union.a)
+    set.union = a
+    a = b
+    b = set.union
+
+set.union.a
+
+*   Make copy of a by making copy of a's table.
+
+    set.union = copy(a)
+    loop(b)
+
+set.union.b
+
+    elem = set.next(b)                              :f(return)
+    set.add(set.union,elem)                         :(set.union.b)
+
+set.union.end
+
