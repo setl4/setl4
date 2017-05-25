@@ -1,0 +1,68 @@
+*   Integer Comparison Functions
+*   --------------------
+
+*   The following functions comparing integer values return TRUE or FALSE.
+*   They are needed since SPITBOL signals the results of a comparison by success or failure.
+
+    define('i.eq(a,b)')                           :(i.eq.end)
+
+*   Tests if _a_ is equal to _b_.
+
+i.eq
+
+    str.out('ieq a',a)
+    str.out('ieq b',b)
+    i.eq = (integer(a) integer(b) eq(a,b) TRUE, FALSE) :(return)
+
+i.eq.end
+
+    define('i.ge(a,b)')                           :(i.ge.end)
+
+*   Tests if _a_ is greater than or equal to _b_.
+
+i.ge
+
+    i.ge = (integer(a) integer(b) ge(a,b) TRUE, FALSE) :s(return)
+
+i.ge.end
+
+    define('i.gt(a,b)')                           :(i.gt.end)
+
+*   Tests if _a_ is greater than _b_.
+
+i.gt
+
+    i.gt = (integer(a) integer(b) gt(a,b) TRUE, FALSE) :s(return)
+
+i.gt.end
+
+    define('i.le(a,b)')                           :(i.le.end)
+
+*   Tests if _a_ is less than or equal to _b_.
+
+i.le
+
+    i.le = (integer(a) integer(b) le(a,b) TRUE, FALSE) :s(return)
+
+i.le.end
+
+    define('i.lt(a,b)')                           :(i.lt.end)
+
+*   Tests if _a_ is less than _b_.
+
+i.lt
+
+    i.lt = (integer(a) integer(b) lt(a,b) TRUE, FALSE) :s(return)
+
+i.lt.end
+
+    define('i.ne(a,b)')                           :(i.ne.end)
+
+*   Tests if _a_ is not equal to _b_.
+
+i.ne
+
+    i.ne = (integer(a) integer(b) ne(a,b) TRUE, FALSE) :s(return)
+
+i.ne.end
+

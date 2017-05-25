@@ -4,42 +4,23 @@
 *TODO - need separate out iterator from set data structure. May have multiple loops over same set at onece.
 *TODO - need equal for general equality test on sets, maps, etc.
 
-*   SETL4 is an implementation of SETL written in SPITBOL.
 
-*   Boolean Logic
-*   -------------
-
-*   Boolean logic is an algebra with just two values: true and false.
-kkkk
-*   In SPITBOL, the algebra is defined on strings: the null string is "false" 
-*   and all other strings are "true".  The SPITBOL function IDENT is used 
-*   to test for true, DIFFER for false. 
-*   Each signals their result by success (true) or failure (false).
-
-*   In SETL4, the algebra is defined both on integers and non-integers.  
-*   For integers, zero is "false" and all other integers are "true." 
-*   For non-integers, the null string ('') is true, and all other values are false.
-
-*   SPITBOL comparison functions report their results by success or failure, so SETL
-*   provides the following functions which return TRUE or FALSE.
-
-
-*   SETL4 Functions
+*   Utility Functions
 *   ---------------
-*
+
+*   In addition to the set-theoretic functions defined in _setl4.stl_, SETL4 provides
+*   the following utility functions.
 
 *   even(n)                     Tests if _n_ is even
 *   factorial(n)                Returns n!  = n * (n -1) * ... * 1
+*   multiple(n,m)               Tests if _n_ is a multiple of _m_
 *   number(n)                   Returns _n_ as one or two words if possible, else returns _n_
-*   intmultiple(n,m)               Tests if _n_ is a multiple of _m_
 *   odd(n)                      Tests if _n_ is odd
 *   prime(n)                    Tests if _n_ is prime
 *   square.root(n)              Returns integer square root on _n_
 *   thousands(s)
-*   any(a,b)                    Tests if the first character of _a_ is in _b_
 *   append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then appends _w_
 *   ascii(line)
-*   break(a,b)                  Tests if _a_ contains one of the characters in _b_
 *   datename(date)              Returns string based on current time suitable for use as filename
 *   digits()                    Returns list of digits: '0 1 2 .. 9'
 *   frequency(str)              Returns map giving frequency of characters in _str_
@@ -48,8 +29,6 @@ kkkk
 *   s.lletters()                    Returns list of lower case letters : 'a b c ... z'
 *   lower(s)                    Returns _s_ with upper case letters replaced by lower case equivalent
 *   notany(a,b)                 Tests if first character in _a_ is not in _b_
-*   span(a,b)                   Tests if _b_ contains only characters in _a_
-*                                   where _sub_ is a substr of _str_.
 *   out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null,
 *                                   then _text3_ if _text3_ is not null.
 *   prefix(str,pre)             Takes a list of space-separated words in _str_ and prefixes each
@@ -65,17 +44,6 @@ kkkk
 *   words(line)                 Returns list of words in _line_, where words are separated by one of
 *                                   more spaces or tab characters
 *   writer(lines)               Writes sequence _lines_ to standard output.
-
-*   SETL4 extends the integer operations provided by SPITBOL by
-*   providing the following integer functions:
-
-*            even(n)       true iff _n_ is even.
-*            factorial(n)  returns the value of
-*                                   n! = _n_ * (n - 1) * ... *
-*            multiple(n,m) true iff _n_ is multiple of _m_
-*            odd(n)        true iff _n_ is odd.
-*            prime(n)      true iff _n_ is a prime number
-*            square.root   square root rounded up to next eger.
 
     define('cardinal(n,word)')           :(cardinal.end)
 *   If N is one, returns 'one' followed by WORD.

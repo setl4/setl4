@@ -208,29 +208,13 @@ kkkk
 *   forall(set,expr)                Tests if _expr_ is true for at all elements in set _set_
 *   filter(set,expr)                Filter:; returns subset of _set_ for which _expr_ is true
 *   iskind(kind,kind1,kind2,kind3,kind3,kind4)  Tests if _kind_ is one of the specfied kinds: _kind1_, _kind2_, ...
-*   int.cardinal(n,word)            Returns 'one ' followed by word if _n_ is one, else returns '_n_ words'
 *   i.eq(a,b)                       integer is equal to 
-*   int.even(n)                     Tests if _n_ is even
-*   int.factorial(n)                Returns n!  = n * (n -1) * ... * 1
 *   i.ge(a,b)                       integer greater than or equal
 *   i.gt(a,b)                       integer greater than 
 *   i.le(a,b)                       integer less than or equal
 *   i.lt(a,b)                       integer less than 
 *   i.ne(a,b)                       integer not equal
 
-*   int.number(n)                   Returns _n_ as one or two words if possible, else returns _n_
-*                                   For example, _int.number(51)_ is "fifty one".
-*   int.multiple(n,m)               Tests if _n_ is a multiple of _m_
-*   int.odd(n)                      Tests if _n_ is odd
-*   int.prime(n)                    Tests if _n_ is prime
-*   int.square.root(n)              Returns integer square root on _n_
-*   int.thousands(s)
-*   l.eq(a,b)                       lexical equal
-*   l.ge(a,b)                       lexical greater than or equal to 
-*   l.gt(a,b)                       lexical greater than 
-*   l.le(a,b)                       lexical less than or equal to 
-*   l.lt(a,b)                       lexical less than 
-*   l.ne(a,b)                       lexical not equal to 
 *   loop(set)                       Set up iteration over _set_ using _next_
 *   map.domain(map)                 Returns set of elements in the domain of _map_
 *   map.first(map)                  Returns the first element in a map
@@ -267,43 +251,14 @@ kkkk
 *   set.union(a,b)                  Returns set consisting of all the members of _a_ and _b_
 *   setl4.ascii.init(init)
 *   setl4.size(set)                 Returns number of elements in set _set_
-*   setl4.traceoff()                Turns off tracing
+*   traceoff()                Turns off tracing
 *   show(v,lvl)                     Show value of _v_, with _lvl_ set non-zero when listing member of set
 *   show.b(e)                       Show value of _b_ as boolean (TRUE or FALSE)
 *   show.line(line)                 Show string _line_ with spaces replaced by '.'
 *   show.lines(lines,title)         Show non-empty lines in array of lines, with title 'title'
 *   show.q(str)                     Show string with enclosed in appropriate quote character (" or ') 
 *   show.words(words)               Show a sequence of words, separated by space character
-*   str.any(a,b)                    Tests if the first character of _a_ is in _b_
-*   str.append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then appends _w_
-*   str.ascii(line)
-*   setl4.traceon()                 Turns on tracing
-*   str.break(a,b)                  Tests if _a_ contains one of the characters in _b_
-*   str.datename(date)              Returns string based on current time suitable for use as filename
-*   str.digits()                    Returns list of digits: '0 1 2 .. 9'
-*   str.frequency(str)              Returns map giving frequency of characters in _str_
-*   str.letters()                   Returns list of letters : 'a b c ... z A B ... Z''
-*   str.less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
-*   s.lletters()                    Returns list of lower case letters : 'a b c ... z'
-*   str.lower(s)                    Returns _s_ with upper case letters replaced by lower case equivalent
-*   str.notany(a,b)                 Tests if first character in _a_ is not in _b_
-*   str.span(a,b)                   Tests if _b_ contains only characters in _a_
-*                                   where _sub_ is a substr of _str_.
-*   str.out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null,
-*                                   then _text3_ if _text3_ is not null.
-*   str.prefix(str,pre)             Takes a list of space-separated words in _str_ and prefixes each
-*                                   with the string _pre_
-*   str.reader(filename,expr)       Returns sequence of lines in file _filename_, using _expr_ (if given)
-*                                   to filter out lines to be ignored.
-*   str.reader.string(str,delim)    Like _str.reader(filename..)_ but reads lines from a string with lines
-*                                   separated by delimiter _delim_
-*   str.slice(str,first,last)       Same as SPITBOL _substr(str,first,last)_
-*   str.tokens(line)                Returns sequence of the tokens in _line_
-*   str.uletters()                  Returns list of upper case letters : 'A B C ... Z''
-*   str.upper(s)                    Returns _s_ with lower case letters replaced by upper case equivalent
-*   str.words(line)                 Returns list of words in _line_, where words are separated by one of
-*                                   more spaces or tab characters
-*   str.writer(lines)               Writes sequence _lines_ to standard output.
+*   traceon()                 Turns on tracing
 *   this(set)                       Returns current iteration value for _set_
 *   true(e)                         Returns TRUE if and only if _e_ is TRUE
 *   visit(set,expr)                 Visits each element of set _set_ and evaluates _expr_ for that element
@@ -578,74 +533,6 @@ forall.true
     forall = TRUE				     :(return)
 
 forall.end
-
-*   Integer Comparison Functions
-*   --------------------
-
-*   The following functions comparing integer values return TRUE or FALSE.
-*   They are needed since SPITBOL signals the results of a comparison by success or failure.
-
-    define('i.eq(a,b)')                           :(i.eq.end)
-
-*   Tests if _a_ is equal to _b_.
-
-i.eq
-
-    str.out('ieq a',a)
-    str.out('ieq b',b)
-    i.eq = (integer(a) integer(b) eq(a,b) TRUE, FALSE) :(return)
-
-i.eq.end
-
-    define('i.ge(a,b)')                           :(i.ge.end)
-
-*   Tests if _a_ is greater than or equal to _b_.
-
-i.ge
-
-    i.ge = (integer(a) integer(b) ge(a,b) TRUE, FALSE) :s(return)
-
-i.ge.end
-
-    define('i.gt(a,b)')                           :(i.gt.end)
-
-*   Tests if _a_ is greater than _b_.
-
-i.gt
-
-    i.gt = (integer(a) integer(b) gt(a,b) TRUE, FALSE) :s(return)
-
-i.gt.end
-
-    define('i.le(a,b)')                           :(i.le.end)
-
-*   Tests if _a_ is less than or equal to _b_.
-
-i.le
-
-    i.le = (integer(a) integer(b) le(a,b) TRUE, FALSE) :s(return)
-
-i.le.end
-
-    define('i.lt(a,b)')                           :(i.lt.end)
-
-*   Tests if _a_ is less than _b_.
-
-i.lt
-
-    i.lt = (integer(a) integer(b) lt(a,b) TRUE, FALSE) :s(return)
-
-i.lt.end
-
-    define('i.ne(a,b)')                           :(i.ne.end)
-
-*   Tests if _a_ is not equal to _b_.
-
-i.ne
-
-    i.ne = (integer(a) integer(b) ne(a,b) TRUE, FALSE) :s(return)
-
-i.ne.end
 
     define('iskind(kind,kind1,kind2,kind3,kind4,kind5)') :(iskind.end)
 
@@ -1179,86 +1066,6 @@ rank.end
 *   no room remains in the array.
 
 
-    define('seq.add(seq,val)')                      :(seq.add.end)
-
-seq.add
-
-    setl4.seq.room(seq)
-    seq.add = seq.push(seq,val)                     :(return)
-
-seq.add.end
-
-    define('seq.get(seq,i)')                        :(seq.get.end)
-
-*   Gets the value of element _i_ in the sequence _seq_
-
-seq.get
-
-    seq.get = set.seq(seq)[i]                       :f(freturn)s(return)
-
-seq.get.end
-
-    define('seq.integers(n)i')                      :(seq.integers.end)
-
-*   Returns sequence of integers in the range 1 .. _n_.
-
-seq.integers
-
-    seq.integers = new('seq ' n)
-
-seq.integerl.next
-
-    gt(i = i + 1, n)                                :s(return)
-    setl4.seq.room(seq)
-    seq.push(seq.integers,i)                        :(seq.integerl.next)
-
-seq.integers.end
-
-    define('seq.push(seq,value)')                   :(seq.push.end)
-
-seq.push
-
-    assert.type(seq,'set')
-    assert(ident(set.kind(seq),'seq'))
-    value = integer(value) +value
-    setl4.seq.room(seq)
-    set.size(seq) = set.size(seq) + 1
-*    str.out('seq.add',value)
-    set.seq(seq)[set.size(seq)] = value             
-                                                    :(return)
-
-seq.push.end
-
-    define('seq.put(seq,i,value)v,len')             :(seq.put.end)
-
-*   Sets the value of element _i_ in the sequence _seq_ to be _value_.
-
-seq.put
-
-    assert(ident(kind(seq),'seq'))
-    set.seq(seq)[i] = value                         :(return)
-
-seq.put.end
-
-    define('seq.range(seq)')                        :(seq.range.end)
-
-
-*    Return set with the values in _seq_ as its members.
-
-seq.range
-
-    kind = kind(seq)
-    output = differ(kind,'seq') 'range called on non-seq, quitting' :s(end)
-    seq.range = set.new()
-    loop(seq)
-
-seq.range.next
-
-    set.add(seq.range,set.next(seq))                :f(return)s(seq.range.next)
-
-seq.range.end
-
-
 *   Sets
 *   ____
 
@@ -1291,16 +1098,6 @@ set.difference
     set.difference = a @ !'set.member(=a,b)'       :(return)
 
 set.difference.end
-
-    define('set.first(set)')                       :(set.first.end)
-
-*   Returns first element in _set_.
-
-set.first
-
-    set.first = set.key(set)[1]                    :(return)
-
-set.first.end
 
     define('set.from(set,elem)this')               :(set.from.end)
 
@@ -1357,17 +1154,6 @@ set.intersection.next
     set.add(set.intersection,=a)                    :(set.intersection.next)
 
 set.intersection.end
-
-    define('set.last(set)')                         :(set.last.end)
-
-*   Returns last element in _set_.
-
-set.last
-
-    set.last = set.key(set)[set.size(set)]           :(return)
-
-set.last.end
-
 
     define('set.subset(a,b)member')                 :(set.subset.end)
 
@@ -1636,73 +1422,6 @@ show.words
 show.words.end
 
 
-*   Lexical Comparison Functions
-*   ----------------------------
-
-*   The following lexical comparison functions return TRUE or FALSE.
-*   They are needed since the SPITBOL functions signal the result by success or failure.
-
-    define('l.eq(a,b)')                             :(l.eq.end)
-
-*   Tests if _a_ is  equal to _b_.
-
-l.eq
-
-    l.eq = leq(a,b) true                         
-    l.eq = (leq(a,b) TRUE, FALSE) :s(return)
-          
-l.eq.end
-
-    define('l.ge(a,b)')                             :(l.ge.end)
-
-*   Tests if _a_ is  greater than or equal to _b_.
-
-l.ge
-
-    str.ge = (lge(a,b) TRUE, FALSE) :s(return)
-
-l.ge.end
-
-    define('l.gt(a,b)')                             :(l.gt.end)
-
-*   Tests if _a_ is  greater than _b_.
-
-l.gt
-
-    l.gt = (lgt(a,b) TRUE, FALSE) :s(return)
-
-l.gt.end
-
-    define('l.leq(a,b)')                           :(l.le.end)
-
-*   Tests if _a_ is  less than or equal to _b_.
-
-l.le
-
-    l.le = (lle(a,b) TRUE, FALSE)                   :s(return)
-
-l.le.end
-
-    define('l.lt(a,b)')                             :(l.lt.end)
-
-*   Tests if _a_ is  less than _b_.
-
-l.lt
-
-    l.lt = (llt(a,b) TRUE, FALSE) :s(return)
-
-l.lt.end
-
-    define('l.ne(a,b)')                             :(l.ne.end)
-
-*   Tests if _a_ is not  equal to _b_.
-
-l.ne
-
-    l.ne = (lne(a,b) TRUE, FALSE) :s(return)
-
-l.ne.end
-
     define('this(set)')                       :(this.end)
 
 *   Returns value found in most recent call to next.
@@ -1795,30 +1514,29 @@ setl4.size
 
 setl4.size.end
 
-    define('setl4.traceoff()')                      :(setl4.traceoff.end)
+    define('traceoff()')                      :(traceoff.end)
 
 *   Initiate tracing.
 
-setl4.traceoff
-    &fsetl4.trace = &setl4.trace =
+traceoff
+    &ftrace = &trace =
 
     g.scoring = g.tracing = 0
     out('stop TRACING ')
 
-setl4.traceoff.end
+traceoff.end
 
-    define('setl4.traceon()')                       :(setl4.traceon.end)
+    define('traceon()')                       :(traceon.end)
 
 *   Initiate tracing.
 
-*TRACEON*
-setl4.traceon
+traceon
 
     out('start TRACING')
-*   &fsetl4.trace = &setl4.trace = 1500000
+*   &ftrace = &trace = 1500000
     g.scoring = g.tracing = 1
                                                     :(return)
-setl4.traceon.end
+traceon.end
 
 *   SETL4 uses some of the undefined SPITBOL operators for SETL4 functions.
 
