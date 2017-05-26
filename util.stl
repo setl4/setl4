@@ -41,8 +41,6 @@
 *   tokens(line)                Returns sequence of the tokens in _line_
 *   uletters()                  Returns list of upper case letters : 'A B C ... Z''
 *   upper(s)                    Returns _s_ with lower case letters replaced by upper case equivalent
-*   words(line)                 Returns list of words in _line_, where words are separated by one of
-*                                   more spaces or tab characters
 *   writer(lines)               Writes sequence _lines_ to standard output.
 
     define('cardinal(n,word)')           :(cardinal.end)
@@ -381,18 +379,6 @@ lower
 
 lower.end
 
-    define('.out(text1,text2,text3)type1,type2') :(.out.end)
-
-*   Output a line conisting of TEXT1, TEXT2 enclosed
-*   in brackets, followed by TEXT3.
-
-out
-
-    output = text1 (ident(text2) '', '[' text2 ']') (differ(text3) text3, '') :(return)
-*    output = text1 (differ(text2) '[' (ident(text2) null ']', '') (differ(text3) text3, ''):(return)
-
-out.end
-
     define('.prefix(str,pre)word')               :(.prefix.end)
 
 *   Prefix takes a list of space-separated words str and .prefixes each
@@ -684,34 +670,6 @@ upper
     .upper = replace(s,&lcase,&ucase)            :(return)
 
 upper.end
-
-    define('.words(str)n,tmp,w')                 :(.words.end)
-
-*   Return sequence consisting of the words in _str_, where the 
-*   words are separated by one or more consecutive spaces and tabs.
-
-words
-
-*   Make first pass over string to get number of words, _n_.
-
-    str = str ' '
-    tmp = str
-
-words.count
-
-    tmp setl4.break.whitespace . w setl4.span.whitespace  = :f(.words.seq)
-    n = n + 1                                       :(.words.count)
-
-words.seq
-
-    .words = new('seq ' n)
-    
-wordl.next
-
-    str setl4.break.whitespace . w setl4.span.whitespace  = :f(return)
-    seq.push(.words,w)                           :(.wordl.next)
-
-words.end
 
     define('.writer(lines)')                    :(.writer.end)
 

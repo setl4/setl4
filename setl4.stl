@@ -1,8 +1,9 @@
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
-*TODO - need separate out iterator from set data structure. May have multiple loops over same set at onece.
-*TODO - need equal for general equality test on sets, maps, etc.
+*TODO - may need separate out iterator from set data structure. May have multiple loops over same set at onece.
+*TODO - may need equal for general equality test on sets, maps, etc.
+*TODO - update new() and rank()
 
 *   SETL4 is an implementation of SETL written in SPITBOL.
 
@@ -80,13 +81,6 @@
 *   SETL4 extends SPITBOL by adding the datatype _set_ to represent
 *   finite sets. 
 
-*   SETL4 supports a variety of sets. Each has a kind, one of:
-
-*       _int_   _map_   _seq_   _set_   _str_
-
-*   For each kind, SETL4 provides set-theoretic functions, 
-*   as well as other functions that have proven to be useful.
-
 *   For example, the folowing SETL4 expression determines if the integer _P_ is prime:
 
 *           !exists(|'int 2 P' @ 'multiple(P,this)')
@@ -98,45 +92,13 @@
 
 *   SETL4 provides the following data types in addtion to _set_: 
 
-*       _entry_   _line_   _pair_    _token_
+*       _entry_   _line_   _token_
 
 *   where 
 
 *       entry(key,value)            is an entry in a map;
 *       line(mark,text)             is a line of text and an associated mark (tag); and
 *       token(lineno,ndx,type,text) is a lexeme, or lexical token.
-
-*   Int: Set of kind 'int'
-*   ----------------------'
-
-*   A set of kind _int_ represents a sequence of positive integers.
-*   The set cannot be changed once it is created. You can only loop 
-*   over a set of kind _int_ or test for membership.
-
-
-*   Map: Set of kind 'map'
-*   ----------------------
-*   A map is a set of ordered pairs.
-
-
-*   Seq: Set of kind 'seq'
-*   ---------------------
-
-*   A sequence (_seq_) is a map on the positive integers 1 .. n
-*   Sequences are implemented using SPITBOL arrays, and so are very efficient.
-
-
-*   Set: Set of kind 'set'
-*   ----------------------
-
-*   A set is a collection of distinct elements.
-
-
-*   Str: Set of kind 'str'
-*   ----------------------
-
-*   A string sequence (_str_) is a sequence of characters.
-
 
 *   Show
 *   ----
@@ -195,7 +157,6 @@
 *   filter(set,expr)                Filter:; returns subset of _set_ for which _expr_ is true
 *   integers(n)                     Returns set of integers 1 ... n
 *   intersection(a,b)               Returns set of elements common to two sets
-*   iskind(kind,kind1,kind2,kind3,kind3,kind4)  Tests if _kind_ is one of the specfied kinds: _kind1_, _kind2_, ...
 *   loop(set)                       Set up iteration over _set_ using _next_
 *   mark(line)                      Annotates, or marks, a line
 *   member(elem,set)                Tests set membership
@@ -222,6 +183,7 @@
 *   this(set)                       Returns current iteration value for _set_
 *   true(e)                         Tests if operand is true
 *   visit(set,expr)                 Visits each element of set _set_ and evaluates _expr_ for that element
+*   words(str)                      Returns sequence of words, separated by spaces, in a string,
 
 
 *   Set Data Type
@@ -229,42 +191,58 @@
 
 *   A set is defined by the following datatype:
 
-    data('set(kind,index,key,size,next,low,high,step,text,seq,this)')
+    data('set(set.index,set.key,set.kind,set.size,set.next,set.low,set.high,set.step,set.text,set.seq,set.this)')
 
 *   where
 
-*           _kind_          the kind of _set_: 'int', 'map', 'seq', 'set', or 'str'.
+*           _set.index_         a SPITBOL table used to map the integer
+*                               id assigned each element to the value of the element.
+*                               It is used to support fast iteration.
 
-*           _index_         a SPITBOL table used to map the integer
-*                           id assigned each element to the value of the element.
-*                           It is used to support fast iteration.
+*           _set.key_           a SPITBOL table mapping set elements to index entries.
 
-*           _high_          upper bound of _int_ 
+*           _set.kind_          is the kind of the set, one of 'set', 'map', 'int, 
+*                               'seq', or 'str'. The kind is  specified when the 
+*                               set is created. The default value is 'set'.
 
-*           _low_           lower bound of _int_ 
+*           _set.size_          the current number of members.
 
-*           _key_           a SPITBOL table mapping set elements to index entries.
+*           _set.next           is iteration index when iterating over set
+*                               when iterating over a 
 
-*           _next           is iteration index when iterating over set
-*                           when iterating over a 
-*           _seq_           is the array used to maintain a sequence.
+*           _set.low_           lower bound of _int_ 
 
-*           _size_          the current number of members.
+*           _set.high_          upper bound of _int_ 
 
-*           _step_          number of values between members of set of kind _int_.
+**           _set.step_         number of values between members of set of kind _int_.
 
-*           _text_          is the text of the set of kind _str_
+*           _set.text_          is the text of the set of kind _str_
 
-*           _this           the last value returned by the _next_ primitive
+*           _set.this           the last value returned by the _next_ primitive
 
 
-*   Note that the null value is not allowed as an element of a set or the
-*   value of a map key, but can be used as the value of an element in a seq.
+*   Maps
+*   --------------
 
-*   The _key_ table is needed to provide constant time bounds for iterating over
-    define('integers(n)i')                      :(integers.end)
+*   In mathematics, a map efined on a finite set is a set of 
+*   ordered pairs, or entries,  that define a relation between the 
+*   first element of an entry, its _key_, and the second element 
+*   of the entry, the value of the map for _key_.
 
-*   a set, in all of its forms.
+    data('entry(key,value)')
+
+*   The SPITBOL datatype TABLE provides the machinery to implement maps.
+*   SPITBOL provides no way to determine the number of entries in a table
+*   other than converting the map to an array. This is the only way in 
+*   SPITBOL to iterate over a SPITBOL table.
+
+*   For this reason, maps are implemented using two tables: _index_ and _key_.
+*   Each new entry added to a map is given an integer id, starting with one.  
+*   The field _index_ maps the id's to the associated pairs.
+*   The entries in _index_ allow efficient iteration over the  
+*
+*   The table _key_ maps keys in the map to the corresponding entry in the map.
+*   The entries in _key_ permit efficient retrieval of the map's value for a given key.
 
 
 *   SETL4 Configuration Options
@@ -273,9 +251,7 @@
 *   Initial size of any hash tables created when constructing
 *   a new instance of a 
 
-*   Use large value for now, to avoid need for expansion during initial testing.
-*    setl4.config.size = 16
-    setl4.config.size = 120
+    setl4.config.size = 32
 
 *   SETL4 Global Variables
 *   ----------------------
@@ -294,22 +270,42 @@
 
 add
 
-*   Test if element is already in set, return with no action if so.
+*   See if adding entry or ordinary element.
 
-    differ(set.key(set)[elem])                  :s(return)
-*
-    Here to add new element to set.
+    ident(datatype(elem,'entry'))                   :s(add.map)
+    
+*   Here to add element to set if not yet present.
 
-    set.size(set) =set.size(set) + 1
+    differ(set.key(set)[elem])                      :s(return)
+    entry = entry(elem,elem)                        :(add.new)
+
+add.map
+
+*   See if adding new map entry or updating existing one.
+
+    differ(set.key(set)[key(elem)])                 :s(add.put)
+
+add.new
+
+    set.size(set) = set.size(set) + 1
     set.index(set)[set.size(set)] = elem
-    set.key(set)[elem] = 1                      :(return)
+
+add.put
+
+    set.key(set)[key(entry)] = value(entry)         :(return)
+*
+add.key
+
+*   Here to add entry to  map.
+
+    set.key(set)[key(entry)] = entry                :(return)
 
 add.end
 
-    define('and(a,b)')                              :(and.end)
+    define('and(a,b)')                          :(and.end)
 
-*   Tests if both operand are true (not null)
-*   Only evaluates second oerand if necessary.
+*   Tests if both operand are true (not null), only 
+*   evaluating the second oerand if necessary.
 
 and
 
@@ -325,22 +321,16 @@ and
 
 and.end
 
-    define('arb(set)kind,n,r')                      :(arb.end)
+    define('arb(set)n,r')                           :(arb.end)
 
 *   Returns arb (randomly selected) element of _set_.
 
 arb
 
-    kind = kind(set)
     arb = integer(set) random(+set)           :s(return)
-    r = random(size(set))
-    arb = (
-.       iskind(kind,'int')         low(set) + (r - 1) * step(set),
-.       iskind(kind,'map','set')   index(set)[r],
-.       iskind(kind,'seq')         seq(set)[r],
-.       iskind(kind,'str')         substr(text(set),r,1),
-.       ident(datatype(set),'string') substr(set,r,1))
-                                                    :(return)
+    r = random(set.size(set))
+    arb = differ(set.step(set))         low(set) + (r - 1) * step(set) :s(return)
+    arb = index(set)[r]                             :(return)
 arb.end
 
     define('assert(expr)')                          :(assert.end)
@@ -387,24 +377,30 @@ concatenate
 
 concatenate.end
 
-    define('defined(map,key)entry')             :(defined.end)
+    define('defined(map,key)entry')                 :(defined.end)
 
 *   Tests if the map _map_ has an entry for _key_.
 
 defined
 
-    entry = key(map)
-    differ(set.key(map[key])                    :s(return)f(freturn)
+    differ(set.key(map)[key])                       :s(return)f(freturn)
 
 defined.end
 
-    define('difference(a,b)elem')               :(difference.end)
+    define('difference(a,b)this')                   :(difference.end)
 
 *   Returns set defined by set of elements of _a_ that are not in _b_.
 
 difference
 
-    difference = a @ !'member(=a,b)'       :(return)
+    difference = new()
+    loop(a)
+
+diference.next
+
+    this = next(a)                                  :f(return)
+    member(b,this)                                  :s(difference.next)
+    add(difference,this)                            :(difference.next)
 
 difference.end
 
@@ -414,18 +410,17 @@ difference.end
 
 from
 
-    from = copy(set)
+    from = new()
     loop(set)
 
 from.next
 
-    this = next(set)                               :f(return)
-    ident(this,elem)                               :s(from.next)
-    add(from,this)                         :(from.next)
+    this = next(set)                                :f(return)
+    differ(this,elem) add(from,this)                :(from.next)
 
 from.end
 
-    define('domain(map)elem)')                 :(domain.end)
+    define('domain(map)elem)')                      :(domain.end)
 
 *   Return set of the keys in _map_.
 
@@ -436,9 +431,8 @@ domain
 
 domain.next
 
-    entry = next(map)
-    ident(value(entry))                         :s(domain.next)
-    add(domain,key(key(next(map))))             :s(domain.next)f(return)
+    entry = next(map)                               :f(return)
+    differ(entry) add(domain,key(key(next(map))))   :(domain.next)
 
 domain.end
 
@@ -459,18 +453,15 @@ error.end
 
 exists
 
-    str.out('exists EXPR',show.q(expr))
+    out('exists EXPR',show.q(expr))
     loop(set)
 
 exists.loop
 
     this = next(set)                                :f(freturn)
-    str.out('exists.loop this',this)
-    e = eval(expr)                                  :f(exists.loop)
-    str.out('exists E',e)
-    integer(e) eq(+e)                               :s(exists.loop)
-    ident(e) 				                        :s(exists.loop)
-                                                    :(return)
+    out('exists.loop this',this)
+    exists = eval(expr)                             :f(exists.loop)s(return)
+
 exists.end
 
     define('false(e)')                              :(false.end)
@@ -480,8 +471,8 @@ exists.end
 false
 
     e = integer(e) +e
-    false = integer(e) (eq(e)                       :s(freturn)
-    false = ident(e))                               :s(return)f(freturn)
+    false = integer(e)  eq(e)                       :s(freturn)
+    false = ident(e)                                :s(return)f(freturn)
 
 false.end
 
@@ -503,7 +494,7 @@ false.end
 
 filter
 
-    setl.filter = new(kind(set))
+    filter = new()
 
     loop(set)
 
@@ -511,9 +502,7 @@ filter.loop
 
     this = next(set)                                :f(return)
     e = eval(expr)                                  :f(filter.loop)
-    false(e)                                        :s(4.filter.loop)
-    iskind(kind(set),'set') setl4.add(filter,this)  :(filter.loop)
-    put(filter,key(this),value(this))           :(filter.loop)
+    add(filter,this)                                :(filter.loop)
 
 filter.end
 
@@ -528,22 +517,20 @@ forall
 forall.loop
 
     next(set)                                       :f(return)
-*    str.out('forall.loop.next',next(set))
-    e = eval(expr)                                  :f(forall.loop)
-*    str.out('forall.loop',e)
-    integer(e) eq(+e)                               :s(freturn)
-    differ(e)                                       :f(freturn)s(forall.loop)
+*    out('forall.loop.next',next(set))
+    e = eval(expr)                                  :f(freturn)s(forall.loop)
+
 forall.end
 
-    define('get(map,key)val)id')                :(get.end)
+    define('get(map,key)val)entry')                 :(get.end)
 
 *   Gets the value of the key _key_ in the map _map_.
 
 get
 
-    id = key(map)[key]
-    ident(id)                                       :s(return)
-    get = value(index(map)[id])             :(return)
+    entry = set.key(map)[key]
+    ident(entry)                                    :s(freturn)
+    get = value(set.key(map)[key])                  :(return)
 
 get.end
 
@@ -553,17 +540,17 @@ get.end
 
 integers
 
-    integers = new(n)
+    integers = new()
     i = 0
 
 integers.next
 
     gt(i = i + 1,n)                                 :s(return)
-    add(integers,i)                         :(integerl.next)
+    add(integers,i)                                 :(integerl.next)
 
 integers.end
 
-    define('intersection(a,b)elem')             :(intersection.end)
+    define('intersection(a,b)this')                 :(intersection.end)
 
 *   Returns intersection of sets _a_ and _b_.
 
@@ -571,18 +558,16 @@ intersection
 
 *   Make _a_ the smaller 
 
-    le(size(a),size(b))                     :s(intersection.next)
-    intersection = a
+    le(set.size(a),set.size(b))                     :s(intersection.next)
     a = b
     b = intersection
-    intersectino = new('set')
+    intersection = new()
     loop(a)
 
 intersection.next
 
-    next(a)                                 :f(return)
-    member(=a,b)                            :f(intersection.next)
-    add(intersection,=a)                    :(intersection.next)
+    this = next(a)                                  :f(return)
+    member(b,this) add(intersection,this)           :(intersection.next)
 
 intersection.end
 
@@ -609,115 +594,58 @@ iskind.end
 
 loop
 
-    next(set) = (iskind(set,'int') low(set) - step(set),0) :(return)
+    next(set) = (differ(set.step(set)) set.low(set) - step(set),0) :(return)
 
 loop.end
-
-*   Maps
-*   --------------
-
-*   In mathematics, a map, or function, defined on a finite set is a set of 
-*   ordered pairs that define a relation between the first element of a pair, 
-*   its _key_, and the second element of the pair, the value of the map for _key_.
-
-
-*   where _key_ is the key, and _value_ is the value of the map for _key_.
-
-*   The SPITBOL datatype TABLE provides the machinery to implement maps.
-*   SPITBOL provides no way to determine the number of entries in a table
-*   other than converting the map to an array. This is the only way in 
-*   SPITBOL to iterate over a SPITBOL table.
-
-*   For this reason, maps are implemented using two tables: _index_ and _key_.
-*   Each new entry added to a map is given an integer id, starting with one.  
-*   The field _index_ maps the id's to the associated pairs.
-*   The entries in _index_ allow efficient iteration over the  
-*
-*   The table _key_ maps keys in the map to the corresponding id in _index_,
-*   from which the entry for the key can be found. The entries in _key_
-*   permit efficient retrieval of the map's value for a given key.
 
 
     define('member(set,elem)kind,entry,i,key,this,value)') :(member.end)
 
-*   Tests if _elem_ is 'elem' of _set, where:
-
-*   _elem_ is element of 'int' if in range, and
-
-*   _elem_ is element of 'int' if in range, and
-*   meets requirement if 'step' in nonzero
-
-*   _elem_ is element of map _set if _map_ has entry _elem_.
-
-*   _elem_ is element of sequence _set if _set has entry _elem)
-
-*   _elem_ is element of set _set if _in(elem,set)_ is true.
-
-*   _elem_ is element of string _set if _set contains instance of _elem.
+*   Tests if _elem_ is membber of _set_.
 
 member
 
-    differ(datatype(set),'set') str.out('member',set)
-    kind = kind(set)
-    iskind(kind,'int')                              :s(member.int)
-    iskind(kind,'map')                              :s(member.map)
-    iskind(kind,'seq')                              :s(member.seq)
-    iskind(kind,'set')                              :s(member.set)
-    iskind(kind,'str')                              :s(member.str)
-    iskind(kind,'string')                           :s(member.string)
-    iskind(kind,'map')                              :s(member.map)
-    error('member wrong kind ' kind ' , quitting')
+*   Branch according to whether _set_ is set or map.
 
-member.int
+    ident(datatype(elem),'entry')                   :s(member.map)
 
-    member = lt(elem,low(set))                      :s(freturn)
-    member = gt(elem,low(set))                      :s(freturn)
-    member = eq(remdr(elem - low(set),step(set)))   :s(return)f(freturn)
+*   Here to test set membership.
+
+    differ(set.key(set))                            :s(return)f(freturn)
 
 member.map
 
-    key = key(elem)
+*   Here to test map membership
 
-*   Cannot be member if no entry in _key_ table.
-
-    ident(key(set)[key])                        :s(return)
-
-*   There is entry for _key_, see if it has right value.
-
-    equal(index[key(set)[key]],value)       :f(freturn)s(member.true)
-
-member.seq
-
-    i = i + 1
-    le(i,size(set))                             :f(return)
-    this = seq(set)[i]                          :f(return)
-*    equal(this,elem)                           :s(return)f(freturn) 
-    ident(this,elem)                            :s(return)f(freturn) 
-
-member.set
-
-    member = differ(key(set)[elem])             :s(return)f(freturn)
-
-member.str
-
-    set break(elem)                                 :f(freturn)s(return)
-
-member.string
-
-    string break(elem)                              :f(return)s(member.true)
+    differ(set.key(set)[key(entry)])                :s(return)f(freturn)
 
 member.end
 
 
-    define('new(str)init,kind,i,len,n,key,seq,val)')   :(new.end)
+    define('new(init)kind,i,len,n,key,seq,val)'):(new.end)
 
 *   Construct new set with initial values determined by string _init_.
+*   The first three characters in _init_ determine the initial
+*   members of the set.
+*
+*       'int'           Sequence of integers low, low+step, ... high
+*       'set'           set, followed by list of initial members
+*       'map'           map, followed by list of key/value pairs separated by colon
+*       'seq'           sequence, followed by list of initial values.
+*       'str'           string sequence of characters defined by remaining characters
 
 new
-    init = str
+
+    new = set(table(setl4.config.size),table(setl4.config.size))
+    init = ident(init) 'set'
     kind = substr(init,1,3)
+    init span(' ') =
+    out('new kind',kind)
+    out('kind size',size(kind))
     ne(size(kind),3) error('new missing kind specification')
-    iskind(kind,'int','map','seq','set','str')         :s(new.init)
+    ident(kind,'int')                               :s(new.init)
+    ident(kind,'map')                               :s(new.init)
+    ident(kind,'set')                               :s(new.init)
     error('bad kind to new ' kind )
 
 new.init
@@ -727,49 +655,51 @@ new.init
     init = substr(init,4)
     init span(' ') =
 
-*   Branch on set kind to finish initialization.
+*   Branch on kind to finish initialization.
 
                                                     :($('new.' kind))
 new.int
 
-    new = set('int')
-    index(new) = key(new) =                        
+    set.kind(new) = 'int'
+    set.key(new) = set.index(new) =
     ident(init) error('new initialization information needed')
-    step(new) = 1
-    seq = str.words(init)
+    set.step(new) = 1
+    seq = words(init ' ')
+    out('new.int seq size',set.size(seq))
 
 *   Ignore extra arguments to int constructor.
 
-    size(seq) = gt(size(seq),3) 3
-    eq(size(seq),1)                             :s(new.int.1)
-    eq(size(seq),2)                             :s(new.int.2)
-    eq(size(seq),3)                             :s(new.int.3)
+    set.size(seq) = gt(set.size(seq),3) 3
+    eq(set.size(seq),1)                             :s(new.int.1)
+    eq(set.size(seq),2)                             :s(new.int.2)
+    eq(set.size(seq),3)                             :s(new.int.3)
 
 new.int.1
 
 *   If one argument, low is one, high is the argument.
 
-    low(new) =  1
-    high(new) = seq.get(seq,1)            
-    step(set) = 1
+    set.low(new) =  1
+    set.high(new) = seq.get(seq,1)            
+    set.step(set) = 1
                                                     :(new.int.done)
 
 new.int.2
 
-*   If two arguments, low is low, high is second.
+*   If two arguments, low is first argument, high is the second.
 
-    low(new) =  +seq.get(seq,1)
-    high(new) = +seq.get(seq,2)             
-    step(set) = 1
+    set.low(new) =  +get(seq,1)
+    set.high(new) = +get(seq,2)             
+    set.step(new) = 1
                                                     :(new.int.done)
 
 new.int.3
 
 *   If three arguments, low is first, high is second, step is third.
 
-    low(new) =  +seq.get(seq,1)
-    high(new) = +seq.get(seq,2)             
-    step(new) = +seq.get(seq,3)            
+    set.low(new) =  +get(seq,1)
+    set.high(new) = +get(seq,2)             
+    set.step(new) = +get(seq,3)            
+    out('int.3',set.step(new))
                                                     :(new.int.done)
 
 new.int.done
@@ -777,11 +707,13 @@ new.int.done
 *   Set _next_ so that  incrmenting it on first call to _next_  
 *   will point to first element in set
 
-    next(new) = low(new) - step(new) 
+*    set.next(new) = set.low(new) - set.step(new)    :(return)
                                                     :(return)
+
 new.map
     
-    new = set('map',table(setl4.config.size),table(setl4.config.size))
+    new = set(table(setl4.config.size),table(setl4.config.size))
+    set.kind(new) = 'map'
 
 *   If present, _init_ is a list consisting of a list of key/value pairs,
 *   with a colon (:) between the key and value.
@@ -789,45 +721,47 @@ new.map
     ident(init)                                     :s(return)
     init = init ' '
 
-new.next
+new.map.next
 
     init break(':') . key ':' break(' ') . val span(' ') =  :f(return)
-    put(new.map,key,val)                  :(new.next)
+    put(new.map,key,val)                            :(new.map.next)
+
 
 new.seq
 
-    new = set('seq')
-    seq(new) = array(setl4.config.size)
-    str.out('new seq')
-    show(new)
-                                                    :(return)
+    set.kind(new) = 'seq'
+    init break(' ') . key ' ' =                     :f(return)
+    put(new,i = i + 1, key)                         :(new.seq)
+
 new.set
 
-    str.out('new.set init',show.q(init))
-    new = set('set',table(setl4.config.size),table(setl4.config.size))
+    out('new.set init',show.q(init))
+    new = set(table(setl4.config.size),table(setl4.config.size))
+    set.kind(new) = 'set'
     ident(init)                                     :s(return)
     init = init ' '
 
-new.init
+new.set.init
 
-    str.out('new.init',show.q(init))
-*    init break(' ') . key setl4.span.whitespace =   :f(return)
+    out('new.init',show.q(init))
+*    init break(' ') . key setl4.span.whitespace =  :f(return)
     init ' ' =
     init break(' ') . key ' '    =   :f(return)
-    str.out('new.init key',key)
+    out('new.init key',key)
     add(new,key)
     show(new)
-                                                    :(new.init)
+                                                    :(new.set.init)
 
 new.str
 
-    new = set('seq')
+    set.kind(new) = 'str'
+    set.index(new) = set.key(new) =                        
     str.text(new) = init                            :(return)
 
-new.str.init
+new.str.next
 
     init len(1) . key ' ' =                         :f(return)
-    seq.push(new,key)                               :(new.str.init)
+    map.add(new,i = i + 1, key)                     :(new.str.next)
 
 new.end
 
@@ -839,28 +773,21 @@ new.end
 
 next
 
-    differ(kind = kind(set),'int')              :s(next.notint)
+    differ(set.step(set))                           :s(next.notint)
 
 *   Here to find next element in set of type _int_.
 
     next = next(set) = next(set) + step(set)
-    le(next,high(set))                          :f(freturn)
+    le(next,high(set))                              :s(return)f(freturn)
 
 next.notint
 
     next = next(set) = next(set) + 1
-    le(next,size(set))                          :f(freturn)
-    this(set) = 
-.       (
-.       iskind(kind,'int')          next,
-.       iskind(kind,'map','set')    index(set)[next],
-.       iskind(kind,'seq')          seq(set)[next],
-.       iskind(kind,'str')          substr(text(set),next,1)
-.       ident(datatype(set),'string')   substr(set,next,1)
-.       )
-        next = this(set)
-    str.out('next',next)
-    str.out('this',this)
+    le(next,set.size(set))                          :f(freturn)
+    this(set) = index(set)[next]
+    next = this(set)
+    out('next',next)
+    out('this',this)
                                                     :(return)
 
 next.end
@@ -892,34 +819,47 @@ or
 
 or.end
 
-    define('put(map,key,value)v')           :(put.end)
+    define('out(text1,text2,text3)type1,type2')     :(out.end)
+
+*   Output a line conisting of TEXT1, TEXT2 enclosed
+*   in brackets, followed by TEXT3.
+
+out
+
+    output = text1 (ident(text2) '', '[' text2 ']') (differ(text3) text3, '') :(return)
+*    output = text1 (differ(text2) '[' (ident(text2) null ']', '') (differ(text3) text3, ''):(return)
+
+out.end
+
+    define('put(map,key,value)v')                   :(put.end)
 
 *   Sets the value of the entry for key _key_ in map _map_ to be _val_,
 *   creating a new entry if necessary.
 
 put
 
-    value = ident(value) key
+*    value = ident(value) key
     key = integer(key) +key
     value = integer(value) +value
-    v = key(map)[key]
-    differ(v)                               :s(put.value)
+    v = set.key(map)[key]
+    differ(v)                                       :s(put.value)
 
 *   Here to create new entry in map, and then merge to set new value.
 
+    out('datatype(map)',datatype(map))
+    out('put size',set.size(map))
     set.size(map) = set.size(map) + 1
-    set.index(set)[set.size(map)] = key
-    key(map)[key] = entry(key,value)
+    set.index(map)[set.size(map)] = key
 
 put.value
 
-    key(map)[key] = entry(key,value)                :(return)
+    set.key(map)[key] = entry(key,value)            :(return)
 
 put.end
 
     define('range(map)elem)')                       :(range.end)
 
-*   Return set of the keys in _map_.
+*   Return set of the values of _map_.
 
 range
 
@@ -928,9 +868,8 @@ range
 
 range.next
 
-    entry = next(map)
-    ident(value(entry))                             :s(range.next)
-    add(range,value(key(next(map))))                :s(range.next)f(return)
+    entry = next(map)                               :f(return)
+    add(range,value(key(next(map))))                :(range.next)
 
 range.end
 
@@ -974,7 +913,7 @@ random.seed.done
                                                     :(return)
 random.seed.end
 
-    define('rank(set)ara,freq,i,entry,key,seq,str,value')    :(rank.end)
+    define('rank(qet)ara,freq,i,entry,key,seq,str,value')    :(rank.end)
 
 *   Rank returns a sorted version of its operand such that
 *   elements are in increasing order. For example,
@@ -985,12 +924,12 @@ random.seed.end
 
 rank
  :(return)
-    str.out('rank kind',kind(set))
-    set = copy(set)
-    iskind(set,'int','seq')                         :s(rank.seq)
-    setl4kind(set,'map','set','str')                :s($('rank.' setl4kind(set)))
-    ident(datatype(set),'string')                   :s(rank.string)
-    error('rank unsupported operand type ' datatype(set) )
+    out('rank kind',kind(qet))
+    qet = copy(qet)
+    iskind(qet,'int','seq')                         :s(rank.seq)
+    qetl4kind(qet,'map','qet','str')                :s($('rank.' qetl4kind(qet)))
+    ident(datatype(qet),'string')                   :s(rank.string)
+    error('rank unsupported operand type ' datatype(qet) )
 
 rank.map
 
@@ -1000,7 +939,7 @@ rank.map
 rank.next
 
     entry = ara[i = i + 1,1]                        :f(return)
-    put(rank,key(entry),value(entry))           :(rank.next)
+    put(rank,key(entry),value(entry))               :(rank.next)
 
 rank.seq
 rank.int
@@ -1009,18 +948,18 @@ rank.int
 
                                                     :(return)
 
-rank.set
+rank.qet
 
     ara = sort(key,1)
     rank = new()
 
-rank.next
+rank.qet.next
 
-    add(rank,ara[i = i + 1,1])                  :f(return)s(rank.next)
+    add(rank,ara[i = i + 1,1])                      :f(return)s(rank.next)
 
 rank.str
 
-    str = text(set)
+    str = text(qet)
 
 rank.str.string
 
@@ -1029,10 +968,10 @@ rank.str.string
 
 rank.str.collect
 
-    str len(1) . i =                                :f(rank.str.set)
-    add(seq,i)                                  :(rank.str.collect)
+    str len(1) . i =                                :f(rank.str.qet)
+    add(seq,i)                                      :(rank.str.collect)
 
-rank.str.set
+rank.str.qet
 
     seq = rank(seq)
     loop(seq)
@@ -1044,7 +983,7 @@ rank.l.next
 
 rank.string
 
-    str = set                                       :(rank.str.string)
+*    str = qet                                       :(rank.str.string)
 
 rank.end
 
@@ -1064,7 +1003,7 @@ seq.integerl.next
 
 seq.integers.end
    
-    define('show(v,label,lvl)i,kind,elem,ent,line,hdr')        :(show.end)
+    define('show(v,label,lvl)i,kind,elem,ent,line,hdr') :(show.end)
 
 *   Show the value of expression _v_.
 *   _lev_ is non-zero when called to list elem or element
@@ -1072,11 +1011,11 @@ seq.integers.end
 
 show
 
-    differ(label) str.out('show: ' str.upper(label))
+    differ(label) out('show: ' str.upper(label))
 
 *   If not set, branch on datatype, else branch on kind of 
 
-    ident(datatype(v),'set') iskind(kind(v),'int','map','seq','set','str')  :s($('show.' kind(v)))
+    ident(datatype(v),'set') iskind(set.kind(v),'int','map','seq','set','str')  :s($('show.' set.kind(v)))
                                                     :($('show.' datatype(v)))
 show.array
 
@@ -1091,7 +1030,7 @@ show.array.1
 
 show.array.2
     first = ara[add1(.i),1]                         :f(show.array.done)
-    str.out(lpad(i,3) tab show(first) tab show(ara[i,2])) :(show.array.2)
+    out(lpad(i,3) tab show(first) tab show(ara[i,2])) :(show.array.2)
 
 show.entry
 
@@ -1099,7 +1038,7 @@ show.entry
 
 show.int
 
-    show = '[int: low ' low(v) ' high ' high(v) ' step ' step(v)  '] ' :(show.done)
+    show = '[int: low ' set.low(v) ' high ' set.high(v) ' step ' set.step(v)  '] ' :(show.done)
 
 show.integer
 
@@ -1113,15 +1052,15 @@ show.map
     loop(v)
     show = '{ map'
 
-show.next
+show.map.next
 
-    elem = next(v)                                :f(show.done)
+    elem = next(v)                                  :f(show.done)
     show = show ' ' show(elem,,1)
-    lt(size(show),100)                          :s(show.next)
+    lt(set.size(show),100)                          :s(show.map.next)
     output = show ' '
-    show =                                          :(show.next)
+    show =                                          :(show.map.next)
 
-show.done
+show.map.done
 
     show = show ' }'
                                                     :(show.done)
@@ -1137,10 +1076,10 @@ show.seq
 
 show.seq.next
 
-    gt(i = i + 1,size(v))                   :s(show.seq.done)
+    gt(i = i + 1,set.size(v))                       :s(show.seq.done)
     elem = seq(v)[i]
     show = (ident(show) '', show ' ') show(elem,,1)
-    lt(size(show),100)                          :s(show.seq.next)
+    lt(set.size(show),100)                          :s(show.seq.next)
     output = show ' '
     show =                                          :(show.seq.next)
 
@@ -1153,29 +1092,29 @@ show.set
 *   Call _rank_ so entries listed in rank order.
 
 *    set = rank(v)
-    str.out('show.set size',size(v))
+    out('show.set size',set.size(v))
     show = '{ set'
     loop(v)
 
-show.next
+show.set.next
 
-    key = next(v)                                   :f(show.done)
+    key = next(v)                                   :f(show.set.done)
     key = datatype(key,'string') show.q(key)
-    str.out('key',key)
-    str.out('next elem ',elem)
+    out('key',key)
+    out('next elem ',elem)
     show = (ident(show,'{') '{ ', show ' ') show(elem,,1)
     show = show ' '  show(elem,,1)
-    lt(size(v),100)                             :s(show.next)
+    lt(set.size(v),100)                             :s(show.set.ext)
     output = show
-    show =                                          :(show.next)
+    show =                                          :(show.set.next)
 
-show.done
+show.set.done
 
     show = show ' }'
                                                     :(show.done)
 show.str
 
-    show = show.str(str.text(set))                :(show.done)
+    show = show.str(str.text(set))                  :(show.done)
 
 show.string
 
@@ -1183,7 +1122,7 @@ show.string
 
     show = integer(v) v                             :s(show.done)
 
-    show = show.q(v)                            :(show.done)
+    show = show.q(v)                                :(show.done)
 
 
 show.table
@@ -1215,9 +1154,25 @@ show.end
 show.b
 
     integer(e) out((ne(e) 'TRUE', 'FALSE'))         :s(return)
-    str.out((differ(e) 'TRUE', 'FALSE'))            :(return)
+    out((differ(e) 'TRUE', 'FALSE'))                :(return)
 
 show.b.end
+
+    define('show.eval(expr)')                       :(show.eval.end)
+
+*   Show result of evaulating _expr_ as success or fail.
+
+show.eval
+
+    out('show.eval',expr)
+    eval(expr)                                      :s(show.eval.succeed)
+    out('fails')                                    :(return)
+
+show.eval.succeed
+
+    out('succeeds')                                 :(return)
+
+show.eval.end
 
     define('show.line(line)')                       :(show.line.end)
 
@@ -1288,41 +1243,40 @@ show.words.end
 
 subset
 
-    gt(size(b),size(a))                             :s(freturn)
+    gt(set.size(b),set.size(a))                     :s(freturn)
     loop(b)
 
 subset.next
-
     member = next(b)                                :f(return)
     member(a,member)                                :s(subset.next)f(freturn)
 
 subset.end
 
-    define('this(set)')                       :(this.end)
+    define('this(set)')                             :(this.end)
 
 *   Returns value found in most recent call to next.
 
 this
 
-    this = this(set)                       
-    str.out('this',this)
+    this = set.this(set)                       
+    out('this',this)
                                                     :(return)
 
 this.end
 
-    define('true(e)')                              :(true.end)
+    define('true(e)')                               :(true.end)
 
 *   Tests if operand is true
 
 true
 
     e = integer(e) +e
-    integer(e) (ne(e)                               :s(return)
+    integer(e) ne(e)                                :s(return)
     differ(e)                                       :s(return)f(freturn)
 
 true.end
 
-    define('union(a,b)elem')                    :(union.end)
+    define('union(a,b)elem')                        :(union.end)
 
 *   Returns union of sets _a_ and _b_.
 
@@ -1330,7 +1284,7 @@ union
 
 *   Arrange so set a is the larger 
 
-    ge(size(a),size(b))                     :s(union.a)
+    ge(set.size(a),set.size(b))                     :s(union.a)
     union = a
     a = b
     b = union
@@ -1344,8 +1298,8 @@ union.a
 
 union.b
 
-    elem = next(b)                              :f(return)
-    add(union,elem)                         :(union.b)
+    elem = next(b)                                  :f(return)
+    add(union,elem)                                 :(union.b)
 
 union.end
 
@@ -1365,44 +1319,57 @@ visit.next
 
 visit.end
 
+    define('words(str)i,tmp,w')                     :(words.end)
+
+*   Return sequence consisting of the words in _str_, where the 
+*   words are separated by one or more consecutive spaces and tabs.
+
+words
+
+    words = new()
+    
+words.next
+
+    str setl4.break.whitespace . w setl4.span.whitespace  = :f(return)
+    put(words,i = i + 1, w)                         :(words.next)
+
+words.end
+
     define('setl4.show(set,label)')                 :(setl4.show.end)
 
 *   Show the fields of an instance of _set_.
 
 setl4.show
 
-                               str.out('{')
-    differ(label)              str.out('show: ' str.upper(label))
-                               str.out('kind',kind(set))
-    ne(size(set))          str.out('size',size(set))
-    differ(index(set))     str.out('size(index(set))', size(index(set)))
-    differ(key(set))       str.out('size(key(set))', size(key(set)))
-    differ(next(set))      str.out('next',next(set))
-    ne(low(set))           str.out('low',low(set))
-    ne(step(set))          str.out('high',high(set))
-    ne(high(set))          str.out('step',low(set))
-    differ(text(set))      str.out('text',text(set))
-    differ(seq(set))       str.out('seq',prototype(seq(set)))
-                               str.out('}')
+                           out('{')
+                           out('kind',              set.kind(set))
+    differ(label)          out('show: '             str.upper(label))
+    ne(set.size(set))      out('#set',              set.size(set))
+    differ(set.index(set))     out('#index(set)',   set.size(index(set)))
+    differ(set.key(set))       out('#key(set))',    set.size(key(set)))
+    differ(set.next(set))      out('next',          set.next(set))
+    ne(set.low(set))           out('low',           set.low(set))
+    ne(set.step(set))          out('high',          set.high(set))
+    ne(set.high(set))          out('step',          set.low(set))
+    differ(set.text(set))      out('text',          set.text(set))
+                           out('}')
 
                                                     :(return)
 setl4.show.end
 
-    define('setl4.size(set)')                       :(setl4.size.end)
+    define('setl4.set.size(set)')                   :(setl4.size.end)
 
 *   Return size of operand.
 
 setl4.size
 
     setl4.size = ident(datatype(set),'string') size(set)    :s(return)
-    kind = iskind(set)
-    setl4.size = iskind(kind,'int')
-.               high(set) - low(set) + 1    :s(return)
+    setl4.size = differ(set.step(set)) (set.high(set) - set.low(set) / set.step(set)) + 1 :s(return)
     setl4.size = set.size(set)                      :(return)
 
 setl4.size.end
 
-    define('traceoff()')                      :(traceoff.end)
+    define('traceoff()')                            :(traceoff.end)
 
 *   Initiate tracing.
 
@@ -1414,7 +1381,7 @@ traceoff
 
 traceoff.end
 
-    define('traceon()')                       :(traceon.end)
+    define('traceon()')                             :(traceon.end)
 
 *   Initiate tracing.
 
