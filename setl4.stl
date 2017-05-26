@@ -173,83 +173,54 @@
     setl4.random_var =
 
 
-*   Boolean Logic
-*   -------------
-
-*   Boolean logic is an algebra with just two values: true and false.
-kkkk
-*   In SPITBOL, the algebra is defined on strings: the null string is "false" 
-*   and all other strings are "true".  The SPITBOL function IDENT is used 
-*   to test for true, DIFFER for false. 
-*   Each signals their result by success (true) or failure (false).
-
-*   In SETL4, the algebra is defined both on integers and non-integers.  
-*   For integers, zero is "false" and all other integers are "true." 
-*   For non-integers, the null string ('') is true, and all other values are false.
-
-*   SPITBOL comparison functions report their results by success or failure, so SETL
-*   provides the following functions which return TRUE or FALSE.
-
-
-
 *   SETL4 Functions
 *   ---------------
 *
-*   add(set,elem)               Adds element _elem_ to set _set_ if not yet a member of the 
-*   and(a,b)                        And: true if and only if _a_ and _b_ are true
+*   add(set,elem)                   Adds element to set
+*   and(a,b)                        And: Tests if both operands are true
 *   arb(n)                          Returns arbitary (randomly chosen) integer in 1 .. _n_
 *   arb(set)                        Returns arbitary (randomly chosen) element of _set_
 *   assert(expr)                    Tests that _expr_ is true, ends execution otherwise
 *   assert.type(obj,type)           Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise
 *   at(set,expr)                    Evaluates _expr_ for for current iterate of _set_
-*   binary.search(tbl,value)        Binary search
-*   concatenate(a,b)                Concatenates strings _a_ and _b_
-*   defined(map,key)            Tests if map _map_ if defined for _key_
-*   difference(a,b)             Returns set of members of set _a_ not in the set _b_
-*   domain(map)                 Returns set of elements in the domain of _map_
-*   exists(set,expr)                Tests if _expr_ is true for at least one element in set _set_
-*   get(map,key)                Gets the value of map _map_ for _key_
-*   false(e)                        Returns TRUE if and only if _e_ is FALSE
-*   forall(set,expr)                Tests if _expr_ is true for at all elements in set _set_
+*   concatenate(a,b)                Concatenates two strings
+*   defined(map,key)                Tests if a map is defined for a specified key
+*   difference(a,b)                 Returns set of members of set _a_ not in the set _b_
+*   domain(map)                     Returns set of elements in the domain of a map
+*   exists(set,expr)                Tests if an expression is true for at least one element in a set
+*   from(set,elem)                  Returns set consisting of the members of a set except a specified member
+*   get(map,key)                    Gets the value of map _map_ for _key_
+*   false(e)                        tests if argument is false
+*   forall(set,expr)                Tests if an expression is true for every element of a set
 *   filter(set,expr)                Filter:; returns subset of _set_ for which _expr_ is true
+*   integers(n)                     Returns set of integers 1 ... n
+*   intersection(a,b)               Returns set of elements common to two sets
 *   iskind(kind,kind1,kind2,kind3,kind3,kind4)  Tests if _kind_ is one of the specfied kinds: _kind1_, _kind2_, ...
-*   i.eq(a,b)                       integer is equal to 
-*   i.ge(a,b)                       integer greater than or equal
-*   i.gt(a,b)                       integer greater than 
-*   i.le(a,b)                       integer less than or equal
-*   i.lt(a,b)                       integer less than 
-*   i.ne(a,b)                       integer not equal
 *   loop(set)                       Set up iteration over _set_ using _next_
-*   last(map)                   Returns the last element in a 
-*   put(map,key,val)            Sets the value of map _map_ for key _key_ to be _value_
-*   range(map)                  Returns set of elements in the range of _map_
 *   mark(line)                      Annotates, or marks, a line
-*   member(elem,set)                Tests if _elem_ is a member of set _set_
+*   member(elem,set)                Tests set membership
 *   new(str)                        Returns new set specified by _st_
-*   next(set)                       Returns next element in iteration defined by prevous _loop_,
-*                                   fails if no more elements
-*   not(expr)                       Not: true if and only if _expr_ is false
-*   or(a,b)                         Or: true if and only if _a_ of _b_ is true
+*   next(set)                       Returns next element in iteration defined by prevous _loop_, fails if no more elements
+*   not(expr)                       Not: Tests if operand is false
+*   or(a,b)                         Or: Tests if either operand is true
+*   put(map,key,val)                Defines the value of a map key
 *   random(n)                       Returns random element
 *   random.seed()                   Sets random number seed to initialize _random_
+*   range(map)                      Returns set of elements in the range of a map
 *   rank(set)                       Returns the rank, or normal form, of a set or string.
-*   from(set,elem)              Returns set consisting of members of _set_ except for_elem_
-*   integers(n)                 Returns set of integers 1 ... n
-*   intersection(a,b)           Returns set of members which belong to both sets _a_ and _b_
-*   subset(a,b)                 Tests if every member of _b_ is also a member of _a_
-*   union(a,b)                  Returns set consisting of all the members of _a_ and _b_
-*   setl4.ascii.init(init)
-*   setl4.size(set)                 Returns number of elements in set _set_
-*   traceoff()                Turns off tracing
+*   subset(a,b)                     Tests if the second set is a subset of the first set
+*   union(a,b)                      Returns set consisting of all the members in two sets
+*   set.size(set)                   Returns number of elements in set _set_
+*   traceoff()                      Turns off tracing
 *   show(v,lvl)                     Show value of _v_, with _lvl_ set non-zero when listing member of set
-*   show.b(e)                       Show value of _b_ as boolean (TRUE or FALSE)
+*   show.b(e)                       Show value of _b_ as boolean
 *   show.line(line)                 Show string _line_ with spaces replaced by '.'
 *   show.lines(lines,title)         Show non-empty lines in array of lines, with title 'title'
 *   show.q(str)                     Show string with enclosed in appropriate quote character (" or ') 
 *   show.words(words)               Show a sequence of words, separated by space character
-*   traceon()                 Turns on tracing
+*   traceon()                       Turns on tracing
 *   this(set)                       Returns current iteration value for _set_
-*   true(e)                         Returns TRUE if and only if _e_ is TRUE
+*   true(e)                         Tests if operand is true
 *   visit(set,expr)                 Visits each element of set _set_ and evaluates _expr_ for that element
 
 
@@ -293,143 +264,7 @@ kkkk
 *   The _key_ table is needed to provide constant time bounds for iterating over
     define('integers(n)i')                      :(integers.end)
 
-*   Return set containing integers 1 .. _n_
-
-integers
-
-    integers = new(n)
-    i = 0
-
-integers.next
-
-    gt(i = i + 1,n)                                 :s(return)
-    add(integers,i)                         :(integerl.next)
-
-integers.end
-
-    define('intersection(a,b)elem')             :(intersection.end)
-
-*   Returns intersection of sets _a_ and _b_.
-
-intersection
-
-*   Make _a_ the smaller 
-
-    le(size(a),size(b))                     :s(intersection.next)
-    intersection = a
-    a = b
-    b = intersection
-    intersectino = new('set')
-    loop(a)
-
-intersection.next
-
-    next(a)                                         :f(return)
-    member(=a,b)                                :f(intersection.next)
-    add(intersection,=a)                    :(intersection.next)
-
-intersection.end
-
-    define('put(map,key,value)v')               :(put.end)
-
-*   Sets the value of the entry for key _key_ in map _map_ to be _val_,
-*   creating a new entry if necessary.
-*   _value_ is null to add an entry to a 
-
-put
-
-    value = ident(value) key
-    key = integer(key) +key
-    value = integer(value) +value
-    v = key(map)[key]
-    differ(v)                                       :s(put.value)
-
-*   Here to create new entry in map, and then merge to set new value.
-
-    size(map) = size(map) + 1
-    key(map)[key] = entry(key,value)
-
-put.value
-
-    key(map)[key] = entry(key,value)            :(return)
-
-put.end
-
-    define('range(map)elem)')                       :(range.end)
-
-*   Return set of the keys in _map_.
-
-range
-
-    range = new()
-    loop(map)
-
-range.next
-
-    entry = next(map)
-    ident(value(entry))                             :s(range.next)
-    add(range,value(key(next(map))))                :s(range.next)f(return)
-
-range.end
-
-    define('subset(a,b)member')                 :(subend)
-
-*   Tests if _b_ is a subset of _a_.
-
-subset
-
-    subset = FALSE
-    gt(size(b),size(a))                     :s(return)
-    loop(b)
-
-subnext
-
-    member = next(b)                            :f(subtrue)
-    member(member,a)                                :s(subnext)f(return)
-
-subtrue
-
-    subset = true                               :(return)
-
-subend
-
-    define('union(a,b)elem')                    :(union.end)
-
-*   Returns union of sets _a_ and _b_.
-
-union
-
-*   Arrange so set a is the larger 
-
-    ge(size(a),size(b))                     :s(union.a)
-    union = a
-    a = b
-    b = union
-
-union.a
-
-*   Make copy of a by making copy of a's table.
-
-    union = copy(a)
-    loop(b)
-
-union.b
-
-    elem = next(b)                              :f(return)
-    add(union,elem)                         :(union.b)
-
-union.end
-
 *   a set, in all of its forms.
-
-*   Since the _key_ table is needed, a set can be indexed using the key table.
-*   This allows the definition of 'get' and 'put' on sequences.
-
-*   Sequences are currently implemented using SPITBOL arrays, extending
-*   the array length dynamically as needed.
-
-*   New elements can be added to a sequence using the 'push' primitive,
-*   and the most recent element can be deleted using the 'pop' primitive.
 
 
 *   SETL4 Configuration Options
@@ -441,14 +276,6 @@ union.end
 *   Use large value for now, to avoid need for expansion during initial testing.
 *    setl4.config.size = 16
     setl4.config.size = 120
-
-*   SETL4 Constants
-*   ---------------
-
-*   The values of the following variables should NEVER be changed, lest chaos ensue.
-
-    FALSE = 0
-    TRUE = 1
 
 *   SETL4 Global Variables
 *   ----------------------
@@ -464,14 +291,101 @@ union.end
     define('add(set,elem)')                     :(add.end)
 
 *   Add _elem_ to set _set_ if not already present.
-*   A set is represented as a map from the elements to themselves,
-*   the identity 
 
 add
 
-    put(set,elem,elem)                          :(return)
+*   Test if element is already in set, return with no action if so.
+
+    differ(set.key(set)[elem])                  :s(return)
+*
+    Here to add new element to set.
+
+    set.size(set) =set.size(set) + 1
+    set.index(set)[set.size(set)] = elem
+    set.key(set)[elem] = 1                      :(return)
 
 add.end
+
+    define('and(a,b)')                              :(and.end)
+
+*   Tests if both operand are true (not null)
+*   Only evaluates second oerand if necessary.
+
+and
+
+*   See if both operands are integers.
+
+    and = integer(a) eq(a)                          :s(freturn)
+    and = integer(a) integer(b) ne(a * b)           :s(return)f(freturn)
+
+*   Here where at least one operand for 'and' is not integer, so
+*   use ident/differ to evaluate.
+
+    and = differ(a) differ(b)                       :s(return)f(freturn)
+
+and.end
+
+    define('arb(set)kind,n,r')                      :(arb.end)
+
+*   Returns arb (randomly selected) element of _set_.
+
+arb
+
+    kind = kind(set)
+    arb = integer(set) random(+set)           :s(return)
+    r = random(size(set))
+    arb = (
+.       iskind(kind,'int')         low(set) + (r - 1) * step(set),
+.       iskind(kind,'map','set')   index(set)[r],
+.       iskind(kind,'seq')         seq(set)[r],
+.       iskind(kind,'str')         substr(text(set),r,1),
+.       ident(datatype(set),'string') substr(set,r,1))
+                                                    :(return)
+arb.end
+
+    define('assert(expr)')                          :(assert.end)
+
+*   Test that expression is non null, ending execution otherwise.
+
+assert
+
+    true(expr)                                      :s(return)
+    error('assertion failed, quitting') 
+
+assert.end
+
+    define('assert.type(obj,typ)')                  :(assert.type.end)
+
+*   Verify that _obj_ has datatype _typ_, end execution if not.
+
+assert.type
+
+    assert(ident(datatype(obj),typ))                :s(return)
+    error('assertion on datatype failed ' typ )
+    
+
+assert.type.end
+
+    define('at(set,expr)this')                      :(at.end)
+
+*   Evaluate _expr_ 
+
+at
+
+    this = next(set)
+    at = eval(expr)                                 :(return)
+
+at.end
+
+    define('concatenate(a,b)')                      :(concatenate.end)
+
+*   Concatenate argument strings.
+
+concatenate
+
+    concatenate = a b :(return)
+
+concatenate.end
 
     define('defined(map,key)entry')             :(defined.end)
 
@@ -480,7 +394,7 @@ add.end
 defined
 
     entry = key(map)
-    differ(entry)                               :s(return)f(freturn)
+    differ(set.key(map[key])                    :s(return)f(freturn)
 
 defined.end
 
@@ -528,101 +442,6 @@ domain.next
 
 domain.end
 
-    define('get(map,key)val)id')                :(get.end)
-
-*   Gets the value of the key _key_ in the map _map_.
-
-get
-
-    id = key(map)[key]
-    ident(id)                                       :s(return)
-    get = value(index(map)[id])             :(return)
-
-get.end
-
-    define('and(a,b)')                              :(and.end)
-
-*   Returns true iff (if and only if) both arguments are true.
-*   Only evaluates _b_ if necessary
-
-and
-
-*   See if both operands are integers.
-
-    and = FALSE
-    and = integer(a) eq(a)                          :s(return)
-    and = integer(a) integer(b) (ne(+a * +b) TRUE, FALSE)    :s(return)
-
-*   Here where at least one operand for 'and' is not integer, so
-*   use ident/differ to evaluate.
-
-    and = differ(a) differ(b) true                  :s(return)
-    and = FALSE                                     :(return)
-
-and.end
-
-    define('arb(set)kind,n,r')                           :(arb.end)
-
-*   Returns arb (randomly selected) element of _set_.
-
-arb
-
-    kind = kind(set)
-    arb = integer(set) random(+set)           :s(return)
-    r = random(size(set))
-    arb = (
-.       iskind(kind,'int')         low(set) + (r - 1) * step(set),
-.       iskind(kind,'map','set')   index(set)[r],
-.       iskind(kind,'seq')         seq(set)[r],
-.       iskind(kind,'str')         substr(text(set),r,1),
-.       ident(datatype(set),'string') substr(set,r,1))
-                                                    :(return)
-arb.end
-
-    define('assert(expr)')                          :(assert.end)
-
-*   Verify that _expr_ is TRUE, end execution otherwise.
-
-assert
-
-    true(expr)                                      :s(return)
-    error('assertion failed, quitting') 
-
-assert.end
-
-    define('assert.type(obj,typ)')                  :(assert.type.end)
-
-*   Verify that _obj_ has datatype _typ_, end execution if not.
-
-assert.type
-
-    assert(ident(datatype(obj),typ))                :s(return)
-    error('assertion on datatype failed ' typ )
-    
-
-assert.type.end
-
-    define('at(set,expr)this')             :(at.end)
-
-*   Evaluate _expr_ 
-
-at
-
-    this = next(set)
-    at = eval(expr)                         :(return)
-
-at.end
-
-    define('concatenate(a,b)')              :(concatenate.end)
-
-*   Concatenate argument strings.
-
-concatenate
-
-    concatenate = a b :(return)
-
-concatenate.end
-
     define('error(str)')                            :(error.end)
 
 *   Report cause of error and quit execution
@@ -634,9 +453,9 @@ error
 
 error.end
 
-    define('exists(set,expr)this,e')                     :(exists.end)
+    define('exists(set,expr)this,e')                :(exists.end)
 
-*   Tests if there is an element in _set such that _eval(expr)_ is TRUE.
+*   Tests if there is an element in _set such that _expr_ is true.
 
 exists
 
@@ -645,33 +464,28 @@ exists
 
 exists.loop
 
-    this = next(set)                                       :f(exists.fail)
+    this = next(set)                                :f(freturn)
     str.out('exists.loop this',this)
     e = eval(expr)                                  :f(exists.loop)
     str.out('exists E',e)
     integer(e) eq(+e)                               :s(exists.loop)
     ident(e) 				                        :s(exists.loop)
-    exists = TRUE                                   :(return)
-
-exists.fail
-
-    exists = FALSE                                  :(return)
-
+                                                    :(return)
 exists.end
 
     define('false(e)')                              :(false.end)
 
-*   Returns TRUE if its argument is false, or else FALSE.
+*   Tests if argument is false (null).
 
 false
 
     e = integer(e) +e
-    false = integer(e) (eq(e) TRUE,FALSE)           :s(return)
-    false = (ident(e) TRUE, FALSE)                  :(return)
+    false = integer(e) (eq(e)                       :s(freturn)
+    false = ident(e))                               :s(return)f(freturn)
 
 false.end
 
-    define('filter(set,expr)e,this')           :(filter.end)
+    define('filter(set,expr)e,this')                :(filter.end)
 
 *   According to Paul Halmos, in his book "Naive Set Theory,"
 *   a major principle of set theory, often referred to by its
@@ -698,7 +512,7 @@ filter.loop
     this = next(set)                                :f(return)
     e = eval(expr)                                  :f(filter.loop)
     false(e)                                        :s(4.filter.loop)
-    iskind(kind(set),'set') setl4.add(filter,this)        :(filter.loop)
+    iskind(kind(set),'set') setl4.add(filter,this)  :(filter.loop)
     put(filter,key(this),value(this))           :(filter.loop)
 
 filter.end
@@ -713,23 +527,64 @@ forall
 
 forall.loop
 
-    next(set)                                       :f(forall.true)
+    next(set)                                       :f(return)
 *    str.out('forall.loop.next',next(set))
     e = eval(expr)                                  :f(forall.loop)
 *    str.out('forall.loop',e)
-    integer(e) eq(+e)                               :s(forall.false)
-    ident(e)                                        :s(forall.false)
-    						    :(forall.loop)
-
-forall.false
-
-    forall = FALSE                                   :(return)
-
-forall.true
-
-    forall = TRUE				     :(return)
-
+    integer(e) eq(+e)                               :s(freturn)
+    differ(e)                                       :f(freturn)s(forall.loop)
 forall.end
+
+    define('get(map,key)val)id')                :(get.end)
+
+*   Gets the value of the key _key_ in the map _map_.
+
+get
+
+    id = key(map)[key]
+    ident(id)                                       :s(return)
+    get = value(index(map)[id])             :(return)
+
+get.end
+
+    define('integers(n)')                           :(integers.end)
+
+*   Return set containing integers 1 .. _n_
+
+integers
+
+    integers = new(n)
+    i = 0
+
+integers.next
+
+    gt(i = i + 1,n)                                 :s(return)
+    add(integers,i)                         :(integerl.next)
+
+integers.end
+
+    define('intersection(a,b)elem')             :(intersection.end)
+
+*   Returns intersection of sets _a_ and _b_.
+
+intersection
+
+*   Make _a_ the smaller 
+
+    le(size(a),size(b))                     :s(intersection.next)
+    intersection = a
+    a = b
+    b = intersection
+    intersectino = new('set')
+    loop(a)
+
+intersection.next
+
+    next(a)                                 :f(return)
+    member(=a,b)                            :f(intersection.next)
+    add(intersection,=a)                    :(intersection.next)
+
+intersection.end
 
     define('iskind(kind,kind1,kind2,kind3,kind4,kind5)') :(iskind.end)
 
@@ -803,7 +658,6 @@ loop.end
 member
 
     differ(datatype(set),'set') str.out('member',set)
-    member = FALSE
     kind = kind(set)
     iskind(kind,'int')                              :s(member.int)
     iskind(kind,'map')                              :s(member.map)
@@ -816,9 +670,9 @@ member
 
 member.int
 
-    member = lt(elem,low(set)) FALSE              :s(return)
-    member = gt(elem,low(set)) FALSE              :s(return)
-    member = (eq(remdr(elem - low(set),step(set))) TRUE, FALSE):(return)
+    member = lt(elem,low(set))                      :s(freturn)
+    member = gt(elem,low(set))                      :s(freturn)
+    member = eq(remdr(elem - low(set),step(set)))   :s(return)f(freturn)
 
 member.map
 
@@ -830,31 +684,27 @@ member.map
 
 *   There is entry for _key_, see if it has right value.
 
-    equal(index[key(set)[key]],value)       :f(return)s(member.true)
+    equal(index[key(set)[key]],value)       :f(freturn)s(member.true)
 
 member.seq
 
     i = i + 1
     le(i,size(set))                             :f(return)
     this = seq(set)[i]                          :f(return)
-*    equal(this,elem)                                :s(member.true)f(member.seq) 
-    ident(this,elem)                                :s(member.true)f(member.seq) 
+*    equal(this,elem)                           :s(return)f(freturn) 
+    ident(this,elem)                            :s(return)f(freturn) 
 
 member.set
 
-    member = (differ(key(set)[elem]) TRUE, FALSE) :(return)
+    member = differ(key(set)[elem])             :s(return)f(freturn)
 
 member.str
 
-    set break(elem)                                 :f(return)s(member.true)
+    set break(elem)                                 :f(freturn)s(return)
 
 member.string
 
     string break(elem)                              :f(return)s(member.true)
-
-member.true
-
-    member = TRUE                                   :(return)
 
 member.end
 
@@ -1021,25 +871,68 @@ next.end
 
 not
 
-    not = integer(expr) (ne(expr) FALSE, TRUE)      :s(return)
-    not = (differ(expr) FALSE, TRUE)                :(return)
+    not = integer(expr) (eq(expr) 1, '')            :s(return)f(freturn)
+    not = ident(expr) 1                             :s(return)f(freturn)
 
 not.end
 
     define('or(a,b)')                               :(or.end)
 
-*   Returns true iff (if and only if) _a_ or _b_ is true.
-*   Only evaluates _b_ if necessary
+*   Tests if either operand is true, fails otherwise.
+*   Only evaluates second operand if necessary
 
 or
-    or = integer(a) ne(a) TRUE                      :s(return)
-    or = integer(b) ne(b) TRUE                      :s(return)
+    or = integer(a) ne(a)                           :s(return)
+    or = integer(b) ne(b)                           :s(return)
 
 *   Here if operands not both integers, so use ident/differ.
 
-    or = (differ(a) TRUE, differ(b) TRUE, FALSE)    :(return)
+    or = differ(a)                                  :s(return)
+    or = differ(b)                                  :s(return)f(freturn)
 
 or.end
+
+    define('put(map,key,value)v')           :(put.end)
+
+*   Sets the value of the entry for key _key_ in map _map_ to be _val_,
+*   creating a new entry if necessary.
+
+put
+
+    value = ident(value) key
+    key = integer(key) +key
+    value = integer(value) +value
+    v = key(map)[key]
+    differ(v)                               :s(put.value)
+
+*   Here to create new entry in map, and then merge to set new value.
+
+    set.size(map) = set.size(map) + 1
+    set.index(set)[set.size(map)] = key
+    key(map)[key] = entry(key,value)
+
+put.value
+
+    key(map)[key] = entry(key,value)                :(return)
+
+put.end
+
+    define('range(map)elem)')                       :(range.end)
+
+*   Return set of the keys in _map_.
+
+range
+
+    range = new()
+    loop(map)
+
+range.next
+
+    entry = next(map)
+    ident(value(entry))                             :s(range.next)
+    add(range,value(key(next(map))))                :s(range.next)f(return)
+
+range.end
 
     define('random(n)')                             :(random.end)
 
@@ -1155,19 +1048,22 @@ rank.string
 
 rank.end
 
-*   Sequences:
-*   ----------
+    define('seq.integers(n)i')                      :(seq.integers.end)
 
-*   A sequence, or 'seq', is a map defined on the positive integers
-*   1,2, ... ,n. Sequences are implemented using SPITBOL arrays,
-*   which are grown in size when adding a new element for which
-*   no room remains in the array.
+*   Returns sequence of integers in the range 1 .. _n_.
 
+seq.integers
 
-*   Sets
-*   ____
+    seq.integers = new('seq ' n)
 
+seq.integerl.next
 
+    gt(i = i + 1, n)                                :s(return)
+    setl4.seq.room(seq)
+    seq.push(seq.integers,i)                        :(seq.integerl.next)
+
+seq.integers.end
+   
     define('show(v,label,lvl)i,kind,elem,ent,line,hdr')        :(show.end)
 
 *   Show the value of expression _v_.
@@ -1318,7 +1214,7 @@ show.end
 
 show.b
 
-    integer(e) str.out((ne(e) 'TRUE', 'FALSE'))     :s(return)
+    integer(e) out((ne(e) 'TRUE', 'FALSE'))         :s(return)
     str.out((differ(e) 'TRUE', 'FALSE'))            :(return)
 
 show.b.end
@@ -1386,6 +1282,21 @@ show.words
 
 show.words.end
 
+    define('subset(a,b)member')                     :(subset.end)
+
+*   Tests if the second set is a subset of the first.
+
+subset
+
+    gt(size(b),size(a))                             :s(freturn)
+    loop(b)
+
+subset.next
+
+    member = next(b)                                :f(return)
+    member(a,member)                                :s(subset.next)f(freturn)
+
+subset.end
 
     define('this(set)')                       :(this.end)
 
@@ -1401,15 +1312,42 @@ this.end
 
     define('true(e)')                              :(true.end)
 
-*   Returns TRUE if _e_ is true, or else FALSE.
+*   Tests if operand is true
 
 true
 
     e = integer(e) +e
-    true = integer(e) (ne(e) TRUE,FALSE)            :s(return)
-    true = (differ(e) TRUE, FALSE)                  :(return)
+    integer(e) (ne(e)                               :s(return)
+    differ(e)                                       :s(return)f(freturn)
 
 true.end
+
+    define('union(a,b)elem')                    :(union.end)
+
+*   Returns union of sets _a_ and _b_.
+
+union
+
+*   Arrange so set a is the larger 
+
+    ge(size(a),size(b))                     :s(union.a)
+    union = a
+    a = b
+    b = union
+
+union.a
+
+*   Make copy of a by making copy of a's table.
+
+    union = copy(a)
+    loop(b)
+
+union.b
+
+    elem = next(b)                              :f(return)
+    add(union,elem)                         :(union.b)
+
+union.end
 
     define('visit(set,expr)')                       :(visit.end)
 
@@ -1427,21 +1365,6 @@ visit.next
 
 visit.end
 
-    define('setl4.seq.room(seq)len')                :(setl4.seq.room.end)
-
-*   Ensures that sequence _seq_ has room for a new entry, expanding it if necessary.
-
-setl4.seq.room
-
-    len = prototype(seq(seq))
-    le(size(seq),len)                           :s(return)
-
-*   Here to extend length of array by fifty per cent.
-
-    setl4.seq.extend(seq,(3 * len) / 2)             :(return)
-
-setl4.seq.room.end
-    
     define('setl4.show(set,label)')                 :(setl4.show.end)
 
 *   Show the fields of an instance of _set_.
