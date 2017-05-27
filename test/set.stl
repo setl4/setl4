@@ -1,45 +1,33 @@
 
 -include "setl4.stl"
 
-*    &dump = 2
+    &dump = 2
     &stlimit = 9000
     s = new('set 5 10 20 5 6')
-*    set.add(s,10)
-*    set.add(s,5)
-*    set.add(s,20)
-*    set.add(s,5)
     show(s)
 
-    str.out('test membership- expect TRUE/FALSE')
-    show.b( member(s,5))
-    show.b( member(s,16))
+    out('test membership- expect TRUE/FALSE')
+    show.eval("member(s,5)")
+    show.eval("member(s,16)")
     output = 
     output = 
 
-    str.out('test exists/forall with element in set - expect TRUE/FALSE')
+    out('test exists/forall with element in set - expect TRUE/FALSE')
     output = 
     output = 
 
-    str.out("exists(s,'i.eq(=s,5)'")
-    r = exists(s,'i.eq(=s,5)')
-    show.b(r)
+    show.eval("exists(s,'eq(=s,5)')")
     output = 
     output = 
-    str.out("forall(s,'i.eq(=s,5)'")
-    r = forall(s,'i.eq(=s,5)')
-    show.b(r)
+    show.eval("forall(s,'eq(=s,5)')")
     output = 
     output = 
 
-    str.out('test exists/forall with element not in set - expect FALSE/TRUE')
+    out('test exists/forall with element not in set - expect FALSE/TRUE')
+    show.eval("exists(s,'eq(=s,16)')")
     output = 
-    str.out("exists(s,'i.eq(=s,16)'")
-    r = exists(s,'i.eq(=s,16)')
-    show.b(r)
     output = 
-    str.out("forall(s,'i.ne(=s,16)'")
-    r = forall(s,'i.ne(=s,16)')
-    show.b(r)
+    show.eval("forall(s,'ne(=s,16)')")
     output = 
     output = 
 end
