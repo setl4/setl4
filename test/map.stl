@@ -1,0 +1,33 @@
+
+-include "setl4.stl"
+
+    &dump = 2
+    &stlimit = 9000
+    s = new('set 5 10 20 5 6')
+    show(s)
+
+    out('test membership- expect TRUE/FALSE')
+    show.eval("member(s,5)")
+    show.eval("member(s,16)")
+    output = 
+    output = 
+
+    out('test exists/forall with element in set - expect TRUE/FALSE')
+    output = 
+    output = 
+
+    show.eval("exists(s,'eq(=s,5)')")
+    output = 
+    output = 
+    show.eval("forall(s,'eq(=s,5)')")
+    output = 
+    output = 
+
+    out('test exists/forall with element not in set - expect FALSE/TRUE')
+    show.eval("exists(s,'eq(=s,16)')")
+    output = 
+    output = 
+    show.eval("forall(s,'ne(=s,16)')")
+    output = 
+    output = 
+end

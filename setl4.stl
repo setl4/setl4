@@ -4,6 +4,7 @@
 *TODO - may need separate out iterator from set data structure. May have multiple loops over same set at onece.
 *TODO - may need equal for general equality test on sets, maps, etc.
 *TODO - update new() and rank()
+*TODO - in show, need to iterate over copy for set,map,seq so don't alter -next- field
 
 *   SETL4 is an implementation of SETL written in SPITBOL.
 
@@ -581,7 +582,7 @@ loop.end
 
     define('member(set,elem)kind,entry,i,key,this,value)') :(member.end)
 
-*   Tests if _elem_ is membber of _set_.
+*   Tests if _elem_ is member of _set_.
 
 member
 
@@ -589,6 +590,19 @@ member
 *   Branch according to whether _set_ is set or map.
 
     ident(datatype(elem),'entry')                   :s(member.map)
+    ident(set.kind(set),'int')                      :s(member.int)
+    ident(set.kind(set),'set')                      :s(member.set)
+    error('member: unexpected kind ' kind )
+
+member.int
+
+    integer(elem)                                  :f(freturn)
+    elem = +elem
+    lt(elem,set.low(set))                          :s(freturn)
+    gt(elem,set.high(set))                         :s(freturn)
+    eq(remdr(elem - set.low(set),set.step(set)))   :s(return)f(freturn)
+
+member.set
 
 *   Here to test set membership.
 
@@ -689,7 +703,7 @@ new.map
 
 new.map.next
 
-    init break(':') . key ':' break(' ') . val span(' ') =  :f(return)
+    init break(':') . key ':' break(' ') . val span(' ') =  :f(new.done)
     put(new.map,key,val)                            :(new.map.next)
 
 
@@ -710,12 +724,11 @@ new.set
 new.set.init
 
 *    out('new.init',show.q(init))
-*    init break(' ') . key setl4.span.whitespace =  :f(return)
+*    init break(' ') . key setl4.span.whitespace =  :f(new.done)
     init ' ' =
-    init break(' ') . key ' '    =                  :f(return)
+    init break(' ') . key ' '    =                  :f(new.done)
     add(new,key)
                                                     :(new.set.init)
-
 new.str
 
     set.kind(new) = 'str'
@@ -726,6 +739,10 @@ new.str.next
 
     init len(1) . key ' ' =                         :f(return)
     put(new,i = i + 1, key)                         :(new.str.next)
+
+new.done
+
+    set.next(new) =                                 :(return)
 
 new.end
 
@@ -749,7 +766,8 @@ next.notint
 
     next = set.next(set) = set.next(set) + 1
     le(next,set.size(set))                          :f(freturn)
-    next = set.index(set)[next]
+    next = ident(set.kind(set),'map') set.key(set)[next]
+    next = ident(set.kind(set),'set') set.index(set)[next]
     set.this(set) = next                            :(return)
 
 next.end
@@ -950,7 +968,7 @@ rank.string
 
 rank.end
 
-    define('show(v,label,lvl)i,kind,elem,ent,line,hdr') :(show.end)
+    define('show(v,label,lvl)i,kind,elem,ent,line,hdr,this') :(show.end)
 
 *   Show the value of expression _v_.
 *   _lev_ is non-zero when called to list elem or element
@@ -1006,15 +1024,20 @@ show.map
 
 *   Call _rank_ so entries listed in rank order.
 
-    map = rank(map)
-    loop(v)
+*    map = rank(map)
+    this = copy(v)
+    set.index(this) = copy(set.index(v))
+    set.key(this) = copy(set.key(v))
+    loop(this)
     show = '{ map'
 
 show.map.next
 
     elem = next(v)                                  :f(show.done)
+    out('map.next atatype elem',datatype(elem))
+*    show = show ' ' show(value(elem),,1)
     show = show ' ' show(elem,,1)
-    lt(set.size(show),100)                          :s(show.map.next)
+    lt(size(show),100)                          :s(show.map.next)
     output = show ' '
     show =                                          :(show.map.next)
 
@@ -1037,7 +1060,7 @@ show.seq.next
     gt(i = i + 1,set.size(v))                       :s(show.seq.done)
     elem = seq(v)[i]
     show = (ident(show) '', show ' ') show(elem,,1)
-    lt(set.size(show),100)                          :s(show.seq.next)
+    lt(size(show),100)                          :s(show.seq.next)
     output = show ' '
     show =                                          :(show.seq.next)
 
@@ -1050,14 +1073,15 @@ show.set
 *   Call _rank_ so entries listed in rank order.
 
 *    set = rank(v)
+    this = copy(set)
     show = '{ set'
-    loop(v)
+    loop(this)
 
 show.set.next
 
-    key = next(v)                                   :f(show.set.done)
+    key = set.index(v)[key]                         :f(show.set.done)
     show = show ' ' show(key,,1)
-    lt(set.size(v),100)                             :s(show.set.next)
+    lt(set.size(this),100)                          :s(show.set.next)
     output = show
     show =                                          :(show.set.next)
 
