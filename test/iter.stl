@@ -1,43 +1,34 @@
-
 -include "setl4.stl"
 
     &dump = 2
 
-    show.eval("ident('abc')")
-    s = new('int 5 25 5')
+*    show.eval("ident('abc')")
+    s = new('iter 5 25 5')
     setl4.show(s)
     show(s)
+end
 
     out('test membership- expect TRUE/FALSE')
     show.eval('member(s,5)')
     show.eval('member(s,6)')
-    output = 
-    output = 
+    out()
+    out()
 
     out('test exists/forall with element in set - expect TRUE/FALSE')
-    output = 
-    output = 
+    out()
+    out()
 
     out('exists(s,eq(=s,10))')
     show.eval("exists(s,'eq(=s,10)'")
-*    show.eval('r')
-    output = 
-    output = 
-    shoe.eval("'forall(s,eq(=s,10))'")
-*    r = forall(s,'eq(=s,10)')
-*    show.b(r)
-    output = 
-    output = 
+    out()
+    out()
+    show.eval("'forall(s,eq(=s,10))'")
+    out()
+    out()
 
     out('test exists/forall with element not in set - expect FALSE/TRUE')
     output = 
     show.eval("'exists(s,eq(=s,6))'")
-*    r = exists(s,'eq(=s,6)')
-*    show.b(r)
-    output = 
+    out()
     show.eval("'forall(s,(ne(=s,6)))'")
-*    r = forall(s,'ne(=s,6)')
-*    show.b(r)
-    output = 
-    output = 
 end
