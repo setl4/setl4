@@ -296,7 +296,8 @@
 
 *   _setl4.config.integers.max_ is maximum number of elements in set of kind 'integers'.
 
-    setl4.congig.integers.max = 1000
+    setl4.config.integers.max = 1000
+    setl4.config.integers.max = 50
 
 *   SETL4 Global Variables
 *   ----------------------
@@ -368,11 +369,12 @@ add.int
 *   Here to test if _elem_ is already in set of kind _int_, 
 *   and otherwise to add new integer to the set.
 
-    le(elem,1)                                  :s(freturn)
+    lt(elem,1)                                  :s(freturn)
     gt(elem,set.max(set))                       :s(freturn)
-    ident(substr(set.text(set),elem,1),'1')     :s(return)
+    ident(substr(set.text(set),elem,1),'+')     :s(return)
+    set.size(set) = set.size(set) + 1
     set.text(set) = (gt(elem,1) substr(set.text(set),1,elem - 1), '')
-.       '1' (lt(elem,set.size(set)) substr(set.text(set), elem + 1), '')
+.       '+' (lt(elem,set.max(set)) substr(set.text(set), elem + 1), '')
                                                 :(return)
 
 add.end
@@ -528,13 +530,11 @@ error.end
 
 exists
 
-    out('exists EXPR',show.q(expr))
     loop(set)
 
 exists.loop
 
     this = next(set)                                :f(freturn)
-    out('exists.loop this',this)
     exists = eval(expr)                             :f(exists.loop)s(return)
 
 exists.end
@@ -651,6 +651,7 @@ intersection.end
 
 loop
 
+    out('loop dt',datatype(set))
     set.next(set) = (differ(set.step(set)) set.low(set) - set.step(set),0) :(return)
 
 loop.end
@@ -676,7 +677,7 @@ member.int
 
     gt(elem,set.max(set))                           :s(freturn)
     lt(elem,1)                                      :s(freturn)
-    ident(substr(set.text(set),elem,1),'1')         :s(return)f(freturn)
+    ident(substr(set.text(set),elem,1),'+')         :s(return)f(freturn)
     
 member.iter
 
@@ -732,7 +733,6 @@ new
 new.init
 
     init span(' ') =
-    out('new.init kind',kind)
 
 *   Branch on kind to finish initialization of new set.
 
@@ -740,12 +740,15 @@ new.init
 
 new.int
     
-    set.kind(set) = 'int'
+    set.kind(new) = 'int'
     n = setl4.config.integers.max
-    init break(' ') . n ' ' =
-    n = eq(n) setl4.config.integers.max
-    set.text(new) = dupl(' ',n)                     :(return)
-    
+    set.max(new) = n
+    set.text(new) = dupl('-',n)
+
+new.int.next
+
+    init break(' ') . key span(' ') =              :f(new.done)
+    add(new,key)                                   :(new.int.next)
 new.iter
 
     set.kind(new) = 'iter'
@@ -854,11 +857,11 @@ next
 next.int
 
     next = set.next(set) = set.next(set) + 1
-    le(next,set.size(set))                          :f(freturn)
+    le(next,set.max(set))                          :f(freturn)
 
-*   Next of _int_ is next character in _set.text_ that is not blank.
+*   Iterate until find character in text indicating membership.
 
-    ident(substr(set.text(set),next,1),' ')         :s(next.int)
+    differ(substr(set.text(set),next,1),'+')         :s(next.int)
     set.this(set) = next
     this = next                                     :(return)
 
@@ -936,7 +939,6 @@ out.end
 
 put
 
-*    value = ident(value) key
     key = integer(key) +key
     value = integer(value) +value
     v = set.key(map)[key]
@@ -944,8 +946,6 @@ put
 
 *   Here to create new entry in map, and then merge to set new value.
 
-    out('datatype(map)',datatype(map))
-    out('put size',set.size(map))
     set.size(map) = set.size(map) + 1
     set.index(map)[set.size(map)] = key
 
@@ -1129,7 +1129,7 @@ show.entry
 
 show.iter
 
-    show = '[int: low ' set.low(v) ' high ' set.high(v) ' step ' set.step(v)  '] ' :(show.done)
+    show = '{iter: low ' set.low(v) ' high ' set.high(v) ' step ' set.step(v)  '} ' :(show.done)
 
 show.int
 
@@ -1139,8 +1139,8 @@ show.int
 
 show.int.next
 
-    gt(i = i + 1, set.size(v))                      :s(show.int.done)
-    ident(substr(set.text(v),i,1),' ')              :s(show.int.next)
+    gt(i = i + 1, set.max(v))                       :s(show.int.done)
+    ident(substr(set.text(v),i,1),'-')              :s(show.int.next)
     show = show ' ' show(i,,1)
     lt(size(show),100)                              :s(show.int.next)
     out(show ' ')
@@ -1207,20 +1207,25 @@ show.set
 *   Call _rank_ so entries listed in rank order.
 
 *    set = rank(v)
-    this = copy(set)
     show = '{ set'
-    loop(this)
+
+*   Save _next_ field and restor it after showing the set's content.
+    value = set.next(v)
+    
+    out('show.set.next dt',datatype(v))
+    loop(v)
 
 show.set.next
 
     key = set.index(v)[key]                         :f(show.set.done)
     show = show ' ' show(key,,1)
-    lt(set.size(this),100)                          :s(show.set.next)
+    lt(size(show),100)                              :s(show.set.next)
     out(show)
     show =                                          :(show.set.next)
 
 show.set.done
 
+    set.next(v) = value
     show = show ' }'
                                                     :(show.done)
 show.str
@@ -1275,7 +1280,7 @@ show.b.end
 
 show.eval
 
-    out('show.eval',expr)
+    out('show.eval ' expr)
     eval(expr)                                      :s(show.eval.success)
     show.eval = 'failure'                           :(show.eval.finis)
 
@@ -1285,7 +1290,7 @@ show.eval.success
 
 show.eval.finis
 
-    out('show.eval of |' expr '| was ' show.eval ', result |' e '|') :(return)
+    out(' result: ' show.eval)                      :(return)
 
 show.eval.end
 
@@ -1456,16 +1461,16 @@ words.end
 setl4.show
 
                            out('{')
-                           out('kind',              set.kind(set))
-    differ(label)          out('show: '             str.upper(label))
-    ne(set.size(set))      out('#set',              set.size(set))
-    differ(set.index(set))     out('#index(set)',   set.size(index(set)))
-    differ(set.key(set))       out('#key(set))',    set.size(key(set)))
-    differ(set.next(set))      out('next',          set.next(set))
-    ne(set.low(set))           out('low',           set.low(set))
-    ne(set.high(set))          out('high',          set.high(set))
-    ne(set.step(set))          out('step',          set.step(set))
-    differ(set.text(set))      out('text',          set.text(set))
+                           out('kind',          set.kind(set))
+    differ(label)          out('show: '         str.upper(label))
+    ne(set.size(set))      out('#set',          set.size(set))
+    differ(set.next(set))  out('next',          set.next(set))
+    ne(set.low(set))       out('low',           set.low(set))
+    ne(set.high(set))      out('high',          set.high(set))
+    ne(set.step(set))      out('step',          set.step(set))
+    ne(set.max(set))       out('max',           set.max(set))
+    differ(set.text(set))  out('#text',         size(set.text(set)))
+    differ(set.text(set))  out('text',          set.text(set))
                            out('}')
 
                                                     :(return)

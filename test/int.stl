@@ -2,7 +2,8 @@
 
     &dump = 2
 
-    s = new('iter 5 25 5')
+    s = new('int 5 10 15 20 25 25')
+    add(s,30)
     setl4.show(s)
     show(s)
 
