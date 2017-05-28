@@ -1,10 +1,11 @@
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
-*TODO - may need separate out iterator from set data structure. May have multiple loops over same set at onece.
-*TODO - may need equal for general equality test on sets, maps, etc.
-*TODO - update new() and rank()
-*TODO - in show, need to iterate over copy for set,map,seq so don't alter -next- field
+* TODO - may need equal for general equality test on sets, maps, etc.
+* TODO - update new() and rank()
+* TODO - in show, need to iterate over copy for set,map,seq so doesn't alter -next- field
+* TODO - add first() and last() for sets and strings.
+
 
 *   SETL4 is an implementation of SETL written in SPITBOL.
 
@@ -12,10 +13,9 @@
 *   What is SPITBOL?
 *   ----------------
 
-*   SNOBOL is a general programming language with special emphasis on 
-*   processing strings and text. *   It was  developed at Bell Labs 
-*   in the 1960's by a team led by Ralph Griswold.
-*   Their final version was called SNOBOL4.
+*   SNOBOL is a general programming language with special emphasis on processing 
+*   strings and text that was  developed at Bell Labs in the 1960's by a team 
+*   led by Ralph Griswold. The final version was called SNOBOL4.
 
 *   Macro SPITBOL, or SPITBOL, is a very efficient implemenation of SNOBOL4.
 *   Created by Robert B. K. Dewar and Ken Belcher in 1969, SPITBOL/360 
@@ -188,7 +188,8 @@
 *   domain(map)                     Returns set of elements in the domain of a map
 *   exists(set,expr)                Tests if an expression is true for at least one element in a set
 *   from(set,elem)                  Returns set consisting of the members of a set except a specified member
-*   get(map,key)                    Gets the value of map _map_ for _key_
+*   get(map,key)                    Gets the value of map _map_ for _key_ for a map
+*   get(set,i)                      Gets the i-th element in a set, or fails if no such element
 *   false(e)                        tests if argument is false
 *   forall(set,expr)                Tests if an expression is true for every element of a set
 *   filter(set,expr)                Filter:; returns subset of _set_ for which _expr_ is true
@@ -201,6 +202,8 @@
 *   next(set)                       Returns next element in iteration defined by prevous _loop_, fails if no more elements
 *   not(expr)                       Not: Tests if operand is false
 *   or(a,b)                         Or: Tests if either operand is true
+*   push(stack,value)               Push value onto a stack
+*   pop(stack)                      Pop the top of a stack
 *   put(map,key,val)                Defines the value of a map key
 *   random(n)                       Returns random element
 *   random.seed()                   Sets random number seed to initialize _random_
@@ -282,6 +285,12 @@
 *
 *   The table _key_ maps keys in the map to the corresponding entry in the map.
 *   The entries in _key_ permit efficient retrieval of the map's value for a given key.
+
+*   SETL4 also provides the datatype _stack_ that implements a stack, providing
+*   the funcitons _push_ and _pop_. Stacks are created by the function _new.stack_.
+
+    define('stack(stack.stack,stack.top)')
+
 
 
 *   SETL4 Configuration Options
@@ -599,13 +608,21 @@ forall.end
 
     define('get(map,key)val,entry')                 :(get.end)
 
-*   Gets the value of the key _key_ in the map _map_.
+*   Gets the value of the key _key_ in the map _map_, or gets
+*   element _key_ in a set, failing if no such element.
 
 get
 
+    differ(set.kind(map),'map')                     :s(get.set)
     entry = set.key(map)[key]
     ident(entry)                                    :s(freturn)
     get = value(set.key(map)[key])                  :(return)
+
+get.set
+
+    entry = set.index(set)[key]
+    ident(entry)                                    :s(freturn)
+    get = key(set.key(set)[entry]                   :(return)
 
 get.end
 
@@ -844,6 +861,19 @@ new.done
 
 new.end
 
+    define('new.stack()')                           :(new.stack.end)
+
+*   Returns a new stack.
+
+new.stack
+
+*   Don't allocate stack table when creating stack. Do that
+*   when first add value to stack.
+
+    new.stack = stack(,0)                           :(return)
+
+new.stack.end
+
     define('next(set)kind,key,next,value')          :(next.end)
 
 *   Advance iteration by setting field _next_.  Fail if no more elements remain.
@@ -932,6 +962,32 @@ out
 
 out.end
 
+    define('pop(stack)')                            :(pop.end)
+
+*   Pop the top item from the stack, or fail if the stack is empty.
+
+pop
+
+    stack.stack(stack) = ident(stack.stack(stack)) table()
+    eq(stack.top(stack)) error('attempt to pop from empty stack')
+    pop = stack.stack(stack)[stack.top(stack)]
+    stack.top(stack) = stack.top(stack) - 1         :(return)
+
+pop.end
+
+    define('push(stack,value)'                      :(push.end)
+
+*   Push _value_ onto the stack _stack_.
+
+push
+
+    stack.stack(stack)[stack.top(stack) = stack.top(stack) + 1] = value :(return)
+
+push.end
+
+
+
+    stack.stack(stack) = value
     define('put(map,key,value)v')                   :(put.end)
 
 *   Sets the value of the entry for key _key_ in map _map_ to be _val_,
