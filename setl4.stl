@@ -1,10 +1,12 @@
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
-* TODO - may need equal for general equality test on sets, maps, etc.
-* TODO - update new() and rank()
-* TODO - in show, need to iterate over copy for set,map,seq so doesn't alter -next- field
-* TODO - add first() and last() for sets and strings.
+*   TODO LIST
+*   may need equal for general equality test on sets, maps, etc.
+*   update new() and rank()
+*   in show, need to iterate over copy for set,map,seq so doesn't alter -next- field
+*   add first() and last() for sets and strings.
+*   do sets of type 'str' later.
 
 
 *   SETL4 is an implementation of SETL written in SPITBOL.
@@ -121,7 +123,7 @@
 
 *   Sets of kind 'string' consists of a map from integers to characters.
 
-*   By convention, the kinds are writtten 'int', 'iter', 'map', 'set' and 'str'.
+*   By convention, the kinds are writtten 'int', 'iter', 'map', and 'set'.
 
 *   Additonal SETL4 data types
 *   --------------------------
@@ -242,7 +244,7 @@
 *           _set.key_           a SPITBOL table mapping set elements to index entries.
 
 *           _set.kind_          is the kind of the set, one of 'set', 'map', 'int, 
-*                               'seq', or 'str'. The kind is  specified when the 
+*                               'seq'. The kind is  specified when the 
 *                               set is created. The default value is 'set'.
 
 *           _set.size_          the current number of members.
@@ -262,6 +264,15 @@
 
 *           _set.max'           maximum number of elements. This applies to sets of kind 'integers'.
 
+*   Sets of integers
+*   ----------------
+
+*   SETL4 sets of kind _integers' provide an efficient implementation of a set of 
+*   integers, in the form of a string such that an integer _i_ is in the set only
+*   if the i-th character of the string is '+'. The string is represented by a 
+*   table in blocks of 100 characters, so that the first block represents the integers 
+*   1 .. 100, and so forth. New chunks are allocated only when necesary.  The SPITBOL 
+*   function BREAK is used to find the next element in the set when iterating over the set.
 
 *   Maps
 *   --------------
@@ -289,7 +300,7 @@
 *   SETL4 also provides the datatype _stack_ that implements a stack, providing
 *   the funcitons _push_ and _pop_. Stacks are created by the function _new.stack_.
 
-    define('stack(stack.stack,stack.top)')
+    data('stack(stack.stack,stack.top)')
 
 
 
@@ -307,6 +318,10 @@
 
     setl4.config.integers.max = 1000
     setl4.config.integers.max = 50
+
+*   SETL4 needs a stack
+
+    setl4.stack = stack()
 
 *   SETL4 Global Variables
 *   ----------------------
@@ -335,7 +350,7 @@ abbrev
 
 abbrev.end
 
-    define('add(set,elem)')                     :(add.end)
+    define('add(set,elem)i')                    :(add.end)
 
 *   Add _elem_ to set _set_ if not already present.
 
@@ -346,6 +361,7 @@ add
     elem = integer(elem) +elem
 
     ident(set.kind(set),'int')                  :s(add.int)
+    ident(set.kind(set),'set')                  :s(add.set)
     ident(set.kind(set),'iter') error("cannot add new element to set of type 'int'")
 
 *   See if adding entry or ordinary element.
@@ -378,13 +394,41 @@ add.int
 *   Here to test if _elem_ is already in set of kind _int_, 
 *   and otherwise to add new integer to the set.
 
-    lt(elem,1)                                  :s(freturn)
     gt(elem,set.max(set))                       :s(freturn)
-    ident(substr(set.text(set),elem,1),'+')     :s(return)
+
+*   Set _i_ to the block for _elem_
+*   Not a member if the block is empty. If block is not
+*   empty then see if character corresponding to _elem_ is '+'.
+
+    i = set.key(set)[(elem - 1) / 100] ident(i) :s(add.int.new)
+    elem = remdr(elem,100)
+    elem = eq(elem) 100
+    ident(substr(i,elem,1),'+')                 :s(return)f(freturn)
+
+*   Add new element to set by allocating new block and setting
+*   character corresponding to _elem_ to '+'.
+*   Update set.max if necessary.
+
+    i = set.key(set)[(elem - 1) / 100] = dupl('-',100)
+    elem = remdr(elem,100)
+    elem = eq(elem) 100
+    i = (ne(elem) substr(i,1,elem - 1),'') '+' (lt(elem,100) substr(i,elem + 1),'')
+    set.key(set)[(elem - 1) / 100] = i          
+    set.max(set) = gt((i + 1) * 100,set.max(set)) ((i + 1) * 100) :(return)
+
+add.set
+
+*    out('add.set',elem)
+*    show(set)
+    member(set,elem)                            :s(return)
+*    out('add.set new',elem)
     set.size(set) = set.size(set) + 1
-    set.text(set) = (gt(elem,1) substr(set.text(set),1,elem - 1), '')
-.       '+' (lt(elem,set.max(set)) substr(set.text(set), elem + 1), '')
-                                                :(return)
+    set.index(set)[set.size(set)] = elem
+    set.key(set)[elem] = elem                   
+*    out('add.set after adding new elemen')
+*    setl4.show(set)
+*    show(set)
+    :(return)
 
 add.end
 
@@ -620,9 +664,9 @@ get
 
 get.set
 
-    entry = set.index(set)[key]
+    entry = set.index(map)[key]
     ident(entry)                                    :s(freturn)
-    get = key(set.key(set)[entry]                   :(return)
+    get = set.key(map)[entry]                       :(return)
 
 get.end
 
@@ -668,7 +712,6 @@ intersection.end
 
 loop
 
-    out('loop dt',datatype(set))
     set.next(set) = (differ(set.step(set)) set.low(set) - set.step(set),0) :(return)
 
 loop.end
@@ -680,7 +723,7 @@ loop.end
 
 member
 
-    member = integer(elem) +elem
+    elem = integer(elem) +elem
 *    out('member ',elem)
 *   Branch according to whether _set_ is set or map.
 
@@ -692,22 +735,36 @@ member
 
 member.int
 
-    gt(elem,set.max(set))                           :s(freturn)
-    lt(elem,1)                                      :s(freturn)
-    ident(substr(set.text(set),elem,1),'+')         :s(return)f(freturn)
-    
+*   To test for membership in set of kind _int_ get the block
+*   for the element. If it is null then fail since element not
+*   in the set. Otherwise see if character corresponding to the
+*   value of _elem_ is '+'.
+
+    key = set.key(set)[(elem - 1) / 100]
+    ident(key)                                      :s(freturn)
+    i = remdr(elem,100)
+    i = eq(i) 100
+    ident(substr(key,i,1),'+')                      :s(return)f(freturn)
+
+*   TODO: use code below eventually
+
+*   Here to test set membership. Set _key_ to the block for element _elem_,
+*   and use BREAK to test membership within the block.
+
+    ident(key = set.key(set)[(member / 1000) + 1])  :s(freturn)
+    ident(substr(key,remdr(member,100) + 1,1),'+')  :s(return)f(freturn)
+
 member.iter
 
-    integer(elem)                                  :f(freturn)
+    integer(elem)                                   :f(freturn)
     elem = +elem
-    lt(elem,set.low(set))                          :s(freturn)
-    gt(elem,set.high(set))                         :s(freturn)
-    eq(remdr(elem - set.low(set),set.step(set)))   :s(return)f(freturn)
+    lt(elem,set.low(set))                           :s(freturn)
+    gt(elem,set.high(set))                          :s(freturn)
+    eq(remdr(elem - set.low(set),set.step(set)))    :s(return)f(freturn)
 
 member.set
 
-*   Here to test set membership.
-
+    elem = integer(elem) +elem 
     differ(set.key(set)[elem])                      :s(return)f(freturn)
 
 member.map
@@ -786,24 +843,23 @@ new.iter.1
 *   If one argument, low is one, high is the argument.
 
     set.low(new) =  1
-    set.high(new) = seq.get(seq,1)            
+    set.high(new) = +set.index(seq)[1]
     set.step(new) = 1                               :(return)
 
 new.iter.2
 
 *   If two arguments, low is first argument, high is the second.
 
-    set.low(new) =  +get(seq,1)
-    set.high(new) = +get(seq,2)             
+    set.low(new) =  +set.index(seq)[1]
+    set.high(new) = +set.index(seq)[2]
     set.step(new) = 1                               :(return)
 
 new.iter.3
 
 *   If three arguments, low is first, high is second, step is third.
-
-    set.low(new) =  +get(seq,1)
-    set.high(new) = +get(seq,2)             
-    set.step(new) = +get(seq,3)                     :(return) 
+    set.low(new) =  +set.index(seq)[1]
+    set.high(new) = +set.index(seq)[2]
+    set.step(new) = +set.index(seq)[3]              :(return)
 
 new.map
     
@@ -819,7 +875,9 @@ new.map
 new.map.next
 
     init break(':') . key ':' break(' ') . val span(' ') =  :f(new.done)
-    put(new.map,key,val)                            :(new.map.next)
+*    out('new.map',key)
+*    out('new.map value',val)
+    put(new,key,val)                                :(new.map.next)
 
 
 new.seq
@@ -842,19 +900,20 @@ new.set.init
 *    init break(' ') . key setl4.span.whitespace =  :f(new.done)
     init ' ' =
     init break(' ') . key ' '    =                  :f(new.done)
+    member(new,key)                                 :s(new.set.init)
     add(new,key)
                                                     :(new.set.init)
-new.str
-
-    set.kind(new) = 'str'
-    set.index(new) = set.key(new) =                        
-    str.text(new) = init                            :(return)
-
-new.str.next
-
-    init len(1) . key ' ' =                         :f(return)
-    put(new,i = i + 1, key)                         :(new.str.next)
-
+*new.str
+*
+*    set.kind(new) = 'str'
+*    set.index(new) = set.key(new) =                        
+*    str.text(new) = init                            :(return)
+*
+*new.str.next
+*
+*    init len(1) . key ' ' =                         :f(return)
+*    put(new,i = i + 1, key)                         :(new.str.next)
+*
 new.done
 
     set.next(new) =                                 :(return)
@@ -886,8 +945,15 @@ next
 
 next.int
 
+*   Here to advance iteration to next element of set of kind _int_
+*   by incrementing _set.next_ until find element in the set.
     next = set.next(set) = set.next(set) + 1
-    le(next,set.max(set))                          :f(freturn)
+    gt(next,set.max(set))                           :s(freturn)
+    member(set,next)                                :f(next.int)
+    set.this(set) = next
+    this = next                                     :(return)
+
+*   TODO - could use break for quick test on a block. Keep it simple for now.
 
 *   Iterate until find character in text indicating membership.
 
@@ -909,7 +975,7 @@ next.set
 
     next = set.next(set) = set.next(set) + 1
     le(next,set.size(set))                          :f(freturn)
-    next = ident(set.kind(set),'map') set.key(set)[next]
+    next = ident(set.kind(set),'map') value(set.key(set)[next])
     next = ident(set.kind(set),'set') set.index(set)[next]
     set.this(set) = next
     this = next                                     :(return)
@@ -968,26 +1034,23 @@ out.end
 
 pop
 
-    stack.stack(stack) = ident(stack.stack(stack)) table()
     eq(stack.top(stack)) error('attempt to pop from empty stack')
     pop = stack.stack(stack)[stack.top(stack)]
     stack.top(stack) = stack.top(stack) - 1         :(return)
 
 pop.end
 
-    define('push(stack,value)'                      :(push.end)
+    define('push(stack,value)')                     :(push.end)
 
 *   Push _value_ onto the stack _stack_.
 
 push
 
+    stack.stack(stack) = ident(stack.stack(stack)) table()
     stack.stack(stack)[stack.top(stack) = stack.top(stack) + 1] = value :(return)
 
 push.end
 
-
-
-    stack.stack(stack) = value
     define('put(map,key,value)v')                   :(put.end)
 
 *   Sets the value of the entry for key _key_ in map _map_ to be _val_,
@@ -1151,13 +1214,20 @@ show
 
     differ(label) out('show: ' str.upper(label))
     differ(datatype(v),'set')                       :s(show.notset)
+
+*   When showing a set, save _set.next_ and _set.this_ to avoid
+*   disrupting possible existing iteration over the set.
+
+    push(setl4.stack,set.next(v))
+    push(setl4.stack,set.this(v))
+
     kind = set.kind(v)
     ident(kind,'int')                               :s(show.int)
     ident(kind,'iter')                              :s(show.iter)
     ident(kind,'map')                               :s(show.map)
     ident(kind,'seq')                               :s(show.seq)
     ident(kind,'set')                               :s(show.set)
-    ident(kind,'str')                               :s(show.str)
+*    ident(kind,'str')                               :s(show.str)
     error('show unknown set kind',kind,' quitting.')
 
 show.notset
@@ -1185,7 +1255,7 @@ show.entry
 
 show.iter
 
-    show = '{iter: low ' set.low(v) ' high ' set.high(v) ' step ' set.step(v)  '} ' :(show.done)
+    show = '{iter: low ' set.low(v) ' high ' set.high(v) ' step ' set.step(v)  '} ' :(show.set.done)
 
 show.int
 
@@ -1195,16 +1265,15 @@ show.int
 
 show.int.next
 
-    gt(i = i + 1, set.max(v))                       :s(show.int.done)
-    ident(substr(set.text(v),i,1),'-')              :s(show.int.next)
+    gt(i = i + 1, set.max(v))                       :s(show.set.done)
+
+*   TODO - could use break to speed up search. Keep it simple for now.
+
+    member(v,i)                                     :f(show.int.next)
     show = show ' ' show(i,,1)
     lt(size(show),100)                              :s(show.int.next)
     out(show ' ')
     show =                                          :(show.int.next)
-
-show.int.done
-
-    show = show ' }'                                :(show.done)
 
 show.integer
 
@@ -1223,18 +1292,13 @@ show.map
 
 show.map.next
 
-    elem = next(v)                                  :f(show.done)
-    out('map.next atatype elem',datatype(elem))
-*    show = show ' ' show(value(elem),,1)
+    elem = next(v)                                  :f(show.set.done)
+    out('map.next dt',datatype(elem))
+    show = show ' ' show(value(elem),,1)
     show = show ' ' show(elem,,1)
-    lt(size(show),100)                          :s(show.map.next)
+    lt(size(show),100)                              :s(show.map.next)
     out(show ' ')
     show =                                          :(show.map.next)
-
-show.map.done
-
-    show = show ' }'
-                                                    :(show.done)
 
 show.pair
 
@@ -1246,8 +1310,6 @@ show.seq
     show = ('[seq')
 
 show.seq.next
-
-    gt(i = i + 1,set.size(v))                       :s(show.seq.done)
     elem = seq(v)[i]
     show = (ident(show) '', show ' ') show(elem,,1)
     lt(size(show),100)                          :s(show.seq.next)
@@ -1256,38 +1318,39 @@ show.seq.next
 
 show.seq.done
 
+    set.this(v) = pop(setl4.stack)
+    set.next(v) = pop(setl4.stack)
     show = show ' ]'                                :(show.done)
 
 show.set
 
 *   Call _rank_ so entries listed in rank order.
 
+    out('show.set')
 *    set = rank(v)
     show = '{ set'
-
-*   Save _next_ field and restor it after showing the set's content.
-    value = set.next(v)
-    
-    out('show.set.next dt',datatype(v))
     loop(v)
 
 show.set.next
 
-    key = set.index(v)[key]                         :f(show.set.done)
-    show = show ' ' show(key,,1)
+    elem = next(v)                                  :f(show.set.done)
+    show = show ' ' show(elem,,1)
     lt(size(show),100)                              :s(show.set.next)
     out(show)
     show =                                          :(show.set.next)
 
 show.set.done
 
-    set.next(v) = value
-    show = show ' }'
-                                                    :(show.done)
-show.str
+*   Restore _stack.next_ and _stack.this_.
 
-    show = show.str(str.text(set))                  :(show.done)
+    set.this(v) = pop(setl4.stack)
+    set.next(v) = pop(setl4.stack)
+    show = show ' }'                                :(show.done)
 
+*show.str
+*
+*    show = show.str(str.text(set))                  :(show.done)
+*
 show.string
 
 *   Don't quote string that is an integer.
@@ -1336,7 +1399,6 @@ show.b.end
 
 show.eval
 
-    out('show.eval ' expr)
     eval(expr)                                      :s(show.eval.success)
     show.eval = 'failure'                           :(show.eval.finis)
 
@@ -1346,7 +1408,7 @@ show.eval.success
 
 show.eval.finis
 
-    out(' result: ' show.eval)                      :(return)
+    out('eval ' expr ' ' show.eval)                 :(return)
 
 show.eval.end
 
@@ -1519,7 +1581,7 @@ setl4.show
                            out('{')
                            out('kind',          set.kind(set))
     differ(label)          out('show: '         str.upper(label))
-    ne(set.size(set))      out('#set',          set.size(set))
+    ne(set.size(set))      out('size',          set.size(set))
     differ(set.next(set))  out('next',          set.next(set))
     ne(set.low(set))       out('low',           set.low(set))
     ne(set.high(set))      out('high',          set.high(set))

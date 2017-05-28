@@ -6,7 +6,6 @@
     add(s,30)
     setl4.show(s)
     show(s)
-end
 
     out('test membership- expect success/failure')
     show.eval('member(s,5)')
