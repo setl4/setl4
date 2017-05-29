@@ -2,6 +2,23 @@
 
     &dump = 2
 
+    seq = words('one two three')
+    show(seq)
+end
+
+    n = expnum('1e5')
+    out('1e5',n)
+    n = expnum('100')
+    out('100',n)
+
+    t = new('iter 5 25 5')
+    setl4.show(t)
+end
+
+
+    t = new('iter 1e2 1e6 100')
+    setl4.show(t)
+
     s = new('iter 5 25 5')
     setl4.show(s)
     show(s)
