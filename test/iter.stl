@@ -1,20 +1,9 @@
 -include "setl4.stl"
 
-    &dump = 2
+*    &dump = 2
 
     seq = words('one two three')
     show(seq)
-end
-
-    n = expnum('1e5')
-    out('1e5',n)
-    n = expnum('100')
-    out('100',n)
-
-    t = new('iter 5 25 5')
-    setl4.show(t)
-end
-
 
     t = new('iter 1e2 1e6 100')
     setl4.show(t)
@@ -30,19 +19,19 @@ end
     out()
 
     out('test exists/forall with element in set - expect success/failure')
-    show.eval("exists(s,'eq(=s,10)')")
-    show.eval("forall(s,'eq(=s,10)')")
+    show.eval("exists(s,'eq(this,10)')")
+    show.eval("forall(s,'eq(this,10)')")
     out()
     out()
 
     out('test exists/forall with element not in set - expect failure/failure')
-    show.eval("exists(s,'eq(=s,40)')")
-    show.eval("forall(s,'eq(=s,40)')")
+    show.eval("exists(s,'eq(this,40)')")
+    show.eval("forall(s,'eq(this,40)')")
     out()
     out()
 
     out('test exists/forall with element not in set - expect failure/success')
     out()
-    show.eval("exists(s,'eq(=s,6)')")
-    show.eval("forall(s,'ne(=s,6)')")
+    show.eval("exists(s,'eq(this,6)')")
+    show.eval("forall(s,'ne(this,6)')")
 end

@@ -168,8 +168,8 @@
 *   '/'     /s      Split           Splits a string into a sequence of words
 
 
-*   Global variables
-*   ----------------
+*   SETL4 Global variables
+*   ----------------------
 
     setl4.ascii.name = 
     setl4.ascii.value =  
@@ -177,22 +177,18 @@
 
 *   Useful patterns
 
-    setl4.digits            =   '0123456789'
     setl4.any.digit         =   any('0123456789')
     setl4.span.digits       =   span('0123456789')
     setl4.break.digit       =   break('0123456789')
 
-    setl4.letters           =   &lcase &ucase 
     setl4.break.letter      =   break(&lcase &ucase)
     setl4.any.letter        =   any(&lcase &ucase)
     setl4.span.letters      =   span(&lcase &ucase)
     setl4.span.spaces       =   span(' ' char(9))
     setl4.break.space       =   break(' ' char(9))
 
-    setl4.word.chars        =   lucase &ucase '0123456789'
-    setl4.word              =   span(&lcase &ucase '0123456789')
-    setl4.word.first        =   any(&ucase &lcase)
-    setl4.word.rest         =   span(&ucase &lcase '0123456789')
+    setl4.any.word          =   any(&lcase &ucase '0123456789')
+    setl4.span.word         =   span(&lcase &ucase '0123456789')
 
 
 *   SETL4 Functions
@@ -242,7 +238,7 @@
 *   show.b(e)                       Show value of _b_ as boolean
 *   show.line(line)                 Show string _line_ with spaces replaced by '.'
 *   show.lines(lines,title)         Show non-empty lines in array of lines, with title 'title'
-*   show.q(str)                     Show string with enclosed in appropriate quote character (" or ') 
+*   show.q(str)                     Show string enclosed in appropriate quote character (" or ') 
 *   show.words(words)               Show a sequence of words, separated by space character
 *   traceon()                       Turns on tracing
 *   this(set)                       Returns current iteration value for _set_
@@ -350,8 +346,6 @@
 *   ----------------------
 
     setl4.ascii.initialized = false
-    setl4.break.whitespace = break(' ' char(9))
-    setl4.span.whitespace =  span(' ' char(9))
 
 
 *   SETL4 Function Definitions
@@ -373,43 +367,42 @@ abbrev
 
 abbrev.end
 
-    define('add(set,elem)i')                    :(add.end)
+    define('add(set,elem)this')                 :(add.end)
 
 *   Add _elem_ to set _set_ if not already present.
+*   If _elem_ is a set of kind 'seq' add all the values
+*   in the range of the sequence to the set.
 
 add
+
+    ident(datatype(elem,'entry'))               :s(add.map)
+    ident(datatype(elem),'set') ident(set.kind(elem),'seq') :s(add.list)
 
 *   Convert _elem_ that is integer to integer.
 
     elem = integer(elem) +elem
     ident(set.kind(set),'int')                  :s(add.int)
+    ident(set.kind(set),'seq')                  :s(add.seq)
     ident(set.kind(set),'set')                  :s(add.set)
     ident(set.kind(set),'iter') error("cannot add new element to set of type 'int'")
 
-*   See if adding entry or ordinary element.
+                                                :(return)
+add.list
 
-    ident(datatype(elem,'entry'))               :s(add.map)
+*   Here to add the elements in the range of the _element_ argument to the set.
+
+    setl4.save(elem)
+
+    loop(elem)
+
+add.list.next
     
-*   Here to add element to set if not yet present. Make entry look like
-*   map by mapping the set element to itself.
+    this = next(elem)                           :f(add.list.done)
+    add(set,this)                               :(add.next.elem)
 
-    differ(set.key(set)[elem])                  :s(return)
-    elem = entry(elem,elem)                     :(add.new)
+add.list.done
 
-add.map
-
-*   See if adding new map entry or updating existing one.
-
-    differ(set.key(set)[key(elem)])             :s(add.put)
-
-add.new
-
-    set.size(set) = set.size(set) + 1
-    set.index(set)[set.size(set)] = key(elem)
-
-add.put
-
-    set.key(set)[key(elem)] = elem              :(return)
+    setl4.restore()                             :(return)
 
 add.int
 
@@ -438,8 +431,34 @@ add.int
     set.key(set)[(elem - 1) / 100] = i          
     set.max(set) = gt((i + 1) * 100,set.max(set)) ((i + 1) * 100) :(return)
 
+add.map
+
+*   See if adding new map entry or updating existing one.
+
+    differ(set.key(set)[key(elem)])             :s(add.put)
+
+add.new
+
+    set.size(set) = set.size(set) + 1
+    set.index(set)[set.size(set)] = key(elem)
+
+add.put
+
+    set.key(set)[key(elem)] = elem              :(return)
+
+add.seq
+
+*   Here to add entry to set of kind 'seq', which doesn't need, or use, the _key_ table
+
+    set.size(set) = set.size(set) + 1
+    set.index(set)[set.size(set)] = elem        :(return)
+
 add.set
 
+*   Here to add.listent to set. If element is a sequence then add all
+*   the values in the range of the sequence to the set.
+
+    ident(datatype(elem),'seq')                 :s(add.set.seq)
 *    out('add.set',elem)
 *    show(set)
     member(set,elem)                            :s(return)
@@ -453,6 +472,7 @@ add.set
 *    show(set)
     :(return)
 
+    
 add.end
 
     define('and(a,b)')                          :(and.end)
@@ -660,7 +680,22 @@ filter.loop
 
 filter.end
 
+    define('forall(set,expr)e')                     :(forall.end)
+
+*   Tests if _expr_ is true for all elements of _set_.
+
+forall
+
+    loop(set)
+
+forall.loop
+
+    next(set)                                       :f(return)
+*    out('forall.loop.next',next(set))
+    e = eval(expr)                                  :f(freturn)s(forall.loop)
+
 forall.end
+
 
     define('get(map,key)val,entry')                 :(get.end)
 
@@ -681,6 +716,11 @@ get.map
     get = value(set.key(map)[key])                  :(return)
 
 get.seq
+
+    entry = set.index(map)[key]
+    ident(entry)                                    :s(freturn)
+    get = value(set.key(map)[entry])                :(return)
+
 get.set
 
     entry = set.index(map)[key]
@@ -759,6 +799,7 @@ member
     ident(datatype(elem),'entry')                   :s(member.map)
     ident(set.kind(set),'int')                      :s(member.int)
     ident(set.kind(set),'iter')                     :s(member.iter)
+    ident(set.kind(set),'seq')                      :s(member.seq)
     ident(set.kind(set),'set')                      :s(member.set)
     error('member: unexpected kind ' kind )
 
@@ -797,15 +838,16 @@ member.set
     differ(set.key(set)[elem])                      :s(return)f(freturn)
 
 member.map
+member.seq
 
-*   Here to test map membership
+*   Here to test for membership in map or sequence.
 
     differ(set.key(set)[key(entry)])                :s(return)f(freturn)
 
 member.end
 
 
-    define('new(init)kind,i,len,n,key,seq,val)'):(new.end)
+    define('new(init)kind,i,len,n,key,seq,val,words)'):(new.end)
 
 *   Construct new set with initial values determined by string _init_.
 *   The first three characters in _init_ determine the initial
@@ -851,7 +893,7 @@ new.int
 
 new.int.next
 
-    init break(' ') . key span(' ') =              :f(new.done)
+    init break(' ') . key span(' ') =              :f(return)
     add(new,eval(key))                             :(new.int.next)
 
 new.iter
@@ -900,42 +942,34 @@ new.map
 *   If present, _init_ is a list consisting of a list of key/value pairs,
 *   with a colon (:) separating the key and value.
 
+    init setl4.span.spaces =
     ident(init)                                     :s(return)
-    init = init ' '
 
 new.map.next
 
-    init break(':') . key ':' break(' ') . val span(' ') =  :f(new.done)
+    init break(':') . key ':' break(' ') . val span(' ') =  :f(return)
     put(new,key,val)                                :(new.map.next)
-
 
 new.seq
 
-    new = set(table(setl4.config.size),table(setl4.config.size))
-    set.kind(new) = 'map'
+*   Sequences used only the index table. There is no need for a key table since we
+*   retrieve values by an integer index.
+
+    new = set(table(setl4.config.size))
+    set.kind(new) = 'seq'
 
 new.seq.next
-    init break(' ') . key ' ' =                     :f(return)
-    out('new.seq.next',key)
+
+    init setl4.break.space . key setl4.span.spaces =    :f(return)
+    add(new,key)                                    :s(new.seq.next)
 
 new.set
 
 *    out('new.set init',show.q(init))
     new = set(table(setl4.config.size),table(setl4.config.size))
     set.kind(new) = 'set'
-    ident(init)                                     :s(return)
-    init = init ' '
+    differ(init) add(new,words(init))               :(return)
 
-new.set.init
-
-*    out('new.init',show.q(init))
-*    init break(' ') . key setl4.span.whitespace =  :f(new.done)
-    init ' ' =
-    init break(' ') . key ' '    =                  :f(new.done)
-    key = key
-    member(new,key)                                 :s(new.set.init)
-    add(new,key)
-                                                    :(new.set.init)
 *new.str
 *
 *    set.kind(new) = 'str'
@@ -947,9 +981,6 @@ new.set.init
 *    init len(1) . key ' ' =                         :f(return)
 *    put(new,i = i + 1, key)                         :(new.str.next)
 *
-new.done
-
-    set.next(new) =                                 :(return)
 
 new.end
 
@@ -1004,11 +1035,13 @@ next.iter
     this = next                                     :(return)
 
 next.map
+next.seq
 next.set
 
     next = set.next(set) = set.next(set) + 1
     le(next,set.size(set))                          :f(freturn)
     next = ident(set.kind(set),'map') value(set.key(set)[next])
+    next = ident(set.kind(set),'seq') set.index(set)[next]
     next = ident(set.kind(set),'set') set.index(set)[next]
     set.this(set) = next
     this = next                                     :(return)
@@ -1253,17 +1286,19 @@ show
 
 *   When showing a set, save _set.next_ and _set.this_ to avoid
 *   disrupting possible existing iteration over the set.
-
-    push(setl4.stack,set.next(v))
-    push(setl4.stack,set.this(v))
-
+    
+    setl4.save(v)
     kind = set.kind(v)
+
+*    out('show dt',datatype(v))
+*    out('show kind',set.kind(v))
+
     ident(kind,'int')                               :s(show.int)
     ident(kind,'iter')                              :s(show.iter)
     ident(kind,'map')                               :s(show.map)
     ident(kind,'seq')                               :s(show.seq)
     ident(kind,'set')                               :s(show.set)
-*    ident(kind,'str')                               :s(show.str)
+*    ident(kind,'str')                               :s(show.st)
     error('show unknown set kind',kind,' quitting.')
 
 show.notset
@@ -1343,19 +1378,20 @@ show.pair
 
 show.seq
 
-    show = ('[seq')
+    show = ('[seq ')
+    loop(v)
 
 show.seq.next
-    elem = seq(v)[i]
+
+    elem = next(v)                                  :f(show.seq.done)
     show = (ident(show) '', show ' ') show(elem,,1)
-    lt(size(show),100)                          :s(show.seq.next)
+    lt(size(show),100)                              :s(show.seq.next)
     out(show ' ')
     show =                                          :(show.seq.next)
 
 show.seq.done
 
-    set.this(v) = pop(setl4.stack)
-    set.next(v) = pop(setl4.stack)
+    setl4.restore(v)
     show = show ' ]'                                :(show.done)
 
 show.set
@@ -1377,10 +1413,7 @@ show.set.next
 
 show.set.done
 
-*   Restore _stack.next_ and _stack.this_.
-
-    set.this(v) = pop(setl4.stack)
-    set.next(v) = pop(setl4.stack)
+    setl4.restore(v)
     show = show ' }'                                :(show.done)
 
 *show.str
@@ -1417,7 +1450,7 @@ show.done
                                                     :(return)
 
 show.end
-    
+
     define('show.b(e)')                             :(show.b.end)
 
 *   Show value of _e_ as boolean: TRUE or FALSE
@@ -1490,11 +1523,15 @@ show.lines.end
 
 show.q
 
-    str break("'")                                  :s(show.q.double)
+    str break("'")                                  :s(show.q.single)
 
-    show.str = "'" str "'"                          :(return)
+*   Here if string does not contain a single quote, so use single quotes around it.
+
+    show.q = "'" str "'"                            :(return)
 
 show.q.double
+
+*   Here if string contains single quote, so use double quotes around it.
 
     show.q = '"' str '"'                            :(return)
 
@@ -1601,15 +1638,15 @@ visit.end
 
 words
 
-    pat = (ident(chars) setl4.word, span(&lcase &ucase '0123456789' chars))
+    pat = (ident(chars) setl4.span.word, span(&lcase &ucase '0123456789' chars))
     
 words.next
 
-    ident(str)                                      :s(words.finis)
     str setl4.span.spaces = 
-    str setl4.word.first                            :s(words.add)
+    ident(str)                                      :s(words.finis)
+    str setl4.any.word                              :s(words.add)
 
-*   Here if not a letter, so discard it and continue the loop
+*   Here if not at start of a word, so discard current character  and continue.
 
     str len(1) =                                    :(words.next) 
 
@@ -1642,8 +1679,7 @@ setl4.show
     differ(set.text(set))  out('#text',         size(set.text(set)))
     differ(set.text(set))  out('text',          set.text(set))
                            out('}')
-
-                                                    :(return)
+                                                :(return)
 setl4.show.end
 
     define('setl4.set.size(set)')                   :(setl4.size.end)
@@ -1657,6 +1693,31 @@ setl4.size
     setl4.size = set.size(set)                      :(return)
 
 setl4.size.end
+
+    define('setl4.save(s)')                         :(setl4.save.end)
+
+*   Save _next_ and _this_ fields of argument.
+
+setl4.save
+
+    push(setl4.stack,set.next(s))
+    push(setl4.stack,set.this(s))                   :(return)
+
+setl4.save.end
+
+    define('setl4.restore(s)')                      :(setl4.restore.end)
+
+*   Restore _next_ and _this_ fields of argument.
+
+    set.this(s) = pop(setl4.stack)
+    set.next(s) = pop(setl4.stack)                 :(return)
+
+setl4.restore
+
+    set.this(s) = pop(setl4.stack)
+    set.next(s) = pop(setl4.stack)                  :(return)
+
+setl4.restore.end
 
     define('traceoff()')                            :(traceoff.end)
 
@@ -1682,6 +1743,7 @@ traceon
                                                     :(return)
 traceon.end
 
+  :(opsyn.end)
 *   SETL4 uses some of the undefined SPITBOL operators for SETL4 functions.
 
 *   Characters available for use by 'opsyn' to associate the character
@@ -1701,6 +1763,7 @@ traceon.end
 *
 *setl4.op.end
 
+ output = 'at setl4.op.end'
 *   SETL4 binary operators
 
     opsyn('&','and',        2)
@@ -1716,6 +1779,8 @@ traceon.end
     opsyn('!','not',        1)
     opsyn('#','setl4.size', 1)
     opsyn('/','split',      1)
+
+opsyn.end
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
