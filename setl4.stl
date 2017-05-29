@@ -175,6 +175,25 @@
     setl4.ascii.value =  
     setl4.random_var =
 
+*   Useful patterns
+
+    setl4.digits            =   '0123456789'
+    setl4.any.digit         =   any('0123456789')
+    setl4.span.digits       =   span('0123456789')
+    setl4.break.digit       =   break('0123456789')
+
+    setl4.letters           =   &lcase &ucase 
+    setl4.break.letter      =   break(&lcase &ucase)
+    setl4.any.letter        =   any(&lcase &ucase)
+    setl4.span.letters      =   span(&lcase &ucase)
+    setl4.span.spaces       =   span(' ' char(9))
+    setl4.break.space       =   break(' ' char(9))
+
+    setl4.word.chars        =   lucase &ucase '0123456789'
+    setl4.word              =   span(&lcase &ucase '0123456789')
+    setl4.word.first        =   any(&ucase &lcase)
+    setl4.word.rest         =   span(&ucase &lcase '0123456789')
+
 
 *   SETL4 Functions
 *   ---------------
@@ -1573,19 +1592,35 @@ visit.next
 
 visit.end
 
-    define('words(str)i,tmp,w')                     :(words.end)
+    define('words(str,chars)pat,word')              :(words.end)
 
-*   Return sequence consisting of the words in _str_, where the 
-*   words are separated by one or more consecutive spaces and tabs.
+*   Return string consisting of the words in _str_.
+*   The first character in a word must be a letter, in upper or lower case.
+*   The remainder consists of letters, digits and any of the characters
+*   in _chars_ if _chars_ is not null.
 
 words
 
-    words = new('seq '  str)                        :(return)
+    pat = (ident(chars) setl4.word, span(&lcase &ucase '0123456789' chars))
     
 words.next
 
-    str setl4.break.whitespace . w setl4.span.whitespace  = :f(return)
-    put(words,i = i + 1, w)                         :(words.next)
+    ident(str)                                      :s(words.finis)
+    str setl4.span.spaces = 
+    str setl4.word.first                            :s(words.add)
+
+*   Here if not a letter, so discard it and continue the loop
+
+    str len(1) =                                    :(words.next) 
+
+words.add
+
+    str pat . word =
+    words = words (differ(words) ' ', '') word      :(words.next)
+
+words.finis
+
+    words = new('seq ' words)                       :(return)
 
 words.end
 
