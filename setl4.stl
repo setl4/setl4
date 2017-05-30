@@ -208,13 +208,13 @@
 *   domain(map)                     Returns set of elements in the domain of a map
 *   equal(a,b)                      Tests if two SETL4 objects are equal
 *   exists(set,expr)                Tests if an expression is true for at least one element in a set
-*   expnum(s)                       Returns value of integer s, which may be given in scientific form (1e5, etc.)
 *   from(set,elem)                  Returns set consisting of the members of a set except a specified member
 *   get(map,key)                    Gets the value of map _map_ for _key_ for a map
 *   get(set,i)                      Gets the i-th element in a set, or fails if no such element
 *   false(e)                        tests if argument is false
 *   forall(set,expr)                Tests if an expression is true for every element of a set
 *   filter(set,expr)                Filter:; returns subset of _set_ for which _expr_ is true
+*   int(s)                          Returns integer defined by _s_
 *   integers(n)                     Returns set of integers 1 ... n
 *   intersection(a,b)               Returns set of elements common to two sets
 *   loop(set)                       Set up iteration over _set_ using _next_
@@ -665,20 +665,6 @@ exists.loop
 
 exists.end
 
-    define('expnum(n)')                             :(expnum.end)
-
-*   Evaluate argument, converting value in exponential (scientific) notation 
-*   into its integer value, otherwise returning the argument value
-
-expnum
-
-    expnum = n
-    n break('e')                                    :f(return)
-    n break('e') . expnum 'e' =
-    expnum = expnum * +('1' dupl('0',n)) :(return)
-
-expnum.end
-
     define('false(e)')                              :(false.end)
 
 *   Tests if argument is false (null).
@@ -769,6 +755,24 @@ get.set
     get = set.key(map)[entry]                       :(return)
 
 get.end
+
+    define('int(n)')                             :(int.end)
+
+*   Returns _n_ if _n_ is an integer.
+*   Returns _n_ converted to an integer if _n_ is real.
+*   Returns the value of a string written in exponential 
+*   (scientific) notation into its integer value.
+
+int
+
+    int = integer(n) n                              :s(return)
+    int = ident(datatype(n),'real') convert(n,'integer') :s(return)
+    int = n
+    n break('e')                                    :f(return)
+    n break('e') . int 'e' =
+    int = int * +('1' dupl('0',n))                  :(return)
+
+int.end
 
     define('integers(n)')                           :(integers.end)
 
@@ -950,23 +954,23 @@ new.iter.1
 *   If one argument, low is one, high is the argument.
 
     set.low(new) =  1
-    set.high(new) = expnum(set.index(seq)[1])
+    set.high(new) = int(get(seq,1))
     set.step(new) = 1                               :(return)
 
 new.iter.2
 
 *   If two arguments, low is first argument, high is the second.
 
-    set.low(new) =  expnum(set.index(seq)[1])
-    set.high(new) = expnum(set.index(seq)[2])
+    set.low(new) =  int(get(seq,1))
+    set.high(new) = int(get(seq,2))
     set.step(new) = 1                               :(return)
 
 new.iter.3
 
 *   If three arguments, low is first, high is second, step is third.
-    set.low(new) =  expnum(set.index(seq)[1])
-    set.high(new) = expnum(set.index(seq)[2])
-    set.step(new) = expnum(set.index(seq)[3])       :(return)
+    set.low(new) =  int(get(seq,1))
+    set.high(new) = int(get(seq,2))
+    set.step(new) = int(get(seq,3))                 :(return)
 
 new.map
     
@@ -1315,6 +1319,7 @@ rank.end
 
 show
 
+    ident(v)                                        :s(return)
     differ(label) out('show: ' str.upper(label))
     differ(datatype(v),'set')                       :s(show.notset)
 

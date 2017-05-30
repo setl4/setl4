@@ -1,9 +1,6 @@
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
-*TODO - need separate out iterator from set data structure. May have multiple loops over same set at onece.
-*TODO - need equal for general equality test on sets, maps, etc.
-
 
 *   Utility Functions
 *   ---------------
@@ -20,22 +17,21 @@
 *   square.root(n)              Returns integer square root on _n_
 *   thousands(s)
 *   append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then appends _w_
-*   ascii(line)
+*   ascii(line)                 Returns the text of line with every ascii character identified
 *   datename(date)              Returns string based on current time suitable for use as filename
 *   digits()                    Returns list of digits: '0 1 2 .. 9'
 *   frequency(str)              Returns map giving frequency of characters in _str_
 *   letters()                   Returns list of letters : 'a b c ... z A B ... Z''
 *   less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
-*   s.lletters()                    Returns list of lower case letters : 'a b c ... z'
+*   lletters()                  Returns list of lower case letters : 'a b c ... z'
 *   lower(s)                    Returns _s_ with upper case letters replaced by lower case equivalent
-*   notany(a,b)                 Tests if first character in _a_ is not in _b_
 *   out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null,
-*                                   then _text3_ if _text3_ is not null.
+*                               then _text3_ if _text3_ is not null.
 *   prefix(str,pre)             Takes a list of space-separated words in _str_ and prefixes each
-*                                   with the string _pre_
+*                               with the string _pre_
 *   reader(filename,expr)       Returns sequence of lines in file _filename_, using _expr_ (if given)
-*                                   to filter out lines to be ignored.
-*   readerstring(str,delim)    Like _reader(filename..)_ but reads lines from a string with lines
+*                               to filter out lines to be ignored.
+*   reader(str,delim)           Like _reader(filename..)_ but reads lines from a string with lines
 *                                   separated by delimiter _delim_
 *   slice(str,first,last)       Same as SPITBOL _substr(str,first,last)_
 *   tokens(line)                Returns sequence of the tokens in _line_
@@ -44,9 +40,9 @@
 *   writer(lines)               Writes sequence _lines_ to standard output.
 
     define('cardinal(n,word)')           :(cardinal.end)
-*   If N is one, returns 'one' followed by WORD.
-*   Otherwise returns NUMBER(N) followed by WORD and 'S'.
 
+*   If _n_ is one, returns 'one' followed by _word_.
+*   Otherwise returns _number(n)_ followed by _word_ and the letter 's'.
 
 cardinal
 
@@ -56,11 +52,11 @@ cardinal.end
 
     define('even(n)')                           :(even.end)
 
-*   Returns TRUE iff _n_ is even.
+*   Tests if _n_ is even.
 
 even
 
-    even = (eq(remdr(n,2)) TRUE,FALSE)          :(even.end)
+    eq(remdr(n,2))                              :s(return)f(freturn)
 
 even.end
 
@@ -80,7 +76,7 @@ factorial.end
 
 multiple
 
-    multiple = (eq(remdr(n,m)) TRUE, FALSE)      :(return)
+    multiple = eq(remdr(n,m))                   :s(return)f(freturn)
 
 multiple.end
 
@@ -99,24 +95,30 @@ number.end
 
     define('odd(n)')                            :(odd.end)
 
-*   Returns true iff _n_ is odd.
+*   Tests if _n_ is odd.
 
 odd
 
-    odd = (ne(remdr(n,2)) TRUE,FALSE)           :(return)
+    odd = ne(remdr(n,2))                        :s(return)f(freturn)
 
 odd.end
+
     define('prime(n)')                          :(prime.end)
 
-*   Tests if _n_ is a prime integer
+*   Tests if _n_ is a primee integer.
 
 prime
-*    set = new('iter 2 ' (convert(sqrt(n),'integer') + 1))
-    show(set)
- :(end)
-*    prime = not(exists(new('iter 2 ' square.root(n)),multiple(n,this))) :(return)
 
-    :(return)
+    iter = new('iter 2 ' square.root(n) + 1)
+*    prime = exists(set,'multiple(n,this)')     :s(freturn)f(return)
+
+    loop(iter)
+
+prime.next
+
+    this = next(iter)                           :f(return)
+    multiple(n,this)                            :s(freturn)f(prime.next)
+
 prime.end
 
     define('square.root(n)')                    :(square.root.end)
@@ -125,8 +127,8 @@ prime.end
  :(end)
 
 square.root
-
-    square.root = convert(sqrt(n),'integer') + 1 :(return)
+   
+    square.root = int(sqrt(n)) + 1              :(return)
 
 square.root.end
 
@@ -142,17 +144,9 @@ thousands
 
 thousands.end
 
-
-*   Strings (str's)
-*   ---------------
-
-*   SETL4 provides additional operations, based on set theory,
-*    on strings in the form of "str's".
-
     define('append(str,w,ch)')                  :(append.end)
 
-*   _append_ appends _ch_, or ' ' if _ch_ is null, to _str_
-*   and then appends _w_.
+*   _Appends _ch_, or ' ' if _ch_ is null, to _str_ and then appends _w_.
 
 append
 
@@ -300,18 +294,18 @@ digits
 digits.next
 
     str len(1) . ch =                               :f(return)
-    digits = append(digits,ch)          :(digits.next)
+    digits = append(digits,ch)                      :(digits.next)
 
 digits.end
 
-    define('frequency(str)')                    :(frequency.end)
+    define('frequency(str)')                        :(frequency.end)
 
 *   Return map from the characters in a str to the number of times
 *   each occurs in the .
 
 frequency
 
-    frequency = map.new()
+    frequency = new('map')
 
 frequency.next
 
@@ -320,9 +314,9 @@ frequency.next
 
 frequency.end
 
-    define('less(str,sub)before,after')         :(less.end)
+    define('less(str,sub)before,after')             :(less.end)
 
-*   _Less_ removes the first instance of each character in _sub_ from _str_,
+*   Removes the first instance of each character in _sub_ from _str_,
 *   where _sub_ is a substr of _str_.
 
 less
@@ -333,56 +327,56 @@ less
 less.ch
     sub len(1) . ch =                               :f(return)
     less break(ch) . before  ch rem . after
-    less = before after                         :(less.ch)
+    less = before after                             :(less.ch)
 
 less.end
 
-    define('s.lletters()str,ch')                  :(s.lletters.end)
+    define('lletters()str,ch')                      :(lletters.end)
 
-*   Return string consisting of the lower case letters separated by a space.
+*   Returns string consisting of the lower case letters in _str_ separated by a space.
 
-s.lletters
+lletters
 
-    s.lletters = 
+    lletters = 
     str = &lcase
     
-s.lletterl.next
+lleters.next
 
-    str len(1) . ch =                              :f(return)
-    s.lletters = append(s.lletters,ch)     :(s.lletterl.next)
+    str len(1) . ch =                               :f(return)
+    lletters = append(lletters,ch)                  :(lleters.next)
 
-s.lletters.end
+lletters.end
 
-    define('letters()str,ch')                  :(letters.end)
+    define('letters()str,ch')                       :(letters.end)
 
-*   Return string consisting of the lower case letters separated by a space.
+*   Returns string consisting of the upper and lower case letters separated by a space.
 
 letters
 
     letters = 
     str = &lcase &ucase
     
-letterl.next
+letters.next
 
-    str len(1) . ch =                              :f(return)
-    letters = append(letters,ch)       :(letterl.next)
+    str len(1) . ch =                               :f(return)
+    letters = append(letters,ch)                    :(letters.next)
 
 letters.end
 
-    define('lower(s)')                          :(lower.end)
+    define('lower(s)')                              :(lower.end)
 
-*   Convert argument to lower case.
+*   Converts argument to lower case.
 
 lower
 
-    lower = replace(s,&ucase,&lcase)            :(return)
+    lower = replace(s,&ucase,&lcase)                :(return)
 
 lower.end
 
-    define('prefix(str,pre)word')               :(prefix.end)
+    define('prefix(str,pre)word')                   :(prefix.end)
 
-*   Prefix takes a list of space-separated words str and prefixes each
-*   with the str pre.
+*   Prefix takes a list of space-separated words _str_ and prefixes each
+*   with the str _pre_.
 
 prefix
 
@@ -392,23 +386,23 @@ prefix.1
 
     str break(' ') . word span(' ')  =              :f(return)
     add1(.prefixcount)
-    prefix = append(prefix, pre word,'A')   :(prefix.1)
+    prefix = append(prefix, pre word,'A')           :(prefix.1)
 
 prefix.end
 
-    define('uletters()str,ch')                  :(uletters.end)
+    define('uletters()str,ch')                      :(uletters.end)
 
-*   Return string consisting of the upper case letters separated by a space.
+*   Returns string consisting of the upper case letters separated by a space.
 
 uletters
 
     uletters = 
     str = &ucase
     
-uletterl.next
+ulleters.next
 
-    str len(1) . ch =                                :f(return)
-    uletters = append(uletters,ch)       :(uletterl.next)
+    str len(1) . ch =                               :f(return)
+    uletters = append(uletters,ch)                  :(ulleters.next)
 
 uletters.end
 
@@ -416,7 +410,7 @@ uletters.end
 *   Lines
 *   -----
 
-*   Lines can be just strs or, in some cases, a line is represented by a pair:
+*   Lines can be just strings or, in some cases, a line is represented by a pair:
 
     data('line(mark,text)')
 
@@ -430,9 +424,9 @@ uletters.end
 *   For example, the _reader_ function reads a file and returns a
 *   sequence of _lines_.
 
-    define('reader(filename,expr)line,mark')    :(reader.end)
+    define('reader(filename,expr)line,mark')        :(reader.end)
 
-*   Return a sequence of the lines in the file specified by _filename_.
+*   _Reader_ returns a sequence of the lines in the file specified by _filename_.
 *   If _expr_ is not null, then _eval_ is called just after each
 *   line is read, with the variable _pair_ set to the associated pair.
 *   If _eval_ fails the line is skipped.  Otherwise returns a new pair
@@ -459,51 +453,35 @@ reader.eof
 
 reader.end
 
-    define('readerstr(str,delim)line')         :(reader..end)
+    define('reader.str(str,delim)line')             :(reader.str.end)
 
 *   Returns a sequence of the lines in _str_,
 *   where the delimiter character _delim_ is used to mark
-*   the end of a line. One intended use of _readerstr_
+*   the end of a line. One intended use of _reader.str_
 *   is to assist in the construction of test programs.
 
-readerstr
+reader.str
 
     delim = ident(delim) '/'
-    readerstr = setl4..seq()
+    reader.str = setl4..seq()
 
-reader.l.next
+reader.str.next
 
     str break(delim) . line delim =                 :f(return)
-    add(readerstr,line)                        :(reader.l.next)
+    add(reader.str,line)                            :(reader.str.next)
 
-reader..end
+reader.str.end
 
-*    define('set(str)')              :(set.end)
-*
-**   Returns setl4str of characters in str _str_.
-*
-*set
-*
-*    str = setl4str(size(str))
-*    loop(str)
-*
-*set.next
-*
-*    next(set)                   :f(return)
-*    setl4..add(set,next(set))                :(set.next)
-*
-*set.end
-
-    define('slice(str,first,last)')             :(slice.end)
+    define('slice(str,first,last)')                 :(slice.end)
 
 slice
 
-    slice = substr(str,first,last)              :(return)
+    slice = substr(str,first,last)                  :(return)
 
 slice.end
 
 
-    define('split(str)word')                  :(split.end)
+    define('split(str)word')                        :(split.end)
 
 *   Returns sequence of the words in stirng _str_.
 *   Words are separated by whitespace: one of more consecuture spaces
@@ -661,17 +639,17 @@ tokenl.new
 
 tokens.end
 
-    define('upper(s)')                          :(upper.end)
+    define('upper(s)')                              :(upper.end)
 
 *   Convert argument to upper case.
 
 upper
 
-    upper = replace(s,&lcase,&ucase)            :(return)
+    upper = replace(s,&lcase,&ucase)                :(return)
 
 upper.end
 
-    define('writer(lines)')                    :(writer.end)
+    define('writer(lines)')                         :(writer.end)
 
 *   Writes the lines in the sequence _lines_ to standard output.
 
@@ -681,6 +659,8 @@ writer
 
 writer.next
 
-    output = set.next(lines)                        :f(return)s(writer.next)
+    output = next(lines)                            :f(return)s(writer.next)
 
 writer.end
+
+*   Here endeth the code.
