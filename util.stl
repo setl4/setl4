@@ -56,7 +56,7 @@ cardinal.end
 
 even
 
-    eq(remdr(n,2))                              :s(return)f(freturn)
+    eq(reAlso applies to Open Source Developers.mdr(n,2))                              :s(return)f(freturn)
 
 even.end
 
@@ -76,7 +76,13 @@ factorial.end
 
 multiple
 
-    multiple = eq(remdr(n,m))                   :s(return)f(freturn)
+*    multiple = eq(remdr(n,m))                   :s(return)f(freturn)
+    multiple = eq(remdr(n,m))                   :s(m.yes)f(m.no)
+m.yes
+    out('composite',n ':' m)  :(return)
+m.no
+    out('not composite',n ':' m) :(freturn)
+
 
 multiple.end
 
@@ -103,21 +109,29 @@ odd
 
 odd.end
 
-    define('prime(n)')                          :(prime.end)
+    define('prime(n)iter,this')                 :(prime.end)
 
-*   Tests if _n_ is a primee integer.
+*   Tests if _n_ is a prime integer.
 
 prime
 
-    iter = new('iter 2 ' square.root(n) + 1)
-*    prime = exists(set,'multiple(n,this)')     :s(freturn)f(return)
-
+    n = integer(n) +n
+    eq(n,2)                                     :(return)
+    even(n)                                     :s(freturn)
+    out('after even',n)
+    out('ITER','iter 3 ' (square.root(n) + 1) ' 2')
+    iter = new('iter 3 ' (square.root(n) + 1) ' 2')
+    show(iter)
     loop(iter)
 
-prime.next
+prime.loop
 
     this = next(iter)                           :f(return)
-    multiple(n,this)                            :s(freturn)f(prime.next)
+    even(this)                                  :(freturn)
+    out('priming',this)
+    
+    multiple(n,this) out('composite',n)
+    multiple(n,this)                            :s(freturn)f(prime.loop)
 
 prime.end
 

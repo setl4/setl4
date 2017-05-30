@@ -1,0 +1,35 @@
+
+-include "setl4.stl"
+-include "util.stl"
+
+    define('primes(n)iter,this')                :(primes.end)
+
+*   Returns set of primes less than _n_.
+
+primes
+
+    primes = new('set')
+    iter = new('iter 2 ' (n - 1))
+    loop(iter)
+
+primes.loop
+   
+    this = next(iter)                           :f(return)
+*    prime(this) out("prime this",this)
+    prime(this) add(primes,this)                :(primes.loop)
+
+primes.end
+
+    show(primes(100))
+
+end
+    define('primes(n)')                     :(primes.end)
+
+*   Computer primes less than _n_
+
+primes
+    out('primes ' n,primes(n))
+
+    primes = filter(new('iter 2 ' (n - 1)),'prime(this') :(return)
+
+primes.end
