@@ -1279,7 +1279,7 @@ show
     ident(kind,'int')                               :s(show.int)
     ident(kind,'iter')                              :s(show.iter)
     ident(kind,'map')                               :s(show.map)
-    ident(kind,'seq')                               :s(show.seq)
+    ident(kind,'seq')                               :s(show.map)
     ident(kind,'set')                               :s(show.set)
 *    ident(kind,'str')                               :s(show.st)
     error('show unknown set kind',kind,' quitting.')
