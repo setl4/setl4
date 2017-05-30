@@ -382,6 +382,7 @@ add
 
     elem = integer(elem) +elem
     ident(set.kind(set),'int')                  :s(add.int)
+    ident(set.kind(set),'map')                  :s(add.map)
     ident(set.kind(set),'seq')                  :s(add.seq)
     ident(set.kind(set),'set')                  :s(add.set)
     ident(set.kind(set),'iter') error("cannot add new element to set of type 'int'")
@@ -398,7 +399,7 @@ add.list
 add.list.next
     
     this = next(elem)                           :f(add.list.done)
-    add(set,this)                               :(add.next.elem)
+    add(set,this)                               :(add.list.next)
 
 add.list.done
 
@@ -446,31 +447,16 @@ add.put
 
     set.key(set)[key(elem)] = elem              :(return)
 
-add.seq
-
-*   Here to add entry to set of kind 'seq', which doesn't need, or use, the _key_ table
-
-    set.size(set) = set.size(set) + 1
-    set.index(set)[set.size(set)] = elem        :(return)
-
 add.set
 
-*   Here to add.listent to set. If element is a sequence then add all
-*   the values in the range of the sequence to the set.
-
-    ident(datatype(elem),'seq')                 :s(add.set.seq)
-*    out('add.set',elem)
-*    show(set)
+*   Here to add element to set.
+    out('add.set',elem)
     member(set,elem)                            :s(return)
-    elem  = entry(elem,elem)
-*    out('add.set new',elem)
-    set.size(set) = set.size(set) + 1
-    set.index(set)[set.size(set)] = key(elem)
-    set.key(set)[key(elem)] = elem                   
-*    out('add.set after adding new elemen')
-*    setl4.show(set)
-*    show(set)
-    :(return)
+    out('add.set new',elem)
+
+    this = set.size(set) = set.size(set) + 1
+    set.index(set)[this] = elem
+    set.key(set)[elem] = this                   :(return)
 
     
 add.end
@@ -545,7 +531,7 @@ at.end
 *   Tests if the map _map_ has an entry for _key_.
 
 defined
-
+    key = integer(key) +key
     differ(set.key(map)[key])                       :s(return)f(freturn)
 
 defined.end
@@ -711,6 +697,7 @@ get
 
 get.map
 
+    key = integer(key) +key
     entry = set.key(map)[key]
     ident(entry)                                    :s(freturn)
     get = value(set.key(map)[key])                  :(return)
@@ -837,13 +824,6 @@ member.set
     elem = integer(elem) +elem 
     differ(set.key(set)[elem])                      :s(return)f(freturn)
 
-member.map
-member.seq
-
-*   Here to test for membership in map or sequence.
-
-    differ(set.key(set)[key(entry)])                :s(return)f(freturn)
-
 member.end
 
 
@@ -952,23 +932,28 @@ new.map.next
 
 new.seq
 
-*   Sequences used only the index table. There is no need for a key table since we
-*   retrieve values by an integer index.
-
-    new = set(table(setl4.config.size))
+    new = set(table(setl4.config.size),table(setl4.config.size))
     set.kind(new) = 'seq'
 
 new.seq.next
 
-    init setl4.break.space . key setl4.span.spaces =    :f(return)
-    add(new,key)                                    :s(new.seq.next)
+    init setl4.break.space . val setl4.span.spaces =    :f(return)
+    put(new,i = i + 1,val)                              :(new.seq.next)
 
 new.set
 
-*    out('new.set init',show.q(init))
+    out('new.set init',show.q(init))
     new = set(table(setl4.config.size),table(setl4.config.size))
     set.kind(new) = 'set'
-    differ(init) add(new,words(init))               :(return)
+    ident(init)                                         :s(return)
+
+new.set.next
+
+    out('new.set.next init',init)
+    init break(' ') . key span(' ') =                   :f(return)
+    out('new.set.next',key)
+    add(new,key)                                        :(new.set.next)
+
 
 *new.str
 *
@@ -1040,9 +1025,7 @@ next.set
 
     next = set.next(set) = set.next(set) + 1
     le(next,set.size(set))                          :f(freturn)
-    next = ident(set.kind(set),'map') value(set.key(set)[next])
-    next = ident(set.kind(set),'seq') set.index(set)[next]
-    next = ident(set.kind(set),'set') set.index(set)[next]
+    next = set.index(set)[next]
     set.this(set) = next
     this = next                                     :(return)
 
@@ -1356,44 +1339,45 @@ show.map
 
 *    map = rank(map)
     this = copy(v)
-    set.index(this) = copy(set.index(v))
-    set.key(this) = copy(set.key(v))
-    loop(this)
+    loop(v)
     show = '{ map'
 
 show.map.next
 
     elem = next(v)                                  :f(show.set.done)
-    out('map.next dt',datatype(elem))
-*    show = show ' ' show(value(elem),,1)
-    show = show ' ' show(elem,,1)
+    show = show ' ' show(elem) ':' show(get(v,elem)) 
     lt(size(show),100)                              :s(show.map.next)
     out(show ' ')
     show =                                          :(show.map.next)
+
+show.map.done
+
+    setl4.restore(v)
+    show = show ' }'                                :(show.done)
 
 show.pair
 
     show = '{' lineid(num(pair)) ',' "'"
 .                       replace(line(pair),' ','.') "'" '}' :(show.done)
 
-show.seq
-
-    show = ('[seq ')
-    loop(v)
-
-show.seq.next
-
-    elem = next(v)                                  :f(show.seq.done)
-    show = (ident(show) '', show ' ') show(elem,,1)
-    lt(size(show),100)                              :s(show.seq.next)
-    out(show ' ')
-    show =                                          :(show.seq.next)
-
-show.seq.done
-
-    setl4.restore(v)
-    show = show ' ]'                                :(show.done)
-
+*show.seq
+*
+*    show = ('[seq ')
+*    loop(v)
+*
+*show.seq.next
+*
+*    elem = next(v)                                  :f(show.seq.done)
+*    show = (ident(show) '', show ' ') show(elem,,1)
+*    lt(size(show),100)                              :s(show.seq.next)
+*    out(show ' ')
+*    show =                                          :(show.seq.next)
+*
+*show.seq.done
+*
+*    setl4.restore(v)
+*    show = show ' ]'                                :(show.done)
+*
 show.set
 
 *   Call _rank_ so entries listed in rank order.

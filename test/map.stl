@@ -1,33 +1,26 @@
 -include "setl4.stl"
 
-    &dump = 2
+*    &dump = 2
 
-    s = new('map 1:one 2:two 10:ten 100:hundred 1000:thousand')
-    setl4.show(s)
+    s = new('map one:1  two:2 ten:10 forty:40 hundred:100 thousand:1000')
     show(s)
-end
 
-    out('test membership- expect success/failure')
-    show.eval("member(s,entry(1,'one'))")
-    show.eval("member(s,entry(8,'million'))")
-    out()
-    out()
-
-    out('test exists/forall with element in set - expect success/failure')
-    show.eval("exists(s,'ident(get(s,=s),'two)')")
-end
-    show.eval("forall(s,'eq(=s,10)')")
+    out('test map get- expect success/failure')
+    show.eval("eq(get(s,'one'),1)")
+    show.eval("eq(get(s,'one'),6)")
     out()
     out()
 
-    out('test exists/forall with element not in set - expect failure/failure')
-    show.eval("exists(s,'eq(=s,40)')")
-    show.eval("forall(s,'eq(=s,40)')")
+    out('test exists/forall with element in map- expect success/failure')
+    show.eval("exists(s,'eq(get(s,this),2)')")
+    show.eval("forall(s,'eq(get(s,this),2)')")
     out()
     out()
 
-    out('test exists/forall with element not in set - expect failure/success')
+    out('test exists/forall with element not in - expect failure/failure')
+    show.eval("exists(s,'eq(this,500)')")
+    show.eval("forall(s,'eq(this,500)')")
     out()
-    show.eval("exists(s,'eq(=s,6)')")
-    show.eval("forall(s,'ne(=s,6)')")
+    out()
+
 end

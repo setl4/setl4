@@ -1,6 +1,6 @@
 -include "setl4.stl"
 
-    &dump = 2
+*    &dump = 2
 
     s = new('set 5 10 15 20 25 25')
     add(s,30)
@@ -14,19 +14,19 @@
     out()
 
     out('test exists/forall with element in set - expect success/failure')
-    show.eval("exists(s,'eq(=s,10)')")
-    show.eval("forall(s,'eq(=s,10)')")
+    show.eval("exists(s,'eq(this,10)')")
+    show.eval("forall(s,'eq(this,10)')")
     out()
     out()
 
     out('test exists/forall with element not in set - expect failure/failure')
-    show.eval("exists(s,'eq(=s,40)')")
-    show.eval("forall(s,'eq(=s,40)')")
+    show.eval("exists(s,'eq(this,40)')")
+    show.eval("forall(s,'eq(this,40)')")
     out()
     out()
 
     out('test exists/forall with element not in set - expect failure/success')
     out()
-    show.eval("exists(s,'eq(=s,6)')")
-    show.eval("forall(s,'ne(=s,6)')")
+    show.eval("exists(s,'eq(this,6)')")
+    show.eval("forall(s,'ne(this,6)')")
 end
