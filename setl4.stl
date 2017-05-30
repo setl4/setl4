@@ -1438,7 +1438,6 @@ show.set
 
 *   Call _rank_ so entries listed in rank order.
 
-    out('show.set')
 *    set = rank(v)
     show = '{ set'
     loop(v)

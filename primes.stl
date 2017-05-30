@@ -15,7 +15,6 @@ primes
 primes.loop
    
     this = next(iter)                           :f(return)
-*    prime(this) out("prime this",this)
     prime(this) add(primes,this)                :(primes.loop)
 
 primes.end
@@ -25,7 +24,7 @@ primes.end
 end
     define('primes(n)')                     :(primes.end)
 
-*   Computer primes less than _n_
+*   _primes(n)_ returns set of primess less than _n_.
 
 primes
     out('primes ' n,primes(n))
