@@ -35,7 +35,7 @@
 *                                   with the string _pre_
 *   reader(filename,expr)       Returns sequence of lines in file _filename_, using _expr_ (if given)
 *                                   to filter out lines to be ignored.
-*   reader.string(str,delim)    Like _reader(filename..)_ but reads lines from a string with lines
+*   readerstring(str,delim)    Like _reader(filename..)_ but reads lines from a string with lines
 *                                   separated by delimiter _delim_
 *   slice(str,first,last)       Same as SPITBOL _substr(str,first,last)_
 *   tokens(line)                Returns sequence of the tokens in _line_
@@ -106,38 +106,38 @@ odd
     odd = (ne(remdr(n,2)) TRUE,FALSE)           :(return)
 
 odd.end
+    define('prime(n)')                          :(prime.end)
 
-
-    define('prime(n)set')                       :(prime.end)
-
-*   Returns true iff _n_ is prime.
+*   Tests if _n_ is a prime integer
 
 prime
+*    set = new('iter 2 ' (convert(sqrt(n),'integer') + 1))
+    show(set)
+ :(end)
+*    prime = not(exists(new('iter 2 ' square.root(n)),multiple(n,this))) :(return)
 
-    set = new(' 2 ' square.root(p))
-    prime = not(exists(set,'eq(remdr(p,=s))'))  :(return)
-
+    :(return)
 prime.end
 
     define('square.root(n)')                    :(square.root.end)
 
-*   Returns square root of eger _n_, rounded up.
+*   Returns square root of integer _n_, rounded up.
+ :(end)
 
 square.root
 
-    square.root = convert(sqrt(convert(n,'real')),
-                               'eger') + 1 :(return)
+    square.root = convert(sqrt(n),'integer') + 1 :(return)
 
 square.root.end
 
-    define('thousands(s)n')                  :(thousands.end)
+    define('thousands(s)n')                     :(thousands.end)
 
 *   Format s with comma's every three digits from right.
 
 thousands
 
     n = size(s)
-    thousands = le(n,3) s                    :s(return)
+    thousands = le(n,3) s                       :s(return)
     thousands = thousands(substr(s,1,n - 3)) ',' substr(s, n - 2, 3):(return)
 
 thousands.end
@@ -149,29 +149,29 @@ thousands.end
 *   SETL4 provides additional operations, based on set theory,
 *    on strings in the form of "str's".
 
-    define('.append(str,w,ch)')                  :(.append.end)
+    define('append(str,w,ch)')                  :(append.end)
 
-*   _.append_ appends _ch_, or ' ' if _ch_ is null, to _str_
+*   _append_ appends _ch_, or ' ' if _ch_ is null, to _str_
 *   and then appends _w_.
 
 append
 
-    .append = str (ident(str) w, (ident(ch) ' ' , ch) w):(return)
+    append = str (ident(str) w, (ident(ch) ' ' , ch) w):(return)
 
 append.end
 
-    define('.ascii(line)c,n,name,nul,num,pos')   :(.ascii.end)
+    define('ascii(line)c,n,name,nul,num,pos')   :(ascii.end)
 
-*   Return the text of line with every .ascii character identified.
+*   Return the text of line with every ascii character identified.
 
 ascii
 
-    true(.ascii.initialized)                   :s(.ascii.initialized)
+    true(ascii.initialized)                   :s(ascii.initialized)
 
 *   Here to initialize the needed maps.
     
-    .ascii.init()
-    .ascii.initialized = true;
+    ascii.init()
+    ascii.initialized = true;
 
 ascii.initialized
 
@@ -181,146 +181,146 @@ ascii.next
 
 *   Add space after previous character if result not null.
 
-    .ascii = differ(.ascii) .ascii ' '
-    c = substr(line,1,1)                            :f(.ascii.done)
-    ident(c,nul)                                    :s(.ascii.null)
-    line any('0123456789')                          :s(.ascii.integer)
-    line any(&lcase &ucase)                         :s(.ascii.letter)
-    line ' '                                        :s(.ascii.space)
+    ascii = differ(ascii) ascii ' '
+    c = substr(line,1,1)                            :f(ascii.done)
+    ident(c,nul)                                    :s(ascii.null)
+    line any('0123456789')                          :s(ascii.integer)
+    line any(&lcase &ucase)                         :s(asciiletter)
+    line ' '                                        :s(ascii.space)
 
 *   Check for control character (code <=26)
 
-    &alphabet break(c) . pos                        :f(.ascii.other)
+    &alphabet break(c) . pos                        :f(ascii.other)
     pos = size(pos)
-    gt(pos,26)                                      :s(.ascii.other)
+    gt(pos,26)                                      :s(ascii.other)
 *TODO here fix g. usage
-    .ascii = .ascii g..ascii.name[c] '(^'
+    ascii = ascii g.ascii.name[c] '(^'
                substr('ABCDEFGHIJKLMNOPQRSTUVWXYZ',pos,1) ')'
-    line len(1) =                                   :(.ascii.next)
+    line len(1) =                                   :(ascii.next)
 
 ascii.integer
 
     line span('0123456789') . text =
-    .ascii = .ascii  text                     :(.ascii.next)
+    ascii = ascii  text                     :(ascii.next)
 
-ascii.letter
+asciiletter
 
     line span(&lcase &ucase) . text =
-    .ascii = .ascii  text                     :(.ascii.next)
+    ascii = ascii  text                     :(ascii.next)
 
 ascii.null
 
-    .ascii = .ascii 'NUL'                     :(.ascii.next)
+    ascii = ascii 'NUL'                     :(ascii.next)
 
 ascii.other
 
-*   Here if none of the other cases apply, so just list the .ascii name.
+*   Here if none of the other cases apply, so just list the ascii name.
 
-    .ascii = .ascii .ascii.name[c]
-    line = substr(line,2)                           :(.ascii.next)
+    ascii = ascii ascii.name[c]
+    line = substr(line,2)                           :(ascii.next)
 
 ascii.space
 
     line span(' ') . text =
 
-    .ascii =  .ascii 'SPC'
-    .ascii = gt(size(text),1) .ascii 'SPC*' size(text)
-    .ascii = .ascii
-                                                    :(.ascii.next)
+    ascii =  ascii 'SPC'
+    ascii = gt(size(text),1) ascii 'SPC*' size(text)
+    ascii = ascii
+                                                    :(ascii.next)
 ascii.done
 
-    .ascii = trim(.ascii)                     :(return)
+    ascii = trim(ascii)                     :(return)
 
 ascii.end
 
-    define('.ascii.init(init)entry,name,value') :(.ascii.init.end)
+    define('ascii.init(init)entry,name,value') :(ascii.init.end)
 
-*   Initialize maps for use by _.ascii_.
-*   Since space (.ascii 32) prints as space, use the name SPC for 32.
+*   Initialize maps for use by _ascii_.
+*   Since space (ascii 32) prints as space, use the name SPC for 32.
 
 ascii.init
 
 
-    .ascii.init = setl4..map(
-       '0:NUL 16:DLE 32:SPC 48:0 64:@ 80:P  96:` 112:p '
-       '1:SOH 17:DC1 33:!   49:1 65:A 81:Q  97:a 113:q '
-       '2:STX 18:DC2 34:"   50:2 66:B 82:R  98:b 114:r '
-       '3:ETX 19:DC3 35:#   51:3 67:C 83:S  99:c 115:s '
-       '4:EOT 20 DC4 36:$   52:4 68:D 84:T 100:d 116:t '
-       '5:ENQ 21:NAK 37:%   53:5 69:E 85:U 101:e 117:u '
-       '6:ACK 22:SYN 38:&   54:6 70:F 86:V 102:f 118:v '
-       "7:BEL 23:ETB 39:'   55:7 71:G 87:W 103:g 119:w "
-       '8:BS  24:CAN 40:(   56:8 72:H 88:X 104:h 120:x '
-       '9:HT  25:EM  41:)   57:9 73:I 89:Y 105:i 121:y '
-       '10:LF 26:SUB 42:*   58:  74:J 90:Z 106:j 122:z '
-       '11:VT 27:ESC 43:+   59:; 75:K 91:[ 107:k 123:{ '
-       '12:FF 28:FS  44:,   60:< 76:L 92:\ 108:l 124:| '
-       '13:CR 29:GS  45:-   61:= 77:M 93:] 109:m 125:} '
-       '14:SO 30:RS  46:.   62:> 78:N 94:^ 110:n 126:~ '
-       '15:SI 31:US  47:/   63:? 79:O 95:_ 111:o 127:DEL ')
+    ascii.init = new('map '
+.      '0:NUL 16:DLE 32:SPC 48:0 64:@ 80:P  96:` 112:p '
+.      '1:SOH 17:DC1 33:!   49:1 65:A 81:Q  97:a 113:q '
+.      '2:STX 18:DC2 34:"   50:2 66:B 82:R  98:b 114:r '
+.      '3:ETX 19:DC3 35:#   51:3 67:C 83:S  99:c 115:s '
+.      '4:EOT 20 DC4 36:$   52:4 68:D 84:T 100:d 116:t '
+.      '5:ENQ 21:NAK 37:%   53:5 69:E 85:U 101:e 117:u '
+.      '6:ACK 22:SYN 38:&   54:6 70:F 86:V 102:f 118:v '
+.      "7:BEL 23:ETB 39:'   55:7 71:G 87:W 103:g 119:w "
+.      '8:BS  24:CAN 40:(   56:8 72:H 88:X 104:h 120:x '
+.      '9:HT  25:EM  41:)   57:9 73:I 89:Y 105:i 121:y '
+.      '10:LF 26:SUB 42:*   58:  74:J 90:Z 106:j 122:z '
+.      '11:VT 27:ESC 43:+   59:; 75:K 91:[ 107:k 123:{ '
+.      '12:FF 28:FS  44:,   60:< 76:L 92:\ 108:l 124:| '
+.      '13:CR 29:GS  45:-   61:= 77:M 93:] 109:m 125:} '
+.      '14:SO 30:RS  46:.   62:> 78:N 94:^ 110:n 126:~ '
+.      '15:SI 31:US  47:/   63:? 79:O 95:_ 111:o 127:DEL ')
 
-    .ascii.name = .map(efault.size)
-    .ascii.value = .map(efault.size)
-    loop(.ascii.init)
+    ascii.name = .map(efault.size)
+    ascii.value = .map(efault.size)
+    loop(ascii.init)
 
 ascii.init.next
 
-    entry = setl4.l.next(.ascii.init)                  :(.ascii.init.finis)
+    entry = setl4.l.next(ascii.init)                  :(ascii.init.finis)
 *   Correct entry for 0 to be NUL, the NUL character
-    .ascii.name[substr(&alphabet,+v + 1,1)] = name
-    .ascii.value[name] = +value                  :(.ascii.init.next)
-    .ascii.name[] = 'NUL'
-    .ascii.value['NUL'] = 0
-    .ascii.name[' '] = 'SPC'
-    .ascii.value['SPC'] = 32                     :(return)
+    ascii.name[substr(&alphabet,+v + 1,1)] = name
+    ascii.value[name] = +value                  :(ascii.init.next)
+    ascii.name[] = 'NUL'
+    ascii.value['NUL'] = 0
+    ascii.name[' '] = 'SPC'
+    ascii.value['SPC'] = 32                     :(return)
 
 ascii.init.end
 
-    define('.datename(date)s')                  :(.datename.end)
+    define('datename(date)s')                  :(datename.end)
 
 *   Convert date to form with no spaces, just dashes, to be
 *   suitable for use as part of a file name.
 
 datename
 
-    .datename = replace(date,' :/','---')
-    .datename = substr(.datename,12,8) '-' substr(.datename,1,10)
+    datename = replace(date,' :/','---')
+    datename = substr(datename,12,8) '-' substr(datename,1,10)
                                                    :(return)
 datename.end
 
-    define('.digits()str,ch')                   :(.digits.end)
+    define('digits()str,ch')                   :(digits.end)
 
 *   Return string consisting of the digits 0 .. 9 separated by a space.
 
 digits
 
-    .digits = 
+    digits = 
     str = '0123456789'
     
-digitl.next
+digits.next
 
     str len(1) . ch =                               :f(return)
-    .digits = .append(.digits,ch)          :(.digitl.next)
+    digits = append(digits,ch)          :(digits.next)
 
 digits.end
 
-    define('.frequency(str)')                    :(.frequency.end)
+    define('frequency(str)')                    :(frequency.end)
 
 *   Return map from the characters in a str to the number of times
 *   each occurs in the .
 
 frequency
 
-    .frequency = map.new()
+    frequency = map.new()
 
 frequency.next
 
-    str len(1) . c =                                :f(.frequency.end)
-    setl4..put(.frequency,c,setl4..get(.frequency,c) + 1)   :(.frequency.next)
+    str len(1) . c =                                :f(frequency.end)
+    setl4..put(frequency,c,setl4..get(frequency,c) + 1)   :(frequency.next)
 
 frequency.end
 
-    define('.less(str,sub)before,after')         :(.less.end)
+    define('less(str,sub)before,after')         :(less.end)
 
 *   _Less_ removes the first instance of each character in _sub_ from _str_,
 *   where _sub_ is a substr of _str_.
@@ -328,12 +328,12 @@ frequency.end
 less
 
     ident(str)                                      :s(return)
-    .less = str
+    less = str
 
 less.ch
     sub len(1) . ch =                               :f(return)
-    .less break(ch) . before  ch rem . after
-    .less = before after                         :(.less.ch)
+    less break(ch) . before  ch rem . after
+    less = before after                         :(less.ch)
 
 less.end
 
@@ -349,39 +349,39 @@ s.lletters
 s.lletterl.next
 
     str len(1) . ch =                              :f(return)
-    s.lletters = .append(s.lletters,ch)     :(s.lletterl.next)
+    s.lletters = append(s.lletters,ch)     :(s.lletterl.next)
 
 s.lletters.end
 
-    define('.letters()str,ch')                  :(.letters.end)
+    define('letters()str,ch')                  :(letters.end)
 
 *   Return string consisting of the lower case letters separated by a space.
 
 letters
 
-    .letters = 
+    letters = 
     str = &lcase &ucase
     
 letterl.next
 
     str len(1) . ch =                              :f(return)
-    .letters = .append(.letters,ch)       :(.letterl.next)
+    letters = append(letters,ch)       :(letterl.next)
 
 letters.end
 
-    define('.lower(s)')                          :(.lower.end)
+    define('lower(s)')                          :(lower.end)
 
 *   Convert argument to lower case.
 
 lower
 
-    .lower = replace(s,&ucase,&lcase)            :(return)
+    lower = replace(s,&ucase,&lcase)            :(return)
 
 lower.end
 
-    define('.prefix(str,pre)word')               :(.prefix.end)
+    define('prefix(str,pre)word')               :(prefix.end)
 
-*   Prefix takes a list of space-separated words str and .prefixes each
+*   Prefix takes a list of space-separated words str and prefixes each
 *   with the str pre.
 
 prefix
@@ -391,24 +391,24 @@ prefix
 prefix.1
 
     str break(' ') . word span(' ')  =              :f(return)
-    add1(..prefixcount)
-    .prefix = append(.prefix, pre word,'A')   :(.prefix.1)
+    add1(.prefixcount)
+    prefix = append(prefix, pre word,'A')   :(prefix.1)
 
 prefix.end
 
-    define('.uletters()str,ch')                  :(.uletters.end)
+    define('uletters()str,ch')                  :(uletters.end)
 
 *   Return string consisting of the upper case letters separated by a space.
 
 uletters
 
-    .uletters = 
+    uletters = 
     str = &ucase
     
 uletterl.next
 
     str len(1) . ch =                                :f(return)
-    .uletters = .append(.uletters,ch)       :(.uletterl.next)
+    uletters = append(uletters,ch)       :(uletterl.next)
 
 uletters.end
 
@@ -430,26 +430,26 @@ uletters.end
 *   For example, the _reader_ function reads a file and returns a
 *   sequence of _lines_.
 
-    define('.reader(filename,expr)line,mark')    :(.reader.end)
+    define('reader(filename,expr)line,mark')    :(reader.end)
 
 *   Return a sequence of the lines in the file specified by _filename_.
 *   If _expr_ is not null, then _eval_ is called just after each
-*   line is read, with the variable _pair_ setl4.str to the associated pair.
+*   line is read, with the variable _pair_ set to the associated pair.
 *   If _eval_ fails the line is skipped.  Otherwise returns a new pair
 *   to be entered in the input seq.
 
 reader
 
-    differ(filename) input(.file,g.channel.temp,filename):s(.reader.opened)
-    out('unable to open .reader file ' filename '.') :(freturn)
+    differ(filename) input(.file,g.channel.temp,filename):s(reader.opened)
+    out('unable to open reader file ' filename '.') :(freturn)
 
 reader.opened
 
-    .reader = map(1024)
+    reader = map(1024)
 
 reader.next
 
-    setl4..add(map, (ident(filename) input, file)) :f(.reader.eof)s(.reader.next)
+    setl4..add(map, (ident(filename) input, file)) :f(reader.eof)s(reader.next)
 
 reader.eof
 
@@ -459,46 +459,46 @@ reader.eof
 
 reader.end
 
-    define('.reader.str(str,delim)line')         :(.reader..end)
+    define('readerstr(str,delim)line')         :(reader..end)
 
 *   Returns a sequence of the lines in _str_,
 *   where the delimiter character _delim_ is used to mark
-*   the end of a line. One intended use of _.reader.str_
+*   the end of a line. One intended use of _readerstr_
 *   is to assist in the construction of test programs.
 
-reader.str
+readerstr
 
     delim = ident(delim) '/'
-    .reader.str = setl4..seq()
+    readerstr = setl4..seq()
 
 reader.l.next
 
     str break(delim) . line delim =                 :f(return)
-    add(.reader.str,line)                        :(.reader.l.next)
+    add(readerstr,line)                        :(reader.l.next)
 
 reader..end
 
-    define('.set(str)')              :(.set.end)
+*    define('set(str)')              :(set.end)
+*
+**   Returns setl4str of characters in str _str_.
+*
+*set
+*
+*    str = setl4str(size(str))
+*    loop(str)
+*
+*set.next
+*
+*    next(set)                   :f(return)
+*    setl4..add(set,next(set))                :(set.next)
+*
+*set.end
 
-*   Returns setl4.str of characters in str _str_.
-
-set
-
-    .str = setl4.str(size(str))
-    loop(str)
-
-set.next
-
-    next(.set)                   :f(return)
-    setl4..add(.set,next(set))                :(.set.next)
-
-set.end
-
-    define('.slice(str,first,last)')             :(.slice.end)
+    define('slice(str,first,last)')             :(slice.end)
 
 slice
 
-    .slice = substr(str,first,last)              :(return)
+    slice = substr(str,first,last)              :(return)
 
 slice.end
 
@@ -575,10 +575,10 @@ split.end
 *   emphasis to a token by underlining it, or enclosing it in '_' to generate
 *   markdown format, and so forth.
 
-    define('.tokens(line)type,pos,text,lineno')  :(.tokens.end)
+    define('tokens(line)type,pos,text,lineno')  :(tokens.end)
 
-*   Str.tokens scans _line_ and returns a table of the .tokens in the line.
-*   The table has keys from 1..n, where _n_ is the number of .tokens found.
+*   Strtokens scans _line_ and returns a table of the tokens in the line.
+*   The table has keys from 1..n, where _n_ is the number of tokens found.
 
 *   This function is an instance of what is called a lexiical scanner, or tokenizer,
 *   which is the first stage in a programming language compiler, or for any program
@@ -586,92 +586,92 @@ split.end
 
 tokens
 
-    .tokens = setl4..seq()
-    line '*'                                        :f(.tokenl.next)
+    tokens = setl4..seq()
+    line '*'                                        :f(tokenl.next)
     type = 'c'
     text = line
-    line =                                          :(.tokenl.new)
+    line =                                          :(tokenl.new)
 
 tokenl.next
 
-    line ' '                                        :s(.tokens.space)
-    line any('0123456789')                          :s(.tokens.integer)
-    line any('(<[{')                                :s(.tokenl.left)
-    line any('.;,?!')                               :s(.tokens.punctuation)
-    line '"'                                        :s(.tokens.quote)
-    line any('~@#$%^&*_-+=')                                        :s(.tokens.other)
-    line any(')>]}')                                :s(.tokens.right)
-    line char(9)                                    :s(.tokens.tab)
-    line any(&lcase &ucase)                         :s(.tokens.word)
+    line ' '                                        :s(tokens.space)
+    line any('0123456789')                          :s(tokens.integer)
+    line any('(<[{')                                :s(tokenl.left)
+    line any('.;,?!')                               :s(tokens.punctuation)
+    line '"'                                        :s(tokens.quote)
+    line any('~@#$%^&*_-+=')                                        :s(tokens.other)
+    line any(')>]}')                                :s(tokens.right)
+    line char(9)                                    :s(tokens.tab)
+    line any(&lcase &ucase)                         :s(tokens.word)
 
 *   Here for unprintable
-                                                    :(.tokens.unprintable)
+                                                    :(tokens.unprintable)
 
 tokens.integer
 
     type = 'i'
-    line span('0123456789') . text =                :(.tokenl.new)
+    line span('0123456789') . text =                :(tokenl.new)
 
 tokens.punctuation
 
-    type = 'p'                                       :(.tokens.character)
+    type = 'p'                                       :(tokens.character)
 
 tokens.other
 
-    type = 'o'                                      :(.tokens.character)
+    type = 'o'                                      :(tokens.character)
 
-*.tokens.other
+*tokens.other
 
-    type = 'o'                                      :(.tokens.character)
+    type = 'o'                                      :(tokens.character)
 
 tokens.quote
 
     type = 'q'
     line '"' break('"') . text '"' =
-    text = '"' text '"'                             :(.tokenl.new)
+    text = '"' text '"'                             :(tokenl.new)
 
 tokens.right
 
-    type = 'r'                                      :(.tokens.character)
+    type = 'r'                                      :(tokens.character)
 
 tokens.space
 
     type = 's'
-    line span(' ')  . text =                        :(.tokenl.new)
+    line span(' ')  . text =                        :(tokenl.new)
 
 tokens.tab
 
-    type = 't'                                      :(.tokens.character)
+    type = 't'                                      :(tokens.character)
 
 tokens.word
 
 *FIX*
     type = 'w'
-    line span(&ucase &lcase "_" "'") . text =       :(.tokenl.new)
+    line span(&ucase &lcase "_" "'") . text =       :(tokenl.new)
 
 tokens.character
 
 *   Here if token is single character.
 
-    line len(1) . text                              :(.tokenl.new)
+    line len(1) . text                              :(tokenl.new)
 
 tokenl.new
 
-    setl4..add(.tokens,token(lineno,pos,type,text)) :(.tokenl.next)
+    setl4..add(tokens,token(lineno,pos,type,text)) :(tokenl.next)
 
 tokens.end
 
-    define('.upper(s)')                          :(.upper.end)
+    define('upper(s)')                          :(upper.end)
 
 *   Convert argument to upper case.
 
 upper
 
-    .upper = replace(s,&lcase,&ucase)            :(return)
+    upper = replace(s,&lcase,&ucase)            :(return)
 
 upper.end
 
-    define('.writer(lines)')                    :(.writer.end)
+    define('writer(lines)')                    :(writer.end)
 
 *   Writes the lines in the sequence _lines_ to standard output.
 
@@ -681,6 +681,6 @@ writer
 
 writer.next
 
-    output = set.next(lines)                        :f(return)s(.writer.next)
+    output = set.next(lines)                        :f(return)s(writer.next)
 
 writer.end
