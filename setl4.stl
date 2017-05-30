@@ -206,6 +206,7 @@
 *   defined(map,key)                Tests if a map is defined for a specified key
 *   difference(a,b)                 Returns set of members of set _a_ not in the set _b_
 *   domain(map)                     Returns set of elements in the domain of a map
+*   equal(a,b)                      Tests if two SETL4 objects are equal
 *   exists(set,expr)                Tests if an expression is true for at least one element in a set
 *   expnum(s)                       Returns value of integer s, which may be given in scientific form (1e5, etc.)
 *   from(set,elem)                  Returns set consisting of the members of a set except a specified member
@@ -450,10 +451,7 @@ add.put
 add.set
 
 *   Here to add element to set.
-    out('add.set',elem)
     member(set,elem)                            :s(return)
-    out('add.set new',elem)
-
     this = set.size(set) = set.size(set) + 1
     set.index(set)[this] = elem
     set.key(set)[elem] = this                   :(return)
@@ -552,6 +550,62 @@ diference.next
     add(difference,this)                            :(difference.next)
 
 difference.end
+
+    define('equal(a,b)entry,i,key,value')                        :(equal.end)
+
+*   Tests if two objects are equal. Use DIFFER unless both are sets, in
+*   which case use equality tests specified below.
+
+equal
+   
+    equal = FALSE
+    ident(datatype(a),'set') ident(datatype(b),'set')   :s(equal.setl4)
+    ident(a,b)                                          :s(equal.true)f(return)
+
+equal.setl4
+
+*   Here for equality test of two SETL4 objects.
+
+    ident(set.kind(a),set.kind(b))                      :f(return)
+    eq(set.size(a),set.size(b))                         :f(return)
+            :($('equal.' set.kind(a)))
+
+equal.int
+
+    eq(set.low(a),set.low(b))                           :f(return)
+    eq(set.high(a),set.high(b))                         :f(return)
+    eq(set.step(a),set.step(b))                         :f(return)s(equal.true)
+
+equal.map
+
+*   Two maps are equal if they have the same vaue at every element in the domain.
+
+    gt(i = i + 1, set.size(a))                          :s(equal.true)
+    entry = set.index(a)[i]
+    ident(value(entry),get(b,key(entry)))               :f(return)s(equal.map)
+
+equal.seq
+
+*   Two sequences are equal if they have the same vaue at every element in the domain.
+
+    gt(i = i + 1, set.size(a))                          :s(equal.true)
+    ident(set.seq(a)[i], set.seq(b)[i])                 :s(equal.seq)f(return)
+
+equal.set
+
+*   Two sets are equal if and only if each is a subset of the other.
+
+    equal = and(set.subset(a,b),set.subset(b,a))        :f(return)s(equal.true)
+
+*equal.str
+*
+*    equal = (ident(set.text(a),set.text(b) TRUE, FALSE) :f(return)s(equal.true)
+*
+equal.true
+
+    equal = TRUE                                        :(return)
+
+equal.end
 
     define('from(set,elem)this')                    :(from.end)
 
@@ -942,16 +996,13 @@ new.seq.next
 
 new.set
 
-    out('new.set init',show.q(init))
     new = set(table(setl4.config.size),table(setl4.config.size))
     set.kind(new) = 'set'
     ident(init)                                         :s(return)
 
 new.set.next
 
-    out('new.set.next init',init)
     init break(' ') . key span(' ') =                   :f(return)
-    out('new.set.next',key)
     add(new,key)                                        :(new.set.next)
 
 
