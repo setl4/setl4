@@ -1,49 +1,114 @@
 
-### SETL4 - A new implementation of SETL
+# SETL4 - A New Implementation of SETL
 
 
 SETL4 is an implementation of SETL (SET Language) written in SPITBOL.
 
 It can be viewed as an extension of SPITBOL that adds set-theoretic datatypes,
 functions, and operators; and also as an implementation of SETL that includes 
-the datatypes, functions, and operators of SETL. 
+the datatypes, functions, and operators of SPITBOL. 
 
 Either way, SETL4 provides raw power and speed for non-numeric computation.
 
+## What is SETL?
 
-## Installation and Usage
+SETL (SET Language)  is  a programming language with finite sets as 
+the fundamental data type. It was created by Jacob T. "Jack" Schwartz 
+of the Courant Institute of Mathematical Sciences (CIMS) of New York 
+University (NYU).
 
-To install SETL, first visit http://github.com/setl4. Download the zip file or,
-if you are familiar with git, clone the repository:
+Jack founded the SETL project in 1970. It was later funded by two 
+five-year grants from the Office of Naval Research.
+
+SETL was used to write NYU Ada/Ed, the first validated Ada compiler.
+Devloped on the DEC Vax 11/780, Ada/Ed was ported to the IBM PC (DOS)
+by a team led by Dave Shields.
+
+## Why are sets so important?
+
+One of the great discoveries in mathematics in the twentieth century was the
+realization that ALL of mathematics can be expressed using sets. There is no branch of
+mathematics that does not use sets in some way.
+
+For a good introduction to set theory, see the book "Naive Set Theory" by Paul Halmos, a
+great mathematician as well as one of the best expository writers about mathematics. The book in
+PDF format can be found at http://elienasrallah.com/dl/Halmos%20Naive%20%set%theory.pdf
+
+## Why are sets useful in programming?
+
+Programming is a form of applied mathematics, as well as a field of engineering. Good programs
+not only find a solution but they do so using as little time and space as possible.
+
+
+Every program requires a specification of what is desired, whether written down,
+or as just a vision in the programmer's mind.
+
+Since creating programs in a branch of mathematics, the ideal specification should be
+mathematical, and, since all of mathematics use set theory in some way, the specification
+is best be written using set-theoretic data structures and operations.
+
+(Note, as an aside, that if it is not possible to write a specification for a program
+based on set theory, then the resulting program only has meaning in an alternate 
+universe where mathematics does not apply.)
+
+For example, consider how to write a program that finds all the primes less 
+than a given integer _n_.
+
+A number _n_ is prime if its only factors are one and the number itself. This is the same
+as saying there is no number greater than one and less than _n_ that divides _n_.
+
+This can be expressed in SETL4 as
 
 ```
-    git clone http://github.com/setl4
+    exists(new('iter 2 ' n - 1),'multiple(n,this)') :s(freturn)f(return)
 ```
 
-Copy the file `bin/setl4` to a directory on your $PATH.
-
-To use SETL4, first enter
+Here is the code for the function prime in SETL4, which makes use of the observations
+that even numbers, except for two, are not prime, and only need to check for multiples
+for integers no greater than the square root of _n_
 
 ```
-setl4
+    define('prime(n)iter,this')                 :(prime.end)
+
+*   Tests if _n_ is a prime integer.
+
+prime
+
+    n = integer(n) +n
+    eq(n,2)                                     :s(return)
+    even(n)                                     :s(freturn)
+
+    exists(new('iter 3 ' n - 1 ' 3'), 'multiple(n,this)') :s(freturn)f(return)
+
+prime.end
 ```
 
-You should see a list of the options. Then enter the program `try.stl`:
+Here is the code for exists():
+
 ```
-    -include "setl4.stl"
-    s = new('set hello world')
-    show(s)
-    end
+    define('exists(set,expr)this,e')                :(exists.end)
+
+*   Tests if there is an element in _set_ such that _expr_ is true.
+
+exists
+
+    loop(set)
+
+exists.loop
+
+    this = next(set)                                :f(freturn)
+    exists = eval(expr)                             :f(exists.loop)s(return)
+
+
+exists.end
+
 ```
 
-If that works, then you are on you way to having fun using SETL4 to write
-more interesting programs.
-
-Directory `setl4/tests` contains test programs.
-
-Directory `setl4/examples` contains various demonstration program.
-This written in SPITBOL have a name ending in 'sbl'. One goal of the
-project is to translate these programs to SETL4
+This is why SETL4 can be viewed as an executable specification language. If you
+specify a problem using set theory, then you can use SETL4 to execute that
+specification to get the result; in other programming languages you need to
+translate the specification into a different form, using arrays to represent
+a set, using loop statements to loop over sets, and so forth.
 
 
 ## What is SPITBOL?
@@ -88,19 +153,39 @@ Special credit is due Mark Emmer, who led the project from the mid 1980's
 to 2009. Dave Shieldsl has maintained SPITBOL since then.
 
 
-## What is SETL?
+## Installation and Usage
 
-SETL (SET Language)  is  a programming language with  finite sets as 
-the fundamental data type. It was created by Jacob T. "Jack" Schwartz 
-of the Courant Institute of Mathematical Sciences (CIMS) of New York 
-University (NYU).
+To install SETL, first visit http://github.com/setl4. Download the zip file or,
+if you are familiar with git, clone the repository:
 
-Jack founded the SETL project in 1970. It was later funded by two 
-five-year grants from the Office of Naval Research.
+```
+    git clone http://github.com/setl4
+```
 
-SETL was used to write NYU Ada/Ed, the first validated Ada compiler.
-Devloped on the DEC Vax 11/780, Ada/Ed was ported to the IBM PC (DOS)
-by a team led by Dave Shields.
+Copy the file `bin/setl4` to a directory on your $PATH.
+
+To use SETL4, first enter
+
+```
+setl4
+```
+
+You should see a list of the options. Then enter the program `try.stl`:
+```
+    -include "setl4.stl"
+    s = new('set hello world')
+    show(s)
+    end
+```
+
+If that works, then you are on you way to having fun using SETL4 to write
+more interesting programs.
+
+Directory `setl4/tests` contains test programs.
+
+Directory `setl4/examples` contains various demonstration program.
+This written in SPITBOL have a name ending in 'sbl'. One goal of the
+project is to translate these programs to SETL4
 
 
 ## Why the name SETL4?
