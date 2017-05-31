@@ -1,0 +1,50 @@
+-include "lib.sbl"
+
+*	Translate comments, translating words enclosed in asterisks,
+*	or in upper case, to markdown italic format. 
+*	Translate define() statements to show function name and arguments in 
+*	markdown format
+
+	&anchor = &trim = 1
+	tab = char(9)
+	whitespace = ' ' tab
+	new  = table(2000)
+	
+
+*	init(1)
+	:(next)
+copy
+
+*	Only output first in a run of blank lines.
+
+	line = trim(line)
+	empty(line) empty(last)				:s(next)
+*	line = lpad(lines,5) tab line
+	output = line
+	last = line
+
+next
+	
+	line = input					:f(end)
+	lines = lines + 1
+	empty(line)					:s(copy)
+	line '*'  					:s(star)
+	line span(whitespace) "define('"  =		:f(next)
+	line "define('" rem . rest = rest
+	line = tab line
+	line break('(') . name '()' rem . rest = tab name '()'	:s(copy)
+	line break('(') . name 
+.	'(' bal . args rem . rest = tab name '(' args ')' :(copy)
+
+star
+	line '*' =
+	line tab =
+
+star.word
+
+	oline = line
+	line breakx(&ucase) . first span(&ucase) . word rem . rest =
+.		'*' first '*' lcase(word) '*' rest	:f(copy)
+	line = eq(size(word),1) oline			:s(copy)f(star.word)
+
+end
