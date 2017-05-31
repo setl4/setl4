@@ -11,6 +11,41 @@ the datatypes, functions, and operators of SETL.
 Either way, SETL4 provides raw power and speed for non-numeric computation.
 
 
+## Installation and Usage
+
+To install SETL, first visit http://github.com/setl4. Download the zip file or,
+if you are familiar with git, clone the repository:
+
+```
+    git clone http://github.com/setl4
+```
+
+Copy the file `bin/setl4` to a directory on your $PATH.
+
+To use SETL4, first enter
+
+```
+setl4
+```
+
+You should see a list of the options. Then enter the program `try.stl`:
+```
+    -include "setl4.stl"
+    s = new('set hello world')
+    show(s)
+    end
+```
+
+If that works, then you are on you way to having fun using SETL4 to write
+more interesting programs.
+
+Directory `setl4/tests` contains test programs.
+
+Directory `setl4/examples` contains various demonstration program.
+This written in SPITBOL have a name ending in 'sbl'. One goal of the
+project is to translate these programs to SETL4
+
+
 ## What is SPITBOL?
 
 SNOBOL is a general programming language with special emphasis on processing 
