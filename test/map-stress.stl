@@ -1,0 +1,20 @@
+
+-include "../setl4.stl"
+
+*   Stress test SETL4 by building map of one million odd integers to their squares
+
+    map = new('map')
+    iter = new('iter 1 2000000 2')
+    show(iter)
+stress
+
+    this = next(iter)                           :f(done)
+    put(map,i,i * i)                            
+    eq(remdr(set.size(map),100000)) out('map size',set.size(map))
+                                                :(stress)
+
+done
+
+    out('final size',set.size(map))
+
+end
