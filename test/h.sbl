@@ -1,3 +1,0 @@
--include "setl4.sbl"
- 	output = 'hi dave'
-end

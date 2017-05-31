@@ -1,5 +1,0 @@
--include "setl4.sbl"
-
- s = seq.new(50)
- loop(s)
-end

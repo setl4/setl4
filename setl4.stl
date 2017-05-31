@@ -151,22 +151,25 @@
 *   SETL4 Binary Operators:
 *   -----------------------
 
-*   '&'     a & b   And             True if and only if both _a_ and _b_ are true
 *   '@'     s @ e   Eval            Evaluates _e_ at current element of set _s_
 *   '#'     s # e   Filter          Returns subset of set _s_ for which _e_ is true
 *   '~'     m ~ s   Membership      Tests if _m_ is member of set _s_
-*   '^'     a ^ b   Or              True if and only if _a_ or _b_ is true
 
 
 *   SETL4 Unary Operators:
 *   ----------------------
 
-*   '='     =s      Iteration       Returns the current element of an iteration
+*   '='     =s      Iteration       Returns 'this', the current element of an iteration
 *   '|'     |'str'  Constructor     Returns set specified by string _str_
 *   '!'     !expr   Not             True if and only if _expr_ is false
 *   '#'     #s      Size            Number of elements in set _s_
 *   '/'     /s      Split           Splits a string into a sequence of words
 
+*   The following operator definitions are not yet in effect, due to a need
+*   to change the underlying SPITBOL implementation.
+
+*   '&'     a & b   And             True if and only if both _a_ and _b_ are true
+*   '^'     a ^ b   Or              True if and only if _a_ or _b_ is true
 
 *   SETL4 Global variables
 *   ----------------------
@@ -1782,7 +1785,6 @@ traceon
                                                     :(return)
 traceon.end
 
-  :(opsyn.end)
 *   SETL4 uses some of the undefined SPITBOL operators for SETL4 functions.
 
 *   Characters available for use by 'opsyn' to associate the character
@@ -1802,10 +1804,9 @@ traceon.end
 *
 *setl4.op.end
 
- output = 'at setl4.op.end'
 *   SETL4 binary operators
 
-    opsyn('&','and',        2)
+*    opsyn('&','and',        2)
     opsyn('@','at',         2)
     opsyn('#','filter',     2)
     opsyn('~','member',     2)
@@ -1819,7 +1820,8 @@ traceon.end
     opsyn('#','setl4.size', 1)
     opsyn('/','split',      1)
 
-opsyn.end
+*   Use of opsyn for 'and' and 'or' deferred since supporting them requires
+*   mucking about with bol4.
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.

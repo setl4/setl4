@@ -1,6 +1,0 @@
--include "setl4.sbl"
- output = and(true,true)
- output = true & true
- output = or(true,false)
- output = true ^ false
-end

@@ -1,8 +1,0 @@
--include "setl4.sbl"
-	s = set.new()
-	set.add(s,10)
-*	output = convert(setl4.member(10,s),'integer')
-*	output = (true(setl4.member(10,s)) 'ok' , 'notok')
-*	output = (true(set.in(10,s)) 'ok' , 'notok')
-	output = (true(10 ~ s) 'ok' , 'notok')
-end
