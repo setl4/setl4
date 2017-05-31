@@ -43,7 +43,7 @@ not only find a solution but they do so using as little time and space as possib
 Every program requires a specification of what is desired, whether written down,
 or as just a vision in the programmer's mind.
 
-Since creating programs in a branch of mathematics, the ideal specification should be
+Since creating programs is a branch of mathematics, the ideal specification should be
 mathematical, and, since all of mathematics use set theory in some way, the specification
 is best be written using set-theoretic data structures and operations.
 
@@ -78,7 +78,7 @@ prime
     eq(n,2)                                     :s(return)
     even(n)                                     :s(freturn)
 
-    exists(new('iter 3 ' n - 1 ' 3'), 'multiple(n,this)') :s(freturn)f(return)
+    exists(new('iter 3 ' square.root(n) ' 3'), 'multiple(n,this)') :s(freturn)f(return)
 
 prime.end
 ```
