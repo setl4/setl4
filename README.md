@@ -199,20 +199,6 @@ a low-level implementation language developed at CIMS.
 SETL4 is the fourth implementation of SETL produced by a member 
 (Dave Shields) of the NYU SETL project, hence the name SETL4.
 
-
-## Brief Introduction to SETL4
-
-SETL4 extends SPITBOL by adding the datatype _set_ to represent
-finite sets. 
-
-For example, the folowing SETL4 expression determines if the integer _P_ is prime:
-
-```
-    !exists(|'int 2 P' @ 'multiple(P,this)')
-```
-
-where _multiple(a,b)_ is true if and only if _a_ is a multiple of _b_.
-
 ## Sets in SETL4
 
 SETL4 provides several kinds of sets.
