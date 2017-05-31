@@ -78,7 +78,7 @@ prime
     eq(n,2)                                     :s(return)
     even(n)                                     :s(freturn)
 
-    exists(new('iter 3 ' square.root(n) ' 3'), 'multiple(n,this)') :s(freturn)f(return)
+    exists(new('iter 3 ' square.root(n) ' 2'), 'multiple(n,this)') :s(freturn)f(return)
 
 prime.end
 ```

@@ -1,0 +1,18 @@
+
+-include "../setl4.stl"
+
+*   Stress test SETL4 by building set of the first million odd integers.
+
+    set = new('set')
+    i = 1
+
+stress
+
+    gt(i = i + 1,1000000)                       :s(done)
+    add(set,i)                                  :(stress)
+
+done
+
+    output = size(set)
+
+end

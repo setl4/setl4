@@ -1,0 +1,15 @@
+
+-include "../setl4.stl"
+
+*   Stress test SETL4 by building string of one million characters five at a time
+
+stress
+
+    gt(size(str),1000000)                        :s(done)
+    str = str 'SETL4'                           :(stress)
+
+done
+
+    output = size(str)
+
+end

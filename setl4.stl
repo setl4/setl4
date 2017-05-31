@@ -671,6 +671,10 @@ exists.loop
     this = next(set)                                :f(freturn)
     exists = eval(expr)                             :f(exists.loop)s(return)
 
+exists.done
+
+    output = 'exists loop ended, failing' :(freturn)
+
 exists.end
 
     define('false(e)')                              :(false.end)
@@ -1809,6 +1813,8 @@ traceon.end
 *
 *setl4.op.end
 
+    :(opsyn.bypass)
+    output = 'at opsyn'
 *   SETL4 binary operators
 
 *    opsyn('&','and',        2)
@@ -1828,6 +1834,7 @@ traceon.end
 *   Use of opsyn for 'and' and 'or' deferred since supporting them requires
 *   mucking about with bol4.
 
+opsyn.bypass
 
 *   Utility Functions
 *   ---------------
@@ -1940,14 +1947,7 @@ prime
     n = integer(n) +n
     eq(n,2)                                     :s(return)
     even(n)                                     :s(freturn)
-    iter = new('iter 3 ' square.root(n)  ' 2')
-*    show(iter)
-    loop(iter)
-
-prime.loop
-
-    this = next(iter)                           :f(return)
-    multiple(n,this)                            :s(freturn)f(prime.loop)
+    exists(new('iter 3 ' square.root(n) ' 2'), 'multiple(n,this)') :s(freturn)f(return)
 
 prime.end
 
