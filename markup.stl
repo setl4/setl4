@@ -3,7 +3,9 @@
 *       The software is licensed under the MIT license, a copy of which can be
 *       found in the file LICENSE>
 
-*       MARKUP
+
+-include "setl4.stl"
+-include "util.stl"
 
 *       Translate comments, translating words enclosed in underscores,
 *       or in upper case, to markdown italic format. 
@@ -29,94 +31,6 @@ empty
         ident(line)                                     :s(return)f(freturn)
 
 empty.end
-
-        define('lcase(s)')                              :(lcase.end)
-
-*       Convert argument to lower case.
-
-*LCASE*
-lcase
-
-        lcase = replace(s,&ucase,&lcase)                :(return)
-
-lcase.end
-
-	define('line()')				:(line.end)
-
-*	Return next line from g.lines, fail if no more lines.
-
-*LINE*
-line
-
-	le(g.lines.pos = g.lines.pos + 1,g.lines.n)	:f(freturn)
-	line = g.lines[g.lines.pos]			
-							:(return)
-
-line.end
-
-        define('read()line')             		:(read.end)
-
-*       Read standard input to the end, saving all the lines read in _g.lines_.
-
-*READ*
-read
-
-        output = gt(g.lines.n,3000) 'runaway read, quitting' :s(end)
-	line = input					:f(return)
-        g.lines.n = g.lines.n + 1
-        g.lines[g.lines.n] = line			:(read)
-
-read.end
-
-        define('words(line)n,w,pos,i,sp')                  :(words.end)
-
-*       Return array of the words in s, fail if no words.
-*       The first entry for an array element is the starting index;
-*       the second is the word itself.
-
-*WORDS*
-words
-
-*       Make sure there is a blank to start off so initial span()
-*       matches something, and also one at end to break to
-*       in case last word extends to end of line.
-
-        words = table(n)
-	output = 'words [' line ']'
-        line = ' ' line ' '
-        pos = 0
-
-words.sp
-
-*       Account for blank(s) between words.
-
-        line span(' ') . sp =
-
-        ident(line)                                        :s(words.done)
-
-*       Point to start of next word
-
-        pos = pos + size(sp)
-
-words.w
-
-*       While it is customary to absorb the blank in the
-*       usage below, we leave it in so there will be at least
-*       one blank to satisfy span() when loop back to words.sp
-
-        line break(' ') . w  =                             :f(words.done)
-        words[pos] = w
-	output = 'words pos [' pos '] is [' w ']'
-        pos = pos + size(w)                             :(words.sp)
-
-words.done
-
-	output = 'words done'
-        words = convert(words,'array')                  
-	
-							:(return)
-
-words.end
 
 *       Main program
 
