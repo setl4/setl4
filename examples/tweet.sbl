@@ -1,0 +1,91 @@
+
+*       Copyright 2017, David Shields
+
+*       This program is licensed under the two-clause BSD License,
+*       a copy of which can be found in the file LICENSE.
+
+*       This program generates a tweetstorm for one of Shakespeare's sonnets.
+
+*       The single argument to the program is a file name.
+*       The sonnet is read from the file  and a tweetstorm 
+*       of the sonnet's text is written to standard output.
+*       The file is then updated by deleting the text of the
+*       sonnet just read.
+
+*       The text of the sonnets was obtained from Project Gutenberg,
+*       and we thank them for making the greatest literature in
+*       the English language freely available.
+
+*       Utility functions
+        g.title = 'Sonnet ' line ' by William Shakespeare'
+
+
+        define('update(filename,lines)file,i,line')     :(update.end)
+
+*       Write the elements of the series map _map_ to _filename_
+
+update
+
+        output(.file,3,filename)                        :s(update.copy)
+        terminal = 'fatal error: cannot open ' filename ' for output.' :(end)
+
+update.copy
+	
+	map.loop(lines)
+
+update.next
+
+	output = map.value(map.next(lines))		:f(update.done)s(update.next)
+
+update.done
+
+        endfile(3)                                      :(return)
+
+update.end
+
+        define('write()i')                              :(write.end)
+
+*       Write out the lines of the tweet in proper order (last one first),
+*       putting tweet sequence number at beginning of each line
+*       except the first.
+
+*       Put a blank line after each line of text to assist in 
+*       doing copy/paste when generating tweet.
+
+write
+
+        i = 14
+
+write.next
+
+        output = i  '/14  '  g.lines[i]                 :f(write.title)
+        output = gt(i = i - 1)                          :s(write.next)
+
+write.title
+
+        output = 
+        output = g.title                                :(return)
+
+write.end
+
+*       Main program.
+
+        &anchor = &trim = 1
+
+
+        filename = host(0)
+        terminal = ident(filename) 
+.               'Usage: sbl tweet.sbl filename'  	:s(end)
+        terminal = 'obtaining sonnet from ' filename
+
+        g.lines = reader(filename)
+
+*	Remove first fourteen lines from g.lines by converting to
+*	array, forming a subarray, and converting back to a table.
+*	Since the sole purpose
+
+
+	g.lines = map.slice(g.lines,15)
+        write(g.lines)
+        update(g.lines,filename)
+end

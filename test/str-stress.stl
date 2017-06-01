@@ -13,6 +13,6 @@ stress
 
 done
 
-    output = size(set)
+    output = set.size(set)
 
 end

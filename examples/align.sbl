@@ -1,0 +1,24 @@
+* align goto's on column 40
+
+copy
+
+	output = line
+	align = 56
+	margin = align - 8
+
+loop
+
+	line = input			:f(end)
+	line '*'			:s(copy)
+	line break(':')			:f(copy)
+
+*	Here if ':'. See if after column 32.
+
+	iline = line
+	iline break(':') . first ':' rem . last = :f(copy)
+	lt(size(first),margin)		:s(copy)
+
+	first = trim(first)
+	last span(' ') =
+	line = rpad(trim(first),align) ':' last :(copy)
+end

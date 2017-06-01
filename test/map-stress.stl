@@ -6,10 +6,11 @@
     map = new('map')
     iter = new('iter 1 2000000 2')
     show(iter)
+
 stress
 
     this = next(iter)                           :f(done)
-    put(map,i,i * i)                            
+    put(map,this,this * this)
     eq(remdr(set.size(map),100000)) out('map size',set.size(map))
                                                 :(stress)
 
