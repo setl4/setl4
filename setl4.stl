@@ -5,8 +5,8 @@
 *   may need equal for general equality test on sets, maps, etc.
 *   update rank()
 *   add first() and last() for sets and strings.
-*   do sets of type 'str' later.
 *   Use eval when adding values to sets, including when initialized using new()
+*   add type 'byte',
 
 
 *   SETL4 is an implementation of SETL written in SPITBOL.
@@ -19,7 +19,7 @@
 *   strings and text that was  developed at Bell Labs in the 1960's by a team 
 *   led by Ralph Griswold. The final version was called SNOBOL4.
 
-*   Macro SPITBOL, or SPITBOL, is a very efficient implemenation of SNOBOL4.
+*   Macro SPITBOL, or SPITBOL, is a very efficient implementation of SNOBOL4.
 *   Created by Robert B. K. Dewar and Ken Belcher in 1969, SPITBOL/360 
 *   was written in IBM/360 assembly language, in what Dewar called
 *   "aggressive assembly."
@@ -170,29 +170,6 @@
 
 *   '&'     a & b   And             True if and only if both _a_ and _b_ are true
 *   '^'     a ^ b   Or              True if and only if _a_ or _b_ is true
-
-*   SETL4 Global variables
-*   ----------------------
-
-    setl4.ascii.name = 
-    setl4.ascii.value =  
-    setl4.random_var =
-
-*   Useful patterns
-
-    setl4.any.digit         =   any('0123456789')
-    setl4.span.digits       =   span('0123456789')
-    setl4.break.digit       =   break('0123456789')
-
-    setl4.break.letter      =   break(&lcase &ucase)
-    setl4.any.letter        =   any(&lcase &ucase)
-    setl4.span.letters      =   span(&lcase &ucase)
-    setl4.span.spaces       =   span(' ' char(9))
-    setl4.break.space       =   break(' ' char(9))
-
-    setl4.any.word          =   any(&lcase &ucase '0123456789')
-    setl4.span.word         =   span(&lcase &ucase '0123456789')
-
 
 *   SETL4 Functions
 *   ---------------
@@ -371,7 +348,7 @@ abbrev
     differ(b2) ident(substr(b2,1,size(a)),a)    :s(return)
     differ(b3) ident(substr(b3,1,size(a)),a)    :s(return)
     differ(b4) ident(substr(b4,1,size(a)),a)    :s(return)
-    differ(b5) ident(substr(b5,1,size(a)),a) :  :s(return)
+    differ(b5) ident(substr(b5,1,size(a)),a)    :s(return)
                                                 :(freturn)
 
 abbrev.end
@@ -431,8 +408,7 @@ add.int
     ident(substr(i,elem,1),'+')                 :s(return)f(freturn)
 
 *   Add new element to set by allocating new block and setting
-*   character corresponding to _elem_ to '+'.
-*   Update set.max if necessary.
+*   character corresponding to _elem_ to '+'. Update set.max if necessary.
 
     i = set.key(set)[(elem - 1) / 100] = dupl('-',100)
     elem = remdr(elem,100)
@@ -450,11 +426,15 @@ add.map
 add.new
 
     set.size(set) = set.size(set) + 1
-    set.index(set)[set.size(set)] = key(elem)
+    set.index(set)[set.size(set)] = key(elem)   :(add.put)
 
 add.put
 
     set.key(set)[key(elem)] = elem              :(return)
+
+add.seq
+
+    elem = entry(set.size(set) + 1,elem)        :(add.map)
 
 add.set
 
@@ -654,6 +634,15 @@ domain.end
 error
 
     &dump = 2
+
+*   Clear variables that need not appear in &dump output
+
+    setl4.config.size = setl4.config.stack = setl4.config.size = setl4.config.integers.max =
+.   setl4.config.integers.max = setl4.stack = setl4.ascii.initialized = setl4.ascii.name =
+.   setl4.ascii.value = setl4.random_var = setl4.any.digit = setl4.span.digits = setl4.break.digit =
+.   setl4.break.letter = setl4.any.letter = setl4.span.letters = setl4.span.spaces = setl4.break.space =
+.   setl4.any.word = setl4.span.word = setl.rank.map = setl4.rank = 
+
     out('Fatal error: ' str)                    :(end)
 
 error.end
@@ -707,14 +696,14 @@ false.end
 
 filter
 
-    filter = new()
+    filter = new('set')
 
     loop(set)
 
 filter.loop
 
     this = next(set)                                :f(return)
-    e = eval(expr)                                  :f(freturn)s(forall.loop)
+    eval(expr) add(filter,this)                     :(filter.loop)
 
 filter.end
 
@@ -741,7 +730,7 @@ forall.end
 *   element _key_ in a set, failing if no such element.
 
 get
-
+    differ(datatype(map),'set') error('get on unsupported type: ' datatype(map))
     ident(set.kind(map),'map')                      :s(get.map)
     ident(set.kind(map),'seq')                      :s(get.seq)
     ident(set.kind(map),'set')                      :s(get.set)
@@ -907,7 +896,6 @@ member.end
 *       'set'           set, followed by list of initial members
 *       'map'           map, followed by list of key/value pairs separated by colon
 *       'seq'           sequence, followed by list of initial values.
-*       'str'           string sequence of characters defined by remaining characters
 
 new
 
@@ -1020,19 +1008,6 @@ new.set.next
 
     init break(' ') . key span(' ') =                   :f(return)
     add(new,key)                                        :(new.set.next)
-
-
-*new.str
-*
-*    set.kind(new) = 'str'
-*    set.index(new) = set.key(new) =                        
-*    str.text(new) = init                            :(return)
-*
-*new.str.next
-*
-*    init len(1) . key ' ' =                         :f(return)
-*    put(new,i = i + 1, key)                         :(new.str.next)
-*
 
 new.end
 
@@ -1249,78 +1224,95 @@ random.seed.done
                                                     :(return)
 random.seed.end
 
-    define('rank(qet)ara,freq,i,entry,key,seq,str,value')    :(rank.end)
+    define('rank(set,type)entry,key,seq,str,value')    :(rank.end)
 
-*   Rank returns a sorted version of its operand such that
-*   elements are in increasing order. For example,
-*           rank('asxybza') is 'aabsxyz'.
-*   Sets are ranked in increasing order of their members.
-*   Maps are ranked in increasing order of their keys.
-*   Sequences (seq's) and int's are always maintained in rank order.
+*   Rank returns an order version of a set or string.
+*   If the first argument is a string, then the argument _set_ is converted to
+*   a sequence of the characters in the sequence before proceeding further.
+
+*   The argument _type_ specifies the ordering to be used. If _type_
+*   is null, then the ordering '+' is assumed.
+
+*       '+'         increasing order of the values of set elements,
+*                   keys of map entries, or values of sequence entries
+
+*       '-'         decreasing order of the values of set elements,
+*                   keys of map entries, or values of sequence entries.
+
+*       '+key'      increasing order of the values in the domain of the map
+
+*       '-key'      decreasing order of the values in the domain of the map
+
+*       '+value'    increasing order of the values in the range of the map
+
+*       '-value'    decreasing order of the values in the range of the map
+
+*   If _type_ is null, then the '+' ordering is used.
+*   
+*       Types for keys and values may be abbreviated: "+key" may be written
+*       as "+k" or "+ke", "+value" as "+v" or +"val", and so forth.
 
 rank
- :(return)
-    out('rank kind',kind(qet))
-    qet = copy(qet)
-    ident(kind,'iter')                              :s(rank.int)
-    ident(kind,'seq')                               :s(rank.int)
-    qetl4kind(qet,'map','qet','str')                :s($('rank.' qetl4kind(qet)))
-    ident(datatype(qet),'string')                   :s(rank.string)
-    error('rank unsupported operand type ' datatype(qet) )
+
+    type = ident(type) '++'
+    out('rank type',type)
+
+*   If the first argument is a string, build a sequence
+*   of the characters in the string, and rank the sequence.
+
+    set = ident(datatype(set),'string') split(set)
+    ident(datatype(set),'set') ident(set.kind(set),'int')  :s(return)
+    ident(datatype(set),'set') ident(set.kind(set),'iter') :s(return)
+    rank = ident(datatype(set),'set') copy(set)
+    out('map type',get(setl4.rank,type))
+    
+    ident(get(setl4.rank,type)) 
+.               error('rank unsupported operand type ' datatype(set) )
+    str = get(setl4.rank,type) 
+    ident(str,'map')                                :s(rank.map)
+    ident(str,'seq')                                :s(rank.seq)
+    ident(str,'set')                                :s(rank.set)
+    out('rank str',str)
+    out('rank getting string',datatype(v))
+    ident(datatype(datatype(v)),'string')                   :s(rank.string)
 
 rank.map
-
-    ara = sort(key,1)
-    rank = new()
-
-rank.next
-
-    entry = ara[i = i + 1,1]                        :f(return)
-    put(rank,key(entry),value(entry))               :(rank.next)
-
 rank.seq
-rank.int
 
-*   Sequences and strings are always in rank order
-
+    set.index(rank) = ident(str,'++')   sort(set.index(rank),1)
+    set.index(rank) = ident(str,'+k')   sort(set.index(rank),1)
+    set.index(rank) = ident(str,'+v')   sort(set.index(rank),1)
+    set.index(rank) = ident(str,'--')   rsort(set.index(rank),2)
+    set.index(rank) = ident(str,'-v')   rsort(set.index(rank),2)
+    set.index(rank) = ident(str,'-v')   rsort(set.index(rank),2)
                                                     :(return)
 
-rank.qet
+rank.set
 
-    ara = sort(key,1)
-    rank = new()
-
-rank.qet.next
-
-    add(rank,ara[i = i + 1,1])                      :f(return)s(rank.next)
-
-rank.str
-
-    str = text(qet)
-
-rank.str.string
-
-    freq = str.frequency(str)
-    seq = new()
-
-rank.str.collect
-
-    str len(1) . i =                                :f(rank.str.qet)
-    add(seq,i)                                      :(rank.str.collect)
-
-rank.str.qet
-
-    seq = rank(seq)
-    loop(seq)
-
-rank.l.next
-    
-    i = next(seq)                                   :f(return)
-    rank.str = rank.str dupl(i,freq[i])             :(rank.l.next)
-
+    set.index(rank) = ident(str,'++') sort(set.index(rank),1)
+    set.index(rank) = ident(str,'--') rsort(set.index(rank),1)
+                                                    :(return)
 rank.string
 
-*    str = qet                                       :(rank.str.string)
+*   Here to rank string. Use split() to build a sequence of
+*   the characters in the string, rank as a string, then build
+*   the result by joining the characters in the ranked sequence.
+
+    out('ranking ' string)
+    str = split(v)
+    show(str) :(end)
+    out('datatype STR',str)
+    out('rank str')
+    show(str)
+    rank = ''
+
+    loop(str)
+
+rank.string.next
+
+    key = next(str)                                 :f(return)
+    out('rank.string.next',key)
+    rank = rank key                                 :(rank.string.next)
 
 rank.end
 
@@ -1349,7 +1341,6 @@ show
     ident(kind,'map')                               :s(show.map)
     ident(kind,'seq')                               :s(show.map)
     ident(kind,'set')                               :s(show.set)
-*    ident(kind,'str')                               :s(show.st)
     error('show unknown set kind',kind,' quitting.')
 
 show.notset
@@ -1373,7 +1364,7 @@ show.array.2
 
 show.entry
 
-    show = show ' ' show(key(v))  ':' show(value(v)) ' ' :(show.done)
+    show = show ' ' show(key(v),,1)  ':' show(value(v,,1)) ' ' :(show.done)
 
 show.iter
 
@@ -1413,9 +1404,9 @@ show.map
 show.map.next
 
     elem = next(v)                                  :f(show.set.done)
-    show = show ' ' show(elem) ':' show(get(v,elem)) 
+    show = show ' ' show(elem,,1) ':' show(get(v,elem),,1)
     lt(size(show),100)                              :s(show.map.next)
-    out(show ' ')
+    out(show)
     show =                                          :(show.map.next)
 
 show.map.done
@@ -1428,24 +1419,6 @@ show.pair
     show = '{' lineid(num(pair)) ',' "'"
 .                       replace(line(pair),' ','.') "'" '}' :(show.done)
 
-*show.seq
-*
-*    show = ('[seq ')
-*    loop(v)
-*
-*show.seq.next
-*
-*    elem = next(v)                                  :f(show.seq.done)
-*    show = (ident(show) '', show ' ') show(elem,,1)
-*    lt(size(show),100)                              :s(show.seq.next)
-*    out(show ' ')
-*    show =                                          :(show.seq.next)
-*
-*show.seq.done
-*
-*    setl4.restore(v)
-*    show = show ' ]'                                :(show.done)
-*
 show.set
 
 *   Call _rank_ so entries listed in rank order.
@@ -1903,7 +1876,18 @@ factorial
 
 factorial.end
 
-    define('multiple(n,m)')                      :(multiple.end)
+    define('incr(name)')                        :(incr.end)
+
+*   Increment variable with name _name_
+
+incr
+
+    iname = .name
+    $(name) = $(name) + 1                         :(return)
+
+incr.end
+
+    define('multiple(n,m)')                     :(multiple.end)
 
 *   Tests if _n_ is a multiple of _m_.
 
@@ -1913,7 +1897,7 @@ multiple
 
 multiple.end
 
-    define('number(n)')                          :(number.end)
+    define('number(n)')                         :(number.end)
 
 *  If _n_ can be represented as a string of one or two words then return that string. Otherwise return _n_.
 
@@ -1955,6 +1939,7 @@ prime.end
 
 primes
 
+    primes = filter(new('iter 2 ' (n - 1)),'prime(this)') :(return)
     primes = new('set')
     iter = new('iter 2 ' (n - 1))
     loop(iter)
@@ -2115,18 +2100,29 @@ ascii.init
 
 ascii.init.next
 
-    entry = setl4.l.next(ascii.init)                  :(ascii.init.finis)
+    entry = setl4.l.next(ascii.init)                :(ascii.init.finis)
 *   Correct entry for 0 to be NUL, the NUL character
     ascii.name[substr(&alphabet,+v + 1,1)] = name
-    ascii.value[name] = +value                  :(ascii.init.next)
+    ascii.value[name] = +value                      :(ascii.init.next)
     ascii.name[] = 'NUL'
     ascii.value['NUL'] = 0
     ascii.name[' '] = 'SPC'
-    ascii.value['SPC'] = 32                     :(return)
+    ascii.value['SPC'] = 32                         :(return)
 
 ascii.init.end
 
-    define('datename(date)s')                  :(datename.end)
+    define('begins(str,key)')                       :(begins.end)
+
+*   Tests if string _str_ begins with string _key_.
+
+begins
+
+    gt(size(key),size(str))                         :(freturn)
+    ident(substr(str,1,size(key)),key)              :s(return)f(freturn)
+
+begins.end
+
+    define('datename(date)s')                       :(datename.end)
 
 *   Convert date to form with no spaces, just dashes, to be
 *   suitable for use as part of a file name.
@@ -2135,10 +2131,10 @@ datename
 
     datename = replace(date,' :/','---')
     datename = substr(datename,12,8) '-' substr(datename,1,10)
-                                                   :(return)
+                                                    :(return)
 datename.end
 
-    define('digits()str,ch')                   :(digits.end)
+    define('digits()str,ch')                        :(digits.end)
 
 *   Return string consisting of the digits 0 .. 9 separated by a space.
 
@@ -2323,19 +2319,33 @@ slice.end
 
     define('split(str)word')                        :(split.end)
 
-*   Returns sequence of the words in stirng _str_.
-*   Words are separated by whitespace: one of more consecuture spaces
-*   or tabs.
+*   If the string _str_ has no spaces, _split_ returns a sequence of
+*   the characters in _str_. Otherwise, _split_ returns a sequence
+*   of the words in _str_, where the words are separated by 
+*   whitespace (one of more consecutive spaces or tabs).
 
 split
 
     split = new('seq')
-    line =  line ' '
+    str setl4.break.space                           :f(split.str)
+    str = str ' '
 
 split.next
 
-    line break(' ') . word ' ' =                    :f(return)
-    set.add(split,word)                             :(split.next)
+*   Here to split string into a sequence of its words.
+
+    str break(' ') . word ' ' =                    :f(return)
+    add(split,word)                                 :(split.next)
+
+split.str
+
+split.str.next
+
+*   Here to split string into a sequence of its characters.
+
+    str len(1) . word =                             :f(return)
+    add(split,word)                                 :(split.str.next)
+
 
 split.end
 
@@ -2502,6 +2512,33 @@ writer.next
     output = next(lines)                            :f(return)s(writer.next)
 
 writer.end
+
+*   SETL4 Global variables
+*   ----------------------
+
+    setl4.ascii.name = 
+    setl4.ascii.value =  
+    setl4.random_var =
+
+*   Useful patterns
+
+    setl4.any.digit         =   any('0123456789')
+    setl4.span.digits       =   span('0123456789')
+    setl4.break.digit       =   break('0123456789')
+
+    setl4.break.letter      =   break(&lcase &ucase)
+    setl4.any.letter        =   any(&lcase &ucase)
+    setl4.span.letters      =   span(&lcase &ucase)
+    setl4.span.spaces       =   span(' ' char(9))
+    setl4.break.space       =   break(' ' char(9))
+
+    setl4.any.word          =   any(&lcase &ucase '0123456789')
+    setl4.span.word         =   span(&lcase &ucase '0123456789')
+
+*   setl4.rank gives valid values for the argument _type_ in the function _rank()_
+    setl4.rank           = new('map +:++  -:-- ' 
+.                               '+k:+k +ke:+k +key:+k '
+.                               '+v:+v +va:+v +val:+v +va:+v +v:+v' )
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
