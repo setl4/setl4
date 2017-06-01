@@ -121,8 +121,11 @@
 *   of integers with no gaps; for example 'sequence 5' is a map defined
 *   on 1, 2, ... 5.
 
-*   Sets of kind 'sequence' ('seq') are a map defined on a set of positive integers
+*   A sequence is a map defined on a set of positive integers
 *   that usually, but not necessarily, consists of a consecutive sequence of integers.
+*   Sequences are represented as a map; there are no sets of kind 'seq'.
+*   The string 'seq' is only used in the _new()_ function to provide an optional
+*   list of initial values for the sequence.
 
 *   Sets of kind 'string' consists of a map from integers to characters.
 
@@ -634,6 +637,7 @@ domain.end
 error
 
     &dump = 2
+    &dump = 3
 
 *   Clear variables that need not appear in &dump output
 
@@ -940,7 +944,6 @@ new.iter
     set.key(new) = set.index(new) =
     ident(init) error('new initialization information needed')
     set.step(new) = 1
-    seq = words(init ' ')
 
 *   Ignore extra arguments to iterator constructor.
 
@@ -991,11 +994,16 @@ new.map.next
 new.seq
 
     new = set(table(setl4.config.size),table(setl4.config.size))
-    set.kind(new) = 'seq'
+    set.kind(new) = 'map'
+    out('setting set kind to map')
+    init span(' ') =
+    ident(init)                                         :s(return)
+    init = init ' '
 
 new.seq.next
 
-    init setl4.break.space . val setl4.span.spaces =    :f(return)
+    init span(' ') =
+    init break(' ') . val ' ' =                         :f(return)
     put(new,i = i + 1,val)                              :(new.seq.next)
 
 new.set
@@ -1149,9 +1157,6 @@ push.end
 
 put
 
-*    out('put dt',datatype(map))
-*    out('put key',key)
-*    out('put value',value)
     key = integer(key) +key
     value = integer(value) +value
     v = set.key(map)[key]
@@ -1224,7 +1229,7 @@ random.seed.done
                                                     :(return)
 random.seed.end
 
-    define('rank(set,type)entry,key,seq,str,value')    :(rank.end)
+    define('rank(set,type)ara,entry,key,map,seq,str,tbl,value')    :(rank.end)
 
 *   Rank returns an order version of a set or string.
 *   If the first argument is a string, then the argument _set_ is converted to
@@ -1253,38 +1258,72 @@ random.seed.end
 *       as "+k" or "+ke", "+value" as "+v" or +"val", and so forth.
 
 rank
+    out('enter rank')
 
-    type = ident(type) '++'
-    out('rank type',type)
+    str = ident(datatype(set),'string') set
+
 
 *   If the first argument is a string, build a sequence
 *   of the characters in the string, and rank the sequence.
+*   _str_ is not null only if _set_ is of type 'string'.
 
-    set = ident(datatype(set),'string') split(set)
     ident(datatype(set),'set') ident(set.kind(set),'int')  :s(return)
     ident(datatype(set),'set') ident(set.kind(set),'iter') :s(return)
-    rank = ident(datatype(set),'set') copy(set)
-    out('map type',get(setl4.rank,type))
+*    out('map type',get(setl4.rank,type))
     
     ident(get(setl4.rank,type)) 
 .               error('rank unsupported operand type ' datatype(set) )
-    str = get(setl4.rank,type) 
-    ident(str,'map')                                :s(rank.map)
-    ident(str,'seq')                                :s(rank.seq)
-    ident(str,'set')                                :s(rank.set)
-    out('rank str',str)
-    out('rank getting string',datatype(v))
-    ident(datatype(datatype(v)),'string')                   :s(rank.string)
+    type = get(setl4.rank,type) 
+    type = ident(type) '++'
+    differ(str)                                     :s(rank.string)
+
+rank.branch
+
+*BRANCH*
+
+    out('rank.branch dt',datatype(set))
+    out('rank.branch type',type)
+    ident(str) out('rank.branch kind',set.kind(set))
+*   Branch on type of set. Note that in the case _set_ is a string,
+*   we will merge here when we have converted the string to a sequence.
+
+
+    differ(datatype(set),'set') error('wrong type for rank')
+    rank = copy(set)
+    key = set.kind(set)
+    ident(set.kind(set),'map')                      :s(rank.map)
+    ident(set.kind(set),'seq')                      :s(rank.seq)
+    ident(set.kind(set),'set')                      :s(rank.set)
+    error('unknown type to rank',datatype(set))
 
 rank.map
 rank.seq
 
-    set.index(rank) = ident(str,'++')   sort(set.index(rank),1)
-    set.index(rank) = ident(str,'+k')   sort(set.index(rank),1)
-    set.index(rank) = ident(str,'+v')   sort(set.index(rank),1)
-    set.index(rank) = ident(str,'--')   rsort(set.index(rank),2)
-    set.index(rank) = ident(str,'-v')   rsort(set.index(rank),2)
-    set.index(rank) = ident(str,'-v')   rsort(set.index(rank),2)
+    out('datatype rank',datatype(rank))
+    ara = ident(type,'++')   sort(set.index(rank),1)
+    ara = ident(type,'+k')   sort(set.index(rank),1)
+    ara = ident(type,'+v')   sort(set.index(rank),1)
+    ara = ident(type,'--')   rsort(set.index(rank),2)
+    ara = ident(type,'-v')   rsort(set.index(rank),2)
+    ara = ident(type,'-v')   rsort(set.index(rank),2)
+
+*   Here to converted sorted array resulting from the sort back
+*   into a table.
+
+    out('showing index set',show(set.index(set)))
+    tbl = table(set.size(set)) 
+    i = 0
+    loop(map)
+
+rank.table
+
+    key = ara[i = i + 1]                            :f(rank.table.done)
+    tbl[ara[i,1]] = ara[i,2]                        :(rank.table)
+
+rank.table.done
+
+    set.index(rank) = tbl                           
+    out('showing revised  tbl',show(set.index(set)))
                                                     :(return)
 
 rank.set
@@ -1293,26 +1332,18 @@ rank.set
     set.index(rank) = ident(str,'--') rsort(set.index(rank),1)
                                                     :(return)
 rank.string
+
 *HERE*
-
+    out('enter rank.string')
 *   Here to rank string. Use split() to build a sequence of
-*   the characters in the string, rank as a string, then build
-*   the result by joining the characters in the ranked sequence.
+*   the characters in the string, rank as a string, then merge
+*   back to the code to rank a map.
 
-    str = letters(v)
-    rank = new('seq ' letters(v))                   :(return)
-    out('here', 'seq ' letters(v))                   :(return)
-    show(str) 
-    show(str)
-    rank = ''
-
-    loop(str)
-
-rank.string.next
-
-    key = next(str)                                 :f(return)
-    out('rank.string.next',key)
-    rank = rank key                                 :(rank.string.next)
+    str =
+    set = split(str)                                
+    out('rank revised set',show(set))
+    type = '+v'
+                                                    :(rank.branch)
 
 rank.end
 
@@ -1332,10 +1363,6 @@ show
     
     setl4.save(v)
     kind = set.kind(v)
-
-*    out('show dt',datatype(v))
-*    out('show kind',set.kind(v))
-
     ident(kind,'int')                               :s(show.int)
     ident(kind,'iter')                              :s(show.iter)
     ident(kind,'map')                               :s(show.map)
@@ -1345,6 +1372,7 @@ show
 
 show.notset
 
+    out('show.notset',datatype(v))
             :($('show.' datatype(v)))
 
 show.array
@@ -1455,7 +1483,15 @@ show.string
 
 show.table
 
-    t = convert(v,'array')
+    out('show.table entered')
+    out('show.table dt v',datatype(v))
+    t = convert(v,'array')                          :f(show.table.error)
+    out('show.table dt',datatype(t))
+    out('prototype show.table array',prototype(t))
+
+show.table.error
+
+    error('error converting table to array')
 
 show.table.next
 
@@ -1660,7 +1696,9 @@ visit.end
 
 words
 
+    out('enter words')
     pat = (ident(chars) setl4.span.word, span(&lcase &ucase '0123456789' chars))
+    words = new('seq')
     
 words.next
 
@@ -1668,13 +1706,15 @@ words.next
     ident(str)                                      :s(words.finis)
     str setl4.any.word                              :s(words.add)
 
+    out('words.next discarding',show(str))
 *   Here if not at start of a word, so discard current character  and continue.
 
     str len(1) =                                    :(words.next) 
 
 words.add
 
-    str pat . word =
+    str pat . word =                                :f(words.this)
+    out('words.add',word)
     words = words (differ(words) ' ', '') word      :(words.next)
 
 words.finis
@@ -2303,7 +2343,7 @@ slice
 slice.end
 
 
-    define('split(str)word')                        :(split.end)
+    define('split(str)i,word')                       :(split.end)
 
 *   If the string _str_ has no spaces, _split_ returns a sequence of
 *   the characters in _str_. Otherwise, _split_ returns a sequence
@@ -2313,31 +2353,18 @@ slice.end
 split
 
     split = new('seq')
-    str setl4.break.space                           :s(split.next)
-    str = letters(str)
-    out('letters str',str)
+    str break(' ')                                   :f(split.str)
 
 split.next
 
 *   Here to split string into a sequence of its words.
 
     str break(' ') . word ' ' =                     :f(return)
-    add(split,word)                                 :(split.next)
+    put(split,i = i + 1, word)                      :(split.next)
 
 split.str
 
-    split = new('map')
-split.str.next
-
-*   Here to split string into a sequence of its characters.
-
-*    str len(1) . word =                             :f(return)
-    str len(1) . word =                             :f(split.done)
-    out('str.next adding',word)
-    add(split,word)                                 :(split.str.next)
-split.done
-    show(split) :(return)
-
+    split = new('seq ' letters(str ' '))            :(return)
 
 split.end
 
