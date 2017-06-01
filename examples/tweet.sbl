@@ -1,8 +1,5 @@
-
-*       Copyright 2017, David Shields
-
-*       This program is licensed under the two-clause BSD License,
-*       a copy of which can be found in the file LICENSE.
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
 
 *       This program generates a tweetstorm for one of Shakespeare's sonnets.
 

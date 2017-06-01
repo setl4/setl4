@@ -371,7 +371,6 @@ the funcitons _push_ and _pop_. Stacks are created by the function _new.stack_.
 - `integers(n)`                     returns set of integers 1 ... n
 - `intersection(a,b)`               returns set of elements common to two sets
 - `loop(set)`                       set up iteration over _set_ using _next_
-- `mark(line)`                      annotates, or marks, a line
 - `member(elem,set)`                tests set membership
 - `new(str)`                        returns new set specified by _st_
 - `next(set)`                       returns next element in iteration defined by prevous _loop_, fails if no more elements
@@ -418,11 +417,11 @@ the following utility functions:
 - `ascii(line)`                 returns the text of line with every ascii character identified
 - `datename(date)`              returns string based on current time suitable for use as filename
 - `digits()`                    returns list of digits: '0 1 2 .. 9'
-- `frequency(str)`              returns map giving frequency of characters in _str_
 - `letters()`                   returns list of letters : 'a b c ... z A B ... Z''
 - `less(str,sub)`               removes the first instance of each character in _sub_ from _str_,
 - `lletters()`                  returns list of lower case letters : 'a b c ... z'
 - `lower(s)`                    returns _s_ with upper case letters replaced by lower case equivalent
+- `mark(line)`                  annotates, or marks, a line
 - `out(text1,text2,text3)`      outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null, then _text3_ if _text3_ is not null.
 - `prefix(str,pre)`             takes a list of space-separated words in _str_ and prefixes each with the string _pre_
 - `reader(filename,expr)`       returns sequence of lines in file _filename_, using _expr_ (if given) to filter out lines to be ignored.

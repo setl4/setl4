@@ -1,9 +1,12 @@
-* align goto's on column 40
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+*   Program to align the goto fields in a program.
 
 copy
 
 	output = line
-	align = 56
+	align = 48
 	margin = align - 8
 
 loop
@@ -12,7 +15,7 @@ loop
 	line '*'			:s(copy)
 	line break(':')			:f(copy)
 
-*	Here if ':'. See if after column 32.
+*	Here if ':'. See if after column 40.
 
 	iline = line
 	iline break(':') . first ':' rem . last = :f(copy)

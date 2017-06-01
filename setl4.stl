@@ -371,7 +371,7 @@ abbrev
     differ(b2) ident(substr(b2,1,size(a)),a)    :s(return)
     differ(b3) ident(substr(b3,1,size(a)),a)    :s(return)
     differ(b4) ident(substr(b4,1,size(a)),a)    :s(return)
-    differ(b5) ident(substr(b5,1,size(a)),a) :  s(return)
+    differ(b5) ident(substr(b5,1,size(a)),a) :  :s(return)
                                                 :(freturn)
 
 abbrev.end
@@ -1682,10 +1682,8 @@ visit.end
 
     define('words(str,chars)pat,word')              :(words.end)
 
-*   Return string consisting of the words in _str_.
-*   The first character in a word must be a letter, in upper or lower case.
-*   The remainder consists of letters, digits and any of the characters
-*   in _chars_ if _chars_ is not null.
+*   _Words_ returns a sequence ('seq')  of the words in _str_, where a word consists of consecutive
+*   letters, digits, and any of the characters in _chars_ if _chars_ is not null.
 
 words
 
@@ -2156,22 +2154,6 @@ digits.next
 
 digits.end
 
-    define('frequency(str)')                        :(frequency.end)
-
-*   Return map from the characters in a str to the number of times
-*   each occurs in the .
-
-frequency
-
-    frequency = new('map')
-
-frequency.next
-
-    str len(1) . c =                                :f(frequency.end)
-    setl4..put(frequency,c,setl4..get(frequency,c) + 1)   :(frequency.next)
-
-frequency.end
-
     define('less(str,sub)before,after')             :(less.end)
 
 *   Removes the first instance of each character in _sub_ from _str_,
@@ -2297,17 +2279,17 @@ reader
 
 reader.opened
 
-    reader = map(1024)
+    reader = new('map')
 
 reader.next
 
-    setl4..add(map, (ident(filename) input, file)) :f(reader.eof)s(reader.next)
+    add(map, (ident(filename) input, file))                             :f(reader.eof)s(reader.next)
 
 reader.eof
 
 *   Here at end of file; close temporary file if one was needed.
 
-    differ(filename) endfile(g.channel.temp)        :(return)
+    differ(filename) endfile(g.channel.temp)                            :(return)
 
 reader.end
 
