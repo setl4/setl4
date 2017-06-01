@@ -1293,16 +1293,16 @@ rank.set
     set.index(rank) = ident(str,'--') rsort(set.index(rank),1)
                                                     :(return)
 rank.string
+*HERE*
 
 *   Here to rank string. Use split() to build a sequence of
 *   the characters in the string, rank as a string, then build
 *   the result by joining the characters in the ranked sequence.
 
-    out('ranking ' string)
-    str = split(v)
-    show(str) :(end)
-    out('datatype STR',str)
-    out('rank str')
+    str = letters(v)
+    rank = new('seq ' letters(v))                   :(return)
+    out('here', 'seq ' letters(v))                   :(return)
+    show(str) 
     show(str)
     rank = ''
 
@@ -1876,17 +1876,6 @@ factorial
 
 factorial.end
 
-    define('incr(name)')                        :(incr.end)
-
-*   Increment variable with name _name_
-
-incr
-
-    iname = .name
-    $(name) = $(name) + 1                         :(return)
-
-incr.end
-
     define('multiple(n,m)')                     :(multiple.end)
 
 *   Tests if _n_ is a multiple of _m_.
@@ -2183,19 +2172,16 @@ lleters.next
 
 lletters.end
 
-    define('letters()str,ch')                       :(letters.end)
+    define('letters(str)ch')                        :(letters.end)
 
-*   Returns string consisting of the upper and lower case letters separated by a space.
+*   Returns string consisting of the letters in string _str_ separated by a space.
+*   Letters can be used to build a sequence of the non-blank letters in a string: _new('seq ' letters(str))_
 
 letters
 
-    letters = 
-    str = &lcase &ucase
-    
-letters.next
-
     str len(1) . ch =                               :f(return)
-    letters = append(letters,ch)                    :(letters.next)
+    ident(ch,' ')                                   :s(letters)
+    letters = letters (differ(letters) ' ', '') ch  :(letters)
 
 letters.end
 
@@ -2327,24 +2313,30 @@ slice.end
 split
 
     split = new('seq')
-    str setl4.break.space                           :f(split.str)
-    str = str ' '
+    str setl4.break.space                           :s(split.next)
+    str = letters(str)
+    out('letters str',str)
 
 split.next
 
 *   Here to split string into a sequence of its words.
 
-    str break(' ') . word ' ' =                    :f(return)
+    str break(' ') . word ' ' =                     :f(return)
     add(split,word)                                 :(split.next)
 
 split.str
 
+    split = new('map')
 split.str.next
 
 *   Here to split string into a sequence of its characters.
 
-    str len(1) . word =                             :f(return)
+*    str len(1) . word =                             :f(return)
+    str len(1) . word =                             :f(split.done)
+    out('str.next adding',word)
     add(split,word)                                 :(split.str.next)
+split.done
+    show(split) :(return)
 
 
 split.end

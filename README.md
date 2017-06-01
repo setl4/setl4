@@ -417,7 +417,7 @@ the following utility functions:
 - `ascii(line)`                 returns the text of line with every ascii character identified
 - `datename(date)`              returns string based on current time suitable for use as filename
 - `digits()`                    returns list of digits: '0 1 2 .. 9'
-- `letters()`                   returns list of letters : 'a b c ... z A B ... Z''
+- `letters(str)`                returns string with the letters in _str_ separated by spaces
 - `less(str,sub)`               removes the first instance of each character in _sub_ from _str_,
 - `lletters()`                  returns list of lower case letters : 'a b c ... z'
 - `lower(s)`                    returns _s_ with upper case letters replaced by lower case equivalent
