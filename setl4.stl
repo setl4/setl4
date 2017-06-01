@@ -365,7 +365,6 @@ abbrev.end
 add
 
     ident(datatype(elem,'entry'))               :s(add.map)
-    ident(datatype(elem),'set') ident(set.kind(elem),'seq') :s(add.list)
 
 *   Convert _elem_ that is integer to integer.
 
@@ -374,25 +373,7 @@ add
     ident(set.kind(set),'map')                  :s(add.map)
     ident(set.kind(set),'seq')                  :s(add.seq)
     ident(set.kind(set),'set')                  :s(add.set)
-    ident(set.kind(set),'iter') error("cannot add new element to set of type 'int'")
-
-                                                :(return)
-add.list
-
-*   Here to add the elements in the range of the _element_ argument to the set.
-
-    setl4.save(elem)
-
-    loop(elem)
-
-add.list.next
-    
-    this = next(elem)                           :f(add.list.done)
-    add(set,this)                               :(add.list.next)
-
-add.list.done
-
-    setl4.restore()                             :(return)
+    ident(set.kind(set),'iter') error("cannot add new element to set of type 'int'") :(return)
 
 add.int
 
@@ -1283,13 +1264,15 @@ rank.branch
 
     out('rank.branch dt',datatype(set))
     out('rank.branch type',type)
+    out('set.size(set)', set.size(set))
+    setl4.show(set)
     ident(str) out('rank.branch kind',set.kind(set))
 *   Branch on type of set. Note that in the case _set_ is a string,
 *   we will merge here when we have converted the string to a sequence.
 
 
     differ(datatype(set),'set') error('wrong type for rank')
-    rank = copy(set)
+    set = copy(set)
     key = set.kind(set)
     ident(set.kind(set),'map')                      :s(rank.map)
     ident(set.kind(set),'seq')                      :s(rank.seq)
@@ -1299,13 +1282,15 @@ rank.branch
 rank.map
 rank.seq
 
-    out('datatype rank',datatype(rank))
-    ara = ident(type,'++')   sort(set.index(rank),1)
-    ara = ident(type,'+k')   sort(set.index(rank),1)
-    ara = ident(type,'+v')   sort(set.index(rank),1)
-    ara = ident(type,'--')   rsort(set.index(rank),2)
-    ara = ident(type,'-v')   rsort(set.index(rank),2)
-    ara = ident(type,'-v')   rsort(set.index(rank),2)
+    out('datatype set',datatype(set))
+    setl4.show(set)
+    show(set)
+    ara = ident(type,'++')   sort(set.index(set),1)
+    ara = ident(type,'+k')   sort(set.index(set),1)
+    ara = ident(type,'+v')   sort(set.index(set),1)
+    ara = ident(type,'--')   rsort(set.index(set),2)
+    ara = ident(type,'-v')   rsort(set.index(set),2)
+    ara = ident(type,'-v')   rsort(set.index(set),2)
 
 *   Here to converted sorted array resulting from the sort back
 *   into a table.
@@ -1339,8 +1324,9 @@ rank.string
 *   the characters in the string, rank as a string, then merge
 *   back to the code to rank a map.
 
-    str =
     set = split(str)                                
+    out('rank.string set')
+    show(set)
     out('rank revised set',show(set))
     type = '+v'
                                                     :(rank.branch)
@@ -1356,12 +1342,11 @@ show
 
     ident(v)                                        :s(return)
     differ(label) out('show: ' str.upper(label))
-    differ(datatype(v),'set')                       :s(show.notset)
+    differ(datatype(v),'set')                       :($('show.' datatype(v)))
 
 *   When showing a set, save _set.next_ and _set.this_ to avoid
 *   disrupting possible existing iteration over the set.
     
-    setl4.save(v)
     kind = set.kind(v)
     ident(kind,'int')                               :s(show.int)
     ident(kind,'iter')                              :s(show.iter)
@@ -1369,11 +1354,6 @@ show
     ident(kind,'seq')                               :s(show.map)
     ident(kind,'set')                               :s(show.set)
     error('show unknown set kind',kind,' quitting.')
-
-show.notset
-
-    out('show.notset',datatype(v))
-            :($('show.' datatype(v)))
 
 show.array
 
@@ -1425,7 +1405,7 @@ show.map
 *   Call _rank_ so entries listed in rank order.
 
 *    map = rank(map)
-    this = copy(v)
+    ident(datatype(set),'set') setl4.save(v)
     loop(v)
     show = '{ map'
 
@@ -1439,7 +1419,7 @@ show.map.next
 
 show.map.done
 
-    setl4.restore(v)
+    ident(datatype(set),'set') setl4.restore(v)
     show = show ' }'                                :(show.done)
 
 show.pair
@@ -1762,6 +1742,7 @@ setl4.size.end
 
 setl4.save
 
+    out('setl4.save')
     push(setl4.stack,set.next(s))
     push(setl4.stack,set.this(s))                   :(return)
 
@@ -2364,7 +2345,12 @@ split.next
 
 split.str
 
-    split = new('seq ' letters(str ' '))            :(return)
+    
+    out('at split.str')
+    out(' SE seq ' letters(str ' '))            
+    split = new('seq ' letters(str ' '))            
+    show(split)
+            :(return)
 
 split.end
 
