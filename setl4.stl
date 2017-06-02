@@ -134,11 +134,10 @@
 
 *   SETL4 provides the following data types in addtion to _set_: 
 
-*       _entry_   _line_   _token_
+*       _line_   _token_
 
 *   where 
 
-*       entry(key,value)            is an entry in a map;
 *       line(mark,text)             is a line of text and an associated mark (tag); and
 *       token(lineno,ndx,type,text) is a lexeme, or lexical token.
 
@@ -204,6 +203,7 @@
 *   new(str)                        Returns new set specified by _st_
 *   next(set)                       Returns next element in iteration defined by prevous _loop_, fails if no more elements
 *   not(expr)                       Not: Tests if operand is false
+*   omega(expr)                     Test if _expr_ is the SETL4 value OMEGA.
 *   or(a,b)                         Or: Tests if either operand is true
 *   push(stack,value)               Push value onto a stack
 *   pop(stack)                      Pop the top of a stack
@@ -283,8 +283,6 @@
 *   first element of an entry, its _key_, and the second element 
 *   of the entry, the value of the map for _key_.
 
-    data('entry(key,value)')
-
 *   The SPITBOL datatype TABLE provides the machinery to implement maps.
 *   SPITBOL provides no way to determine the number of entries in a table
 *   other than converting the map to an array. This is the only way in 
@@ -328,6 +326,11 @@
 *   SETL4 needs a stack
 
     setl4.stack = stack()
+
+*   _setl4.omega' is the value returned when there is no entry in a table
+*   for a specified key.
+
+    setl4.omega = 'OMEGA'
 
 *   SETL4 Global Variables
 *   ----------------------
@@ -389,11 +392,11 @@ add.map
 add.new
 
     set.size(set) = set.size(set) + 1
-    set.index(set)[set.size(set)] = key(elem)   :(add.put)
+    set.index(set)[set.size(set)] = elem       :(add.put)
 
 add.put
 
-    set.key(set)[key(elem)] = elem              :(return)
+    set.key(set)[key] = elem                    :(return)
 
 add.set
 
@@ -477,7 +480,8 @@ at.end
 
 defined
     key = integer(key) +key
-    differ(set.key(map)[key])                       :s(return)f(freturn)
+    defined = set.key(map)[key]
+    omega(defined)                                  :s(freturn)f(return)
 
 defined.end
 
@@ -689,9 +693,8 @@ get
 get.map
 
     key = integer(key) +key
-    entry = set.key(map)[key]
-    ident(entry)                                    :s(freturn)
-    get = value(set.key(map)[key])                  :(return)
+    get = set.key(map)[key]
+    omega(get)                                      :s(freturn)f(return)
 
 get.set
 
@@ -823,6 +826,9 @@ member.iter
 
 member.set
 
+    out('member.set',elem)
+    out('mem value',set.key(set)[elem])
+    show(set)
     elem = integer(elem) +elem 
     differ(set.key(set)[elem])                      :s(return)f(freturn)
 
@@ -916,7 +922,7 @@ new.iter.3
 
 new.map
     
-    new = set(table(setl4.config.size),table(setl4.config.size))
+    new = set(table(setl4.config.size,,setl4.omega),table(setl4.config.size,,setl4.omega))
     set.kind(new) = 'map'
 
 *   If present, _init_ is a list consisting of a list of key/value pairs,
@@ -933,7 +939,7 @@ new.map.next
 
 new.seq
 
-    new = set(table(setl4.config.size),table(setl4.config.size))
+    new = set(table(setl4.config.size,,setl4.omega),table(setl4.config.size,,setl4.omega))
     set.kind(new) = 'map'
     init span(' ') =
     ident(init)                                         :s(return)
@@ -947,7 +953,7 @@ new.seq.next
 
 new.set
 
-    new = set(table(setl4.config.size),table(setl4.config.size))
+    new = set(table(setl4.config.size,,setl4.omega),table(setl4.config.size,,setl4.omega))
     set.kind(new) = 'set'
     ident(init)                                         :s(return)
 
@@ -1009,7 +1015,6 @@ next.iter
     this = next                                     :(return)
 
 next.map
-next.seq
 next.set
 
     next = set.next(set) = set.next(set) + 1
@@ -1038,6 +1043,16 @@ not
     not = ident(expr) 1                             :s(return)f(freturn)
 
 not.end
+
+    define('omega(a)')                              :(omega.end)
+
+*   Tests if a has as value OMEGA.
+
+omega
+
+    ident(a,setl4.omega)                            :s(return)f(freturn)
+
+omega.end
 
     define('or(a,b)')                               :(or.end)
 
@@ -1108,7 +1123,7 @@ put
 
 put.value
 
-    set.key(map)[key] = entry(key,value)            :(return)
+    set.key(map)[key] = value                      :(return)
 
 put.end
 
@@ -2306,8 +2321,13 @@ split.str
 split.str.next
 
     str span(' ') =
+    str break(' ') . word ' ' =                     :f(split.str.done)
     str break(' ') . word ' ' =                     :f(return)
     put(split,i = i + 1, word)                      :(split.str.next)
+
+split.str.done
+    out('split result')
+    show(split)             :(return)
 
 split.end
 
