@@ -1,6 +1,5 @@
 -include "setl4.stl"
 
-    show(setl4.rank)
 *    out('splitting("shields")')
 *    s = split('shields')
 *    show(s)

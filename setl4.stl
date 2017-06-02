@@ -2,11 +2,9 @@
 *   Licensed under the MIT license.
 
 *   TODO LIST
-*   may need equal for general equality test on sets, maps, etc.
-*   update rank()
-*   add first() and last() for sets and strings.
+*   Note that get() and put() can be used on sets due to implementation of sets.
 *   Use eval when adding values to sets, including when initialized using new()
-*   add type 'byte',
+*   add sets of kind 'byte' for sets up to 256 elements. Use them in doing int's.
 
 
 *   SETL4 is an implementation of SETL written in SPITBOL.
@@ -123,8 +121,8 @@
 
 *   A sequence is a map defined on a set of positive integers
 *   that usually, but not necessarily, consists of a consecutive sequence of integers.
-*   Sequences are represented as a map; there are no sets of kind 'seq'.
-*   The string 'seq' is only used in the _new()_ function to provide an optional
+*   Sequences are represented as a map. There are no sets of kind 'seq';
+*   the string 'seq' is only used in the _new()_ function to provide an optional
 *   list of initial values for the sequence.
 
 *   Sets of kind 'string' consists of a map from integers to characters.
@@ -177,7 +175,6 @@
 *   SETL4 Functions
 *   ---------------
 *
-*   abbrev(a,b)                     Test that the first operand is an initial substring of the second.
 *   add(set,elem)                   Adds element to set
 *   and(a,b)                        And: Tests if both operands are true
 *   arb(n)                          Returns arbitary (randomly chosen) integer in 1 .. _n_
@@ -185,6 +182,7 @@
 *   assert(expr)                    Tests that _expr_ is true, ends execution otherwise
 *   assert.type(obj,type)           Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise
 *   at(set,expr)                    Evaluates _expr_ for for current iterate of _set_
+*   begins(str,sub)                 Tests if string _key_ begins with string _sub_
 *   join(a,b)                       Joins two strings into a single string by concatenating them
 *   defined(map,key)                Tests if a map is defined for a specified key
 *   difference(a,b)                 Returns set of members of set _a_ not in the set _b_
@@ -246,9 +244,9 @@
 
 *           _set.key_           a SPITBOL table mapping set elements to index entries.
 
-*           _set.kind_          is the kind of the set, one of 'set', 'map', 'int, 
-*                               'seq'. The kind is  specified when the 
-*                               set is created. The default value is 'set'.
+*           _set.kind_          is the kind of the set, one of 'set', 'map', of 'int'. 
+*                               The kind is  specified when the set is created. 
+*                               The default kind is 'set'.
 
 *           _set.size_          the current number of members.
 
@@ -259,7 +257,7 @@
 
 *           _set.high_          upper bound of _int_ 
 
-*           _set.step_         number of values between members of set of kind _int_.
+*           _set.step_          number of values between members of set of kind _int_.
 
 *           _set.text_          is the text of the set of kind _str_
 
@@ -340,27 +338,9 @@
 *   SETL4 Function Definitions
 *   --------------------------
 
-    define('abbrev(a,b1,b2,b3,b4,b5)')                       :(abbrev.end)
-
-*   Test that _a_ is an initial substring of one of 
-*   _b1_, _b2_, _b3_, _b4_, or _b5_.
-
-abbrev
-
-    differ(b1) ident(substr(b1,1,size(a)),a)    :s(return)
-    differ(b2) ident(substr(b2,1,size(a)),a)    :s(return)
-    differ(b3) ident(substr(b3,1,size(a)),a)    :s(return)
-    differ(b4) ident(substr(b4,1,size(a)),a)    :s(return)
-    differ(b5) ident(substr(b5,1,size(a)),a)    :s(return)
-                                                :(freturn)
-
-abbrev.end
-
     define('add(set,elem)this')                 :(add.end)
 
 *   Add _elem_ to set _set_ if not already present.
-*   If _elem_ is a set of kind 'seq' add all the values
-*   in the range of the sequence to the set.
 
 add
 
@@ -371,7 +351,6 @@ add
     elem = integer(elem) +elem
     ident(set.kind(set),'int')                  :s(add.int)
     ident(set.kind(set),'map')                  :s(add.map)
-    ident(set.kind(set),'seq')                  :s(add.seq)
     ident(set.kind(set),'set')                  :s(add.set)
     ident(set.kind(set),'iter') error("cannot add new element to set of type 'int'") :(return)
 
@@ -415,10 +394,6 @@ add.new
 add.put
 
     set.key(set)[key(elem)] = elem              :(return)
-
-add.seq
-
-    elem = entry(set.size(set) + 1,elem)        :(add.map)
 
 add.set
 
@@ -708,7 +683,6 @@ forall.end
 get
     differ(datatype(map),'set') error('get on unsupported type: ' datatype(map))
     ident(set.kind(map),'map')                      :s(get.map)
-    ident(set.kind(map),'seq')                      :s(get.seq)
     ident(set.kind(map),'set')                      :s(get.set)
     error('get on unsupported kind of set: ' set.kind(map))
 
@@ -718,12 +692,6 @@ get.map
     entry = set.key(map)[key]
     ident(entry)                                    :s(freturn)
     get = value(set.key(map)[key])                  :(return)
-
-get.seq
-
-    entry = set.index(map)[key]
-    ident(entry)                                    :s(freturn)
-    get = value(set.key(map)[entry])                :(return)
 
 get.set
 
@@ -821,7 +789,6 @@ member
     ident(datatype(elem),'entry')                   :s(member.map)
     ident(set.kind(set),'int')                      :s(member.int)
     ident(set.kind(set),'iter')                     :s(member.iter)
-    ident(set.kind(set),'seq')                      :s(member.seq)
     ident(set.kind(set),'set')                      :s(member.set)
     error('member: unexpected kind ' kind )
 
@@ -882,12 +849,12 @@ new
     init break(' ') . kind span(' ') =
     kind = gt(size(kind),3) substr(kind,1,3)
     kind = ident(kind,'ite') 'iter' 
-    abbrev(kind,'integers')                          :s(new.init)
-    abbrev(kind,'iterator')                          :s(new.init)
-    abbrev(kind,'map')                               :s(new.init)
-    abbrev(kind,'seq')                               :s(new.init)
-    abbrev(kind,'set')                               :s(new.init)
-    abbrev(kind,'string')                            :s(new.init)
+    begins('integers',kind)                          :s(new.init)
+    begins('iterator',kind)                          :s(new.init)
+    begins('map',kind)                               :s(new.init)
+    begins('seq',kind)                               :s(new.init)
+    begins('set',kind)                               :s(new.init)
+    begins('string',kind)                            :s(new.init)
     error('bad kind to new ' kind )
 
 new.init
@@ -962,8 +929,6 @@ new.map
 new.map.next
 
     init break(':') . key ':' break(' ') . val span(' ') =  :f(return)
-    out('new.map key',key)
-    out('new.map val',val)
     put(new,key,val)                                :(new.map.next)
 
 new.seq
@@ -1143,8 +1108,6 @@ put
 
 put.value
 
-    out('put key',key)
-    out('put value',value)
     set.key(map)[key] = entry(key,value)            :(return)
 
 put.end
@@ -1256,7 +1219,6 @@ rank.merge
 
 *MERGE*
 
-    out('MERGE')
 *    out('rank.merge dt',datatype(set))
 *    out('rank.merge type',type)
 *    out('set.size(set)', set.size(set))
@@ -1270,16 +1232,12 @@ rank.merge
     set = copy(set)
     key = set.kind(set)
     ident(set.kind(set),'map')                      :s(rank.map)
-    ident(set.kind(set),'seq')                      :s(rank.seq)
     ident(set.kind(set),'set')                      :s(rank.set)
     error('unknown type to rank',datatype(set))
 
 rank.map
 rank.seq
 
-    out('datatype set',datatype(set))
-    setl4.show(set)
-    show(set)
     ara = ident(type,'++')   sort(set.index(set),1)
     ara = ident(type,'+k')   sort(set.index(set),1)
     ara = ident(type,'+v')   sort(set.index(set),1)
@@ -1318,10 +1276,9 @@ rank.string
 *   _rank.merge_ to finish by ranking the map.
 
     set = split(str)                                
-    out('rank.string set')
+    out('rank.string set',datatype(set))
     show(set)
-    type = '+v'
-                                                    :(rank.merge)
+    type = '+v'                                     :(rank.merge)
 
 rank.end
 
@@ -1334,7 +1291,7 @@ show
 
     ident(v)                                        :s(return)
     differ(label) out('show: ' str.upper(label))
-    differ(datatype(v),'set')                       :($('show.' datatype(v)))
+    differ(datatype(v),'set')                       :s($('show.' datatype(v)))
 
 *   When showing a set, save _set.next_ and _set.this_ to avoid
 *   disrupting possible existing iteration over the set.
@@ -1400,11 +1357,11 @@ show.map
 *    map = rank(map)
     setl4.save(v)
     loop(v)
-    show = '{ MAP'
+    show = '{ map'
 
 show.map.next
 
-    elem = next(v)                                  :f(show.set.done)
+    elem = next(v)                                  :f(show.map.done)
     show = show ' ' show(elem,,1) ':' show(get(v,elem),,1)
     lt(size(show),100)                              :s(show.map.next)
     out(show)
@@ -1457,7 +1414,9 @@ show.string
 
 show.table
 
+    out('show.table dt',datatype(v))
     ara = convert(v,'array')                        :f(show.table.error)
+    out('convert ok')
     out('show.table dt',datatype(ara))
     out('prototype show.table array',prototype(ara))
 
@@ -1663,7 +1622,7 @@ visit.end
 
     define('words(str,chars)pat,word')              :(words.end)
 
-*   _Words_ returns a sequence ('seq')  of the words in _str_, where a word consists of consecutive
+*   _Words_ returns a sequence of the words in _str_, where a word consists of consecutive
 *   letters, digits, and any of the characters in _chars_ if _chars_ is not null.
 
 words
@@ -2122,6 +2081,7 @@ ascii.init.end
 
 begins
 
+    ident(str,key)                                  :s(return)
     gt(size(key),size(str))                         :(freturn)
     ident(substr(str,1,size(key)),key)              :s(return)f(freturn)
 
@@ -2341,17 +2301,13 @@ split.next
 split.str
     
     split = new('map')
-    str =  letters(str)
+    str =  letters(str) ' '
 
 split.str.next
 
     str span(' ') =
-    str break(' ') . word ' ' =                     :f(split.str.done)
-    put(split,i = i + 1,word)                       :(split.str.next)
-
-split.str.done
-    out('split.str done')
-    show(split) :(return)
+    str break(' ') . word ' ' =                     :f(return)
+    put(split,i = i + 1, word)                      :(split.str.next)
 
 split.end
 
