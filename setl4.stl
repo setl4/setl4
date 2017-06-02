@@ -218,7 +218,7 @@
 *   union(a,b)                      Returns set consisting of all the members in two sets
 *   set.size(set)                   Returns number of elements in set _set_
 *   traceoff()                      Turns off tracing
-*   show(v,lvl)                     Show value of _v_, with _lvl_ set non-zero when listing member of set
+*   show(v,nested)                  Show value of _v_, with _nested_ set non-zero when listing member of set
 *   show.b(e)                       Show value of _b_ as boolean
 *   show.line(line)                 Show string _line_ with spaces replaced by '.'
 *   show.lines(lines,title)         Show non-empty lines in array of lines, with title 'title'
@@ -530,23 +530,22 @@ difference.end
 
 equal
    
-    equal = FALSE
     ident(datatype(a),'set') ident(datatype(b),'set')   :s(equal.setl4)
-    ident(a,b)                                          :s(equal.true)f(return)
+    ident(a,b)                                          :s(return)f(freturn)
 
 equal.setl4
 
 *   Here for equality test of two SETL4 objects.
 
-    ident(set.kind(a),set.kind(b))                      :f(return)
-    eq(set.size(a),set.size(b))                         :f(return)
+    ident(set.kind(a),set.kind(b))                      :f(freturn)
+    eq(set.size(a),set.size(b))                         :f(freturn)
             :($('equal.' set.kind(a)))
 
 equal.int
 
-    eq(set.low(a),set.low(b))                           :f(return)
-    eq(set.high(a),set.high(b))                         :f(return)
-    eq(set.step(a),set.step(b))                         :f(return)s(equal.true)
+    eq(set.low(a),set.low(b))                           :f(freturn)
+    eq(set.high(a),set.high(b))                         :f(freturn)
+    eq(set.step(a),set.step(b))                         :f(freturn)s(return)
 
 equal.map
 
@@ -554,28 +553,20 @@ equal.map
 
     gt(i = i + 1, set.size(a))                          :s(equal.true)
     entry = set.index(a)[i]
-    ident(value(entry),get(b,key(entry)))               :f(return)s(equal.map)
+    ident(value(entry),get(b,key(entry)))               :f(freturn)s(equal.map)
 
 equal.seq
 
 *   Two sequences are equal if they have the same vaue at every element in the domain.
 
     gt(i = i + 1, set.size(a))                          :s(equal.true)
-    ident(set.seq(a)[i], set.seq(b)[i])                 :s(equal.seq)f(return)
+    ident(set.seq(a)[i], set.seq(b)[i])                 :s(equal.seq)f(freturn)
 
 equal.set
 
 *   Two sets are equal if and only if each is a subset of the other.
 
-    equal = and(set.subset(a,b),set.subset(b,a))        :f(return)s(equal.true)
-
-*equal.str
-*
-*    equal = (ident(set.text(a),set.text(b) TRUE, FALSE) :f(return)s(equal.true)
-*
-equal.true
-
-    equal = TRUE                                        :(return)
+    equal = and(set.subset(a,b),set.subset(b,a))        :f(freturn)s(return)
 
 equal.end
 
@@ -964,19 +955,21 @@ new.map
 *   If present, _init_ is a list consisting of a list of key/value pairs,
 *   with a colon (:) separating the key and value.
 
-    init setl4.span.spaces =
+    init = init ' '
+    init span(' ') =
     ident(init)                                     :s(return)
 
 new.map.next
 
     init break(':') . key ':' break(' ') . val span(' ') =  :f(return)
+    out('new.map key',key)
+    out('new.map val',val)
     put(new,key,val)                                :(new.map.next)
 
 new.seq
 
     new = set(table(setl4.config.size),table(setl4.config.size))
     set.kind(new) = 'map'
-    out('setting set kind to map')
     init span(' ') =
     ident(init)                                         :s(return)
     init = init ' '
@@ -1150,6 +1143,8 @@ put
 
 put.value
 
+    out('put key',key)
+    out('put value',value)
     set.key(map)[key] = entry(key,value)            :(return)
 
 put.end
@@ -1239,7 +1234,6 @@ random.seed.end
 *       as "+k" or "+ke", "+value" as "+v" or +"val", and so forth.
 
 rank
-    out('enter rank')
 
     str = ident(datatype(set),'string') set
 
@@ -1258,15 +1252,16 @@ rank
     type = ident(type) '++'
     differ(str)                                     :s(rank.string)
 
-rank.branch
+rank.merge
 
-*BRANCH*
+*MERGE*
 
-    out('rank.branch dt',datatype(set))
-    out('rank.branch type',type)
-    out('set.size(set)', set.size(set))
+    out('MERGE')
+*    out('rank.merge dt',datatype(set))
+*    out('rank.merge type',type)
+*    out('set.size(set)', set.size(set))
     setl4.show(set)
-    ident(str) out('rank.branch kind',set.kind(set))
+*    ident(str) out('rank.merge kind',set.kind(set))
 *   Branch on type of set. Note that in the case _set_ is a string,
 *   we will merge here when we have converted the string to a sequence.
 
@@ -1318,22 +1313,19 @@ rank.set
                                                     :(return)
 rank.string
 
-*HERE*
-    out('enter rank.string')
-*   Here to rank string. Use split() to build a sequence of
-*   the characters in the string, rank as a string, then merge
-*   back to the code to rank a map.
+*   Rank a string by using split() to build a sequence of
+*   the characters in the string, then go to the label 
+*   _rank.merge_ to finish by ranking the map.
 
     set = split(str)                                
     out('rank.string set')
     show(set)
-    out('rank revised set',show(set))
     type = '+v'
-                                                    :(rank.branch)
+                                                    :(rank.merge)
 
 rank.end
 
-    define('show(v,label,lvl)i,kind,elem,ent,line,hdr,this') :(show.end)
+    define('show(v,label,nested)ara,i,kind,elem,ent,line,hdr,this') :(show.end)
 
 *   Show the value of expression _v_.
 *   _lev_ is non-zero when called to list element of a compound object.
@@ -1351,7 +1343,6 @@ show
     ident(kind,'int')                               :s(show.int)
     ident(kind,'iter')                              :s(show.iter)
     ident(kind,'map')                               :s(show.map)
-    ident(kind,'seq')                               :s(show.map)
     ident(kind,'set')                               :s(show.set)
     error('show unknown set kind',kind,' quitting.')
 
@@ -1376,7 +1367,7 @@ show.entry
 
 show.iter
 
-    show = '{iter: low ' set.low(v) ' high ' set.high(v) ' step ' set.step(v)  '} ' :(show.set.done)
+    show = '{iter: low ' set.low(v) ' high ' set.high(v) ' step ' set.step(v)  '} ' :(show.done)
 
 show.int
 
@@ -1386,15 +1377,17 @@ show.int
 
 show.int.next
 
-    gt(i = i + 1, set.max(v))                       :s(show.set.done)
-
-*   TODO - could use break to speed up search. Keep it simple for now.
-
+    gt(i = i + 1, set.max(v))                       :s(show.int.done)
     member(v,i)                                     :f(show.int.next)
     show = show ' ' show(i,,1)
     lt(size(show),100)                              :s(show.int.next)
     out(show ' ')
     show =                                          :(show.int.next)
+
+show.int.done
+
+    setl4.restore(v)
+    show = show ' }'                                :(show.done)
 
 show.integer
 
@@ -1405,9 +1398,9 @@ show.map
 *   Call _rank_ so entries listed in rank order.
 
 *    map = rank(map)
-    ident(datatype(set),'set') setl4.save(v)
+    setl4.save(v)
     loop(v)
-    show = '{ map'
+    show = '{ MAP'
 
 show.map.next
 
@@ -1419,7 +1412,7 @@ show.map.next
 
 show.map.done
 
-    ident(datatype(set),'set') setl4.restore(v)
+    setl4.restore(v)
     show = show ' }'                                :(show.done)
 
 show.pair
@@ -1432,6 +1425,7 @@ show.set
 *   Call _rank_ so entries listed in rank order.
 
 *    set = rank(v)
+    setl4.save(v)
     show = '{ set'
     loop(v)
 
@@ -1463,11 +1457,9 @@ show.string
 
 show.table
 
-    out('show.table entered')
-    out('show.table dt v',datatype(v))
-    t = convert(v,'array')                          :f(show.table.error)
-    out('show.table dt',datatype(t))
-    out('prototype show.table array',prototype(t))
+    ara = convert(v,'array')                        :f(show.table.error)
+    out('show.table dt',datatype(ara))
+    out('prototype show.table array',prototype(ara))
 
 show.table.error
 
@@ -1475,8 +1467,8 @@ show.table.error
 
 show.table.next
 
-    key = t[i = i + 1,1]                            :f(show.done)
-    value = t[i,2]
+    key = ara[i = i + 1,1]                          :f(show.done)
+    value = ara[i,2]
 
     out(tab show(key)    ' -> ' show(value))
                                                     :(show.table.next)
@@ -1486,7 +1478,7 @@ show.string.quote
 
 show.done
 
-    eq(lvl) out(show)
+    eq(nested) out(show)
                                                     :(return)
 
 show.end
@@ -1703,6 +1695,24 @@ words.finis
 
 words.end
 
+*   The following functions with names beginning with 'setl4' are
+*   for internal use only. There is no reason for a user to invoke
+*   them save for debugging. Otherwise use them ar your peril
+
+    define('setl4.restore(s)')                      :(setl4.restore.end)
+
+*   Restore _next_ and _this_ fields of argument.
+
+    set.this(s) = pop(setl4.stack)
+    set.next(s) = pop(setl4.stack)                 :(return)
+
+setl4.restore
+
+    set.this(s) = pop(setl4.stack)
+    set.next(s) = pop(setl4.stack)                  :(return)
+
+setl4.restore.end
+
     define('setl4.show(set,label)')                 :(setl4.show.end)
 
 *   Show the fields of an instance of _set_.
@@ -1710,16 +1720,16 @@ words.end
 setl4.show
 
                            out('{')
-                           out('kind',          set.kind(set))
-    differ(label)          out('show: '         str.upper(label))
-    ne(set.size(set))      out('size',          set.size(set))
-    differ(set.next(set))  out('next',          set.next(set))
-    ne(set.low(set))       out('low',           set.low(set))
-    ne(set.high(set))      out('high',          set.high(set))
-    ne(set.step(set))      out('step',          set.step(set))
-    ne(set.max(set))       out('max',           set.max(set))
-    differ(set.text(set))  out('#text',         size(set.text(set)))
-    differ(set.text(set))  out('text',          set.text(set))
+                           out('  kind',          set.kind(set))
+    differ(label)          out('  show: '         str.upper(label))
+    ne(set.size(set))      out('  size',          set.size(set))
+    differ(set.next(set))  out('  next',          set.next(set))
+    ne(set.low(set))       out('  low',           set.low(set))
+    ne(set.high(set))      out('  high',          set.high(set))
+    ne(set.step(set))      out('  step',          set.step(set))
+    ne(set.max(set))       out('  max',           set.max(set))
+    differ(set.text(set))  out('  #text',         size(set.text(set)))
+    differ(set.text(set))  out('  text',          set.text(set))
                            out('}')
                                                 :(return)
 setl4.show.end
@@ -1742,25 +1752,10 @@ setl4.size.end
 
 setl4.save
 
-    out('setl4.save')
     push(setl4.stack,set.next(s))
     push(setl4.stack,set.this(s))                   :(return)
 
 setl4.save.end
-
-    define('setl4.restore(s)')                      :(setl4.restore.end)
-
-*   Restore _next_ and _this_ fields of argument.
-
-    set.this(s) = pop(setl4.stack)
-    set.next(s) = pop(setl4.stack)                 :(return)
-
-setl4.restore
-
-    set.this(s) = pop(setl4.stack)
-    set.next(s) = pop(setl4.stack)                  :(return)
-
-setl4.restore.end
 
     define('traceoff()')                            :(traceoff.end)
 
@@ -2333,7 +2328,7 @@ slice.end
 
 split
 
-    split = new('seq')
+    split = new('map')
     str break(' ')                                   :f(split.str)
 
 split.next
@@ -2344,13 +2339,19 @@ split.next
     put(split,i = i + 1, word)                      :(split.next)
 
 split.str
-
     
-    out('at split.str')
-    out(' SE seq ' letters(str ' '))            
-    split = new('seq ' letters(str ' '))            
-    show(split)
-            :(return)
+    split = new('map')
+    str =  letters(str)
+
+split.str.next
+
+    str span(' ') =
+    str break(' ') . word ' ' =                     :f(split.str.done)
+    put(split,i = i + 1,word)                       :(split.str.next)
+
+split.str.done
+    out('split.str done')
+    show(split) :(return)
 
 split.end
 
@@ -2541,9 +2542,9 @@ writer.end
     setl4.span.word         =   span(&lcase &ucase '0123456789')
 
 *   setl4.rank gives valid values for the argument _type_ in the function _rank()_
-    setl4.rank           = new('map +:++  -:-- ' 
-.                               '+k:+k +ke:+k +key:+k '
-.                               '+v:+v +va:+v +val:+v +va:+v +v:+v' )
+
+    setl4.rank = new('map +:++ -:-- +k:+k +ke:+k +key:+k '
+.                         '+v:+v +va:+v +val:+v +valu:+v +value:+v')
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
