@@ -2,6 +2,7 @@
 
     s = new('set two one')
     show(s)
+end
     r = rank(s)
     show(r)
 *    &dump = 3

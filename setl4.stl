@@ -1255,6 +1255,7 @@ rank.end
 show
 
     ident(v)                                        :s(return)
+    out('enter show dt v',datatype(v))
     differ(label) out('show: ' str.upper(label))
     differ(datatype(v),'set')                       :s($('show.' datatype(v)))
 
@@ -1608,6 +1609,9 @@ setl4.save.end
 *   Show the fields of an instance of _set_.
 
 setl4.show
+    out('enter setl4.show')
+    out('arg dt',datatype(set))
+
                            out('{')
                            out('  kind',          set.kind(set))
     differ(label)          out('  show: '         str.upper(label))
@@ -1643,9 +1647,7 @@ setl4.size.end
 setl4.sort
 
     out('enter setl4.sort')
-    setl4.sort = setl4.table(sort(tbl,which))       :(return)
-
-setl4.sort.end
+    setl4.show(set)
 
 *   Nothing to sort if set is empty or only has one element.
 
@@ -1662,7 +1664,7 @@ setl4.sort.end
 *   Here to convert sorted array resulting from the sort back
 *   into a table.
 
-    sort = convert(sort,'table')                    :s(setl4.sort.ok
+    sort = convert(sort,'table')                    :s(setl4.sort.ok)
     error('unable to convert sorted array to table')
 
 setl4.sort.ok
@@ -1671,7 +1673,7 @@ setl4.sort.ok
 
 setl4.sort.next
 
-    key = sort[(i = i + 1],1)                       :f(return)
+    key = sort[i = i + 1,1]                         :f(return)
     put(setl4.sort,i,key,sort[i,2])                 :(setl4.sort.next)
 
 setl4.sort.end
