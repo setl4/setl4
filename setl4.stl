@@ -203,7 +203,6 @@
 *   new(str)                        Returns new set specified by _st_
 *   next(set)                       Returns next element in iteration defined by prevous _loop_, fails if no more elements
 *   not(expr)                       Not: Tests if operand is false
-*   omega(expr)                     Test if _expr_ is the SETL4 value OMEGA.
 *   or(a,b)                         Or: Tests if either operand is true
 *   push(stack,value)               Push value onto a stack
 *   pop(stack)                      Pop the top of a stack
@@ -221,7 +220,6 @@
 *   show.line(line)                 Show string _line_ with spaces replaced by '.'
 *   show.lines(lines,title)         Show non-empty lines in array of lines, with title 'title'
 *   show.q(str)                     Show string enclosed in appropriate quote character (" or ') 
-*   show.words(words)               Show a sequence of words, separated by space character
 *   traceon()                       Turns on tracing
 *   this(set)                       Returns current iteration value for _set_
 *   true(e)                         Tests if operand is true
@@ -326,11 +324,6 @@
 *   SETL4 needs a stack
 
     setl4.stack = stack()
-
-*   _setl4.omega' is the value returned when there is no entry in a table
-*   for a specified key.
-
-    setl4.omega = 'OMEGA'
 
 *   SETL4 Global Variables
 *   ----------------------
@@ -480,8 +473,8 @@ at.end
 
 defined
     key = integer(key) +key
-    defined = set.key(map)[key]
-    omega(defined)                                  :s(freturn)f(return)
+    defined = set.key(map)[key]                     
+    differ(defined)                                  :s(return)f(freturn)
 
 defined.end
 
@@ -685,6 +678,8 @@ forall.end
 *   element _key_ in a set, failing if no such element.
 
 get
+
+    key = integer(key) +key
     differ(datatype(map),'set') error('get on unsupported type: ' datatype(map))
     ident(set.kind(map),'map')                      :s(get.map)
     ident(set.kind(map),'set')                      :s(get.set)
@@ -692,14 +687,13 @@ get
 
 get.map
 
-    key = integer(key) +key
     get = set.key(map)[key]
-    omega(get)                                      :s(freturn)f(return)
+    differ(get)                                      :s(return)f(freturn)
 
 get.set
 
-    entry = set.index(map)[key]
-    ident(entry)                                    :s(freturn)
+    get = set.index(map)[key]
+    ident(get)                                      :s(freturn)f(freturn)
     get = set.key(map)[entry]                       :(return)
 
 get.end
@@ -826,14 +820,11 @@ member.iter
 
 member.set
 
-    out('member.set',elem)
-    out('mem value',set.key(set)[elem])
-    show(set)
     elem = integer(elem) +elem 
-    differ(set.key(set)[elem])                      :s(return)f(freturn)
+    member = set.key(set)[elem]
+    differ(member)                                  :s(return)f(freturn)
 
 member.end
-
 
     define('new(init)kind,i,len,n,key,seq,val,words)'):(new.end)
 
@@ -922,7 +913,7 @@ new.iter.3
 
 new.map
     
-    new = set(table(setl4.config.size,,setl4.omega),table(setl4.config.size,,setl4.omega))
+    new = set(table(setl4.config.size),table(setl4.config.size))
     set.kind(new) = 'map'
 
 *   If present, _init_ is a list consisting of a list of key/value pairs,
@@ -939,7 +930,7 @@ new.map.next
 
 new.seq
 
-    new = set(table(setl4.config.size,,setl4.omega),table(setl4.config.size,,setl4.omega))
+    new = set(table(setl4.config.size),table(setl4.config.size))
     set.kind(new) = 'map'
     init span(' ') =
     ident(init)                                         :s(return)
@@ -953,7 +944,7 @@ new.seq.next
 
 new.set
 
-    new = set(table(setl4.config.size,,setl4.omega),table(setl4.config.size,,setl4.omega))
+    new = set(table(setl4.config.size),table(setl4.config.size))
     set.kind(new) = 'set'
     ident(init)                                         :s(return)
 
@@ -1044,16 +1035,6 @@ not
 
 not.end
 
-    define('omega(a)')                              :(omega.end)
-
-*   Tests if a has as value OMEGA.
-
-omega
-
-    ident(a,setl4.omega)                            :s(return)f(freturn)
-
-omega.end
-
     define('or(a,b)')                               :(or.end)
 
 *   Tests if either operand is true, fails otherwise.
@@ -1123,6 +1104,8 @@ put
 
 put.value
 
+*    out('put.value key',key)
+*    out('put.value value',value)
     set.key(map)[key] = value                      :(return)
 
 put.end
@@ -1227,43 +1210,41 @@ rank
     ident(get(setl4.rank,type)) 
 .               error('rank unsupported operand type ' datatype(set) )
     type = get(setl4.rank,type) 
+    type = ident(type) '--'
     type = ident(type) '++'
+    type = '++'
     differ(str)                                     :s(rank.string)
 
 rank.merge
 
 *MERGE*
 
-*    out('rank.merge dt',datatype(set))
-*    out('rank.merge type',type)
-*    out('set.size(set)', set.size(set))
-    setl4.show(set)
-*    ident(str) out('rank.merge kind',set.kind(set))
 *   Branch on type of set. Note that in the case _set_ is a string,
 *   we will merge here when we have converted the string to a sequence.
 
 
     differ(datatype(set),'set') error('wrong type for rank')
-    set = copy(set)
+    rank = copy(set)
     key = set.kind(set)
     ident(set.kind(set),'map')                      :s(rank.map)
     ident(set.kind(set),'set')                      :s(rank.set)
     error('unknown type to rank',datatype(set))
 
 rank.map
-rank.seq
 
-    ara = ident(type,'++')   sort(set.index(set),1)
-    ara = ident(type,'+k')   sort(set.index(set),1)
-    ara = ident(type,'+v')   sort(set.index(set),1)
-    ara = ident(type,'--')   rsort(set.index(set),2)
-    ara = ident(type,'-v')   rsort(set.index(set),2)
-    ara = ident(type,'-v')   rsort(set.index(set),2)
+    out('rank.map type',type)
+    ara = ident(type,'++')   setl4.sort(set.index(set),1)
+    ara = ident(type,'+k')   setl4.sort(set.index(set),1)
+    ara = ident(type,'+v')   setl4.sort(set.index(set),1)
+    ara = ident(type,'--')   setl4.rsort(set.index(set),2)
+    ara = ident(type,'-v')   setl4.rsort(set.index(set),2)
+    ara = ident(type,'-v')   setl4.rsort(set.index(set),2)
 
 *   Here to converted sorted array resulting from the sort back
 *   into a table.
 
-    out('showing index set',show(set.index(set)))
+*    out('showing index set size',set.size(set))
+*    out('showing index set',show(set.index(set)))
     tbl = table(set.size(set)) 
     i = 0
     loop(map)
@@ -1281,8 +1262,9 @@ rank.table.done
 
 rank.set
 
-    set.index(rank) = ident(str,'++') sort(set.index(rank),1)
-    set.index(rank) = ident(str,'--') rsort(set.index(rank),1)
+*HERE*
+    set.index(rank) = ident(type,'++') setl4.sort(set.index(set),1)
+    set.index(rank) = ident(type,'--') setl4.rsort(set.index(set),1)
                                                     :(return)
 rank.string
 
@@ -1297,7 +1279,7 @@ rank.string
 
 rank.end
 
-    define('show(v,label,nested)ara,i,kind,elem,ent,line,hdr,this') :(show.end)
+    define('show(v,label,nested)ara,i,kind,elem,ent,line,hdr,map,set,this') :(show.end)
 
 *   Show the value of expression _v_.
 *   _lev_ is non-zero when called to list element of a compound object.
@@ -1394,16 +1376,16 @@ show.pair
 
 show.set
 
-*   Call _rank_ so entries listed in rank order.
 
-*    set = rank(v)
-    setl4.save(v)
+    out('show.set')
     show = '{ set'
-    loop(v)
+    set = rank(v)
+*    set = copy(v)
+    loop(set)
 
 show.set.next
 
-    elem = next(v)                                  :f(show.set.done)
+    elem = next(set)                                :f(show.set.done)
     show = show ' ' show(elem,,1)
     lt(size(show),100)                              :s(show.set.next)
     out(show)
@@ -1411,13 +1393,8 @@ show.set.next
 
 show.set.done
 
-    setl4.restore(v)
     show = show ' }'                                :(show.done)
 
-*show.str
-*
-*    show = show.str(str.text(set))                  :(show.done)
-*
 show.string
 
 *   Don't quote string that is an integer.
@@ -1429,11 +1406,14 @@ show.string
 
 show.table
 
-    out('show.table dt',datatype(v))
+*    out('show.table dt',datatype(v))
     ara = convert(v,'array')                        :f(show.table.error)
+    ara = convert(v,'array')                        
     out('convert ok')
     out('show.table dt',datatype(ara))
     out('prototype show.table array',prototype(ara))
+    i = 0
+                                                    :(show.table.next)
 
 show.table.error
 
@@ -1444,7 +1424,9 @@ show.table.next
     key = ara[i = i + 1,1]                          :f(show.done)
     value = ara[i,2]
 
-    out(tab show(key)    ' -> ' show(value))
+*    out('show.table.next dt key',datatype(key))
+*    out('show.table.next dt value',datatype(value))
+    out(tab show(key,,1)    ' -> ' show(value,,1))
                                                     :(show.table.next)
 show.string.quote
 
@@ -1543,17 +1525,6 @@ show.q.double
 
 show.q.end
 
-    define('show.words(words)i,pos')                :(show.words.end)
-
-*   Show results of words() call.
-
-show.words
-
-    pos = words[add1(.i),1]                         :f(return)
-    out('words ' lpad(pos,2) ' ' words[i,2])        :(show.words)
-
-show.words.end
-
     define('subset(a,b)member')                     :(subset.end)
 
 *   Tests if the second set is a subset of the first.
@@ -1635,40 +1606,6 @@ visit.next
 
 visit.end
 
-    define('words(str,chars)pat,word')              :(words.end)
-
-*   _Words_ returns a sequence of the words in _str_, where a word consists of consecutive
-*   letters, digits, and any of the characters in _chars_ if _chars_ is not null.
-
-words
-
-    out('enter words')
-    pat = (ident(chars) setl4.span.word, span(&lcase &ucase '0123456789' chars))
-    words = new('seq')
-    
-words.next
-
-    str setl4.span.spaces = 
-    ident(str)                                      :s(words.finis)
-    str setl4.any.word                              :s(words.add)
-
-    out('words.next discarding',show(str))
-*   Here if not at start of a word, so discard current character  and continue.
-
-    str len(1) =                                    :(words.next) 
-
-words.add
-
-    str pat . word =                                :f(words.this)
-    out('words.add',word)
-    words = words (differ(words) ' ', '') word      :(words.next)
-
-words.finis
-
-    words = new('seq ' words)                       :(return)
-
-words.end
-
 *   The following functions with names beginning with 'setl4' are
 *   for internal use only. There is no reason for a user to invoke
 *   them save for debugging. Otherwise use them ar your peril
@@ -1686,6 +1623,18 @@ setl4.restore
     set.next(s) = pop(setl4.stack)                  :(return)
 
 setl4.restore.end
+
+    define('setl4.rsort(tbl,which)ara,i,key,val')        :(setl4.rsort.end)
+
+*   Similiar to SPITBOL rsort, except does the additional step
+*   of converting the array produced by rsort to a table.
+
+setl4.rsort
+
+    out('enter setl4.rsort')
+    setl4.rsort = setl4.table(rsort(tbl,which))       :(return)
+
+setl4.rsort.end
 
     define('setl4.show(set,label)')                 :(setl4.show.end)
 
@@ -1730,6 +1679,34 @@ setl4.save
     push(setl4.stack,set.this(s))                   :(return)
 
 setl4.save.end
+
+    define('setl4.sort(tbl,which)ara,i,key,val')        :(setl4.sort.end)
+
+*   Similiar to SPITBOL sort, except does the additional step
+*   of converting the array produced by rsort to a table.
+
+
+setl4.sort
+
+    out('enter setl4.sort')
+    setl4.sort = setl4.table(sort(tbl,which))       :(return)
+
+setl4.sort.end
+
+    define('setl4.table(ara)i,')                    :(setl4.table.end)
+
+*   _Setl4.table_ returns the result of converting the array resulting from 
+*   a call to SPITBOL _sort_ or _rsort_ to a table.
+
+setl4.table
+
+    setl4.table = table()
+
+setl4.table.next
+
+    setl4.table[ara[i = i + 1,1]] = ara[i,2]        :s(setl4.table.next)f(return)
+
+setl4.table.end
 
     define('traceoff()')                            :(traceoff.end)
 
@@ -2303,6 +2280,7 @@ slice.end
 
 split
 
+*    out('enter split')
     split = new('map')
     str break(' ')                                   :f(split.str)
 
@@ -2310,7 +2288,8 @@ split.next
 
 *   Here to split string into a sequence of its words.
 
-    str break(' ') . word ' ' =                     :f(return)
+*    str break(' ') . word ' ' =                     :f(return)
+    str break(' ') . word ' ' =                     :f(split.str.done)
     put(split,i = i + 1, word)                      :(split.next)
 
 split.str
@@ -2322,12 +2301,13 @@ split.str.next
 
     str span(' ') =
     str break(' ') . word ' ' =                     :f(split.str.done)
-    str break(' ') . word ' ' =                     :f(return)
+*    str break(' ') . word ' ' =                     :f(return)
     put(split,i = i + 1, word)                      :(split.str.next)
 
 split.str.done
-    out('split result')
-    show(split)             :(return)
+*    out('split result')
+*    show(split)             
+                                        :(return)
 
 split.end
 
@@ -2524,4 +2504,3 @@ writer.end
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
-

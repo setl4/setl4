@@ -1,5 +1,12 @@
 -include "setl4.stl"
 
+    s = new('set two one')
+    show(s)
+    r = rank(s)
+    show(r)
+*    &dump = 3
+end
+
 *    out('splitting("shields")')
 *    s = split('shields')
 *    show(s)

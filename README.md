@@ -392,12 +392,10 @@ the funcitons _push_ and _pop_. Stacks are created by the function _new.stack_.
 - `show.line(line)`                 show string _line_ with spaces replaced by '.'
 - `show.lines(lines,title)`         show non-empty lines in array of lines, with title 'title'
 - `show.q(str)`                     show string enclosed in appropriate quote character (" or ') 
-- `show.words(words)`               show a sequence of words, separated by space character
 - `traceon()`                       turns on tracing
 - `this(set)`                       returns current iteration value for _set_
 - `true(e)`                         tests if operand is true
 - `visit(set,expr)`                 Visits each element of set _set_ and evaluates _expr_ for that element
-- `words(str)`                      Returns sequence of words, separated by spaces, in a string,
 
 ## Utility Functions
 
