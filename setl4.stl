@@ -1226,46 +1226,14 @@ rank.merge
     differ(datatype(set),'set') error('wrong type for rank')
     rank = copy(set)
     key = set.kind(set)
-    ident(set.kind(set),'map')                      :s(rank.map)
-    ident(set.kind(set),'set')                      :s(rank.set)
-    error('unknown type to rank',datatype(set))
-
-rank.map
-
     out('rank.map type',type)
-    ara = ident(type,'++')   setl4.sort(set.index(set),1)
-    ara = ident(type,'+k')   setl4.sort(set.index(set),1)
-    ara = ident(type,'+v')   setl4.sort(set.index(set),1)
-    ara = ident(type,'--')   setl4.rsort(set.index(set),2)
-    ara = ident(type,'-v')   setl4.rsort(set.index(set),2)
-    ara = ident(type,'-v')   setl4.rsort(set.index(set),2)
-
-*   Here to converted sorted array resulting from the sort back
-*   into a table.
-
-*    out('showing index set size',set.size(set))
-*    out('showing index set',show(set.index(set)))
-    tbl = table(set.size(set)) 
-    i = 0
-    loop(map)
+    rank = setl4.sort(set.type)                     :(return)
 
 rank.table
 
-    key = ara[i = i + 1]                            :f(rank.table.done)
+    key = ara[i = i + 1]                            :f(return)
     tbl[ara[i,1]] = ara[i,2]                        :(rank.table)
 
-rank.table.done
-
-    set.index(rank) = tbl                           
-    out('showing revised  tbl',show(set.index(set)))
-                                                    :(return)
-
-rank.set
-
-*HERE*
-    set.index(rank) = ident(type,'++') setl4.sort(set.index(set),1)
-    set.index(rank) = ident(type,'--') setl4.rsort(set.index(set),1)
-                                                    :(return)
 rank.string
 
 *   Rank a string by using split() to build a sequence of
@@ -1624,24 +1592,22 @@ setl4.restore
 
 setl4.restore.end
 
-    define('setl4.rsort(tbl,which)ara,i,key,val')        :(setl4.rsort.end)
+    define('setl4.save(s)')                         :(setl4.save.end)
 
-*   Similiar to SPITBOL rsort, except does the additional step
-*   of converting the array produced by rsort to a table.
+*   Save _next_ and _this_ fields of argument.
 
-setl4.rsort
+setl4.save
 
-    out('enter setl4.rsort')
-    setl4.rsort = setl4.table(rsort(tbl,which))       :(return)
+    push(setl4.stack,set.next(s))
+    push(setl4.stack,set.this(s))                   :(return)
 
-setl4.rsort.end
+setl4.save.end
 
     define('setl4.show(set,label)')                 :(setl4.show.end)
 
 *   Show the fields of an instance of _set_.
 
 setl4.show
-
                            out('{')
                            out('  kind',          set.kind(set))
     differ(label)          out('  show: '         str.upper(label))
@@ -1669,22 +1635,10 @@ setl4.size
 
 setl4.size.end
 
-    define('setl4.save(s)')                         :(setl4.save.end)
+    define('setl4.sort(set,type)i,key,sort')        :(setl4.sort.end)
 
-*   Save _next_ and _this_ fields of argument.
-
-setl4.save
-
-    push(setl4.stack,set.next(s))
-    push(setl4.stack,set.this(s))                   :(return)
-
-setl4.save.end
-
-    define('setl4.sort(tbl,which)ara,i,key,val')        :(setl4.sort.end)
-
-*   Similiar to SPITBOL sort, except does the additional step
-*   of converting the array produced by rsort to a table.
-
+*   Sorts set _set_ according to _type_ and converts resulting
+*   array into updated table _set.index(set)_.
 
 setl4.sort
 
@@ -1693,20 +1647,34 @@ setl4.sort
 
 setl4.sort.end
 
-    define('setl4.table(ara)i,')                    :(setl4.table.end)
+*   Nothing to sort if set is empty or only has one element.
 
-*   _Setl4.table_ returns the result of converting the array resulting from 
-*   a call to SPITBOL _sort_ or _rsort_ to a table.
+    le(set.size(set),1)                             :s(return)
 
-setl4.table
+*   Sort according to specified type.
 
-    setl4.table = table()
+    sort = ident(type,'++')   sort(set.key(set),1)
+    sort = ident(type,'+k')   sort(set.key(set),1)
+    sort = ident(type,'+v')   sort(set.key(set),2)
+    sort = ident(type,'--')   rsort(set.key(set),1)
+    sort = ident(type,'-v')   rsort(set.key(set),2)
 
-setl4.table.next
+*   Here to convert sorted array resulting from the sort back
+*   into a table.
 
-    setl4.table[ara[i = i + 1,1]] = ara[i,2]        :s(setl4.table.next)f(return)
+    sort = convert(sort,'table')                    :s(setl4.sort.ok
+    error('unable to convert sorted array to table')
 
-setl4.table.end
+setl4.sort.ok
+
+    setl4.sort = table(set.size(set))
+
+setl4.sort.next
+
+    key = sort[(i = i + 1],1)                       :f(return)
+    put(setl4.sort,i,key,sort[i,2])                 :(setl4.sort.next)
+
+setl4.sort.end
 
     define('traceoff()')                            :(traceoff.end)
 

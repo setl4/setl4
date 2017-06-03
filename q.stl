@@ -5,12 +5,11 @@
     r = rank(s)
     show(r)
 *    &dump = 3
-end
 
 *    out('splitting("shields")')
 *    s = split('shields')
 *    show(s)
-    &dump = 3
+*    &dump = 3
 
     s = rank('shields')
     show(s)
