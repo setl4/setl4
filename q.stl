@@ -1,15 +1,9 @@
 -include "setl4.stl"
 
     s = new('set two one')
-    out('showing unranked s')
     show(s)
-    out('showing ranked s')
-    rankit = 1
-    show(s)
-end
-    out('ranking s')
-*    rank(s)
-    show(s)
+    setl4.clear()
+    &dump = 3
 end
     r = rank(s)
     show(r)

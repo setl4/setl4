@@ -585,12 +585,7 @@ error
 
 *   Clear variables that need not appear in &dump output
 
-    setl4.config.size = setl4.config.stack = setl4.config.size = setl4.config.integers.max =
-.   setl4.config.integers.max = setl4.stack = setl4.ascii.initialized = setl4.ascii.name =
-.   setl4.ascii.value = setl4.random_var = setl4.any.digit = setl4.span.digits = setl4.break.digit =
-.   setl4.break.letter = setl4.any.letter = setl4.span.letters = setl4.span.spaces = setl4.break.space =
-.   setl4.any.word = setl4.span.word = setl.rank.map = setl4.rank = 
-
+    setl4.clear()
     out('Fatal error: ' str)                    :(end)
 
 error.end
@@ -1212,9 +1207,8 @@ random.seed.end
 *   as "+k" or "+ke", "+value" as "+v" or +"val", and so forth.
 
 rank
-
-    ident(rankit) :s(return)
     str = ident(datatype(set),'string') set
+    type = ident(type) '++'
 
 *   If the first argument is a string, build a sequence
 *   of the characters in the string, and rank the sequence.
@@ -1230,7 +1224,8 @@ rank
     type = ident(type) '--'
     type = ident(type) '++'
     type = '++'
-    differ(str)                                     :s(rank.string)
+    out('enter rank type',type)
+    differ(str)                                             :s(rank.string)
 
 rank.merge
 
@@ -1241,15 +1236,13 @@ rank.merge
 
 
     differ(datatype(set),'set') error('wrong type for rank')
-    rank = copy(set)
     key = set.kind(set)
-    out('rank.map type',type)
-    rank = setl4.sort(set,type)                     :(return)
+    setl4.sort(set,set.size(set),type)                                    :(return)
 
 rank.table
 
-    key = ara[i = i + 1]                            :f(return)
-    tbl[ara[i,1]] = ara[i,2]                        :(rank.table)
+    key = ara[i = i + 1]                                    :f(return)
+    tbl[ara[i,1]] = ara[i,2]                                :(rank.table)
 
 rank.string
 
@@ -1260,7 +1253,7 @@ rank.string
     set = split(str)                                
     out('rank.string set',datatype(set))
     show(set)
-    type = '+v'                                     :(rank.merge)
+    type = '+v'                                             :(rank.merge)
 
 rank.end
 
@@ -1272,13 +1265,15 @@ rank.end
 show
 
     ident(v)                                        :s(return)
-    out('enter show dt v',datatype(v))
+*    out('enter show dt v',datatype(v))
+*HERE*
     differ(label) out('show: ' str.upper(label))
     differ(datatype(v),'set')                       :s($('show.' datatype(v)))
 
 *   When showing a set, save _set.next_ and _set.this_ to avoid
 *   disrupting possible existing iteration over the set.
     
+*    out('show kind',set.kind(v))
     kind = set.kind(v)
     ident(kind,'int')                               :s(show.int)
     ident(kind,'iter')                              :s(show.iter)
@@ -1337,7 +1332,7 @@ show.map
 
 *   Call _rank_ so entries listed in rank order.
 
-*    map = rank(map)
+    map = rank(map)
     setl4.save(v)
     loop(v)
     show = '{ map'
@@ -1363,15 +1358,16 @@ show.pair
 show.set
 
 
-    out('show.set')
+*    out('show.set')
     show = '{ set'
-    set = rank(v)
-    out('dt ranked set',datatype(set))
-    loop(set)
+    rank(v)
+*    out('dt ranked set',datatype(set))
+    setl4.show(v)
+    loop(v)
 
 show.set.next
 
-    elem = next(set)                                :f(show.set.done)
+    elem = next(v)                                :f(show.set.done)
     show = show ' ' show(elem,,1)
     lt(size(show),100)                              :s(show.set.next)
     out(show)
@@ -1392,12 +1388,7 @@ show.string
 
 show.table
 
-*    out('show.table dt',datatype(v))
     ara = convert(v,'array')                        :f(show.table.error)
-    ara = convert(v,'array')                        
-    out('convert ok')
-    out('show.table dt',datatype(ara))
-    out('prototype show.table array',prototype(ara))
     i = 0
                                                     :(show.table.next)
 
@@ -1409,11 +1400,8 @@ show.table.next
 
     key = ara[i = i + 1,1]                          :f(show.done)
     value = ara[i,2]
+    out(tab show(key,,1)    ' -> ' show(value,,1))  :(show.table.next)
 
-*    out('show.table.next dt key',datatype(key))
-*    out('show.table.next dt value',datatype(value))
-    out(tab show(key,,1)    ' -> ' show(value,,1))
-                                                    :(show.table.next)
 show.string.quote
 
     show = '"'  v '"'                               :(show.done)
@@ -1596,6 +1584,20 @@ visit.end
 *   for internal use only. There is no reason for a user to invoke
 *   them save for debugging. Otherwise use them ar your peril
 
+    define('setl4.clear()')                         :(setl4.clear.end)
+
+*   Clear values of setl4 global variables. This reduces amount of &dump output.
+
+setl4.clear
+
+    setl4.config.size = setl4.config.stack = setl4.config.size = setl4.config.integers.max =
+.   setl4.config.integers.max = setl4.stack = setl4.ascii.initialized = setl4.ascii.name =
+.   setl4.ascii.value = setl4.random_var = setl4.any.digit = setl4.span.digits = setl4.break.digit =
+.   setl4.break.letter = setl4.any.letter = setl4.span.letters = setl4.span.spaces = setl4.break.space =
+.   setl4.any.word = setl4.span.word = setl.rank.map = setl4.rank = 
+                                                    :(return)
+setl4.clear.end
+
     define('setl4.restore(s)')                      :(setl4.restore.end)
 
 *   Restore _next_ and _this_ fields of argument.
@@ -1626,8 +1628,6 @@ setl4.save.end
 *   Show the fields of an instance of _set_.
 
 setl4.show
-    out('enter setl4.show')
-    out('arg dt',datatype(set))
 
                            out('{')
                            out('  kind',          set.kind(set))
@@ -1656,7 +1656,7 @@ setl4.size
 
 setl4.size.end
 
-    define('setl4.sort(set,type)i,key,sort,itbl,vtbl')  :(setl4.sort.end)
+    define('setl4.sort(set,n,type)i,key,sort,itbl,vtbl')  :(setl4.sort.end)
 
 *   _setl4.sort_ sorts the set _set_ according to _type_ and updates the
 *   _set.index_ field to reflect sorted order.  This function 
@@ -1666,14 +1666,15 @@ setl4.size.end
 
 setl4.sort
 
-    out('enter setl4.sort')
-
 *   Nothing to do if set is empty or only has one element.
 
     le(n = set.size(set),1)                         :s(return)
 
+    out('enter setl4.sort n',n)
+    out('enter setl4.sort type',type)
 *   If sorting by key, just need to sort the index table.
 
+    ident(type,'++') out('increasing key sort in setl4.sort')
     set.index(set) = ident(type,'++')   setl4.sort.table(set.index(set),n,'+') :(return)
     set.index(set) = ident(type,'--')   setl4.sort.table(set.index(set),n,'-') :s(return)
     set.index(set) = ident(type,'+k')   setl4.sort.table(set.index(set),n,'+')  :s(return)
@@ -1723,14 +1724,19 @@ setl4.sort.end
 
 setl4.sort.table
 
+    out('enter setl4.sort.table type',type)
+    show(table)
     ara = ident(type,'+')   sort(table,2)
     ara = ident(type,'-')   rsort(table,2)
     setl4.sort.table = table(n)
 
 setl4.sort.table.next
 
-    le(i = i + 1,n)                                 :f(return)
+*    le(i = i + 1,n)                                 :f(return)
+    le(i = i + 1,n)                                 :f(ss.done)
     setl4.sort.table[ara[i,1]] = ara[i,2]           :(setl4.sort.table.next)
+ss.done
+    show(setl4.sort.table):(return)
 
 setl4.sort.table.end
 
