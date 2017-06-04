@@ -1,7 +1,10 @@
 -include "setl4.stl"
 
     s = new('set two one')
+    show(set.index(s),'set.index before')
+    setl4.show(s)
     show(s)
+    show(set.index(s),'set.index after')
     setl4.clear()
     &dump = 3
 end

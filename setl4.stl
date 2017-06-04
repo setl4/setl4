@@ -1216,28 +1216,26 @@ rank
 
     ident(datatype(set),'set') ident(set.kind(set),'int')  :s(return)
     ident(datatype(set),'set') ident(set.kind(set),'iter') :s(return)
-*    out('map type',get(setl4.rank,type))
     
     ident(get(setl4.rank,type)) 
-.               error('rank unsupported operand type ' datatype(set) )
+.               error('rank unsupported operand type ' type )
     type = get(setl4.rank,type) 
-    type = ident(type) '--'
     type = ident(type) '++'
-    type = '++'
-    out('enter rank type',type)
     differ(str)                                             :s(rank.string)
 
 rank.merge
 
 *MERGE*
 
-*   Branch on type of set. Note that in the case _set_ is a string,
-*   we will merge here when we have converted the string to a sequence.
-
+*   If  _set_ is a string, will merge here when we have 
+*   converted the string to a sequence.
 
     differ(datatype(set),'set') error('wrong type for rank')
-    key = set.kind(set)
-    setl4.sort(set,set.size(set),type)                                    :(return)
+    out('merge type',type)
+    show(set.index(set),'before merge')
+    setl4.sort(set,set.size(set),type)                                    
+    show(set.index(set),'after merge')
+                                                            :(return)
 
 rank.table
 
@@ -1252,12 +1250,11 @@ rank.string
 
     set = split(str)                                
     out('rank.string set',datatype(set))
-    show(set)
     type = '+v'                                             :(rank.merge)
 
 rank.end
 
-    define('show(v,label,nested)ara,i,kind,elem,ent,line,hdr,map,set,this') :(show.end)
+    define('show(v,label,nested)ara,i,kind,elem,ent,line,hdr,map,n,set,this') :(show.end)
 
 *   Show the value of expression _v_.
 *   _lev_ is non-zero when called to list element of a compound object.
@@ -1267,7 +1264,7 @@ show
     ident(v)                                        :s(return)
 *    out('enter show dt v',datatype(v))
 *HERE*
-    differ(label) out('show: ' str.upper(label))
+    differ(label) out('show: ' upper(label))
     differ(datatype(v),'set')                       :s($('show.' datatype(v)))
 
 *   When showing a set, save _set.next_ and _set.this_ to avoid
@@ -1330,12 +1327,10 @@ show.integer
 
 show.map
 
-*   Call _rank_ so entries listed in rank order.
-
-    map = rank(map)
+    show = '{ map'
+    rank(v)
     setl4.save(v)
     loop(v)
-    show = '{ map'
 
 show.map.next
 
@@ -1357,12 +1352,10 @@ show.pair
 
 show.set
 
-
 *    out('show.set')
     show = '{ set'
     rank(v)
-*    out('dt ranked set',datatype(set))
-    setl4.show(v)
+    setl4.save(v)
     loop(v)
 
 show.set.next
@@ -1388,9 +1381,9 @@ show.string
 
 show.table
 
+    show = 'table ['
     ara = convert(v,'array')                        :f(show.table.error)
-    i = 0
-                                                    :(show.table.next)
+    prototype(ara) break(',') . n                   :(show.table.next)
 
 show.table.error
 
@@ -1398,10 +1391,13 @@ show.table.error
 
 show.table.next
 
-    key = ara[i = i + 1,1]                          :f(show.done)
-    value = ara[i,2]
-    out(tab show(key,,1)    ' -> ' show(value,,1))  :(show.table.next)
+    le(i = i + 1,n)                                 :f(show.table.done)
+    show = show ' ' show(i,,1) ':' show(v[i],,1)    :(show.table.next)
 
+show.table.done
+
+    show = show ' ]'                                :(show.done)
+ 
 show.string.quote
 
     show = '"'  v '"'                               :(show.done)
@@ -1656,13 +1652,15 @@ setl4.size
 
 setl4.size.end
 
-    define('setl4.sort(set,n,type)i,key,sort,itbl,vtbl')  :(setl4.sort.end)
+    define('setl4.sort(set,n,type)i,key,sort,itbl')  :(setl4.sort.end)
 
-*   _setl4.sort_ sorts the set _set_ according to _type_ and updates the
-*   _set.index_ field to reflect sorted order.  This function 
-*   doesn't create a new set. It just updates the index table
-*   so that going forward entries will be visited in the 
-*   order reflecting the sort.
+*   _setl4.sort_ sorts the _index_ table of set _set_ according 
+*   to _type_ and updates the _set.index_ field to reflect the 
+*   desired order.
+*
+*   This function doesn't create a new set. It just updates 
+*   the index table so that going forward entries will be 
+*   visited in the order defined by _type_.
 
 setl4.sort
 
@@ -1674,30 +1672,33 @@ setl4.sort
     out('enter setl4.sort type',type)
 *   If sorting by key, just need to sort the index table.
 
-    ident(type,'++') out('increasing key sort in setl4.sort')
-    set.index(set) = ident(type,'++')   setl4.sort.table(set.index(set),n,'+') :(return)
-    set.index(set) = ident(type,'--')   setl4.sort.table(set.index(set),n,'-') :s(return)
-    set.index(set) = ident(type,'+k')   setl4.sort.table(set.index(set),n,'+')  :s(return)
-    set.index(set) = ident(type,'-k')   setl4.sort.table(set.index(set),n,'-') :s(return)
-
+    show(set.index(set),'before type check')
     
-*   If sorting by value, build table mapping index numbers into
+    ident(type,'+v')                                :s(setl4.sort.value)
+    ident(type,'-v')                                :s(setl4.sort.value)
+
+    tbl = setl4.sort.table(set.index(set),n,type)   :(setl4.sort.finis)
+    
+setl4.sort.value
+*   Here to  sort by value: build table mapping index numbers into
 *   the values associated with their keys, and sort that.
 
+    out('setl4.sort by value',type)
     tbl = table(set.size(set))
 
 setl4.tbl.next
 
-    le(i = i + 1,n)                     :f(setl4.sort.value)
-    tbl[i = i + 1] = set.key(set)[set.index(set)[i]] :(setl4.tbl.next)
+    le(i = i + 1,n)                                 :f(setl4.sort.tbl)
+    tbl[i] = set.key(set)[set.index(set)[i]]        :(setl4.tbl.next)
 
-setl4.sort.value
+setl4.sort.tbl
 
-    tbl = setl4.sort.table(tbl,n,type)
-    i = 0
+    show(tbl,'setl4.sort before')
+    tbl = setl4.sort.table(tbl,set.size(set),type)
+    show(tbl,'setl4.sort after')
     setl4.sort = table(n)
 
-*   The table is in proper order, so replace values with the keys
+*   The table is in proper orer, so replace values with the keys
 *   associated with that value.
 
 setl4.sort.replace
@@ -1707,36 +1708,32 @@ setl4.sort.replace
     
 setl4.sort.finis
 
-    set.index(set) = setl4.sort.table               :(return)
+    set.index(set) = tbl                            :(return)
 
 setl4.sort.end
 
     define('setl4.sort.table(table,n,type)i,key,sort,itbl,vtbl') :(setl4.sort.table.end)
 
 *   _Setl4.sort.table_ sorts a table of size _n_ that  maps
-*   integers into values according to the value of _type_ ,
-*   returning a table reflecting the sort. 
-*   The first element in the result is the index (key) in the input table that
-*   corresponds to the first value in the sorted order, and so forth.
+*   integers into values according to the value of _type_ , returning 
+*   a table reflecting the sort.  The first element in the result
+*   is the index (key) in the input table that corresponds to the
+*   first value in the sorted order, and so forth.
 
-
-*   _Type_ is '+' to sort in increasing order of the values, or '-' to sort in decreasing order.
+*   _Type_ is '++' to sort in increasing order of the values,
+*   or '--' to sort in decreasing order.
 
 setl4.sort.table
 
     out('enter setl4.sort.table type',type)
-    show(table)
-    ara = ident(type,'+')   sort(table,2)
-    ara = ident(type,'-')   rsort(table,2)
+    ara = ident(type,'++')   sort(table,2)
+    ara = ident(type,'--')   rsort(table,2)
     setl4.sort.table = table(n)
 
 setl4.sort.table.next
 
-*    le(i = i + 1,n)                                 :f(return)
-    le(i = i + 1,n)                                 :f(ss.done)
+    le(i = i + 1,n)                                 :f(return)
     setl4.sort.table[ara[i,1]] = ara[i,2]           :(setl4.sort.table.next)
-ss.done
-    show(setl4.sort.table):(return)
 
 setl4.sort.table.end
 
