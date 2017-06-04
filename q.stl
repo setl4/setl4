@@ -1,6 +1,46 @@
 -include "setl4.stl"
 
     s = new('set two one')
+    out('showing unranked s')
+    show(s)
+    out('showing ranked s')
+    rankit = 1
+    show(s)
+end
+    out('ranking s')
+*    rank(s)
+    show(s)
+end
+    r = rank(s)
+    show(r)
+*    &dump = 3
+
+*    out('splitting("shields")')
+*    s = split('shields')
+*    show(s)
+*    &dump = 3
+
+    s = rank('shields')
+    show(s)
+
+end
+    s = rank('shields','-k')
+    show(s)
+
+    s = rank('shields','-v')
+    show(s)
+
+end
+
+    out('test int')
+    s = new('int 5 10 15 20 25 25')
+    add(s,30)
+    out('showing unranked s')
+    rankit =
+    show(s)
+end
+    out('ranking s')
+*    rank(s)
     show(s)
 end
     r = rank(s)

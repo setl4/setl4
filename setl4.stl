@@ -751,13 +751,29 @@ intersection.next
 
 intersection.end
 
-    define('join(a,b)')                             :(join.end)
+    define('join(a,b)i')                             :(join.end)
 
-*   Concatenate argument strings.
+*   _Join_ joins two strings by concatenating them. It joins
+*   two sequences by returning a sequence consisting of the
+*   elements of the first sequence followed by the elements 
+*   of the second sequence.
 
-join
+    differ(datatype(a),datatype(b)) error('differing datatypes to join ' datatype(a)) 
+    ident(datatype(a),'map')                     :s(join.map)
+    differ(datatype(a),'string') error('join arguments must be strings or sets. ' datatype(a))
+
+*   Here to join two strings.
 
     join = a b :(return)
+
+join.map
+   
+    join = copy(a)
+
+join.map.next
+
+    le(i = i + 1,set.size(b))                       :f(return)
+    put(join,set.size(a) + i,get(b,i))              :(join.map.next)
 
 join.end
 
@@ -1168,36 +1184,37 @@ random.seed.end
 
     define('rank(set,type)ara,entry,key,map,seq,str,tbl,value')    :(rank.end)
 
-*   Rank returns an order version of a set or string.
-*   If the first argument is a string, then the argument _set_ is converted to
-*   a sequence of the characters in the sequence before proceeding further.
+*   _Rank_ reorders the index table of a set to reflect a desired sort of elements
+*   of set, keys of maps, or values of map.
+
+*   _Rank_ can also be used to put a string in normal form by converting the string
+*   into a sequence of the characters in the string and then sorting the range
+*   of the sequence.
 
 *   The argument _type_ specifies the ordering to be used. If _type_
 *   is null, then the ordering '+' is assumed.
 
-*       '+'         increasing order of the values of set elements,
-*                   keys of map entries, or values of sequence entries
+*       '+'         increasing order of the values in the domain
 
-*       '-'         decreasing order of the values of set elements,
-*                   keys of map entries, or values of sequence entries.
+*       '-'         decreasing order of the values in the domain
 
-*       '+key'      increasing order of the values in the domain of the map
+*       '+key'      same as '+'
 
-*       '-key'      decreasing order of the values in the domain of the map
+*       '-key'      same as '-'
 
-*       '+value'    increasing order of the values in the range of the map
+*       '+value'    increasing order of the values in the range
 
-*       '-value'    decreasing order of the values in the range of the map
+*       '-value'    decreasing order of the values in the range
 
 *   If _type_ is null, then the '+' ordering is used.
 *   
-*       Types for keys and values may be abbreviated: "+key" may be written
-*       as "+k" or "+ke", "+value" as "+v" or +"val", and so forth.
+*   Types for keys and values may be abbreviated: "+key" may be written
+*   as "+k" or "+ke", "+value" as "+v" or +"val", and so forth.
 
 rank
 
+    ident(rankit) :s(return)
     str = ident(datatype(set),'string') set
-
 
 *   If the first argument is a string, build a sequence
 *   of the characters in the string, and rank the sequence.
@@ -1227,7 +1244,7 @@ rank.merge
     rank = copy(set)
     key = set.kind(set)
     out('rank.map type',type)
-    rank = setl4.sort(set.type)                     :(return)
+    rank = setl4.sort(set,type)                     :(return)
 
 rank.table
 
@@ -1349,7 +1366,7 @@ show.set
     out('show.set')
     show = '{ set'
     set = rank(v)
-*    set = copy(v)
+    out('dt ranked set',datatype(set))
     loop(set)
 
 show.set.next
@@ -1624,7 +1641,7 @@ setl4.show
     differ(set.text(set))  out('  #text',         size(set.text(set)))
     differ(set.text(set))  out('  text',          set.text(set))
                            out('}')
-                                                :(return)
+                                                    :(return)
 setl4.show.end
 
     define('setl4.set.size(set)')                   :(setl4.size.end)
@@ -1639,44 +1656,83 @@ setl4.size
 
 setl4.size.end
 
-    define('setl4.sort(set,type)i,key,sort')        :(setl4.sort.end)
+    define('setl4.sort(set,type)i,key,sort,itbl,vtbl')  :(setl4.sort.end)
 
-*   Sorts set _set_ according to _type_ and converts resulting
-*   array into updated table _set.index(set)_.
+*   _setl4.sort_ sorts the set _set_ according to _type_ and updates the
+*   _set.index_ field to reflect sorted order.  This function 
+*   doesn't create a new set. It just updates the index table
+*   so that going forward entries will be visited in the 
+*   order reflecting the sort.
 
 setl4.sort
 
     out('enter setl4.sort')
-    setl4.show(set)
 
-*   Nothing to sort if set is empty or only has one element.
+*   Nothing to do if set is empty or only has one element.
 
-    le(set.size(set),1)                             :s(return)
+    le(n = set.size(set),1)                         :s(return)
 
-*   Sort according to specified type.
+*   If sorting by key, just need to sort the index table.
 
-    sort = ident(type,'++')   sort(set.key(set),1)
-    sort = ident(type,'+k')   sort(set.key(set),1)
-    sort = ident(type,'+v')   sort(set.key(set),2)
-    sort = ident(type,'--')   rsort(set.key(set),1)
-    sort = ident(type,'-v')   rsort(set.key(set),2)
+    set.index(set) = ident(type,'++')   setl4.sort.table(set.index(set),n,'+') :(return)
+    set.index(set) = ident(type,'--')   setl4.sort.table(set.index(set),n,'-') :s(return)
+    set.index(set) = ident(type,'+k')   setl4.sort.table(set.index(set),n,'+')  :s(return)
+    set.index(set) = ident(type,'-k')   setl4.sort.table(set.index(set),n,'-') :s(return)
 
-*   Here to convert sorted array resulting from the sort back
-*   into a table.
+    
+*   If sorting by value, build table mapping index numbers into
+*   the values associated with their keys, and sort that.
 
-    sort = convert(sort,'table')                    :s(setl4.sort.ok)
-    error('unable to convert sorted array to table')
+    tbl = table(set.size(set))
 
-setl4.sort.ok
+setl4.tbl.next
 
-    setl4.sort = table(set.size(set))
+    le(i = i + 1,n)                     :f(setl4.sort.value)
+    tbl[i = i + 1] = set.key(set)[set.index(set)[i]] :(setl4.tbl.next)
 
-setl4.sort.next
+setl4.sort.value
 
-    key = sort[i = i + 1,1]                         :f(return)
-    put(setl4.sort,i,key,sort[i,2])                 :(setl4.sort.next)
+    tbl = setl4.sort.table(tbl,n,type)
+    i = 0
+    setl4.sort = table(n)
+
+*   The table is in proper order, so replace values with the keys
+*   associated with that value.
+
+setl4.sort.replace
+
+    le(i = i + 1,n)                                 :f(setl4.sort.finis)
+    setl4.sort[tbl[i]] = set.index(set)[tbl[i]]     :(setl4.sort.replace)
+    
+setl4.sort.finis
+
+    set.index(set) = setl4.sort.table               :(return)
 
 setl4.sort.end
+
+    define('setl4.sort.table(table,n,type)i,key,sort,itbl,vtbl') :(setl4.sort.table.end)
+
+*   _Setl4.sort.table_ sorts a table of size _n_ that  maps
+*   integers into values according to the value of _type_ ,
+*   returning a table reflecting the sort. 
+*   The first element in the result is the index (key) in the input table that
+*   corresponds to the first value in the sorted order, and so forth.
+
+
+*   _Type_ is '+' to sort in increasing order of the values, or '-' to sort in decreasing order.
+
+setl4.sort.table
+
+    ara = ident(type,'+')   sort(table,2)
+    ara = ident(type,'-')   rsort(table,2)
+    setl4.sort.table = table(n)
+
+setl4.sort.table.next
+
+    le(i = i + 1,n)                                 :f(return)
+    setl4.sort.table[ara[i,1]] = ara[i,2]           :(setl4.sort.table.next)
+
+setl4.sort.table.end
 
     define('traceoff()')                            :(traceoff.end)
 
@@ -2474,3 +2530,4 @@ writer.end
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
+
