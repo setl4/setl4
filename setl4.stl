@@ -1244,6 +1244,7 @@ rank.merge
 *   If  _set_ is a string, will merge here when we have 
 *   converted the string to a sequence.
 
+    rank = set
     differ(datatype(set),'set') error('wrong type for rank')
     setl4.sort(set,set.size(set),type)                                    
                                                     :(return)
@@ -1593,8 +1594,9 @@ setl4.clear
 
     setl4.config.size = setl4.config.stack = setl4.config.size = setl4.config.integers.max =
 .   setl4.config.integers.max = setl4.stack = setl4.ascii.initialized = setl4.ascii.name =
-.   setl4.ascii.value = setl4.random_var = setl4.any.digit = setl4.span.digits = setl4.break.digit =
-.   setl4.break.letter = setl4.any.letter = setl4.span.letters = setl4.span.spaces = setl4.break.space =
+.   setl4.ascii.value = setl4.random_var = setl4.any.digit = setl4.span.digits = 
+.   setl4.break.digit = setl4.break.letter = setl4.any.letter =
+.   setl4.span.letters = setl4.span.spaces = setl4.break.space =
 .   setl4.any.word = setl4.span.word = setl.rank.map = setl4.rank.types = 
                                                     :(return)
 setl4.clear.end
@@ -1674,36 +1676,56 @@ setl4.sort
 *   Nothing to do if set is empty or only has one element.
 
     le(n = set.size(set),1)                         :s(return)
-
-*   If sorting by key, just need to sort the index table.
-    
+    differ(datatype(set),'set') error('setl4.sort bad datatype ' datatype(set))
+    setl4.sort = table(n)
+    ident(type)                                     :s(setl4.sort.null)
+    ident(type,'+k')                                :s(setl4.sort.key)
+    ident(type,'-k')                                :s(setl4.sort.key)
     ident(type,'+v')                                :s(setl4.sort.value)
     ident(type,'-v')                                :s(setl4.sort.value)
+    error('setl4.sort unsupported type ' type)
 
-    differ(datatype(set),'set') error('setl4.sort bad datatype ' datatype(set))
-    show(set.index(set),'setl4.sort index')
-    tbl = setl4.sort.table(set.index(set),n,type)   :(setl4.sort.finis)
+setl4.sort.key
+
+*   If sorting by key, just need to sort the index table.
+
+    setl4.sort = table(n)
+    tbl = setl4.sort.table(set.index(set),n,type)
+
+setl4.sort.key.next
+
+    le(i = i + 1,n)                                 :f(setl4.sort.done)
+    setl4.sort[i] = set.index(set)[ara[i,1]]        :(setl4.sort.key.next)
     
 setl4.sort.value
+
 *   Here to  sort by value: build table mapping index numbers into
 *   the values associated with their keys, and sort that.
 
+*   out('setl4.sort.value',type)
     tbl = compose(set.index(set),set.key(set))
+*   show(tbl,'sort.value compose')
+    type = ident(type,'+v') '+k'
+    type = ident(type,'-v') '-k'
+    tbl = setl4.sort.table(tbl,n,type)
+*   show(tbl,'after sort value compose')
 
-setl4.sort.tbl
+setl4.sort.value.next
 
-    tbl = setl4.sort.table(tbl,set.size(set),type)
-    setl4.sort = table(n)
-
-*   The table is in proper orer, so replace values with the keys
+*   The table is in proper order, so replace values with the keys
 *   associated with that value.
 
-setl4.sort.replace
-
-    le(i = i + 1,n)                                 :f(setl4.sort.finis)
-    setl4.sort[tbl[i]] = set.index(set)[tbl[i]]     :(setl4.sort.replace)
+    le(i = i + 1,n)                                 :f(setl4.sort.done)
+    setl4.sort[i] = set.index(set)[tbl[i]]          :(setl4.sort.value.next)
     
-setl4.sort.finis
+setl4.sort.null
+
+*   Here to sort on the order in which entries were created.
+
+    show(set.index(set),'setl4.sort index')
+    tbl = setl4.sort.table(set.index(set),n)        :(setl4.sort.done)
+
+setl4.sort.done
 
     set.index(set) = tbl                            :(return)
 
@@ -1721,18 +1743,31 @@ setl4.sort.end
 setl4.sort.table
 
     le(n,1)                                         :s(return)
-    out('setl4.sort.table dt',datatype(table))
-    ara = ident(type)        sort(table,1)          :f(show.table.error)
-    ara = ident(type,'+k')   sort(table,2)          :f(show.table.error)
-    ara = ident(type,'-k')   rsort(table,2)         :f(show.table.error)
-    setl4.sort.table = table(n)
-    out('setl4.sort.table dt',datatype(ara))
-    out('setl4.sort.table proto',prototype(ara))
+    type = substr(type,1,1)
+    out('setl4.sort.table type',type)
+*   out('enter setl4.sort.table')
+    show(table,'setl4.sort.table')
+*   out('setl4.sort.table type',type)
+*   out('setl4.sort.table dt',datatype(table))
+*   out('setl4.sort.table n',n)
+    ara = ident(type)        sort(table,1)          :s(setl4.sort.table.ok)
+    ara = ident(type,'+')    sort(table,2)          :s(setl4.sort.table.ok)
+    ara = ident(type,'-')    rsort(table,2)         :s(setl4.sort.table.ok)
 
+setl4.sort.table.ok
+
+    setl4.sort.table = table(n)
+*   out('setl4.sort.table dt',datatype(ara))
+*   out('setl4.sort.table proto',prototype(ara))
 
 setl4.sort.table.next
-   le(i = i + 1,n)                                  :f(return)
+    le(i = i + 1,n)                                  :f(return)
     setl4.sort.table[i] = ara[i,2]                  :(setl4.sort.table.next)
+
+setl4.sort.table.error
+
+*   out('setl4.sort.table ara dt',datatype(ara))
+    error('error in setl4.sort.table converting table to array')
 
 setl4.sort.table.end
 
