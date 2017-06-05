@@ -397,8 +397,7 @@ add.set
     member(set,elem)                            :s(return)
     this = set.size(set) = set.size(set) + 1
     set.index(set)[this] = elem
-    set.key(set)[elem] = this                   :(return)
-
+    set.key(set)[elem] = elem                   :(return)
     
 add.end
 
@@ -463,11 +462,11 @@ assert.type.end
 at
 
     this = set.next(set)
-    at = eval(expr)                                 :(return)
+    at = eval(expr)                             :(return)
 
 at.end
 
-    define('compose(a,b)ara,i,n')                  :(compose.end)
+    define('compose(a,b)ara,i,key,n')           :(compose.end)
 
 *   _Compose_ returns the composition of two maps or tables.
 
@@ -482,18 +481,18 @@ compose
 compose.map.next
 
     le(i = i + 1,set.size(a))                       :f(return)
-    compose[i] = set.key(set)[set.index(set)[i]]    :(compose.map.next)
+   compose[i] = set.key(set)[set.index(set)[i]]    :(compose.map.next)
 
 compose.table
 
-    ara = convert(a,'array')
+    ara = convert(a,'array')                        :f(show.table.error)
     prototype(ara) break(',') . n
-    compost = table(n)
+    compose = table(n)
 
 compose.table.next
 
-    n = ara[i = i + 1,1]                            :f(return)
-    compose[n] = b[ara[i,2]]                        :(compose.table.next)
+    key = ara[i = i + 1,2]                          :f(return)
+    compose[i] = b[key]                             :(compose.table.next)
 
 compose.end
 
@@ -1216,8 +1215,7 @@ random.seed.end
 *   into a sequence of the characters in the string and then sorting the range
 *   of the sequence.
 
-*   The argument _type_ specifies the ordering to be used. If _type_
-*   is null, then the ordering '+' is assumed.
+*   The argument _type_ specifies the ordering to be used:
 
 *       '+key'      increasing order of the values in the domain
 
@@ -1227,8 +1225,8 @@ random.seed.end
 
 *       '-value'    decreasing order of the values in the range
 
-*   If _type_ is null, then the '+key' ordering is used.
-*   
+*       '' (null)   order in which entries were created
+
 *   Types for keys and values may be abbreviated: "+key" may be written
 *   as "+k" or "+ke", "+value" as "+v" or +"val", and so forth.
 
@@ -1236,20 +1234,16 @@ rank
 
     str = ident(datatype(set),'string') set
     type = get(setl4.rank.types,type) 
-    type = ident(type) '+k'
+*    out('rank type',type)
 
 *   If the first argument is a string, build a sequence
 *   of the characters in the string, and rank the sequence.
-*   _str_ is not null only if _set_ is of type 'string'.
 
     ident(datatype(set),'set') ident(set.kind(set),'int')  :s(return)
     ident(datatype(set),'set') ident(set.kind(set),'iter') :s(return)
-    
-    differ(str)                                             :s(rank.string)
+    differ(str)                                            :s(rank.string)
 
 rank.merge
-
-*MERGE*
 
 *   If  _set_ is a string, will merge here when we have 
 *   converted the string to a sequence.
@@ -1258,13 +1252,12 @@ rank.merge
 *    out('merge type',type)
 *    show(set.index(set),'before merge')
     setl4.sort(set,set.size(set),type)                                    
-*    show(set.index(set),'after merge')
-                                                            :(return)
+*    show(set.index(set),'after merge')              
+                                                    :(return)
 
 rank.table
 
-    key = ara[i = i + 1]                                    :f(return)
-    tbl[ara[i,1]] = ara[i,2]                                :(rank.table)
+    tbl[ara[i = i + 1,1]] = ara[i,2]                :s(rank.table)f(return)
 
 rank.string
 
@@ -1274,7 +1267,7 @@ rank.string
 
     set = split(str)                                
     out('rank.string set',datatype(set))
-    type = '+v'                                             :(rank.merge)
+    type = '+v'                                     :(rank.merge)
 
 rank.end
 
@@ -1287,7 +1280,6 @@ show
 
     ident(v)                                        :s(return)
 *    out('enter show dt v',datatype(v))
-*HERE*
     differ(label) out('show: ' upper(label))
     differ(datatype(v),'set')                       :s($('show.' datatype(v)))
 
@@ -1352,7 +1344,7 @@ show.integer
 show.map
 
     show = '{ map'
-    rank(v)
+    rank(v,'+k')
     setl4.save(v)
     loop(v)
 
@@ -1378,7 +1370,7 @@ show.set
 
 *    out('show.set')
     show = '{ set'
-    rank(v)
+    rank(v,'+k')
     setl4.save(v)
     loop(v)
 
@@ -1401,7 +1393,6 @@ show.string
     show = integer(v) v                             :s(show.done)
 
     show = show.q(v)                                :(show.done)
-
 
 show.table
 
@@ -1428,8 +1419,9 @@ show.string.quote
 
 show.done
 
-    eq(nested) out(show)
-                                                    :(return)
+*   Write out result unless listing elements of compound object.
+
+    eq(nested) out(show)                            :(return)
 
 show.end
 
@@ -1628,7 +1620,8 @@ setl4.clear.end
 setl4.restore
 
     set.this(s) = pop(setl4.stack)
-    set.next(s) = pop(setl4.stack)                  :(return)
+    set.next(s) = pop(setl4.stack)                  
+    set.index(s) = pop(setl4.stack)                :(return)
 
 setl4.restore.end
 
@@ -1638,6 +1631,7 @@ setl4.restore.end
 
 setl4.save
 
+    push(setl4.stack,set.index(s))
     push(setl4.stack,set.next(s))
     push(setl4.stack,set.this(s))                   :(return)
 
@@ -1682,12 +1676,13 @@ setl4.size.end
 *   to _type_ and updates the _set.index_ field to reflect the 
 *   desired order.
 *
-*   This function doesn't create a new set. It just updates 
+*   _setl4.sort_ doesn't create a new set. It just updates 
 *   the index table so that going forward entries will be 
 *   visited in the order defined by _type_.
 
 setl4.sort
 
+*   out('setl4.sort type',type)
 *   Nothing to do if set is empty or only has one element.
 
     le(n = set.size(set),1)                         :s(return)
@@ -1705,12 +1700,13 @@ setl4.sort.value
 
     out('setl4.sort by value',type)
     tbl = compose(set.index(set),set.key(set))
+*    show(tbl,'composed table')
 
 setl4.sort.tbl
 
-    show(tbl,'setl4.sort before')
+*    show(tbl,'setl4.sort before')
     tbl = setl4.sort.table(tbl,set.size(set),type)
-    show(tbl,'setl4.sort after')
+*    show(tbl,'setl4.sort after')
     setl4.sort = table(n)
 
 *   The table is in proper orer, so replace values with the keys
@@ -1735,21 +1731,29 @@ setl4.sort.end
 *   is the index (key) in the input table that corresponds to the
 *   first value in the sorted order, and so forth.
 
-*   _Type_ is '+k' to sort in increasing order of the values,
-*   or '-k' to sort in decreasing order.
 
 setl4.sort.table
 
+    out('setl4.sort entry n',n)
 *    out('enter setl4.sort.table type',type)
+*    show(table,'enter setl4.sort.table')
+    ident(type) out('setl4.sort.table null type')
+    ara = ident(type)        sort(table,1)
     ara = ident(type,'+k')   sort(table,2)
     ara = ident(type,'-k')   rsort(table,2)
+    prototype(ara) break(',') . n
+    out('setl4.sort computed n',n)
     setl4.sort.table = table(n)
 
 setl4.sort.table.next
-
-    le(i = i + 1,n)                                 :f(return)
+*    out('datatype ara',datatype(ara))
+*    out('prototype ara',prototype(ara))
+*    le(i = i + 1,n)                                 :f(return)
+   le(i = i + 1,n)                                 :f(xx)
     setl4.sort.table[i] = ara[i,2]                  :(setl4.sort.table.next)
 
+xx
+    show(setl4.sort.table,'exit setl4.sort.table') :(return)
 setl4.sort.table.end
 
     define('traceoff()')                            :(traceoff.end)
@@ -2433,13 +2437,13 @@ tokenl.next
     line any('(<[{')                                :s(tokenl.left)
     line any('.;,?!')                               :s(tokens.punctuation)
     line '"'                                        :s(tokens.quote)
-    line any('~@#$%^&*_-+=')                                        :s(tokens.other)
+    line any('~@#$%^&*_-+=')                        :s(tokens.other)
     line any(')>]}')                                :s(tokens.right)
     line char(9)                                    :s(tokens.tab)
     line any(&lcase &ucase)                         :s(tokens.word)
 
 *   Here for unprintable
-                                                    :(tokens.unprintable)
+    error('unprintable?? fix in tokens')
 
 tokens.integer
 
@@ -2448,13 +2452,9 @@ tokens.integer
 
 tokens.punctuation
 
-    type = 'p'                                       :(tokens.character)
+    type = 'p'                                      :(tokens.character)
 
 tokens.other
-
-    type = 'o'                                      :(tokens.character)
-
-*tokens.other
 
     type = 'o'                                      :(tokens.character)
 
@@ -2462,7 +2462,7 @@ tokens.quote
 
     type = 'q'
     line '"' break('"') . text '"' =
-    text = '"' text '"'                             :(tokenl.new)
+    text = '"' text '"'                             :(token.new)
 
 tokens.right
 
@@ -2479,7 +2479,7 @@ tokens.tab
 
 tokens.word
 
-*FIX*
+*TODO*
     type = 'w'
     line span(&ucase &lcase "_" "'") . text =       :(tokenl.new)
 
@@ -2491,7 +2491,7 @@ tokens.character
 
 tokenl.new
 
-    setl4..add(tokens,token(lineno,pos,type,text)) :(tokenl.next)
+    setl4.add(tokens,token(lineno,pos,type,text))   :(tokenl.next)
 
 tokens.end
 
