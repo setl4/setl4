@@ -1,15 +1,19 @@
 -include "setl4.stl"
 
-    s = new('set two one')
-    show(set.index(s),'set.index before')
-    setl4.show(s)
+    s = new('set two one dave shields 12 39 ')
+*    show(set.index(s),'set.index before')
+*    setl4.show(s)
     show(s)
-    show(set.index(s),'set.index after')
-    setl4.clear()
-    &dump = 3
+    rank(s,'-k')
+    show(s)
+
 end
-    r = rank(s)
-    show(r)
+*    show(set.index(s),'set.index after')
+*    setl4.clear()
+*    &dump = 3
+*    r = rank(s,'-v')
+*    show(r)
+
 *    &dump = 3
 
 *    out('splitting("shields")')

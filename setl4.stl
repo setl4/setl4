@@ -467,6 +467,36 @@ at
 
 at.end
 
+    define('compose(a,b)ara,i,n')                  :(compose.end)
+
+*   _Compose_ returns the composition of two maps or tables.
+
+compose
+
+    ident(datatype(a),'table')                      :s(compose.table)
+
+*   Here to compose two maps.
+
+    compose = set(table(set.size(a)),table(set.size(a)),'map')
+
+compose.map.next
+
+    le(i = i + 1,set.size(a))                       :f(return)
+    compose[i] = set.key(set)[set.index(set)[i]]    :(compose.map.next)
+
+compose.table
+
+    ara = convert(a,'array')
+    prototype(ara) break(',') . n
+    compost = table(n)
+
+compose.table.next
+
+    n = ara[i = i + 1,1]                            :f(return)
+    compose[n] = b[ara[i,2]]                        :(compose.table.next)
+
+compose.end
+
     define('defined(map,key)entry')                 :(defined.end)
 
 *   Tests if the map _map_ has an entry for _key_.
@@ -1189,26 +1219,24 @@ random.seed.end
 *   The argument _type_ specifies the ordering to be used. If _type_
 *   is null, then the ordering '+' is assumed.
 
-*       '+'         increasing order of the values in the domain
+*       '+key'      increasing order of the values in the domain
 
-*       '-'         decreasing order of the values in the domain
-
-*       '+key'      same as '+'
-
-*       '-key'      same as '-'
+*       '-key'      decreasing order of the values in the domain
 
 *       '+value'    increasing order of the values in the range
 
 *       '-value'    decreasing order of the values in the range
 
-*   If _type_ is null, then the '+' ordering is used.
+*   If _type_ is null, then the '+key' ordering is used.
 *   
 *   Types for keys and values may be abbreviated: "+key" may be written
 *   as "+k" or "+ke", "+value" as "+v" or +"val", and so forth.
 
 rank
+
     str = ident(datatype(set),'string') set
-    type = ident(type) '++'
+    type = get(setl4.rank.types,type) 
+    type = ident(type) '+k'
 
 *   If the first argument is a string, build a sequence
 *   of the characters in the string, and rank the sequence.
@@ -1217,10 +1245,6 @@ rank
     ident(datatype(set),'set') ident(set.kind(set),'int')  :s(return)
     ident(datatype(set),'set') ident(set.kind(set),'iter') :s(return)
     
-    ident(get(setl4.rank,type)) 
-.               error('rank unsupported operand type ' type )
-    type = get(setl4.rank,type) 
-    type = ident(type) '++'
     differ(str)                                             :s(rank.string)
 
 rank.merge
@@ -1231,10 +1255,10 @@ rank.merge
 *   converted the string to a sequence.
 
     differ(datatype(set),'set') error('wrong type for rank')
-    out('merge type',type)
-    show(set.index(set),'before merge')
+*    out('merge type',type)
+*    show(set.index(set),'before merge')
     setl4.sort(set,set.size(set),type)                                    
-    show(set.index(set),'after merge')
+*    show(set.index(set),'after merge')
                                                             :(return)
 
 rank.table
@@ -1590,7 +1614,7 @@ setl4.clear
 .   setl4.config.integers.max = setl4.stack = setl4.ascii.initialized = setl4.ascii.name =
 .   setl4.ascii.value = setl4.random_var = setl4.any.digit = setl4.span.digits = setl4.break.digit =
 .   setl4.break.letter = setl4.any.letter = setl4.span.letters = setl4.span.spaces = setl4.break.space =
-.   setl4.any.word = setl4.span.word = setl.rank.map = setl4.rank = 
+.   setl4.any.word = setl4.span.word = setl.rank.map = setl4.rank.types = 
                                                     :(return)
 setl4.clear.end
 
@@ -1668,11 +1692,7 @@ setl4.sort
 
     le(n = set.size(set),1)                         :s(return)
 
-    out('enter setl4.sort n',n)
-    out('enter setl4.sort type',type)
 *   If sorting by key, just need to sort the index table.
-
-    show(set.index(set),'before type check')
     
     ident(type,'+v')                                :s(setl4.sort.value)
     ident(type,'-v')                                :s(setl4.sort.value)
@@ -1684,12 +1704,7 @@ setl4.sort.value
 *   the values associated with their keys, and sort that.
 
     out('setl4.sort by value',type)
-    tbl = table(set.size(set))
-
-setl4.tbl.next
-
-    le(i = i + 1,n)                                 :f(setl4.sort.tbl)
-    tbl[i] = set.key(set)[set.index(set)[i]]        :(setl4.tbl.next)
+    tbl = compose(set.index(set),set.key(set))
 
 setl4.sort.tbl
 
@@ -1720,20 +1735,20 @@ setl4.sort.end
 *   is the index (key) in the input table that corresponds to the
 *   first value in the sorted order, and so forth.
 
-*   _Type_ is '++' to sort in increasing order of the values,
-*   or '--' to sort in decreasing order.
+*   _Type_ is '+k' to sort in increasing order of the values,
+*   or '-k' to sort in decreasing order.
 
 setl4.sort.table
 
-    out('enter setl4.sort.table type',type)
-    ara = ident(type,'++')   sort(table,2)
-    ara = ident(type,'--')   rsort(table,2)
+*    out('enter setl4.sort.table type',type)
+    ara = ident(type,'+k')   sort(table,2)
+    ara = ident(type,'-k')   rsort(table,2)
     setl4.sort.table = table(n)
 
 setl4.sort.table.next
 
     le(i = i + 1,n)                                 :f(return)
-    setl4.sort.table[ara[i,1]] = ara[i,2]           :(setl4.sort.table.next)
+    setl4.sort.table[i] = ara[i,2]                  :(setl4.sort.table.next)
 
 setl4.sort.table.end
 
@@ -2526,10 +2541,11 @@ writer.end
     setl4.any.word          =   any(&lcase &ucase '0123456789')
     setl4.span.word         =   span(&lcase &ucase '0123456789')
 
-*   setl4.rank gives valid values for the argument _type_ in the function _rank()_
+*   setl4.rank.types gives valid values for the argument _type_ in the function _rank()_
 
-    setl4.rank = new('map +:++ -:-- +k:+k +ke:+k +key:+k '
-.                         '+v:+v +va:+v +val:+v +valu:+v +value:+v')
+    setl4.rank.types = new('map '
+.      '+:+k +k:+k +ke:+k +key:+k -:-k -k:-k -ke:-k -key:-k '
+.      '+v:+v +va:+v +val:+v +valu:+v +value:+v -v:-v -va:-v -val:-v -valu:-v -value:-v')
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
