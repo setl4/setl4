@@ -182,7 +182,7 @@
 *   assert.type(obj,type)           Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise
 *   at(set,expr)                    Evaluates _expr_ for for current iterate of _set_
 *   begins(str,sub)                 Tests if string _key_ begins with string _sub_
-*   join(a,b)                       Joins two strings into a single string by concatenating them
+*   compose(a,b)                    Returns composition of two maps or tables.
 *   defined(map,key)                Tests if a map is defined for a specified key
 *   difference(a,b)                 Returns set of members of set _a_ not in the set _b_
 *   domain(map)                     Returns set of elements in the domain of a map
@@ -197,6 +197,7 @@
 *   int(s)                          Returns integer defined by _s_
 *   integers(n)                     Returns set of integers 1 ... n
 *   intersection(a,b)               Returns set of elements common to two sets
+*   join(a,b)                       Joins two strings into a single string by concatenating them
 *   loop(set)                       Set up iteration over _set_ using _next_
 *   mark(line)                      Annotates, or marks, a line
 *   member(elem,set)                Tests set membership
@@ -690,7 +691,6 @@ forall
 forall.loop
 
     next(set)                                       :f(return)
-*    out('forall.loop.next',next(set))
     e = eval(expr)                                  :f(freturn)s(forall.loop)
 
 forall.end
@@ -819,10 +819,9 @@ loop.end
 
 member
 
-    elem = integer(elem) +elem
-*    out('member ',elem)
 *   Branch according to whether _set_ is set or map.
 
+    elem = integer(elem) +elem
     ident(datatype(elem),'entry')                   :s(member.map)
     ident(set.kind(set),'int')                      :s(member.int)
     ident(set.kind(set),'iter')                     :s(member.iter)
@@ -1144,8 +1143,6 @@ put
 
 put.value
 
-*    out('put.value key',key)
-*    out('put.value value',value)
     set.key(map)[key] = value                      :(return)
 
 put.end
@@ -1234,7 +1231,6 @@ rank
 
     str = ident(datatype(set),'string') set
     type = get(setl4.rank.types,type) 
-*    out('rank type',type)
 
 *   If the first argument is a string, build a sequence
 *   of the characters in the string, and rank the sequence.
@@ -1249,10 +1245,7 @@ rank.merge
 *   converted the string to a sequence.
 
     differ(datatype(set),'set') error('wrong type for rank')
-*    out('merge type',type)
-*    show(set.index(set),'before merge')
     setl4.sort(set,set.size(set),type)                                    
-*    show(set.index(set),'after merge')              
                                                     :(return)
 
 rank.table
@@ -1266,7 +1259,6 @@ rank.string
 *   _rank.merge_ to finish by ranking the map.
 
     set = split(str)                                
-    out('rank.string set',datatype(set))
     type = '+v'                                     :(rank.merge)
 
 rank.end
@@ -1279,14 +1271,12 @@ rank.end
 show
 
     ident(v)                                        :s(return)
-*    out('enter show dt v',datatype(v))
     differ(label) out('show: ' upper(label))
     differ(datatype(v),'set')                       :s($('show.' datatype(v)))
 
 *   When showing a set, save _set.next_ and _set.this_ to avoid
 *   disrupting possible existing iteration over the set.
     
-*    out('show kind',set.kind(v))
     kind = set.kind(v)
     ident(kind,'int')                               :s(show.int)
     ident(kind,'iter')                              :s(show.iter)
@@ -1368,7 +1358,6 @@ show.pair
 
 show.set
 
-*    out('show.set')
     show = '{ set'
     rank(v,'+k')
     setl4.save(v)
@@ -1472,7 +1461,7 @@ show.line.end
 show.lines
 
     title  = 'lines' (differ(title) ' ' title, '')
-    out(itle)
+    out(title)
 
 show.lines.n
 
@@ -1682,7 +1671,6 @@ setl4.size.end
 
 setl4.sort
 
-*   out('setl4.sort type',type)
 *   Nothing to do if set is empty or only has one element.
 
     le(n = set.size(set),1)                         :s(return)
@@ -1692,21 +1680,19 @@ setl4.sort
     ident(type,'+v')                                :s(setl4.sort.value)
     ident(type,'-v')                                :s(setl4.sort.value)
 
+    differ(datatype(set),'set') error('setl4.sort bad datatype ' datatype(set))
+    show(set.index(set),'setl4.sort index')
     tbl = setl4.sort.table(set.index(set),n,type)   :(setl4.sort.finis)
     
 setl4.sort.value
 *   Here to  sort by value: build table mapping index numbers into
 *   the values associated with their keys, and sort that.
 
-    out('setl4.sort by value',type)
     tbl = compose(set.index(set),set.key(set))
-*    show(tbl,'composed table')
 
 setl4.sort.tbl
 
-*    show(tbl,'setl4.sort before')
     tbl = setl4.sort.table(tbl,set.size(set),type)
-*    show(tbl,'setl4.sort after')
     setl4.sort = table(n)
 
 *   The table is in proper orer, so replace values with the keys
@@ -1734,26 +1720,20 @@ setl4.sort.end
 
 setl4.sort.table
 
-    out('setl4.sort entry n',n)
-*    out('enter setl4.sort.table type',type)
-*    show(table,'enter setl4.sort.table')
-    ident(type) out('setl4.sort.table null type')
-    ara = ident(type)        sort(table,1)
-    ara = ident(type,'+k')   sort(table,2)
-    ara = ident(type,'-k')   rsort(table,2)
-    prototype(ara) break(',') . n
-    out('setl4.sort computed n',n)
+    le(n,1)                                         :s(return)
+    out('setl4.sort.table dt',datatype(table))
+    ara = ident(type)        sort(table,1)          :f(show.table.error)
+    ara = ident(type,'+k')   sort(table,2)          :f(show.table.error)
+    ara = ident(type,'-k')   rsort(table,2)         :f(show.table.error)
     setl4.sort.table = table(n)
+    out('setl4.sort.table dt',datatype(ara))
+    out('setl4.sort.table proto',prototype(ara))
+
 
 setl4.sort.table.next
-*    out('datatype ara',datatype(ara))
-*    out('prototype ara',prototype(ara))
-*    le(i = i + 1,n)                                 :f(return)
-   le(i = i + 1,n)                                 :f(xx)
+   le(i = i + 1,n)                                  :f(return)
     setl4.sort.table[i] = ara[i,2]                  :(setl4.sort.table.next)
 
-xx
-    show(setl4.sort.table,'exit setl4.sort.table') :(return)
 setl4.sort.table.end
 
     define('traceoff()')                            :(traceoff.end)
@@ -1955,21 +1935,9 @@ primes.loop
 
 primes.end
 
-*    define('primes(n)')                     :(primes.end)
-*
-**   _primes(n)_ returns set of primess less than _n_.
-*
-*primes
-*    out('primes ' n,primes(n))
-*
-*    primes = filter(new('iter 2 ' (n - 1)),'prime(this') :(return)
-*
-*primes.end
-
     define('square.root(n)')                    :(square.root.end)
 
 *   Returns square root of integer _n_, rounded up.
- :(end)
 
 square.root
    
@@ -2328,7 +2296,6 @@ slice.end
 
 split
 
-*    out('enter split')
     split = new('map')
     str break(' ')                                   :f(split.str)
 
@@ -2353,7 +2320,6 @@ split.str.next
     put(split,i = i + 1, word)                      :(split.str.next)
 
 split.str.done
-*    out('split result')
 *    show(split)             
                                         :(return)
 
