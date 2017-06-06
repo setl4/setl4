@@ -263,7 +263,7 @@
 
 *           _set.max'           maximum number of elements. This applies to sets of kind 'integers'.
 
-    Both _set.index_ and _set_key_ tables are needed. New elements in the set are assigned
+*   Both _set.index_ and _set_key_ tables are needed. New elements in the set are assigned
 *   an integer id. The table _set.index_ maps the id to a key. The table _set.key_ maps
 *   a key to its associate value.
 
@@ -322,14 +322,14 @@
 *   the largest values in a map:
 
 *```
-        rank(map,'-v')
-        largest = new('set')
-        iter = new('iter 1 10')
-        loop(iter)
-    
-    largest.add
-    
-        add(largest,next(iter))               :s(largest.add)
+*       rank(map,'-v')
+*       largest = new('set')
+*       iter = new('iter 1 10')
+*       loop(iter)
+*   
+*   largest.add
+*   
+*       add(largest,next(iter))               :s(largest.add)
 *```
 
 *   _Rank_ is used by the _show_ function to display the values of a set or
@@ -350,7 +350,7 @@
 
 *   _setl4.config.size_ is default size for the _index_ and _key_ tables of a set.
 
-    setl4.config.size = 32
+    setl4.config.size = 256
 
 *   setl4.config.int is number of characters in the block for an integer set.
 *   setl4.config.int.init is string of spaces of size setl4.config.in
@@ -390,8 +390,8 @@ add
 
     ident(set.kind(set),'int')                  :s(add.int)
     ident(set.kind(set),'iter')                 :s(add.elem)
-    ident(set.kind(set),'map')                  :s(add.map)
     ident(set.kind(set),'seq')                  :s(add.elem)
+    error('unexpected kind to add.map:' set.kind(set))
                                                 :(add.set)
 
 add.int
@@ -416,12 +416,6 @@ add.int
     i = (ne(elem) substr(i,1,elem - 1),'') '+' (lt(elem,setl4.config.int) substr(i,elem + 1),'')
     set.key(set)[(elem - 1) / setl4.config.int] = i          
     set.max(set) = gt((i + 1) * setl4.config.int,set.max(set)) ((i + 1) * setl4.config.int) :(return)
-
-add.map
-
-*   See if adding new map entry or updating existing one.
-
-    differ(set.key(set)[key(elem)])             :s(add.put)
 
 add.new
 
@@ -1756,7 +1750,6 @@ setl4.sort.value
     type = ident(type,'+v') '+k'
     type = ident(type,'-v') '-k'
     tbl = setl4.sort.table(tbl,n,type)
-*   show(tbl,'after sort value compose')
 
 setl4.sort.value.next
 
@@ -1792,12 +1785,6 @@ setl4.sort.table
 
     le(n,1)                                         :s(return)
     type = substr(type,1,1)
-    out('setl4.sort.table type',type)
-*   out('enter setl4.sort.table')
-    show(table,'setl4.sort.table')
-*   out('setl4.sort.table type',type)
-*   out('setl4.sort.table dt',datatype(table))
-*   out('setl4.sort.table n',n)
     ara = ident(type)        sort(table,1)          :s(setl4.sort.table.ok)
     ara = ident(type,'+')    sort(table,2)          :s(setl4.sort.table.ok)
     ara = ident(type,'-')    rsort(table,2)         :s(setl4.sort.table.ok)
@@ -1805,8 +1792,6 @@ setl4.sort.table
 setl4.sort.table.ok
 
     setl4.sort.table = table(n)
-*   out('setl4.sort.table dt',datatype(ara))
-*   out('setl4.sort.table proto',prototype(ara))
 
 setl4.sort.table.next
     le(i = i + 1,n)                                  :f(return)
@@ -1814,7 +1799,6 @@ setl4.sort.table.next
 
 setl4.sort.table.error
 
-*   out('setl4.sort.table ara dt',datatype(ara))
     error('error in setl4.sort.table converting table to array')
 
 setl4.sort.table.end
@@ -1892,6 +1876,7 @@ opsyn.bypass
 *   the following utility functions.
 
 *   cardinal(n)                 Returns 'one' if _n_ is one, else _number(n)_ followed by 's'.
+*   dictionary                  Returns set of the (approximately 170,000) words in the ENABLE word list.
 *   even(n)                     Tests if _n_ is even
 *   factorial(n)                Returns n!  = n * (n -1) * ... * 1
 *   multiple(n,m)               Tests if _n_ is a multiple of _m_
@@ -1934,6 +1919,34 @@ cardinal
     cardinal = (eq(n,1) 'one ' word, number(n) ' '  word 's'):(return)
 
 cardinal.end
+
+	define('dictionary(filename)file,word')	    :(dictionary.end)
+
+*	Initialize the global dictionary dictionary.
+
+dictionary
+
+    dictionary = new('set')
+    set.index(dictionary)  =    table(10000)
+    set.key(dictionary)  =      table(10000)
+    
+
+*	Read in dictionary from  the dictionary file, with one word per line.
+
+	filename = ident(filename) './data/dict.txt'
+	input(.file,3,filename)		                :s(dictionary.next)
+	error('unable to open dictionary file ',filename)	:(freturn)
+
+dictionary.next
+
+	word = file					                :f(dictionary.done)
+    add(dictionary,word)                        :(dictionary.next)
+
+dictionary.done
+
+	endfile(3)				                    :(return)
+
+dictionary.end
 
     define('even(n)')                           :(even.end)
 

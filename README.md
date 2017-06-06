@@ -445,6 +445,7 @@ produces `{ set 'a' 'b' 'c' }`, not `{set 'b' 'c' 'a' }`.
 *   the following utility functions.
 
 -  `cardinal(n)`                Returns 'one' if _n_ is one, else _number(n)_ followed by 's'.
+-  `dictionary(filename)`       Returns set of the (approximately 170,000) words in the ENABLE word list.
 -  `even(n)`                    Tests if _n_ is even
 -  `factorial(n)`               Returns n!  = n * (n -1) * ... * 1
 -  `multiple(n,m)`              Tests if _n_ is a multiple of _m_
