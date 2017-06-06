@@ -1702,13 +1702,10 @@ setl4.sort.value
 *   Here to  sort by value: build table mapping index numbers into
 *   the values associated with their keys, and sort that.
 
-*   out('setl4.sort.value',type)
     tbl = compose(set.index(set),set.key(set))
-*   show(tbl,'sort.value compose')
     type = ident(type,'+v') '+k'
     type = ident(type,'-v') '-k'
     tbl = setl4.sort.table(tbl,n,type)
-*   show(tbl,'after sort value compose')
 
 setl4.sort.value.next
 
@@ -1744,12 +1741,6 @@ setl4.sort.table
 
     le(n,1)                                         :s(return)
     type = substr(type,1,1)
-    out('setl4.sort.table type',type)
-*   out('enter setl4.sort.table')
-    show(table,'setl4.sort.table')
-*   out('setl4.sort.table type',type)
-*   out('setl4.sort.table dt',datatype(table))
-*   out('setl4.sort.table n',n)
     ara = ident(type)        sort(table,1)          :s(setl4.sort.table.ok)
     ara = ident(type,'+')    sort(table,2)          :s(setl4.sort.table.ok)
     ara = ident(type,'-')    rsort(table,2)         :s(setl4.sort.table.ok)
@@ -1757,8 +1748,6 @@ setl4.sort.table
 setl4.sort.table.ok
 
     setl4.sort.table = table(n)
-*   out('setl4.sort.table dt',datatype(ara))
-*   out('setl4.sort.table proto',prototype(ara))
 
 setl4.sort.table.next
     le(i = i + 1,n)                                  :f(return)
@@ -1766,7 +1755,6 @@ setl4.sort.table.next
 
 setl4.sort.table.error
 
-*   out('setl4.sort.table ara dt',datatype(ara))
     error('error in setl4.sort.table converting table to array')
 
 setl4.sort.table.end

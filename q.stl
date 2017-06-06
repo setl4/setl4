@@ -1,17 +1,17 @@
 -include "setl4.stl"
 
     s = new('set two one dave shields 12 39 ')
-    show(s,'initial s')
+*    show(s,'initial s')
     rank(s,'+k')
     show(s)
 *   out('s before rank -v')
-*   out('index table before -v rank')
+    out('index table before -v rank')
     show(set.index(s))
     rank(s,'-v')
-    show(s)
     out('index table after -v rank')
+    show(s)
     show(set.index(s))
-    &dump = 3; setl4.clear();end
+*   &dump = 3; setl4.clear();end
 end
     show(s)
     out('s after rank -v')
