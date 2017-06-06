@@ -10,6 +10,41 @@ the datatypes, functions, and operators of SPITBOL.
 
 Either way, SETL4 provides raw power and speed for non-numeric computation.
 
+## Installation and Usage
+
+To install SETL, first visit http://github.com/setl4. Download the zip file or,
+if you are familiar with git, clone the repository:
+
+```
+    git clone http://github.com/setl4
+```
+
+Copy the file `bin/setl4` to a directory on your $PATH.
+
+To use SETL4, first enter
+
+```
+setl4
+```
+
+You should see a list of the options. Then enter the program `try.stl`:
+```
+    -include "setl4.stl"
+    s = new('set hello world')
+    show(s)
+    end
+```
+
+If that works, then you are on you way to having fun using SETL4 to write
+more interesting programs.
+
+Directory `setl4/tests` contains test programs.
+
+Directory `setl4/examples` contains various demonstration program.
+This written in SPITBOL have a name ending in 'sbl'. One goal of the
+project is to translate these programs to SETL4
+
+
 ## What is SETL?
 
 SETL (SET Language)  is  a programming language with finite sets as 
@@ -151,41 +186,6 @@ ICL 1900, Univac, CDC 6600, IBM PC, Apple Macintosh, SUN Solaris Sparc,
 Microsoft (DOS/NT/Windows), Intel x86_64 (Unix/Linux), and x86_64 Apple iOS.  
 Special credit is due Mark Emmer, who led the project from the mid 1980's
 to 2009. Dave Shieldsl has maintained SPITBOL since then.
-
-
-## Installation and Usage
-
-To install SETL, first visit http://github.com/setl4. Download the zip file or,
-if you are familiar with git, clone the repository:
-
-```
-    git clone http://github.com/setl4
-```
-
-Copy the file `bin/setl4` to a directory on your $PATH.
-
-To use SETL4, first enter
-
-```
-setl4
-```
-
-You should see a list of the options. Then enter the program `try.stl`:
-```
-    -include "setl4.stl"
-    s = new('set hello world')
-    show(s)
-    end
-```
-
-If that works, then you are on you way to having fun using SETL4 to write
-more interesting programs.
-
-Directory `setl4/tests` contains test programs.
-
-Directory `setl4/examples` contains various demonstration program.
-This written in SPITBOL have a name ending in 'sbl'. One goal of the
-project is to translate these programs to SETL4
 
 
 ## Why the name SETL4?
@@ -340,93 +340,139 @@ The table _key_ maps keys in the map to the corresponding entry in the map.
 The entries in _key_ permit efficient retrieval of the map's value for a given key.
 
 SETL4 also provides the datatype _stack_ that implements a stack, providing
-the funcitons _push_ and _pop_. Stacks are created by the function _new.stack_.
+the functions _push_ and _pop_. Stacks are created by the function _new.stack_.
 
     `data('stack(stack.stack,stack.top)')`
 
 
+Additional operations provided as an artifact of the implementation
+-------------------------------------------------------------------
+
+The use of the tables _set.index_ and _set.key_ to implement a set makes it
+possible to provide some operations not available in in standard set theory. 
+For example, it is possible to retrieve elements using the function _get_. 
+_Get(s,i)_ retrieves the i-th element in the set.
+
+The function _rank_ can be used to determine the order in which the elements 
+of a set are accessed during an iteration, or to 'sort' the tables implementing
+the set. For example, _rank(s,'+v') sorts a map in increasing order of the
+values of the map. _rank(s,'-v') sorts the values in descendng order, and
+so forth. For example, here is the code to find the ten members with 
+the largest values in a map:
+
+```
+        rank(map,'-v')
+        largest = new('set')
+        iter = new('iter 1 10')
+        loop(iter)
+    
+    largest.add
+    
+        add(largest,next(iter))               :s(largest.add)
+```
+
+ _Rank_ is used by the _show_ function to display the values of a set or
+map in a standard order. For example, if _s_ is a set with the elements
+'a', 'b' and 'c', however the order in which they were added, then _show(s)_
+produces `{ set 'a' 'b' 'c' }`, not `{set 'b' 'c' 'a' }`.
+
 ## SETL4 Functions
 
-- `abbrev(a,b)`                     test that the first operand is an initial substring of the second.
-- `add(set,elem)`                   adds element to set
-- `and(a,b)`                        and: Tests if both operands are true
-- `arb(n)`                          returns arbitary (randomly chosen) integer in 1 .. _n_
-- `arb(set)`                        returns arbitary (randomly chosen) element of _set_
-- `assert(expr)`                    tests that _expr_ is true, ends execution otherwise
-- `assert.type(obj,type)`           tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise
-- `at(set,expr)`                    evaluates _expr_ for for current iterate of _set_
-- `join(a,b)`                       joins two strings into a single string by concatenating them
-- `defined(map,key)`                tests if a map is defined for a specified key
-- `difference(a,b)`                 returns set of members of set _a_ not in the set _b_
-- `domain(map)`                     returns set of elements in the domain of a map
-- `equal(a,b)`                      tests if two SETL4 objects are equal
-- `exists(set,expr)`                tests if an expression is true for at least one element in a set
-- `from(set,elem)`                  returns set consisting of the members of a set except a specified member
-- `get(map,key)`                    gets the value of map _map_ for _key_ for a map
-- `get(set,i)`                      gets the i-th element in a set, or fails if no such element
-- `false(e)`                        tests if argument is false
-- `forall(set,expr)`                tests if an expression is true for every element of a set
-- `filter(set,expr)`                filter:; returns subset of _set_ for which _expr_ is true
-- `int(s)`                          returns integer defined by _s_
-- `integers(n)`                     returns set of integers 1 ... n
-- `intersection(a,b)`               returns set of elements common to two sets
-- `loop(set)`                       set up iteration over _set_ using _next_
-- `member(elem,set)`                tests set membership
-- `new(str)`                        returns new set specified by _st_
-- `next(set)`                       returns next element in iteration defined by prevous _loop_, fails if no more elements
-- `not(expr)`                       not: Tests if operand is false
-- `or(a,b)`                         or: Tests if either operand is true
-- `push(stack,value)`               push value onto a stack
-- `pop(stack)`                      pop the top of a stack
-- `put(map,key,val)`                defines the value of a map key
-- `random(n)`                       returns random element
-- `random.seed()`                   sets random number seed to initialize _random_
-- `range(map)`                      returns set of elements in the range of a map
-- `rank(set)`                       returns the rank, or normal form, of a set or string.
-- `subset(a,b)`                     tests if the second set is a subset of the first set
-- `union(a,b)`                      returns set consisting of all the members in two sets
-- `set.size(set)`                   returns number of elements in set _set_
-- `traceoff()`                      turns off tracing
-- `show(v,lvl)`                     show value of _v_, with _lvl_ set non-zero when listing member of set
-- `show.b(e)`                       show value of _b_ as boolean
-- `show.line(line)`                 show string _line_ with spaces replaced by '.'
-- `show.lines(lines,title)`         show non-empty lines in array of lines, with title 'title'
-- `show.q(str)`                     show string enclosed in appropriate quote character (" or ') 
-- `traceon()`                       turns on tracing
-- `this(set)`                       returns current iteration value for _set_
-- `true(e)`                         tests if operand is true
-- `visit(set,expr)`                 Visits each element of set _set_ and evaluates _expr_ for that element
+
+*   SETL4 Functions
+*   ---------------
+*
+-  `add(set,elem)`                  Adds element to set, or the members of _elem_ if _elem_ is a set.
+-  `and(a,b)`                       And: test if both operands are true
+-  `arb(n)`                         Returns arbitary (randomly chosen) integer in 1 .. _n_
+-  `arb(set)`                       Returns arbitary (randomly chosen) element of _set_
+-  `assert(expr)`                   Tests that _expr_ is true, ends execution otherwise
+-  `assert.type(obj,type)`          Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise
+-  `at(set,expr)`                   Evaluates _expr_ for for current iterate of _set_
+-  `begins(str,sub)`                Tests if string _key_ begins with string _sub_
+-  `compose(a,b)`                   Returns composition of two maps or tables.
+-  `defined(map,key)`               Tests if a map is defined for a specified key
+-  `difference(a,b)`                Returns set of members of set _a_ not in the set _b_
+-  `domain(map)`                    Returns set of elements in the domain of a map
+-  `equal(a,b)`                     Tests if two SETL4 objects are equal
+-  `exists(set,expr)`               Tests if an expression is true for at least one element in a set
+-  `from(set,elem)`                 Returns set consisting of the members of a set except a specified member
+-  `get(map,key)`                   Gets the value of map _map_ for _key_ for a map
+-  `get(set,i)`                     Gets the i-th element in a set, or fails if no such element
+-  `false(e)`                       tests if argument is false
+-  `forall(set,expr)`               Tests if an expression is true for every element of a set
+-  `filter(set,expr)`               Filter:; returns subset of _set_ for which _expr_ is true
+-  `int(s)`                         Returns integer defined by _s_
+-  `integers(n)`                    Returns set of integers 1 ... n
+-  `intersection(a,b)`              Returns set of elements common to two sets
+-  `join(a,b)`                      Joins two strings into a single string by concatenating them
+-  `loop(set)`                      Set up iteration over _set_ using _next_
+-  `mark(line)`                     Annotates, or marks, a line
+-  `member(elem,set)`               Tests set membership
+-  `new(str)`                       Returns new set specified by _st_
+-  `next(set)`                      Returns next element in iteration defined by prevous _loop_, fails if no more elements
+-  `not(expr)`                      Not: tests if operand is false
+-  `or(a,b)`                        Or: tests if either operand is true
+-  `push(stack,value)`              Push value onto a stack
+-  `pop(stack)`                     Pop the top of a stack
+-  `put(map,key,val)`               Defines the value of a map key
+-  `random(n)`                      Returns random element
+-  `random.seed()`                  Sets random number seed to initialize _random_
+-  `range(map)`                     Returns set of elements in the range of a map
+-  `rank(set)`                      Returns the rank, or normal form, of a set or string.
+-  `subset(a,b)`                    Tests if the second set is a subset of the first set
+-  `union(a,b)`                     Returns set consisting of all the members in two sets
+-  `set.size(set)`                  Returns number of elements in set _set_
+-  `traceoff()`                     Turns off tracing
+-  `show(v,nested)`                 Show value of _v_, with _nested_ set non-zero when listing member of set
+-  `show.b(e)`                      Show value of _b_ as boolean
+-  `show.line(line)`                Show string _line_ with spaces replaced by '.'
+-  `show.lines(lines,title)`        Show non-empty lines in array of lines, with title 'title'
+-  `show.q(str)`                    Show string enclosed in appropriate quote character (" or ') 
+-  `traceon()`                      Turns on tracing
+-  `this(set)`                      Returns current iteration value for _set_
+-  `true(e)`                        Tests if operand is true
+-  `visit(set,expr)`                Visits each element of set _set_ and evaluates _expr_ for that element
+-  `words(str)`                     Returns sequence of words, separated by spaces, in a string,
 
 ## Utility Functions
 
-In addition to the set-theoretic functions defined in _setl4.stl_, SETL4 provides
-the following utility functions:
 
-- `even(n)`                     tests if _n_ is even
-- `factorial(n)`                returns n!  = n * (n -1) * ... * 1
-- `multiple(n,m)`               tests if _n_ is a multiple of _m_
-- `number(n)`                   returns _n_ as one or two words if possible, else returns _n_
-- `odd(n)`                      tests if _n_ is odd
-- `prime(n)`                    tests if _n_ is prime
-- `primes(n)`                   returns set of primes less than _n_
-- `square.root(n)`              returns integer square root on _n_
-- `thousands(s)`
-- `append(str,w,ch)`            appends _ch_ (or space if _ch_ is null) to _str_, then appends _w_
-- `ascii(line)`                 returns the text of line with every ascii character identified
-- `datename(date)`              returns string based on current time suitable for use as filename
-- `digits()`                    returns list of digits: '0 1 2 .. 9'
-- `letters(str)`                returns string with the letters in _str_ separated by spaces
-- `less(str,sub)`               removes the first instance of each character in _sub_ from _str_,
-- `lletters()`                  returns list of lower case letters : 'a b c ... z'
-- `lower(s)`                    returns _s_ with upper case letters replaced by lower case equivalent
-- `mark(line)`                  annotates, or marks, a line
-- `out(text1,text2,text3)`      outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null, then _text3_ if _text3_ is not null.
-- `prefix(str,pre)`             takes a list of space-separated words in _str_ and prefixes each with the string _pre_
-- `reader(filename,expr)`       returns sequence of lines in file _filename_, using _expr_ (if given) to filter out lines to be ignored.
-- `reader(str,delim)`           like _reader(filename..)_ but reads lines from a string with lines separated by delimiter _delim_
-- `slice(str,first,last)`       same as SPITBOL _substr(str,first,last)_
-- `tokens(line)`                returns sequence of the tokens in _line_
-- `uletters()`                  returns list of upper case letters : 'A B C ... Z''
-- `upper(s)`                    returns _s_ with lower case letters replaced by upper case equivalent
-- `writer(lines)`               writes sequence _lines_ to standard output.
+*   Utility Functions
+*   ---------------
 
+*   In addition to set-theoretic functions SETL4 provides 
+*   the following utility functions.
+
+-  `cardinal(n)`                Returns 'one' if _n_ is one, else _number(n)_ followed by 's'.
+-  `even(n)`                    Tests if _n_ is even
+-  `factorial(n)`               Returns n!  = n * (n -1) * ... * 1
+-  `multiple(n,m)`              Tests if _n_ is a multiple of _m_
+-  `number(n)`                  Returns _n_ as one or two words if possible, else returns _n_
+-  `odd(n)`                     Tests if _n_ is odd
+-  `prime(n)`                   Tests if _n_ is prime
+-  `primes(n)`                  Returns set of primes less than _n_
+-  `square.root(n)`             Returns integer square root on _n_
+-  `thousands(s)
+-  `append(str,w,ch)`           Appends _ch_ (or space if _ch_ is null) to _str_, then appends _w_
+-  `ascii(line)`                Returns the text of line with every ascii character identified
+-  `datename(date)`             Returns string based on current time suitable for use as filename
+-  `digits()`                   Returns list of digits: '0 1 2 .. 9'
+-  `frequency(str)`             Returns map giving frequency of characters in _str_
+-  `letters()`                  Returns list of letters : 'a b c ... z A B ... Z''
+-  `less(str,sub)`              Removes the first instance of each character in _sub_ from _str_,
+-  `lletters()`                 Returns list of lower case letters : 'a b c ... z'
+-  `lower(s)`                   Returns _s_ with upper case letters replaced by lower case equivalent
+-  `out(text1,text2,text3)`     Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null,
+-                               then _text3_ if _text3_ is not null.
+-  `prefix(str,pre)`            Takes a list of space-separated words in _str_ and prefixes each
+-  `                            with the string _pre_
+-  `reader(filename,expr)`      Returns sequence of lines in file _filename_, using _expr_ (if given)
+-                               to filter out lines to be ignored.
+-  `reader(str,delim)`          Like _reader(filename..)_ but reads lines from a string with lines
+-  `                                separated by delimiter _delim_
+-  `slice(str,first,last)`      Same as SPITBOL _substr(str,first,last)_
+-  `tokens(line)`               Returns sequence of the tokens in _line_
+-  `uletters()`                 Returns list of upper case letters : 'A B C ... Z''
+-  `upper(s)`                   Returns _s_ with lower case letters replaced by upper case equivalent
+-  `writer(lines)`              Writes sequence _lines_ to standard output.

@@ -4,7 +4,6 @@
 *   TODO LIST
 *   Note that get() and put() can be used on sets due to implementation of sets.
 *   Use eval when adding values to sets, including when initialized using new()
-*   add sets of kind 'byte' for sets up to 256 elements. Use them in doing int's.
 
 
 *   SETL4 is an implementation of SETL written in SPITBOL.
@@ -174,8 +173,8 @@
 *   SETL4 Functions
 *   ---------------
 *
-*   add(set,elem)                   Adds element to set
-*   and(a,b)                        And: Tests if both operands are true
+*   add(set,elem)                   Adds element to set, or the members of _elem_ if _elem_ is a set.
+*   and(a,b)                        And: test if both operands are true
 *   arb(n)                          Returns arbitary (randomly chosen) integer in 1 .. _n_
 *   arb(set)                        Returns arbitary (randomly chosen) element of _set_
 *   assert(expr)                    Tests that _expr_ is true, ends execution otherwise
@@ -203,8 +202,8 @@
 *   member(elem,set)                Tests set membership
 *   new(str)                        Returns new set specified by _st_
 *   next(set)                       Returns next element in iteration defined by prevous _loop_, fails if no more elements
-*   not(expr)                       Not: Tests if operand is false
-*   or(a,b)                         Or: Tests if either operand is true
+*   not(expr)                       Not: tests if operand is false
+*   or(a,b)                         Or: tests if either operand is true
 *   push(stack,value)               Push value onto a stack
 *   pop(stack)                      Pop the top of a stack
 *   put(map,key,val)                Defines the value of a map key
@@ -237,11 +236,11 @@
 
 *   where
 
-*           _set.index_         a SPITBOL table used to map the integer
+*           _set.index_         SPITBOL table used to map the integer
 *                               id assigned each element to the value of the element.
-*                               It is used to support fast iteration.
+*                               It is needed to support fast iteration.
 
-*           _set.key_           a SPITBOL table mapping set elements to index entries.
+*           _set.key_           SPITBOL table mapping set elements to index entries.
 
 *           _set.kind_          is the kind of the set, one of 'set', 'map', of 'int'. 
 *                               The kind is  specified when the set is created. 
@@ -264,18 +263,25 @@
 
 *           _set.max'           maximum number of elements. This applies to sets of kind 'integers'.
 
+    Both _set.index_ and _set_key_ tables are needed. New elements in the set are assigned
+*   an integer id. The table _set.index_ maps the id to a key. The table _set.key_ maps
+*   a key to its associate value.
+
+*   The _set.index_ table is used to iterate over the set. The _set.key_ table is used
+*   to retrieve element values.
+
 *   Sets of integers
 *   ----------------
 
-*   SETL4 sets of kind _integers' provide an efficient implementation of a set of 
-*   integers, in the form of a string such that an integer _i_ is in the set only
-*   if the i-th character of the string is '+'. The string is represented by a 
-*   table in blocks of 100 characters, so that the first block represents the integers 
-*   1 .. 100, and so forth. New chunks are allocated only when necesary.  The SPITBOL 
-*   function BREAK is used to find the next element in the set when iterating over the set.
+*   SETL4 sets of kind _integers' provide an efficient implementation of a set of
+*   many integers; for example, a set containing up to a million integers.
+*   The set is represented by a table of strings, each with  _setl4.config.int_ characters,
+*   so that the first block represents the integers 1 .. setl4.config.int, and so forth.
+*   New blocks are allocated only when necesary.  The SPITBOL function BREAK is 
+*   used to find the next element in the set when iterating over the set.
 
 *   Maps
-*   --------------
+*   ----
 
 *   In mathematics, a map defined on a finite set is a set of 
 *   ordered pairs, or entries,  that define a relation between the 
@@ -300,7 +306,36 @@
 
     data('stack(stack.stack,stack.top)')
 
+*   Additional operations provided as an artifact of the implementation
+*   -------------------------------------------------------------------
+*   
+*   The use of the tables _set.index_ and _set.key_ to implement a set makes it
+*   possible to provide some operations not available in in standard set theory. 
+*   For example, it is possible to retrieve elements using the function _get_. 
+*   _Get(s,i)_ retrieves the i-th element in the set.
 
+*   The function _rank_ can be used to determine the order in which the elements 
+*   of a set are accessed during an iteration, or to 'sort' the tables implementing
+*   the set. For example, _rank(s,'+v')_ sorts a map in increasing order of the
+*   values of the map. _rank(s,'-v') sorts the values in descendng order, and
+*   so forth. For example, here is the code to find the ten members with 
+*   the largest values in a map:
+
+*```
+        rank(map,'-v')
+        largest = new('set')
+        iter = new('iter 1 10')
+        loop(iter)
+    
+    largest.add
+    
+        add(largest,next(iter))               :s(largest.add)
+*```
+
+*   _Rank_ is used by the _show_ function to display the values of a set or
+*   map in a standard order. For example, if _s_ is a set with the elements
+*   'a', 'b' and 'c', then _show(s)_ yields `set 'a' 'b' 'c' }`, not 
+*   `set 'b' 'c' 'a' }`.
 
 *   SETL4 Configuration Options
 *   ---------------------------
@@ -317,10 +352,14 @@
 
     setl4.config.size = 32
 
-*   _setl4.config.integers.max_ is maximum number of elements in set of kind 'integers'.
+*   setl4.config.int is number of characters in the block for an integer set.
+*   setl4.config.int.init is string of spaces of size setl4.config.in
+    setl4.
 
-    setl4.config.integers.max = 1000
-    setl4.config.integers.max = 50
+    setl4.config.int = 1000
+    setl4.config.int.init = dupl(' ',1000)
+
+
 
 *   SETL4 needs a stack
 
@@ -338,44 +377,45 @@
     define('add(set,elem)this')                 :(add.end)
 
 *   Add _elem_ to set _set_ if not already present.
+*   If _elem_ is a sequence, then add all the elements in the
+*   sequence to the set. If _elem_ is an interator ('iter')
+*   then add all the elements of the iterator to the set.
+
 
 add
-
-    ident(datatype(elem,'entry'))               :s(add.map)
 
 *   Convert _elem_ that is integer to integer.
 
     elem = integer(elem) +elem
+
     ident(set.kind(set),'int')                  :s(add.int)
+    ident(set.kind(set),'iter')                 :s(add.elem)
     ident(set.kind(set),'map')                  :s(add.map)
-    ident(set.kind(set),'set')                  :s(add.set)
-    ident(set.kind(set),'iter') error("cannot add new element to set of type 'int'") :(return)
+    ident(set.kind(set),'seq')                  :s(add.elem)
+                                                :(add.set)
 
 add.int
 
 *   Here to test if _elem_ is already in set of kind _int_, 
 *   and otherwise to add new integer to the set.
-
-    gt(elem,set.max(set))                       :s(freturn)
-
 *   Set _i_ to the block for _elem_
 *   Not a member if the block is empty. If block is not
 *   empty then see if character corresponding to _elem_ is '+'.
 
-    i = set.key(set)[(elem - 1) / 100] ident(i) :s(add.int.new)
-    elem = remdr(elem,100)
-    elem = eq(elem) 100
+    i = set.key(set)[(elem - 1) / setl4.config.int] ident(i) :s(add.int.new)
+    elem = remdr(elem,setl4.config.int)
+    elem = eq(elem) setl4.config.int
     ident(substr(i,elem,1),'+')                 :s(return)f(freturn)
 
 *   Add new element to set by allocating new block and setting
 *   character corresponding to _elem_ to '+'. Update set.max if necessary.
 
-    i = set.key(set)[(elem - 1) / 100] = dupl('-',100)
-    elem = remdr(elem,100)
-    elem = eq(elem) 100
-    i = (ne(elem) substr(i,1,elem - 1),'') '+' (lt(elem,100) substr(i,elem + 1),'')
-    set.key(set)[(elem - 1) / 100] = i          
-    set.max(set) = gt((i + 1) * 100,set.max(set)) ((i + 1) * 100) :(return)
+    i = set.key(set)[(elem - 1) / setl4.config.int] = setl4.config.int.init
+    elem = remdr(elem,setl4.config.int)
+    elem = eq(elem) setl4.config.int
+    i = (ne(elem) substr(i,1,elem - 1),'') '+' (lt(elem,setl4.config.int) substr(i,elem + 1),'')
+    set.key(set)[(elem - 1) / setl4.config.int] = i          
+    set.max(set) = gt((i + 1) * setl4.config.int,set.max(set)) ((i + 1) * setl4.config.int) :(return)
 
 add.map
 
@@ -391,6 +431,18 @@ add.new
 add.put
 
     set.key(set)[key] = elem                    :(return)
+
+add.iter
+add.seq
+
+*   Add the elements in _elem_ to the set
+
+    loop(elem)
+
+add.seq.next
+
+    this = next(elem)                           :f(return)
+    add(set,this)                               :(add.seq.next)
 
 add.set
 
@@ -835,19 +887,18 @@ member.int
 *   in the set. Otherwise see if character corresponding to the
 *   value of _elem_ is '+'.
 
-    key = set.key(set)[(elem - 1) / 100]
+    key = set.key(set)[(elem - 1) / setl4.config.int]
     ident(key)                                      :s(freturn)
-    i = remdr(elem,100)
-    i = eq(i) 100
+    i = remdr(elem,setl4.config.int)
+    i = eq(i) setl4.config.int
     ident(substr(key,i,1),'+')                      :s(return)f(freturn)
-
-*   TODO: use code below eventually
 
 *   Here to test set membership. Set _key_ to the block for element _elem_,
 *   and use BREAK to test membership within the block.
 
-    ident(key = set.key(set)[(member / 1000) + 1])  :s(freturn)
-    ident(substr(key,remdr(member,100) + 1,1),'+')  :s(return)f(freturn)
+    key = set.key(set)[(member / setl4.config.int) + 1]  :s(freturn)
+    ident(key)                                      :s(freturn)
+    key break('+')                                  :s(return)f(freturn)
 
 member.iter
 
@@ -883,10 +934,10 @@ new
     init = init ' '
     init span(' ') =
     init break(' ') . kind span(' ') =
-    kind = gt(size(kind),3) substr(kind,1,3)
-    kind = ident(kind,'ite') 'iter' 
-    begins('integers',kind)                          :s(new.init)
-    begins('iterator',kind)                          :s(new.init)
+*   kind = gt(size(kind),3) substr(kind,1,3)
+*   kind = ident(kind,'ite') 'iter' 
+    begins('integers',kind)                          :s(new.int)
+    begins('iterator',kind)                          :s(new.int)
     begins('map',kind)                               :s(new.init)
     begins('seq',kind)                               :s(new.init)
     begins('set',kind)                               :s(new.init)
@@ -900,13 +951,10 @@ new.init
 *   Branch on kind to finish initialization of new set.
 
                                                     :($('new.' kind))
-
 new.int
     
     set.kind(new) = 'int'
-    n = setl4.config.integers.max
-    set.max(new) = n
-    set.text(new) = dupl(' ',n)
+    set.text(new) = setl4.config.int.init
 
 new.int.next
 
@@ -1319,7 +1367,7 @@ show.int.next
     gt(i = i + 1, set.max(v))                       :s(show.int.done)
     member(v,i)                                     :f(show.int.next)
     show = show ' ' show(i,,1)
-    lt(size(show),100)                              :s(show.int.next)
+    lt(size(show),setl4.config.int)                              :s(show.int.next)
     out(show ' ')
     show =                                          :(show.int.next)
 
@@ -1343,7 +1391,7 @@ show.map.next
 
     elem = next(v)                                  :f(show.map.done)
     show = show ' ' show(elem,,1) ':' show(get(v,elem),,1)
-    lt(size(show),100)                              :s(show.map.next)
+    lt(size(show),setl4.config.int)                              :s(show.map.next)
     out(show)
     show =                                          :(show.map.next)
 
@@ -1368,7 +1416,7 @@ show.set.next
 
     elem = next(v)                                :f(show.set.done)
     show = show ' ' show(elem,,1)
-    lt(size(show),100)                              :s(show.set.next)
+    lt(size(show),setl4.config.int)                              :s(show.set.next)
     out(show)
     show =                                          :(show.set.next)
 
@@ -1592,8 +1640,8 @@ visit.end
 
 setl4.clear
 
-    setl4.config.size = setl4.config.stack = setl4.config.size = setl4.config.integers.max =
-.   setl4.config.integers.max = setl4.stack = setl4.ascii.initialized = setl4.ascii.name =
+    setl4.config.size = setl4.config.stack = setl4.config.size = setl4.config.int.max =
+.   setl4.stack = setl4.ascii.initialized = setl4.ascii.name =
 .   setl4.ascii.value = setl4.random_var = setl4.any.digit = setl4.span.digits = 
 .   setl4.break.digit = setl4.break.letter = setl4.any.letter =
 .   setl4.span.letters = setl4.span.spaces = setl4.break.space =
@@ -1841,8 +1889,9 @@ opsyn.bypass
 *   ---------------
 
 *   In addition to set-theoretic functions SETL4 provides 
-*   Gthe following utility functions.
+*   the following utility functions.
 
+*   cardinal(n)                 Returns 'one' if _n_ is one, else _number(n)_ followed by 's'.
 *   even(n)                     Tests if _n_ is even
 *   factorial(n)                Returns n!  = n * (n -1) * ... * 1
 *   multiple(n,m)               Tests if _n_ is a multiple of _m_
@@ -2088,7 +2137,7 @@ ascii.init
 .      '1:SOH 17:DC1 33:!   49:1 65:A 81:Q  97:a 113:q '
 .      '2:STX 18:DC2 34:"   50:2 66:B 82:R  98:b 114:r '
 .      '3:ETX 19:DC3 35:#   51:3 67:C 83:S  99:c 115:s '
-.      '4:EOT 20 DC4 36:$   52:4 68:D 84:T 100:d 116:t '
+.      '4:EOT 20 DC4 36:$   52:4 68:D 84:T setl4.config.int:d 116:t '
 .      '5:ENQ 21:NAK 37:%   53:5 69:E 85:U 101:e 117:u '
 .      '6:ACK 22:SYN 38:&   54:6 70:F 86:V 102:f 118:v '
 .      "7:BEL 23:ETB 39:'   55:7 71:G 87:W 103:g 119:w "

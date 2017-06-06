@@ -1,0 +1,12 @@
+* test speed of substr on srings of length 1000
+ s = dupl(&alphabet,40)
+ output  = size(s)
+ n = size(s)
+
+loop
+    gt(i = i + 1, 1000) :s(done)
+  t = substr(s,1, n / 2) substr(s, n / 2) :(loop)
+
+done
+    output = i * n
+end
