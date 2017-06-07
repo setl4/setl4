@@ -1,171 +1,80 @@
--include "setl4.stl"
+-include "../setl4.stl"
 
-    out('splitting("shields")')
-    s = split('shields')
-    show(s)
-    out('ranking shields')
-    s = rank('shields')
-    show(s)
-end
-end
+*    &dump = 3
 
-    out('test int')
-    s = new('int 5 10 15 20 25 25')
-    add(s,30)
-    setl4.show(s)
-    show(s)
+    out('Test set')
+    out()
+    set = new('set 5 10 15 20 25 25')
+    add(set,30)
+    show(set)
+    out()
 
     out('test membership- expect success/failure')
-    show.eval('member(s,5)')
-    show.eval('member(s,6)')
-    out()
-    out()
-
-    out('test exists/forall with element in set - expect success/failure')
-    show.eval("exists(s,'eq(=s,10)')")
-    show.eval("forall(s,'eq(=s,10)')")
-    out()
+    show.eval('member(set,5)')
+    show.eval('member(set,6)')
     out()
 
-    out('test exists/forall with element not in set - expect failure/failure')
-    show.eval("exists(s,'eq(=s,40)')")
-    show.eval("forall(s,'eq(=s,40)')")
-    out()
-    out()
-
-    out('test exists/forall with element not in set - expect failure/success')
-    out()
-    show.eval("exists(s,'eq(=s,6)')")
-    show.eval("forall(s,'ne(=s,6)')")
-
-    out('test seq')
-    seq = words('one two three')
-    show(seq)
-
-    t = new('iter 1e2 1e6 100')
-    setl4.show(t)
-
-    s = new('iter 5 25 5')
-    setl4.show(s)
-    show(s)
-
-    out('test membership- expect success/failure')
-    show.eval('member(s,5)')
-    show.eval('member(s,6)')
-    out()
+    out('Test exists/forall with element in set - expect success/failure')
+    show.eval("exists(set,'eq(this,10)')")
+    show.eval("forall(set,'eq(this,10)')")
     out()
 
-    out('test exists/forall with element in set - expect success/failure')
-    show.eval("exists(s,'eq(this,10)')")
-    show.eval("forall(s,'eq(this,10)')")
-    out()
-    out()
-
-    out('test exists/forall with element not in set - expect failure/failure')
-    show.eval("exists(s,'eq(this,40)')")
-    show.eval("forall(s,'eq(this,40)')")
-    out()
+    out('Test exists/forall with element not in set - expect failure/failure')
+    show.eval("exists(set,'eq(this,40)')")
+    show.eval("forall(set,'eq(this,40)')")
     out()
 
-    out('test exists/forall with element not in set - expect failure/success')
+    out('Test exists/forall with element not in set - expect failure/success')
     out()
-    show.eval("exists(s,'eq(this,6)')")
-    show.eval("forall(s,'ne(this,6)')")
-
-    out('test map')
-
-    s = new('map one:1  two:2 ten:10 forty:40 hundred:100 thousand:1000')
-    show(s)
-
-    out('test map get- expect success/failure')
-    show.eval("eq(get(s,'one'),1)")
-    show.eval("eq(get(s,'one'),6)")
-    out()
-    out()
-
-    out('test exists/forall with element in map- expect success/failure')
-    show.eval("exists(s,'eq(get(s,this),2)')")
-    show.eval("forall(s,'eq(get(s,this),2)')")
-    out()
-    out()
-
-    out('test exists/forall with element not in - expect failure/failure')
-    show.eval("exists(s,'eq(this,500)')")
-    show.eval("forall(s,'eq(this,500)')")
+    show.eval("exists(set,'eq(this,6)')")
+    show.eval("forall(set,'ne(this,6)')")
     out()
     out()
 
 
-    out('test seq')
-
-    s = new('seq 10')
-*    show(s,'test sequence 10')
-    seq.add(s,10)
-    seq.add(s,5)
-    seq.add(s,20)
-    show(s)
-
-    str.out('test membership- expect TRUE/FALSE')
-    show.b( member(s,5))
-    show.b( member(s,16))
-    output = 
-    output = 
-
-    str.out('test exists/forall with element in set - expect TRUE/FALSE')
-    output = 
-    output = 
-
-    str.out("exists(s,'int.eq(=s,5)'")
-    r = exists(s,'int.eq(=s,5)')
-    show.b(r)
-    output = 
-    output = 
-    str.out("forall(s,'int.eq(=s,5)'")
-    r = forall(s,'int.eq(=s,5)')
-    show.b(r)
-    output = 
-    output = 
-
-    str.out('test exists/forall with element not in set - expect FALSE/TRUE')
-    output = 
-    str.out("exists(s,'int.eq(=s,16)'")
-    r = exists(s,'int.eq(=s,16)')
-    show.b(r)
-    output = 
-    str.out("forall(s,'int.ne(=s,16)'")
-    r = forall(s,'int.ne(=s,16)')
-    show.b(r)
-    output = 
-    output = 
-
-    out('test set')
-
-    s = new('set 5 10 15 20 25 25')
-    add(s,30)
-    setl4.show(s)
-    show(s)
-
-    out('test membership- expect success/failure')
-    show.eval('member(s,5)')
-    show.eval('member(s,6)')
+    out('Test iter')
+    out()
+    iter = new('iter 1 10 2')
+    show(iter)
+    out('expect success')
+    show.eval("eq(set.size(iter),5)")
+    out('expect success')
+    show.eval('member(iter,5)')
+    out('expect failure')
+    show.eval('member(iter,6)')
     out()
     out()
 
-    out('test exists/forall with element in set - expect success/failure')
-    show.eval("exists(s,'eq(this,10)')")
-    show.eval("forall(s,'eq(this,10)')")
+    out('Test map')
+
+    map = new('map one:1  two:2 ten:10 forty:40 hundred:100 thousand:1000')
+    show(map)
+
+    out('Test map get- expect success/failure')
+    show.eval("eq(get(map,'one'),1)")
+    show.eval("eq(get(map,'one'),6)")
     out()
     out()
 
-    out('test exists/forall with element not in set - expect failure/failure')
-    show.eval("exists(s,'eq(this,40)')")
-    show.eval("forall(s,'eq(this,40)')")
+    out('Test exists/forall with element in map- expect success/failure')
+    show.eval("exists(map,'eq(get(map,this),2)')")
+    show.eval("forall(map,'eq(get(map,this),2)')")
     out()
     out()
 
-    out('test exists/forall with element not in set - expect failure/success')
+    out('Test exists/forall with element not in - expect failure/failure')
+    show.eval("exists(map,'eq(this,500)')")
+    show.eval("forall(map,'eq(this,500)')")
     out()
-    show.eval("exists(s,'eq(this,6)')")
-    show.eval("forall(s,'ne(this,6)')")
+    out()
+
+    out('Test exists/forall with element not in set - expect failure/success')
+    out()
+    show.eval("exists(map,'eq(this,6)')")
+    show.eval("forall(map,'ne(this,6)')")
+    out()
+    out()
+
+    out("Here endeth the test.")
 
 end

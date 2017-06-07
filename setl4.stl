@@ -113,7 +113,9 @@
 *   Iterators support efficient iteration, and suppor only the
 *   operations of iteration and membership.
 
-*   Sets of kind 'integer' define a map on the positive integers.
+*   Sets of kind 'integer' are intended or sets of integers
+*   containing many elements. See below for more details.
+
 *   The members usually, but not necessarily consist of a sequence
 *   of integers with no gaps; for example 'sequence 5' is a map defined
 *   on 1, 2, ... 5.
@@ -232,7 +234,7 @@
 
 *   A set is defined by the following datatype:
 
-    data('set(set.index,set.key,set.kind,set.size,set.next,set.low,set.high,set.max,set.step,set.text,set.seq,set.this)')
+    data('set(set.index,set.key,set.kind,set.size,set.next,set.low,set.high,set.step,set.text,set.seq,set.this)')
 
 *   where
 
@@ -261,7 +263,6 @@
 
 *           _set.this           the last value returned by the _next_ primitive
 
-*           _set.max'           maximum number of elements. This applies to sets of kind 'integers'.
 
 *   Both _set.index_ and _set_key_ tables are needed. New elements in the set are assigned
 *   an integer id. The table _set.index_ maps the id to a key. The table _set.key_ maps
@@ -273,12 +274,15 @@
 *   Sets of integers
 *   ----------------
 
-*   SETL4 sets of kind _integers' provide an efficient implementation of a set of
+*   SETL4 sets of kind _integers' provide an efficient implementation of a set with
 *   many integers; for example, a set containing up to a million integers.
-*   The set is represented by a table of strings, each with  _setl4.config.int_ characters,
-*   so that the first block represents the integers 1 .. setl4.config.int, and so forth.
-*   New blocks are allocated only when necesary.  The SPITBOL function BREAK is 
-*   used to find the next element in the set when iterating over the set.
+*
+*   The set is represented by a table of strings, each with  1000 characters,
+*   so that the first block represents the integers 1 .. 1000 and so forth.
+*   Membership in the set is done by setting the appropriate chacters in
+*   a block to '+'. New blocks are allocated only when necesary.
+*   The SPITBOL function BREAK is used to find the next element 
+*   in the set when iterating over the set.
 
 *   Maps
 *   ----
@@ -368,13 +372,13 @@
 *   SETL4 Global Variables
 *   ----------------------
 
-    setl4.ascii.initialized = false
+    setl4.ascii.initialized = 
 
 
 *   SETL4 Function Definitions
 *   --------------------------
 
-    define('add(set,elem)this')                 :(add.end)
+    define('add(set,elem)block,str,this')       :(add.end)
 
 *   Add _elem_ to set _set_ if not already present.
 *   If _elem_ is a sequence, then add all the elements in the
@@ -389,33 +393,45 @@ add
     elem = integer(elem) +elem
 
     ident(set.kind(set),'int')                  :s(add.int)
-    ident(set.kind(set),'iter')                 :s(add.elem)
-    ident(set.kind(set),'seq')                  :s(add.elem)
-    error('unexpected kind to add.map:' set.kind(set))
-                                                :(add.set)
+    
+*   If  _kind_ is 'map', then we are adding new element to  sequence.
+
+    ident(set.kind(set),'map')                  :s(add.seq)
+    ident(set.kind(set),'set')                  :s(add.set)
+    error('unexpected kind to add:' set.kind(set))
 
 add.int
 
 *   Here to test if _elem_ is already in set of kind _int_, 
 *   and otherwise to add new integer to the set.
-*   Set _i_ to the block for _elem_
-*   Not a member if the block is empty. If block is not
+*   Set _block_ to the block for _elem_
+*   _Elem_ is not a member if the block is null. If block is not
 *   empty then see if character corresponding to _elem_ is '+'.
 
-    i = set.key(set)[(elem - 1) / setl4.config.int] ident(i) :s(add.int.new)
+    block = set.index(set)[(elem - 1) / setl4.config.int]
+    ident(block)                                :s(add.int.new)
+
+*   Remainder of zero corresponds to the last character.
+
     elem = remdr(elem,setl4.config.int)
     elem = eq(elem) setl4.config.int
-    ident(substr(i,elem,1),'+')                 :s(return)f(freturn)
+    ident(substr(block,elem,1),'+')             :s(return)f(freturn)
 
-*   Add new element to set by allocating new block and setting
-*   character corresponding to _elem_ to '+'. Update set.max if necessary.
+add.int.new
 
-    i = set.key(set)[(elem - 1) / setl4.config.int] = setl4.config.int.init
+*   Add new element to set by allocating new block and setting the
+*   character corresponding to _elem_ to be '+'.
+
+    str = setl4.config.int.init
+    set.key(set)[(elem - 1) / setl4.config.int] = block
     elem = remdr(elem,setl4.config.int)
     elem = eq(elem) setl4.config.int
-    i = (ne(elem) substr(i,1,elem - 1),'') '+' (lt(elem,setl4.config.int) substr(i,elem + 1),'')
-    set.key(set)[(elem - 1) / setl4.config.int] = i          
-    set.max(set) = gt((i + 1) * setl4.config.int,set.max(set)) ((i + 1) * setl4.config.int) :(return)
+    str = (ne(elem) substr(str,1,elem - 1),'') 
+.       '+' 
+.       (lt(elem,setl4.config.int) substr(str,elem + 1),'')
+    set.size(set) = set.size(set) + 1
+    set.index(set)[set.size(set)] = block
+    set.key(set)[set.size(set)] = str           :(return)
 
 add.new
 
@@ -426,25 +442,20 @@ add.put
 
     set.key(set)[key] = elem                    :(return)
 
-add.iter
 add.seq
 
-*   Add the elements in _elem_ to the set
+*   Add element to sequence.
 
-    loop(elem)
-
-add.seq.next
-
-    this = next(elem)                           :f(return)
-    add(set,this)                               :(add.seq.next)
+    set.size(set) = set.size(set) + 1
+    set.index(set)[set.size(set)] = elem       :(add.put)
 
 add.set
 
 *   Here to add element to set.
+
     member(set,elem)                            :s(return)
-    this = set.size(set) = set.size(set) + 1
-    set.index(set)[this] = elem
-    set.key(set)[elem] = elem                   :(return)
+    set.index(set)[set.size(set) = set.size(set) + 1] =
+.       set.key(set)[elem] = elem               :(return)
     
 add.end
 
@@ -782,7 +793,9 @@ int
     int = n
     n break('e')                                    :f(return)
     n break('e') . int 'e' =
-    int = int * +('1' dupl('0',n))                  :(return)
+    int = int * +('1' dupl('0',n))                  
+    int = +int
+                                                    :(return)
 
 int.end
 
@@ -854,7 +867,16 @@ join.end
 
 loop
 
+    ident(set.kind(set),'int')                      :s(loop.int)
     set.next(set) = (differ(set.step(set)) set.low(set) - set.step(set),0) :(return)
+
+loop.int
+
+*   Here to start loop over set of kind 'int'. Set _set.step_ to -1
+*   so first call to _next) will advance to first block.
+
+    set.next(set) = 0
+    set.step(set) = -1                              :(return)
 
 loop.end
 
@@ -905,8 +927,7 @@ member.iter
 member.set
 
     elem = integer(elem) +elem 
-    member = set.key(set)[elem]
-    differ(member)                                  :s(return)f(freturn)
+    differ(set.key(set)[elem])                      :s(return)f(freturn)
 
 member.end
 
@@ -928,43 +949,48 @@ new
     init = init ' '
     init span(' ') =
     init break(' ') . kind span(' ') =
-*   kind = gt(size(kind),3) substr(kind,1,3)
-*   kind = ident(kind,'ite') 'iter' 
-    begins('integers',kind)                          :s(new.int)
-    begins('iterator',kind)                          :s(new.int)
-    begins('map',kind)                               :s(new.init)
-    begins('seq',kind)                               :s(new.init)
-    begins('set',kind)                               :s(new.init)
-    begins('string',kind)                            :s(new.init)
+    kind = (gt,size(kind),3) substr(kind,1,3)
+    begins('integers',kind)                          :s(new.kind)
+    begins('iterator',kind)                          :s(new.kind)
+    begins('map',kind)                               :s(new.kind)
+    begins('seq',kind)                               :s(new.kind)
+    begins('set',kind)                               :s(new.kind)
+    begins('string',kind)                            :s(new.kind)
     error('bad kind to new ' kind )
 
-new.init
+new.kind
 
+    kind = gt(size(kind),3) substr(kind,1,3)
     init span(' ') =
+    kind = (gt,size(kind),3) substr(kind,1,3)
 
 *   Branch on kind to finish initialization of new set.
 
                                                     :($('new.' kind))
 new.int
     
+    new = set(table(setl4.config.size),table(setl4.config.size))
     set.kind(new) = 'int'
-    set.text(new) = setl4.config.int.init
 
 new.int.next
 
     init break(' ') . key span(' ') =              :f(return)
-    add(new,eval(key))                             :(new.int.next)
+    out('adding new.int key',key)
+    out('adding new.int int(key)',int(key))
+    add(new,int(key))                              :(new.int.next)
 
-new.iter
+new.ite
 
     set.kind(new) = 'iter'
     set.key(new) = set.index(new) =
     ident(init) error('new initialization information needed')
     set.step(new) = 1
+    ident(init) error('no initializer data for new iterator')
+    seq = new('seq ' init)
 
 *   Ignore extra arguments to iterator constructor.
 
-    set.size(seq) = gt(set.size(seq),3) 3
+    set.size(seq) = gt(set.size(seq),3) 
     eq(set.size(seq),1)                             :s(new.iter.1)
     eq(set.size(seq),2)                             :s(new.iter.2)
     eq(set.size(seq),3)                             :s(new.iter.3)
@@ -975,7 +1001,7 @@ new.iter.1
 
     set.low(new) =  1
     set.high(new) = int(get(seq,1))
-    set.step(new) = 1                               :(return)
+    set.step(new) = 1                               :(new.iter.done)
 
 new.iter.2
 
@@ -983,14 +1009,18 @@ new.iter.2
 
     set.low(new) =  int(get(seq,1))
     set.high(new) = int(get(seq,2))
-    set.step(new) = 1                               :(return)
+    set.step(new) = 1                               :(new.iter.done)
 
 new.iter.3
 
 *   If three arguments, low is first, high is second, step is third.
     set.low(new) =  int(get(seq,1))
     set.high(new) = int(get(seq,2))
-    set.step(new) = int(get(seq,3))                 :(return)
+    set.step(new) = int(get(seq,3)) 
+
+new.iter.done
+
+    set.size(new) = ((set.high(new) - set.low(new)) / set.step(new)) + 1 :(return)
 
 new.map
     
@@ -1014,25 +1044,31 @@ new.seq
     new = set(table(setl4.config.size),table(setl4.config.size))
     set.kind(new) = 'map'
     init span(' ') =
-    ident(init)                                         :s(return)
+    ident(init)                                     :s(return)
     init = init ' '
 
 new.seq.next
 
     init span(' ') =
-    init break(' ') . val ' ' =                         :f(return)
-    put(new,i = i + 1,val)                              :(new.seq.next)
+    init break(' ') . val ' ' =                     :f(return)
+    put(new,i = i + 1,val)                          :(new.seq.next)
 
 new.set
 
     new = set(table(setl4.config.size),table(setl4.config.size))
     set.kind(new) = 'set'
-    ident(init)                                         :s(return)
+    ident(init)                                     :s(return)
 
 new.set.next
 
-    init break(' ') . key span(' ') =                   :f(return)
-    add(new,key)                                        :(new.set.next)
+    init break(' ') . key span(' ') =               :f(new.set.done)
+    add(new,key)                                    :(new.set.next)
+
+new.set.done
+
+*   Clear _next_ field as it was set during loop above.
+
+    set.next(new) =                                 :(return)
 
 new.end
 
@@ -1049,7 +1085,7 @@ new.stack
 
 new.stack.end
 
-    define('next(set)kind,key,next,value')          :(next.end)
+    define('next(set)block,kind,key,next,str,value'):(next.end)
 
 *   Advance iteration by setting field _next_.  Fail if no more elements remain.
 
@@ -1063,19 +1099,50 @@ next.int
 
 *   Here to advance iteration to next element of set of kind _int_
 *   by incrementing _set.next_ until find element in the set.
-    next = set.next(set) = set.next(set) + 1
-    gt(next,set.max(set))                           :s(freturn)
-    member(set,next)                                :f(next.int)
-    set.this(set) = next
-    this = next                                     :(return)
+*   
+*   Iterate over blocks in turn. At the start, or when we have 
+*   looked at all possible elements in a block, advance to  
+*   the next block, saving its value in _set.text. Use _set.step_
+*   to track the number of the current block.
 
-*   TODO - could use break for quick test on a block. Keep it simple for now.
+*   Iteration over empty set ends here and now.
 
-*   Iterate until find character in text indicating membership.
+    eq(set.size(set))                               :s(freturn)
 
-    differ(substr(set.text(set),next,1),'+')         :s(next.int)
-    set.this(set) = next
-    this = next                                     :(return)
+    ge(set.step(set))                               :s(next.int.next)
+
+*   Here on first call to _next_ for a set of kind _int_.
+*   Update _set.step_ to reference the first block and
+*   set _set.text(set)_ to the text of the block.
+
+    set.step(set) = 0
+    set.text(set) = set.key(set)[0]                 
+
+next.int.block
+
+*   Here to advance to next block.
+
+    set.step(set) = set.step(set)  1
+    block = set.index(set)[set.step(set)]          
+
+*   Done if no more blocks.
+
+    ident(block)                                    :s(freturn)
+
+*   Here when first visiting a block.
+
+    set.text(set) = set.key(set)[block]
+
+next.int.find
+
+    break(set.text(set)) . key '+'                  :f(next.int.block)
+
+*   Here if this block still has an element in the set.
+*   Set _next_ to value corresponding to the element found.
+
+    next = remdr(key,setl4.config.int)
+    next = eq(value) setl4.config.int
+    next = set.next(set) = (block * setl4.config.int) + next :(return)
 
 next.iter
 
@@ -1321,6 +1388,7 @@ show
 *   disrupting possible existing iteration over the set.
     
     kind = set.kind(v)
+    out('show kind',kind)
     ident(kind,'int')                               :s(show.int)
     ident(kind,'iter')                              :s(show.iter)
     ident(kind,'map')                               :s(show.map)
@@ -1355,15 +1423,15 @@ show.int
 *   Show sets of kind _int_ by looping through _set_text_ and showing characters which are not blank.
 
     show = '{ int'
+    setl4.save(v)
+    loop(v)
 
 show.int.next
 
-    gt(i = i + 1, set.max(v))                       :s(show.int.done)
-    member(v,i)                                     :f(show.int.next)
+    
+    i = next(v)                                     :f(show.int.done)
     show = show ' ' show(i,,1)
-    lt(size(show),setl4.config.int)                              :s(show.int.next)
-    out(show ' ')
-    show =                                          :(show.int.next)
+    lt(size(show),setl4.config.int)                 :s(show.int.next)
 
 show.int.done
 
@@ -1410,9 +1478,9 @@ show.set.next
 
     elem = next(v)                                :f(show.set.done)
     show = show ' ' show(elem,,1)
-    lt(size(show),setl4.config.int)                              :s(show.set.next)
+    lt(size(show),100)                            :s(show.set.next)
     out(show)
-    show =                                          :(show.set.next)
+    show =                                        :(show.set.next)
 
 show.set.done
 
@@ -1634,8 +1702,8 @@ visit.end
 
 setl4.clear
 
-    setl4.config.size = setl4.config.stack = setl4.config.size = setl4.config.int.max =
-.   setl4.stack = setl4.ascii.initialized = setl4.ascii.name =
+    setl4.config.size = setl4.config.stack = setl4.config.size = setl4.conig.int =
+.   setl4.stack = setl4.ascii.initialized = setl4.ascii.name = setl4.config.int.init =
 .   setl4.ascii.value = setl4.random_var = setl4.any.digit = setl4.span.digits = 
 .   setl4.break.digit = setl4.break.letter = setl4.any.letter =
 .   setl4.span.letters = setl4.span.spaces = setl4.break.space =
@@ -1676,15 +1744,16 @@ setl4.save.end
 
 setl4.show
 
+    differ(label)          out(' setl4.show: '         str.upper(label))
                            out('{')
                            out('  kind',          set.kind(set))
-    differ(label)          out('  show: '         str.upper(label))
+    differ(set.index(set)) out('  has index table')
+    differ(set.key(set))   out('  has key table')
     ne(set.size(set))      out('  size',          set.size(set))
     differ(set.next(set))  out('  next',          set.next(set))
     ne(set.low(set))       out('  low',           set.low(set))
     ne(set.high(set))      out('  high',          set.high(set))
     ne(set.step(set))      out('  step',          set.step(set))
-    ne(set.max(set))       out('  max',           set.max(set))
     differ(set.text(set))  out('  #text',         size(set.text(set)))
     differ(set.text(set))  out('  text',          set.text(set))
                            out('}')
@@ -1744,9 +1813,7 @@ setl4.sort.value
 *   Here to  sort by value: build table mapping index numbers into
 *   the values associated with their keys, and sort that.
 
-*   out('setl4.sort.value',type)
     tbl = compose(set.index(set),set.key(set))
-*   show(tbl,'sort.value compose')
     type = ident(type,'+v') '+k'
     type = ident(type,'-v') '-k'
     tbl = setl4.sort.table(tbl,n,type)
@@ -2070,12 +2137,12 @@ append.end
 
 ascii
 
-    true(ascii.initialized)                   :s(ascii.initialized)
+    differ(ascii.initialized)                   :s(ascii.initialized)
 
 *   Here to initialize the needed maps.
     
     ascii.init()
-    ascii.initialized = true;
+    ascii.initialized = 1
 
 ascii.initialized
 
@@ -2086,42 +2153,42 @@ ascii.next
 *   Add space after previous character if result not null.
 
     ascii = differ(ascii) ascii ' '
-    c = substr(line,1,1)                            :f(ascii.done)
-    ident(c,nul)                                    :s(ascii.null)
-    line any('0123456789')                          :s(ascii.integer)
-    line any(&lcase &ucase)                         :s(asciiletter)
-    line ' '                                        :s(ascii.space)
+    c = substr(line,1,1)                        :f(ascii.done)
+    ident(c,nul)                                :s(ascii.null)
+    line any('0123456789')                      :s(ascii.integer)
+    line any(&lcase &ucase)                     :s(ascii.letter)
+    line ' '                                    :s(ascii.space)
 
 *   Check for control character (code <=26)
 
-    &alphabet break(c) . pos                        :f(ascii.other)
+    &alphabet break(c) . pos                    :f(ascii.other)
     pos = size(pos)
-    gt(pos,26)                                      :s(ascii.other)
+    gt(pos,26)                                  :s(ascii.other)
 *TODO here fix g. usage
     ascii = ascii g.ascii.name[c] '(^'
                substr('ABCDEFGHIJKLMNOPQRSTUVWXYZ',pos,1) ')'
-    line len(1) =                                   :(ascii.next)
+    line len(1) =                               :(ascii.next)
 
 ascii.integer
 
     line span('0123456789') . text =
-    ascii = ascii  text                     :(ascii.next)
+    ascii = ascii  text                         :(ascii.next)
 
 asciiletter
 
     line span(&lcase &ucase) . text =
-    ascii = ascii  text                     :(ascii.next)
+    ascii = ascii  text                         :(ascii.next)
 
 ascii.null
 
-    ascii = ascii 'NUL'                     :(ascii.next)
+    ascii = ascii 'NUL'                         :(ascii.next)
 
 ascii.other
 
 *   Here if none of the other cases apply, so just list the ascii name.
 
     ascii = ascii ascii.name[c]
-    line = substr(line,2)                           :(ascii.next)
+    line = substr(line,2)                       :(ascii.next)
 
 ascii.space
 
@@ -2130,7 +2197,7 @@ ascii.space
     ascii =  ascii 'SPC'
     ascii = gt(size(text),1) ascii 'SPC*' size(text)
     ascii = ascii
-                                                    :(ascii.next)
+                                                :(ascii.next)
 ascii.done
 
     ascii = trim(ascii)                     :(return)
@@ -2150,7 +2217,7 @@ ascii.init
 .      '1:SOH 17:DC1 33:!   49:1 65:A 81:Q  97:a 113:q '
 .      '2:STX 18:DC2 34:"   50:2 66:B 82:R  98:b 114:r '
 .      '3:ETX 19:DC3 35:#   51:3 67:C 83:S  99:c 115:s '
-.      '4:EOT 20 DC4 36:$   52:4 68:D 84:T setl4.config.int:d 116:t '
+.      '4:EOT 20 DC4 36:$   52:4 68:D 84:T 100:d 116:t '
 .      '5:ENQ 21:NAK 37:%   53:5 69:E 85:U 101:e 117:u '
 .      '6:ACK 22:SYN 38:&   54:6 70:F 86:V 102:f 118:v '
 .      "7:BEL 23:ETB 39:'   55:7 71:G 87:W 103:g 119:w "
@@ -2180,15 +2247,17 @@ ascii.init.next
 
 ascii.init.end
 
-    define('begins(str,key)')                       :(begins.end)
+    define('begins(str,init)')                      :(begins.end)
 
-*   Tests if string _str_ begins with string _key_.
+*   Tests if string _str_ begins with string _init_.
 
 begins
 
-    ident(str,key)                                  :s(return)
-    gt(size(key),size(str))                         :(freturn)
-    ident(substr(str,1,size(key)),key)              :s(return)f(freturn)
+    ident(str,init)                                 :s(return)
+    gt(size(init),size(str))                        :s(return)
+    ident(substr(str,1,size(init)),init)            :s(return)f(freturn)
+
+    ident(substr(str,1,size(init)),init)            :f(freturn)
 
 begins.end
 
