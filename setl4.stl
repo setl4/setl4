@@ -275,7 +275,7 @@
 *   ----------------
 
 *   SETL4 sets of kind _integers' provide an efficient implementation of a set with
-*   many integers; for example, a set containing up to a million integers.
+*   many non-negative integers, such as  a set with more than a million integers.
 *
 *   The set is represented by a table of strings, each with  1000 characters,
 *   so that the first block represents the integers 1 .. 1000 and so forth.
@@ -389,7 +389,9 @@
 add
 
 *   Convert _elem_ that is integer to integer.
+*   Call _eval_ in case element given in exponential notation.
 
+    elem = ident(datatype(elem),'string') eval(elem)
     elem = integer(elem) +elem
 
     ident(set.kind(set),'int')                  :s(add.int)
@@ -408,14 +410,14 @@ add.int
 *   _Elem_ is not a member if the block is null. If block is not
 *   empty then see if character corresponding to _elem_ is '+'.
 
-    block = set.index(set)[(elem - 1) / setl4.config.int]
-    ident(block)                                :s(add.int.new)
+    block = elem / setl4.config.int
+    ident(set.key(set)[block])                  :s(add.int.new)
 
 *   Remainder of zero corresponds to the last character.
 
     elem = remdr(elem,setl4.config.int)
     elem = eq(elem) setl4.config.int
-    ident(substr(block,elem,1),'+')             :s(return)f(freturn)
+    ident(substr(block,elem + 1,1),'+')         :f(freturn)
 
 add.int.new
 
@@ -423,12 +425,12 @@ add.int.new
 *   character corresponding to _elem_ to be '+'.
 
     str = setl4.config.int.init
-    set.key(set)[(elem - 1) / setl4.config.int] = block
-    elem = remdr(elem,setl4.config.int)
-    elem = eq(elem) setl4.config.int
+    set.key(set)[block] = setl4.config.int.init
+    elem = remdr(elem,setl4.config.int) + 1
     str = (ne(elem) substr(str,1,elem - 1),'') 
 .       '+' 
 .       (lt(elem,setl4.config.int) substr(str,elem + 1),'')
+*   out('add.int.new',show(str))
     set.size(set) = set.size(set) + 1
     set.index(set)[set.size(set)] = block
     set.key(set)[set.size(set)] = str           :(return)
@@ -969,7 +971,7 @@ new.kind
                                                     :($('new.' kind))
 new.int
     
-    new = set(table(setl4.config.size),table(setl4.config.size))
+    new = set(table(1000),table(1000))
     set.kind(new) = 'int'
 
 new.int.next
@@ -997,26 +999,29 @@ new.ite
 
 new.iter.1
 
+
 *   If one argument, low is one, high is the argument.
+*   Use _eval_ to evalutate the arguments in case they are 
+*   given in exponential notation.
 
     set.low(new) =  1
-    set.high(new) = int(get(seq,1))
+    set.high(new) = int(eval(get(seq,1)))
     set.step(new) = 1                               :(new.iter.done)
 
 new.iter.2
 
 *   If two arguments, low is first argument, high is the second.
 
-    set.low(new) =  int(get(seq,1))
-    set.high(new) = int(get(seq,2))
+    set.low(new) =  int(eval(get(seq,1)))
+    set.high(new) = int(eval(get(seq,2)))
     set.step(new) = 1                               :(new.iter.done)
 
 new.iter.3
 
 *   If three arguments, low is first, high is second, step is third.
-    set.low(new) =  int(get(seq,1))
-    set.high(new) = int(get(seq,2))
-    set.step(new) = int(get(seq,3)) 
+    set.low(new) =  eval(get(seq,1))
+    set.high(new) = eval(get(seq,2))
+    set.step(new) = eval(get(seq,3)) 
 
 new.iter.done
 
@@ -1107,31 +1112,34 @@ next.int
 
 *   Iteration over empty set ends here and now.
 
+    out('enter next.int')
+    out('set.size int',set.size(int))
     eq(set.size(set))                               :s(freturn)
 
-    ge(set.step(set))                               :s(next.int.next)
+    ge(set.step(set))                               :s(next.int.find)
 
 *   Here on first call to _next_ for a set of kind _int_.
-*   Update _set.step_ to reference the first block and
-*   set _set.text(set)_ to the text of the block.
+*   Set _set.step_ to -1 so will access first block after
+*   incrementing _set.step_ below.
 
-    set.step(set) = 0
-    set.text(set) = set.key(set)[0]                 
+    set.step(set) = -1
 
 next.int.block
 
 *   Here to advance to next block.
 
-    set.step(set) = set.step(set)  1
+    set.step(set) = set.step(set) + 1
     block = set.index(set)[set.step(set)]          
+    out('next.int.block',block)
 
 *   Done if no more blocks.
 
-    ident(block)                                    :s(freturn)
+    ident(set.key(set)[block])                      :s(freturn)
 
 *   Here when first visiting a block.
 
     set.text(set) = set.key(set)[block]
+    out('next.int.text', set.text(set))
 
 next.int.find
 
@@ -1141,8 +1149,9 @@ next.int.find
 *   Set _next_ to value corresponding to the element found.
 
     next = remdr(key,setl4.config.int)
-    next = eq(value) setl4.config.int
-    next = set.next(set) = (block * setl4.config.int) + next :(return)
+    next = set.next(set) = (block * setl4.config.int) + next 
+    out('next.int',next)
+                                                    :(return)
 
 next.iter
 
