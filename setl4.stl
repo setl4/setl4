@@ -378,7 +378,7 @@
 *   SETL4 Function Definitions
 *   --------------------------
 
-    define('add(set,elem)block,str,this')       :(add.end)
+    define('add(set,elem)block,str,this')           :(add.end)
 
 *   Add _elem_ to set _set_ if not already present.
 *   If _elem_ is a sequence, then add all the elements in the
@@ -394,12 +394,12 @@ add
     elem = ident(datatype(elem),'string') eval(elem)
     elem = integer(elem) +elem
 
-    ident(set.kind(set),'int')                  :s(add.int)
+    ident(set.kind(set),'int')                      :s(add.int)
     
 *   If  _kind_ is 'map', then we are adding new element to  sequence.
 
-    ident(set.kind(set),'map')                  :s(add.seq)
-    ident(set.kind(set),'set')                  :s(add.set)
+    ident(set.kind(set),'map')                      :s(add.seq)
+    ident(set.kind(set),'set')                      :s(add.set)
     error('unexpected kind to add:' set.kind(set))
 
 add.int
@@ -411,13 +411,18 @@ add.int
 *   empty then see if character corresponding to _elem_ is '+'.
 
     block = elem / setl4.config.int
-    ident(set.key(set)[block])                  :s(add.int.new)
-
-*   Remainder of zero corresponds to the last character.
-
+    ident(set.key(set)[block])                      :s(add.int.new)
     elem = remdr(elem,setl4.config.int)
-    elem = eq(elem) setl4.config.int
-    ident(substr(block,elem + 1,1),'+')         :f(freturn)
+    str = set.text(set)
+    ident(substr(str,elem + 1,1),'+')               :s(return)
+
+*   Here if block exists, but elem is not yet a member of it, so update the block text.
+
+    set.size(set) = set.size(set) + 1
+    str = (ne(this) substr(str,1,this - 1),'') 
+.       '+' 
+.       (lt(this,setl4.config.int) substr(str,this + 1),'')
+    set.key(set)[block] = set.text(set) = str       :(return)
 
 add.int.new
 
@@ -426,42 +431,41 @@ add.int.new
 
     str = setl4.config.int.init
     set.key(set)[block] = setl4.config.int.init
-    elem = remdr(elem,setl4.config.int) + 1
-    str = (ne(elem) substr(str,1,elem - 1),'') 
+    this = remdr(elem,setl4.config.int) + 1
+    str = (ne(this) substr(str,1,this - 1),'') 
 .       '+' 
-.       (lt(elem,setl4.config.int) substr(str,elem + 1),'')
-*   out('add.int.new',show(str))
+.       (lt(this,setl4.config.int) substr(str,this + 1),'')
     set.size(set) = set.size(set) + 1
     set.index(set)[set.size(set)] = block
-    set.key(set)[set.size(set)] = str           :(return)
+    set.key(set)[set.size(set)] = str               :(return)
 
 add.new
 
     set.size(set) = set.size(set) + 1
-    set.index(set)[set.size(set)] = elem       :(add.put)
+    set.index(set)[set.size(set)] = elem            :(add.put)
 
 add.put
 
-    set.key(set)[key] = elem                    :(return)
+    set.key(set)[key] = elem                        :(return)
 
 add.seq
 
 *   Add element to sequence.
 
     set.size(set) = set.size(set) + 1
-    set.index(set)[set.size(set)] = elem       :(add.put)
+    set.index(set)[set.size(set)] = elem            :(add.put)
 
 add.set
 
 *   Here to add element to set.
 
-    member(set,elem)                            :s(return)
+    member(set,elem)                                :s(return)
     set.index(set)[set.size(set) = set.size(set) + 1] =
-.       set.key(set)[elem] = elem               :(return)
+.       set.key(set)[elem] = elem                   :(return)
     
 add.end
 
-    define('and(a,b)')                          :(and.end)
+    define('and(a,b)')                              :(and.end)
 
 *   Tests if both operand are true (not null), only 
 *   evaluating the second oerand if necessary.
@@ -522,11 +526,11 @@ assert.type.end
 at
 
     this = set.next(set)
-    at = eval(expr)                             :(return)
+    at = eval(expr)                                 :(return)
 
 at.end
 
-    define('compose(a,b)ara,i,key,n')           :(compose.end)
+    define('compose(a,b)ara,i,key,n')               :(compose.end)
 
 *   _Compose_ returns the composition of two maps or tables.
 
@@ -541,7 +545,7 @@ compose
 compose.map.next
 
     le(i = i + 1,set.size(a))                       :f(return)
-   compose[i] = set.key(set)[set.index(set)[i]]    :(compose.map.next)
+   compose[i] = set.key(set)[set.index(set)[i]]     :(compose.map.next)
 
 compose.table
 
@@ -591,43 +595,43 @@ difference.end
 
 equal
    
-    ident(datatype(a),'set') ident(datatype(b),'set')   :s(equal.setl4)
-    ident(a,b)                                          :s(return)f(freturn)
+    ident(datatype(a),'set') ident(datatype(b),'set'):s(equal.setl4)
+    ident(a,b)                                      :s(return)f(freturn)
 
 equal.setl4
 
 *   Here for equality test of two SETL4 objects.
 
-    ident(set.kind(a),set.kind(b))                      :f(freturn)
-    eq(set.size(a),set.size(b))                         :f(freturn)
+    ident(set.kind(a),set.kind(b))                  :f(freturn)
+    eq(set.size(a),set.size(b))                     :f(freturn)
             :($('equal.' set.kind(a)))
 
 equal.int
 
-    eq(set.low(a),set.low(b))                           :f(freturn)
-    eq(set.high(a),set.high(b))                         :f(freturn)
-    eq(set.step(a),set.step(b))                         :f(freturn)s(return)
+    eq(set.low(a),set.low(b))                       :f(freturn)
+    eq(set.high(a),set.high(b))                     :f(freturn)
+    eq(set.step(a),set.step(b))                     :f(freturn)s(return)
 
 equal.map
 
 *   Two maps are equal if they have the same vaue at every element in the domain.
 
-    gt(i = i + 1, set.size(a))                          :s(equal.true)
+    gt(i = i + 1, set.size(a))                      :s(equal.true)
     entry = set.index(a)[i]
-    ident(value(entry),get(b,key(entry)))               :f(freturn)s(equal.map)
+    ident(value(entry),get(b,key(entry)))           :f(freturn)s(equal.map)
 
 equal.seq
 
 *   Two sequences are equal if they have the same vaue at every element in the domain.
 
-    gt(i = i + 1, set.size(a))                          :s(equal.true)
-    ident(set.seq(a)[i], set.seq(b)[i])                 :s(equal.seq)f(freturn)
+    gt(i = i + 1, set.size(a))                      :s(equal.true)
+    ident(set.seq(a)[i], set.seq(b)[i])             :s(equal.seq)f(freturn)
 
 equal.set
 
 *   Two sets are equal if and only if each is a subset of the other.
 
-    equal = and(set.subset(a,b),set.subset(b,a))        :f(freturn)s(return)
+    equal = and(set.subset(a,b),set.subset(b,a))    :f(freturn)s(return)
 
 equal.end
 
@@ -675,7 +679,7 @@ error
 *   Clear variables that need not appear in &dump output
 
     setl4.clear()
-    out('Fatal error: ' str)                    :(end)
+    out('Fatal error: ' str)                        :(end)
 
 error.end
 
@@ -771,7 +775,7 @@ get
 get.map
 
     get = set.key(map)[key]
-    differ(get)                                      :s(return)f(freturn)
+    differ(get)                                     :s(return)f(freturn)
 
 get.set
 
@@ -781,7 +785,7 @@ get.set
 
 get.end
 
-    define('int(n)')                             :(int.end)
+    define('int(n)')                                :(int.end)
 
 *   Returns _n_ if _n_ is an integer.
 *   Returns _n_ converted to an integer if _n_ is real.
@@ -977,8 +981,8 @@ new.int
 new.int.next
 
     init break(' ') . key span(' ') =              :f(return)
-    out('adding new.int key',key)
-    out('adding new.int int(key)',int(key))
+*   out('adding new.int key',key)
+*   out('adding new.int int(key)',int(key))
     add(new,int(key))                              :(new.int.next)
 
 new.ite
@@ -1112,8 +1116,6 @@ next.int
 
 *   Iteration over empty set ends here and now.
 
-    out('enter next.int')
-    out('set.size int',set.size(int))
     eq(set.size(set))                               :s(freturn)
 
     ge(set.step(set))                               :s(next.int.find)
@@ -1129,7 +1131,8 @@ next.int.block
 *   Here to advance to next block.
 
     set.step(set) = set.step(set) + 1
-    block = set.index(set)[set.step(set)]          
+    out('next.int.block step',set.step(set))
+    block = set.index(set)[set.step(set)]
     out('next.int.block',block)
 
 *   Done if no more blocks.
