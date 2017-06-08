@@ -11,7 +11,9 @@
     zint = new('int')
     add(zint, 1)
     add(zint, 3)
-    add(zint, 13)
+    add(zint, 3)
+    add(zint, 5)
+    add(zint, 19)
     add(zint, 101)
     add(zint, 103)
     add(zint, 1001)
@@ -27,11 +29,9 @@
     add(zint, 100000000)
     add(zint, 100000003)
     add(zint, 100000099)
+    add(zint, 100000101)
+*    &dump = 3
     show(zint)
-*   show(set.index(zint))
-    &dump = 3
-end
-    show(set.key(zint))
 end
     add(Int, 10000)
     add(Int, 100000)
