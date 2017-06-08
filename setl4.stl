@@ -161,7 +161,7 @@
 *   ----------------------
 
 *   '='     =s      Iteration       Returns 'this', the current element of an iteration
-*   '|'     |'str'  Constructor     Returns set specified by string _str_
+*   '|'     |str    Constructor     Returns set specified by string _str_
 *   '!'     !expr   Not             True if and only if _expr_ is false
 *   '#'     #s      Size            Number of elements in set _s_
 *   '/'     /s      Split           Splits a string into a sequence of words
@@ -234,7 +234,7 @@
 
 *   A set is defined by the following datatype:
 
-    data('set(set.index,set.key,set.kind,set.size,set.next,set.low,set.high,set.step,set.text,set.seq,set.this)')
+    data('set(set.index,set.key,set.kind,set.size,set.next,set.low,set.high,set.step,set.seq,set.this)')
 
 *   where
 
@@ -259,8 +259,6 @@
 
 *           _set.step_          number of values between members of set of kind _int_.
 
-*           _set.text_          is the text of the set of kind _str_
-
 *           _set.this           the last value returned by the _next_ primitive
 
 
@@ -277,10 +275,10 @@
 *   SETL4 sets of kind _integers' provide an efficient implementation of a set with
 *   many non-negative integers, such as  a set with more than a million integers.
 *
-*   The set is represented by a table of strings, each with  1000 characters,
-*   so that the first block represents the integers 1 .. 1000 and so forth.
-*   Membership in the set is done by setting the appropriate chacters in
-*   a block to '+'. New blocks are allocated only when necesary.
+*   The set is represented by a table of strings, each with  _setl4.config.int_ characters,
+*   so that the first block represents the integers `0 .. _setl4_config.int_ -1 and so forth.
+*   Addition to  the set is done by setting the appropriate character in a block to '+'.
+*   New blocks are allocated only when necesary.
 *   The SPITBOL function BREAK is used to find the next element 
 *   in the set when iterating over the set.
 
@@ -356,13 +354,15 @@
 
     setl4.config.size = 256
 
-*   setl4.config.int is number of characters in the block for an integer set.
-*   setl4.config.int.init is string of spaces of size setl4.config.in
-    setl4.
+*   _setl4.config.int_ is number of characters in the block for an integer set.
+*   _setl4.config.int.init_ is string of spaces of size _setl4.config.int_.
+*   _setl4.config.int.table is size of index and key tables in set of kind 'int.' 
 
+
+    setl4.config.int.table = 1000
     setl4.config.int = 1000
-    setl4.config.int.init = dupl(' ',1000)
-
+    setl4.config.int = 20
+    setl4.config.int.init = dupl(' ',setl4.config.int)
 
 
 *   SETL4 needs a stack
@@ -406,38 +406,40 @@ add.int
 
 *   Here to test if _elem_ is already in set of kind _int_, 
 *   and otherwise to add new integer to the set.
-*   Set _block_ to the block for _elem_
-*   _Elem_ is not a member if the block is null. If block is not
-*   empty then see if character corresponding to _elem_ is '+'.
+*   Set _block_ to the block for _elem_ and set _this_ to the
+*   offset in the block's string corresponding to _elem_.
+*
+*   _Elem_ is not a member if the block is null. Otherwise see
+*   if the character corresponding to _elem_ is '+'.
 
     block = elem / setl4.config.int
-    ident(set.key(set)[block])                      :s(add.int.new)
-    elem = remdr(elem,setl4.config.int)
-    str = set.text(set)
-    ident(substr(str,elem + 1,1),'+')               :s(return)
-
-*   Here if block exists, but elem is not yet a member of it, so update the block text.
-
-    set.size(set) = set.size(set) + 1
-    str = (ne(this) substr(str,1,this - 1),'') 
-.       '+' 
-.       (lt(this,setl4.config.int) substr(str,this + 1),'')
-    set.key(set)[block] = set.text(set) = str       :(return)
+    this = remdr(elem,setl4.config.int) + 1
+    str = set.key(set)[block]
+    ident(str)                                  :s(add.int.new)
+    ident(substr(str,this,1),'+')               :s(return)
 
 add.int.new
 
-*   Add new element to set by allocating new block and setting the
-*   character corresponding to _elem_ to be '+'.
+*   Create new block and merge to add the new element.
 
+    set.size(set) = set.size(set) + 1
+    set.index(set)[set.size(set)] = block
     str = setl4.config.int.init
-    set.key(set)[block] = setl4.config.int.init
-    this = remdr(elem,setl4.config.int) + 1
+*    out()
+*    out('adding int elem',elem)
+*    out('int set size',set.size(set))
+*    out('add.int block',block)
+*    out('add.int this',this)
+*    out('add.int.this size(str)',size(str))
+*    out('add.int.str',str)
+*    out()
+
+add.int.update
+
     str = (ne(this) substr(str,1,this - 1),'') 
 .       '+' 
 .       (lt(this,setl4.config.int) substr(str,this + 1),'')
-    set.size(set) = set.size(set) + 1
-    set.index(set)[set.size(set)] = block
-    set.key(set)[set.size(set)] = str               :(return)
+    set.key(set)[block] = str                       :(return)
 
 add.new
 
@@ -869,7 +871,7 @@ join.end
     define('loop(set)dt')                           :(loop.end)
 
 *   Set up for loop. Set next field so that on first call to _next()_
-*   the index will be advanced to the first element in the 
+*   the index will be advanced to the first element in the set.
 
 loop
 
@@ -878,14 +880,17 @@ loop
 
 loop.int
 
-*   Here to start loop over set of kind 'int'. Set _set.step_ to -1
+*   Here to start loop over set of kind 'int'. Set _set.low to -1
 *   so first call to _next) will advance to first block.
 
-    set.next(set) = 0
-    set.step(set) = -1                              :(return)
+*   Since elements can be added in random order, sort the _set.index_
+*   table of the set in order of increasing block values.
+
+    set.index(set) = setl4.sort.table(set.index(set),set.size(set),'+k')
+    set.next(set) =  set.high(set) = 0
+    set.low(set) = -1                               :(return)
 
 loop.end
-
 
     define('member(set,elem)kind,entry,i,key,this,value)') :(member.end)
 
@@ -975,7 +980,7 @@ new.kind
                                                     :($('new.' kind))
 new.int
     
-    new = set(table(1000),table(1000))
+    new = set(table(setl4.config.int.table),table(setl4.config.int.table))
     set.kind(new) = 'int'
 
 new.int.next
@@ -1094,7 +1099,7 @@ new.stack
 
 new.stack.end
 
-    define('next(set)block,kind,key,next,str,value'):(next.end)
+    define('next(set)block,i,kind,key,next,str,value'):(next.end)
 
 *   Advance iteration by setting field _next_.  Fail if no more elements remain.
 
@@ -1110,49 +1115,62 @@ next.int
 *   by incrementing _set.next_ until find element in the set.
 *   
 *   Iterate over blocks in turn. At the start, or when we have 
-*   looked at all possible elements in a block, advance to  
-*   the next block, saving its value in _set.text. Use _set.step_
-*   to track the number of the current block.
+*   looked at all possible elements in a block, advance to the next 
+*   block. Use _set.low to track the number of the current block.
+*   Use _set.high_ to keep track of last element found in current
+*   block.
 
 *   Iteration over empty set ends here and now.
 
-    eq(set.size(set))                               :s(freturn)
+    eq(set.size(set))                              :s(freturn)
+    ge(set.low(set))                               :s(next.int.find)
 
-    ge(set.step(set))                               :s(next.int.find)
+*   Here on first call to _next_ for a set of kind _int_. Set _set.low 
+*   to -1 so will access first block after incrementing _set.low below.
 
-*   Here on first call to _next_ for a set of kind _int_.
-*   Set _set.step_ to -1 so will access first block after
-*   incrementing _set.step_ below.
-
-    set.step(set) = -1
+    set.low(set) = -1
 
 next.int.block
 
 *   Here to advance to next block.
 
-    set.step(set) = set.step(set) + 1
-    out('next.int.block step',set.step(set))
-    block = set.index(set)[set.step(set)]
-    out('next.int.block',block)
+    set.low(set) = set.low(set) + 1
+    out('next.int.block low',set.low(set))
+    block = set.index(set)[set.low(set)]
+    out('next.int.block', (eq(block) '0', +block))
+    str = set.key(set)[block]
+    out('next.int str','[' str ']')
 
 *   Done if no more blocks.
 
-    ident(set.key(set)[block])                      :s(freturn)
+    ident(str)                                      :s(freturn)
 
-*   Here when first visiting a block.
+*   Here if this block may have an element in the set.
+*   If so, want to set _next_ to value corresponding to the element.
 
-    set.text(set) = set.key(set)[block]
-    out('next.int.text', set.text(set))
+*   If _set.high_ is nonzero, then it is the offset in _str_
+*   of the most recent member of the set, in which case
+*   look only at the remaining part of _str_ for the '+'
+*   that indicates membership
 
-next.int.find
+    str = ne(set.high(set)) lt(set.high(set),setl4.conig.int)
+.        substr(str,set.high(set) + 1)
+    str break('+') . key '+'                        :f(next.int.block)
+    next = 0
+    out('next.int start search str', '[' str ']')
 
-    break(set.text(set)) . key '+'                  :f(next.int.block)
+next.int.search
 
-*   Here if this block still has an element in the set.
-*   Set _next_ to value corresponding to the element found.
+    gt(next = next  + 1, setl4.config.int)          :s(freturn)
+    out('next.int.search next',next)
+    out('next.int.search' char,substr(str,next,1))
+    ident(substr(str,next,1),'+')                   :f(next.int.search)
+     
+*   Here with _next_ giving the index of next member within this block.
+*   Set _set.high_ to save the position where '+' indicating membership was found.
 
-    next = remdr(key,setl4.config.int)
-    next = set.next(set) = (block * setl4.config.int) + next 
+    set.high(set) = next
+    next = set.next(set) = (block * setl4.config.int) + next + set.high(set)
     out('next.int',next)
                                                     :(return)
 
@@ -1162,8 +1180,6 @@ next.iter
 
     next = set.next(set) = set.next(set) + set.step(set)
     le(next,set.high(set))                          :f(freturn)
-    set.this(set) = next
-    this = next                                     :(return)
 
 next.map
 next.set
@@ -1171,14 +1187,6 @@ next.set
     next = set.next(set) = set.next(set) + 1
     le(next,set.size(set))                          :f(freturn)
     next = set.index(set)[next]
-    set.this(set) = next
-    this = next                                     :(return)
-
-next.str
-
-    next = set.next(set) = set.next(set) + 1
-    le(next,set.size(set))                          :f(freturn)
-    next = substr(set.text(set),next,1)
     set.this(set) = next
     this = next                                     :(return)
 
@@ -1430,26 +1438,6 @@ show.iter
 
     show = '{iter: low ' set.low(v) ' high ' set.high(v) ' step ' set.step(v)  '} ' :(show.done)
 
-show.int
-
-*   Show sets of kind _int_ by looping through _set_text_ and showing characters which are not blank.
-
-    show = '{ int'
-    setl4.save(v)
-    loop(v)
-
-show.int.next
-
-    
-    i = next(v)                                     :f(show.int.done)
-    show = show ' ' show(i,,1)
-    lt(size(show),setl4.config.int)                 :s(show.int.next)
-
-show.int.done
-
-    setl4.restore(v)
-    show = show ' }'                                :(show.done)
-
 show.integer
 
     show = v                                        :(show.done)
@@ -1478,6 +1466,25 @@ show.pair
 
     show = '{' lineid(num(pair)) ',' "'"
 .                       replace(line(pair),' ','.') "'" '}' :(show.done)
+
+show.int
+
+    show = '{ int'
+    rank(v,'+k')
+    setl4.save(v)
+    loop(v)
+
+show.int.next
+
+    elem = next(v)                                :f(show.int.done)
+    show = show ' ' show(elem,,1)
+    lt(size(show),100)                            :s(show.int.next)
+    out(show)
+    show =                                        :(show.int.next)
+
+show.int.done
+
+    show = show ' }'                                :(show.done)
 
 show.set
 
@@ -1766,8 +1773,6 @@ setl4.show
     ne(set.low(set))       out('  low',           set.low(set))
     ne(set.high(set))      out('  high',          set.high(set))
     ne(set.step(set))      out('  step',          set.step(set))
-    differ(set.text(set))  out('  #text',         size(set.text(set)))
-    differ(set.text(set))  out('  text',          set.text(set))
                            out('}')
                                                     :(return)
 setl4.show.end
