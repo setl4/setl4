@@ -34,7 +34,10 @@
     add(zint, 3)
     add(zint, 3)
     add(zint, 5)
+    setl4.show(zint)
+    out('show index')
     show(set.index(zint))
+    out('show key')
     show(set.key(zint))
 *    &dump = 3
     show(zint)

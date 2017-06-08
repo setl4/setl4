@@ -404,7 +404,7 @@ add
 
 add.int
 
-*   out('add.int adding',elem)
+    out('add.int adding',elem)
 *   Here to test if _elem_ is already in set of kind _int_, 
 *   and otherwise to add new integer to the set.
 *   Set _block_ to the block for _elem_ and set _this_ to the
@@ -417,56 +417,56 @@ add.int
     block = elem / setl4.config.int
     this = +(remdr(elem,setl4.config.int) + 1)
     str = set.key(set)[block]
-*   out()
-*   out()
-*   out('add.int adding elem',elem)
-*   out('add.int block',block)
-*   out('add.int this',this)
-*   out('add.int str',str)
-*   ident(str) out('add.int null str')
+    out()
+    out()
+    out('add.int adding elem',elem)
+    out('add.int block',block)
+    out('add.int this',this)
+    out('add.int str',str)
+    ident(str) out('add.int null str')
     ident(str)                                  :s(add.int.new)
-*   out('add.int +',substr(str,this,1))
-*   ident(substr(str,this,1),'+') out('already in set',elem)
-*   ident(substr(str,this,1),'+') out()
+    out('add.int +',substr(str,this,1))
+    ident(substr(str,this,1),'+') out('already in set',elem)
+    ident(substr(str,this,1),'+') out()
     ident(substr(str,this,1),'+')               :s(return)f(add.int.update)
 
 add.int.new
 
 *   Create new block and merge to add the new element.
 
-*   out('at add.int.new')
-*   out('add.int before step update',set.step(set))
+    out('at add.int.new')
+    out('add.int before step update',set.step(set))
     set.step(set) = set.step(set) + 1
-*   out('add.int creating new block',set.step(set))
-*   out('add.int set size',set.size(set))
+    out('add.int creating new block',set.step(set))
+    out('add.int set size',set.size(set))
     set.index(set)[set.step(set)] = block
     set.key(set)[block] = setl4.config.int.init
-*   out('add.int new block',block)
+    out('add.int new block',block)
 
 add.int.update
     
-*   out('add.int.update')
+    out('add.int.update')
     set.size(set) = set.size(set) + 1
     str = set.key(set)[block]
-*   out('add.int.update block',+block)
-*   out('add.int old this-1 ',this - 1)
-*   out('add.int old str',str)
-*   ne(this) out('add.int first','[' substr(str,1,this - 1) ']')
+    out('add.int.update block',+block)
+    out('add.int old this-1 ',this - 1)
+    out('add.int old str',str)
+    ne(this) out('add.int first','[' substr(str,1,this - 1) ']')
     str = (ne(this) substr(str,1,this - 1),'') 
 .       '+' 
 .       (lt(this,setl4.config.int) substr(str,this + 1),'')
-*   out('add.int new str',str)
-*   out('add.int new block',block)
-*   out('add.int set.step',set.step(set))
-*   show(set.key(set))
-*   out('new str',str)
-*   out('block now',block)
-*   out()
-*   out('showing index')
-*   show(set.index(set))
+    out('add.int new str',str)
+    out('add.int new block',block)
+    out('add.int set.step',set.step(set))
+    show(set.key(set))
+    out('new str',str)
+    out('block now',block)
+    out()
+    out('showing index')
+    show(set.index(set))
 *   out('showing key')
 *   show(set.key(set))
-*   out()
+    out()
 *   out('dt set.key',datatype(set.key(set)))
 *   set.key(set)[block] = str
                                                 :(return)
@@ -1521,7 +1521,7 @@ show.int.next
 
     elem = next(v)                                :f(show.int.done)
     show = show ' ' show(elem,,1)
-    lt(size(show),100)                            :s(show.int.next)
+    lt(size(show),80)                            :s(show.int.next)
     out(show)
     show =                                        :(show.int.next)
 
@@ -1540,7 +1540,7 @@ show.set.next
 
     elem = next(v)                                :f(show.set.done)
     show = show ' ' show(elem,,1)
-    lt(size(show),100)                            :s(show.set.next)
+    lt(size(show),80)                            :s(show.set.next)
     out(show)
     show =                                        :(show.set.next)
 
@@ -1574,7 +1574,7 @@ show.table.next
 
     le(i = i + 1,n)                                 :f(show.table.done)
     show = show ' ' show(ara[i,1],,1) ':' show(ara[i,2],,1)    
-    lt(size(show),100)                              :s(show.table.next)
+    lt(size(show),80)                              :s(show.table.next)
     out(show)
     show =                                          :(show.table.next)
 
