@@ -458,15 +458,17 @@ add.int.update
 *   out('add.int new str',str)
 *   out('add.int new block',block)
 *   out('add.int set.step',set.step(set))
-*   set.key(set)[block] = str                       
-*   out('add.int new key value','[' set.key(set)[block] ']')
-
+*   show(set.key(set))
+*   out('new str',str)
+*   out('block now',block)
 *   out()
 *   out('showing index')
 *   show(set.index(set))
 *   out('showing key')
 *   show(set.key(set))
 *   out()
+*   out('dt set.key',datatype(set.key(set)))
+*   set.key(set)[block] = str
                                                 :(return)
 
 add.put
@@ -1138,13 +1140,13 @@ next
 
 next.int
 
-    out('next.int ',setl4.show(set))
-    out('at next.int')
-    out('show index')
-    show(set.index(set))
-    out()
-    out('show key')
-    show(set.key(set))
+*   out('next.int ',setl4.show(set))
+*   out('at next.int')
+*   out('show index')
+*   show(set.index(set))
+*   out()
+*   out('show key')
+*   show(set.key(set))
     block = set.index(set)[i]
     str = set.key(set)[block]
 
@@ -1170,11 +1172,11 @@ next.int.block
 
 *   Here to advance to next block.
 
-    out('at next.int.block')
+*   out('at next.int.block')
     i = i + 1
-    out('next.int.block i',i)
+*   out('next.int.block i',i)
     block = set.index(set)[i]
-    out('next.int block next block', (eq(block) '0', +block))
+*   out('next.int block next block', (eq(block) '0', +block))
 *   setl4.show(set)
 
 *   Done if no more blocks.
@@ -1182,7 +1184,7 @@ next.int.block
 *   show(set.index(set))
 *   show(set.key(set))
     str = set.key(set)[set.index(set)[i]]
-    out('next.int str','[' str ']')
+*   out('next.int str','[' str ']')
     ident(str)                                      :s(freturn)
 
 *   Here if this block may have an element in the set.
@@ -1193,18 +1195,18 @@ next.int.block
 *   look only at the remaining part of _str_ for the '+'
 *   that indicates membership
 
-    out('next.int.block str ','[' str ']')
+*   out('next.int.block str ','[' str ']')
     str = ne(set.high(set)) lt(set.high(set),setl4.conig.int)
 .        substr(str,set.high(set) + 1)
     str break('+') . key '+'                        :f(next.int.block)
     next = 0
-    out('next.int start search str', '[' str ']')
+*   out('next.int start search str', '[' str ']')
 
 next.int.search
 
     gt(next = next  + 1, setl4.config.int)          :s(freturn)
-    out('next.int.search next',next)
-    out('next.int.search' char,substr(str,next,1))
+*   out('next.int.search next',next)
+*   out('next.int.search' char,substr(str,next,1))
     ident(substr(str,next,1),'+')                   :f(next.int.search)
      
 *   Here with _next_ giving the index of next member within this block.
@@ -1212,7 +1214,7 @@ next.int.search
 
     set.high(set) = next
     next = set.next(set) = (block * setl4.config.int) + next + set.high(set)
-    out('next.int',next)
+*   out('next.int',next)
                                                     :(return)
 
 next.iter
