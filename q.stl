@@ -6,7 +6,9 @@
     out("int(1e6",int('1e6'))
     out()
     out()
+
     out('Test int')
+
     int = new('int')
 
 *   Mix up order in which elements added, as a test
@@ -33,6 +35,7 @@
     add(int, 3)
     add(int, 3)
     add(int, 5)
+
     setl4.show(int)
     show.eval("member(int,5)")
     show.eval("member(int,6)")
@@ -43,6 +46,8 @@
     &dump = 3
     show(int)
     out()
+    out()
+
     out('Test iteration')
     
 test.int
