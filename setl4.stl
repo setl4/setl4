@@ -454,7 +454,7 @@
 *   SETL4 Function Definitions
 *   --------------------------
 
-    define('add(set,elem)')                        :(add.end)
+    define('add(set,elem)str')                  :(add.end)
 
 *   Add _elem_ to set _set_ if not already present.
 *   If _elem_ is a sequence, then add all the elements in the
@@ -488,31 +488,45 @@ add.int
 *
 *   _Elem_ is not a member if the block is null. Otherwise see
 *   if the character corresponding to _elem_ is '+'.
-
+    out()
+    out('add.int elem',elem)
     set.block(set) = elem / setl4.config.int
     set.offset(set) = +(remdr(elem,setl4.config.int) + 1)
-    set.str(set) = set.key(set)[set.block(set)]
-    ident(set.str(set))                                  :s(add.int.new)
-    ident(substr(set.str(set),set.offset(set),1),'+')    :s(return)f(add.int.update)
+    str = set.key(set)[set.block(set)]
+    out('add.int block',set.block(set))
+    out('add.int offset',set.offset(set))
+    out('add.int str',set.str(set))
+    ident(str)                                      :s(add.int.new)
+    ident(substr(str,set.offset(set),1),'+')        :s(return)f(add.int.update)
 
 add.int.new
 
 *   Create new block and then merge to add the new element.
 
+    out('add.int.new')
     set.blocks(set) = set.blocks(set) + 1
     set.index(set)[set.blocks(set)] = set.block(set)
-    set.key(set)[block] = setl4.config.int.init
+    str = setl4.config.int.init
+    out('add.int.new str',str)
 
 add.int.update
     
     set.size(set) = set.size(set) + 1
-    set.str(set) = set.key(set)[block]
-    set.str(set) = ne(set.offset(set)) 
-            substr(set.str(set),1,set.offset(set) - 1)
+    out('add.int before update',str)
+    str = eq(set.offset(set),1) '+' substr(str,2)   :s(add.int.finis)
+    str = substr(str,1,set.offset(set) - 1)
 .          '+' 
-.          substr(str,set.offset(set) + 1)
-    set.str(set) = eq(set.offset(set)) '+' substr(set.str(set),2)
+.          (ne(set.offset(set),setl4.config.int) substr(str,set.offset(set) + 1),'')
+
+add.int.finis
+
+    set.str(set) = str
+    out('add.int after update',set.str(set))
     set.key(set)[set.block(set)] = set.str(set)
+                                                    :(return)
+
+add.init.error
+    error('failure updating add.int str')
                                                 :(return)
 
 add.put
