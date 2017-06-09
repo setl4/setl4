@@ -404,7 +404,6 @@ add
 
 add.int
 
-    out('add.int adding',elem)
 *   Here to test if _elem_ is already in set of kind _int_, 
 *   and otherwise to add new integer to the set.
 *   Set _block_ to the block for _elem_ and set _this_ to the
@@ -417,58 +416,25 @@ add.int
     block = elem / setl4.config.int
     this = +(remdr(elem,setl4.config.int) + 1)
     str = set.key(set)[block]
-    out()
-    out()
-    out('add.int adding elem',elem)
-    out('add.int block',block)
-    out('add.int this',this)
-    out('add.int str',str)
-    ident(str) out('add.int null str')
     ident(str)                                  :s(add.int.new)
-    out('add.int +',substr(str,this,1))
-    ident(substr(str,this,1),'+') out('already in set',elem)
-    ident(substr(str,this,1),'+') out()
     ident(substr(str,this,1),'+')               :s(return)f(add.int.update)
 
 add.int.new
 
 *   Create new block and merge to add the new element.
 
-    out('at add.int.new')
-    out('add.int before step update',set.step(set))
     set.step(set) = set.step(set) + 1
-    out('add.int creating new block',set.step(set))
-    out('add.int set size',set.size(set))
     set.index(set)[set.step(set)] = block
     set.key(set)[block] = setl4.config.int.init
-    out('add.int new block',block)
 
 add.int.update
     
-    out('add.int.update')
     set.size(set) = set.size(set) + 1
     str = set.key(set)[block]
-    out('add.int.update block',+block)
-    out('add.int old this-1 ',this - 1)
-    out('add.int old str',str)
-    ne(this) out('add.int first','[' substr(str,1,this - 1) ']')
     str = (ne(this) substr(str,1,this - 1),'') 
 .       '+' 
 .       (lt(this,setl4.config.int) substr(str,this + 1),'')
-    out('add.int new str',str)
-    out('add.int new block',block)
-    out('add.int set.step',set.step(set))
-    show(set.key(set))
-    out('new str',str)
-    out('block now',block)
-    out()
-    out('showing index')
-    show(set.index(set))
-*   out('showing key')
-*   show(set.key(set))
-    out()
-*   out('dt set.key',datatype(set.key(set)))
-*   set.key(set)[block] = str
+    set.key(set)[block] = str
                                                 :(return)
 
 add.put
@@ -911,17 +877,17 @@ loop.int
 
     out('loop.int')
     setl4.show(set)
-*   out()
-*   out('showing index')
-*   show(set.index(set))
-*   out('showing key')
-*   show(set.key(set))
+    out()
+    out('showing index')
+    show(set.index(set))
+    out('showing key')
+    show(set.key(set))
 *   out()
                                                      :(return)
 
 loop.end
 
-    define('member(set,elem)kind,entry,i,key,this,value)') :(member.end)
+    define('member(set,elem)kind,entry,i,key,this,value,block)') :(member.end)
 
 *   Tests if _elem_ is member of _set_.
 
@@ -943,18 +909,11 @@ member.int
 *   in the set. Otherwise see if character corresponding to the
 *   value of _elem_ is '+'.
 
-    key = set.key(set)[(elem - 1) / setl4.config.int]
-    ident(key)                                      :s(freturn)
-    i = remdr(elem,setl4.config.int)
-    i = eq(i) setl4.config.int
-    ident(substr(key,i,1),'+')                      :s(return)f(freturn)
-
-*   Here to test set membership. Set _key_ to the block for element _elem_,
-*   and use BREAK to test membership within the block.
-
-    key = set.key(set)[(member / setl4.config.int) + 1]  :s(freturn)
-    ident(key)                                      :s(freturn)
-    key break('+')                                  :s(return)f(freturn)
+    block = elem / setl4.config.int
+    this = +(remdr(elem,setl4.config.int) + 1)
+    value = set.key(set)[block]
+    ident(value)                                      :s(freturn)
+    ident(substr(value,this,1),'+')                   :s(return)f(freturn)
 
 member.iter
 
@@ -1561,9 +1520,6 @@ show.table
     show = 'table ['
     ara = convert(v,'array')                        :f(show.table.error)
     i = 0
-*   out('table prototype ara',prototype(ara))
-*   prototype(ara) break(',') . n                   
-*   out('show.table n',n)
     prototype(ara) break(',') . n                   :(show.table.next)
 
 show.table.error

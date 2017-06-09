@@ -35,12 +35,14 @@
     add(zint, 3)
     add(zint, 5)
     setl4.show(zint)
+    show.eval("member(zint,5)")
+    show.eval("member(zint,6)")
     out('show index')
     show(set.index(zint))
     out('show key')
-    show(set.key(zint))
+     show(set.key(zint))
 *    &dump = 3
-    show(zint)
+*    show(zint)A
 end
     add(Int, 10000)
     add(Int, 100000)
