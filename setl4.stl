@@ -232,31 +232,46 @@
 *   Set Data Type
 *   -------------
 
-*   A set is defined by the following datatype:
+*   A set is a collection unequall objects, and
+*   is represented by the datatype _set_:
 
-    data('set(set.index,set.key,set.kind,set.size,iter.next,iter.low,iter.high,iter.step,set.seq,iter.this)')
+    data('set(set.index,set.key,set.kind,set.size,set.next,set.this,'
+.        'set.block,set.blocks,set.offset,set.str)')
 
 *   where
 
 *           _set.index_         SPITBOL table used to map the integer
 *                               id assigned each element to the value of the element.
-*                               It is needed to support fast iteration.
+*                               It is needed to support iteration.
 
 *           _set.key_           SPITBOL table mapping set elements to index entries.
 
 *           _set.kind_          is the kind of the set, one of 'set', 'map', of 'int'. 
 *                               The kind is  specified when the set is created. 
 *                               The default kind is 'set'.
+*           _set.next_          Result returned by _next_ during iteration over set.
 
 *           _set.size_          the current number of members.
 
+*           _set.this_          the last value returned by the _next_ primitive
 
-*   Both _set.index_ and _set_key_ tables are needed. New elements in the set are assigned
-*   an integer id. The table _set.index_ maps the id to a key. The table _set.key_ maps
-*   a key to its associate value.
 
-*   The _set.index_ table is used to iterate over the set. The _set.key_ table is used
-*   to retrieve element values.
+*   The following fields are used only for sets of kind 'int':
+
+*           _set.block_         block 
+
+*           _set.blocks_        number of blocks
+
+*           _set.offset_        offset within block corresponding to a given integer
+
+*           _set.str_           used to update the current block's membersip string
+
+
+*   New elements in the set are assigned an integer id.
+*   The table _set.index_ maps the id to a key;
+*   it is used to iterate over the set.
+*   The table _set.key_ maps a key to its associated value;
+*   it is used to retrieve element values.
 
 *   Sets of integers
 *   ----------------
@@ -302,48 +317,74 @@
 *   ----------------
 
 *   Iterators are used to iterate over a range of integers, over a set, or over a map.
+*   Loops in SPITBOL have the form of a test followed by the loop body,
+*   with the body with a branch back to the test.
 
-    data('iterator(iter.kind,iter.next,iter.low,iter.high,iter.step,iter.block,'
-.                   'iter.blocks,iter.offset,iter.str,iter.next.block,iter.next.offset,iter.next.str)')
+*  For example, here is a loop to print the first one hundred integers:
 
-*           _iter.kind_         kind of iterator: one of the following:
+*```
+*test
+*       i = i + 1
+*       le(i,100)                       :f(done)
+*       output = i                      :(test)
+*done
+*```
 
-*               'iter'          integers _low_, _low_ + step, _low_ + 2*_step_, ... _high_
-*               'set'           iteration over set
-*               'int'           iteration of set of kind 'int'
+*   This can also be written as:
 
-*           _iter.next           is iteration index when iterating over set
+*```
+*test
+*       output = le(i = i + 1,100) i    :s(test)
+*```
+
+*   The same loop is written in SETL4 as:
+
+*```
+*   set = integers(100)
+*   loop(set)
+*next
+*   output = next(set)                  :s(test)
+*```
+
+*   On return from a successful call to _next_,
+*   the field _set.this_ of the set, and the
+*   variable _this_, are each set to the result returned
+*   by _next_, so the SETL4 loop could also be written as:
+
+*```
+*   set = integers(100)
+*   loop(set)
+*next
+*   this = next(set)                  :f(done)
+*   output = this                     :s(test)
+*done
+*```
+
+*   The datatpe _iterator_ is used to manage iteration:
+
+    data('iterator(iter.kind,iter.next,iter.low,iter.high,iter.step,set.block,'
+.                   'set.blocks,set.offset,set.str,set.block,set.offset,set.str)')
+*   where
+
+*   _iter.kind_         kind of iterator: one of the following:
+    
+*       'iter'          integers _low_, _low_ + step, _low_ + 2*_step_, ... _high_
+*       'set'           iteration over set
+*       'int'           iteration of set of kind 'int'
+
+*   _iter.next           is iteration index when iterating over set
 *                               when iterating over a 
 
 *   The following fields are used to iterate over a range:
 
-*           _iter.low_           lower bound of _int_ 
+*   _iter.low_           lower bound of _int_ 
 
-*           _iter.high_          upper bound of _int_ 
+*   _iter.high_          upper bound of _int_ 
 
-*           _iter.step_          number of values between members of set of kind _int_.
+*   _iter.step_          number of values between members of set of kind _int_.
 
-*           _iter.this_          the last value returned by the _next_ primitive
 
-*   The following fields are used only for sets of kind 'int':
-
-*           _iter.block_         block 
-
-*           _iter.blocks_        number of blocks
-
-*           _iter.offset_        offset within block corresponding to a given integer
-
-*           _iter.str_           string for _iter.block_
-
-*           _iter.next.block_    current block
-
-*           _iter.next.offset_   current offset
-
-*           _iter.next.str_      current block's membersip string
-
-*   Iterators are created by the function _loop_.
-
-*   Additional operations provided as an artifact of the implementation
+*   Additional Operations Provided as an Artifact of the Implementation
 *   -------------------------------------------------------------------
 *   
 *   The use of the tables _set.index_ and _set.key_ to implement a set makes it
@@ -448,28 +489,30 @@ add.int
 *   _Elem_ is not a member if the block is null. Otherwise see
 *   if the character corresponding to _elem_ is '+'.
 
-    iter.block(set) = elem / setl4.config.int
-    iter.offset(set) = +(remdr(elem,setl4.config.int) + 1)
-    iter.str(set) = set.key(set)[iter.block(set)]
-    ident(iter.str(set))                                  :s(add.int.new)
-    ident(substr(iter.str(set),iter.offset(set),1),'+')    :s(return)f(add.int.update)
+    set.block(set) = elem / setl4.config.int
+    set.offset(set) = +(remdr(elem,setl4.config.int) + 1)
+    set.str(set) = set.key(set)[set.block(set)]
+    ident(set.str(set))                                  :s(add.int.new)
+    ident(substr(set.str(set),set.offset(set),1),'+')    :s(return)f(add.int.update)
 
 add.int.new
 
-*   Create new block and merge to add the new element.
+*   Create new block and then merge to add the new element.
 
-    iter.blocks(set) = iter.blocks(set) + 1
-    set.index(set)[iter.blocks(set)] = iter.block(set)
+    set.blocks(set) = set.blocks(set) + 1
+    set.index(set)[set.blocks(set)] = set.block(set)
     set.key(set)[block] = setl4.config.int.init
 
 add.int.update
     
     set.size(set) = set.size(set) + 1
-    iter.str(set) = set.key(set)[block]
-    iter.str(set) = (ne(iter.offset(set)) substr(iter.str(set),1,iter.offset(set) - 1),'') 
-.       '+' 
-.       (lt(this,setl4.config.int) substr(str,iter.offset(set) + 1),'')
-    set.key(set)[iter.block(set)] = iter.str(set)
+    set.str(set) = set.key(set)[block]
+    set.str(set) = ne(set.offset(set)) 
+            substr(set.str(set),1,set.offset(set) - 1)
+.          '+' 
+.          substr(str,set.offset(set) + 1)
+    set.str(set) = eq(set.offset(set)) '+' substr(set.str(set),2)
+    set.key(set)[set.block(set)] = set.str(set)
                                                 :(return)
 
 add.put
@@ -906,7 +949,7 @@ loop
 
 loop.int
 
-    iter.next(iter) = iter.next.block(iter) = iter.next.offset(iter) = 0 :(return)
+    iter.next(iter) = set.block(iter) = set.offset(iter) = 0 :(return)
 
 loop.end
 
@@ -1111,7 +1154,7 @@ new.stack
 
 new.stack.end
 
-    define('next(iter.block,i,kind,key,next,str,value'):(next.end)
+    define('next(set)i,kind,key,next,str,value')    :(next.end)
 
 *   Advance iteration by setting field _next_.  Fail if no more elements remain.
 
@@ -1124,14 +1167,14 @@ next
 next.int
 
 *   Iteration over a set    of kind 'int' makes use of the following fields:
-*       iter.next.block      is current block for iteration
-*       iter.next.offset     is zero if this block not search, or else index of an
+*       set.block      is current block for iteration
+*       set.offset     is zero if this block not search, or else index of an
 *                           element of the set in this block
-*       iter.next.str        is set to the string of a block when advance to it.
+*       set.str        is set to the string of a block when advance to it.
 
-*   Branch to get first block if _iter.next.str_ is null.
+*   Branch to get first block if _set.str_ is null.
 
-    ident(iter.next.str(set))                    :s(next.int.block)
+    ident(set.str(set))                    :s(next.int.block)
 
 next.int.test
 
@@ -1141,22 +1184,23 @@ next.int.block
 
 *   Here to advance to next block, ending iteration if no more remain.
 
-    iter.next.block(set) = iter.next.block(set) + 1
-    gt(iter.next.block(set),iter.blocks(set))     :s(freturn)
-    iter.next.str(set) = set.key(set)[set.index(set)[iter.next.block(set)]]
-    str = iter.next.str(set)
+    set.block(set) = set.block(set) + 1
+    gt(set.block(set),set.blocks(set))     :s(freturn)
+    set.str(set) = set.key(set)[set.index(set)[set.block(set)]]
+    str = set.str(set)
     str break('+') . key                        :f(next.int.block)
 
 *   Here when member found. Clear the membership character and return.
 
-    str =
-.           (gt(size(kind) substr(iter.next.str(set),1,size(kind)),'')
-.           '-'
-.           (lt(size(kind),setl4.config.int - 1) substr(iter.next.str(set),size(kind) + 1,0)))
-    iter.next.str(set) = str
-    next = (iter.next.block(set) * setl4.config.int) + size(key)
+    set.str(set) = set.key(set)[block]
+    set.str(set) = ne(set.offset(set)) 
+.           substr(set.str(set),1,set.offset(set) - 1,'-','+')
+.          '+' 
+.          substr(str,set.offset(set) + 1)
+    set.str(set) = str
+    next = (set.block(set) * setl4.config.int) + size(key)
     out('next.int returns',next)
-    iter.this(set) = next
+    set.this(set) = next
     this = next                                 :(return)
 
 next.iter
@@ -1173,7 +1217,7 @@ next.set
     next = iter.next(set) = iter.next(set) + 1
     le(next,set.size(set))                          :f(freturn)
     next = set.index(set)[next]
-    iter.this(set) = next
+    set.this(set) = next
     this = next                                     :(return)
 
 next.end
@@ -1379,7 +1423,7 @@ rank.string
 
 rank.end
 
-    define('show(v,label,nested)ara,i,kind,elem,ent,line,hdr,map,n,iter.this') :(show.end)
+    define('show(v,label,nested)ara,i,kind,elem,ent,line,hdr,map,n,set.this') :(show.end)
 
 *   Show the value of expression _v_.
 *   _lev_ is non-zero when called to list element of a compound object.
@@ -1390,7 +1434,7 @@ show
     differ(label) out('show: ' upper(label))
     differ(datatype(v),'set')                       :s($('show.' datatype(v)))
 
-*   When showing a set, save _iter.next_ and _iter.this_ to avoid
+*   When showing a set, save _iter.next_ and _set.this_ to avoid
 *   disrupting possible existing iteration over the set.
     
     kind = set.kind(v)
@@ -1642,7 +1686,7 @@ subset.end
 
 this
 
-    this = iter.this(set)                            :(return)
+    this = set.this(set)                            :(return)
 
 this.end
 
@@ -1724,12 +1768,12 @@ setl4.clear.end
 
 *   Restore _next_ and _this_ fields of argument.
 
-    iter.this(s) = pop(setl4.stack)
+    set.this(s) = pop(setl4.stack)
     iter.next(s) = pop(setl4.stack)                 :(return)
 
 setl4.restore
 
-    iter.this(s) = pop(setl4.stack)
+    set.this(s) = pop(setl4.stack)
     iter.next(s) = pop(setl4.stack)                  
     set.index(s) = pop(setl4.stack)                :(return)
 
@@ -1743,26 +1787,35 @@ setl4.save
 
     push(setl4.stack,set.index(s))
     push(setl4.stack,iter.next(s))
-    push(setl4.stack,iter.this(s))                   :(return)
+    push(setl4.stack,set.this(s))                   :(return)
 
 setl4.save.end
 
     define('setl4.show(set,label)')                 :(setl4.show.end)
 
-*   Show the fields of an instance of _set_.
+*   Show the fields of an instance of _set_ or _iterator_.
 
 setl4.show
 
     differ(label)          out(' setl4.show: '         str.upper(label))
+    ident(datatype(set),'set')                      :s(setl4.show.set)
+    ident(datatype(set),'iterator')                 :s(setl4.show.iterator)
+
+setl4.show.iterator
+
+                            out('  kind'    iter.kind(set))
+                            out('  next',   show(iter.next(set)))
+    ne(iter.low(set))       out('  low',    iter.low(set))
+    ne(iter.high(set))      out('  high',   iter.high(set))
+    ne(iter.step(set))      out('  step',   iter.step(set))
+                                                    :(return)
+setl4.show.set
                            out('{')
                            out('  kind',          set.kind(set))
     differ(set.index(set)) out('  has index table')
     differ(set.key(set))   out('  has key table')
     ne(set.size(set))      out('  size',          set.size(set))
-    differ(iter.next(set))  out('  next',          iter.next(set))
-    ne(iter.low(set))       out('  low',           iter.low(set))
-    ne(iter.high(set))      out('  high',          iter.high(set))
-    ne(iter.step(set))      out('  step',          iter.step(set))
+    differ(set.next(set))  out('  next',          iter.next(set))
                            out('}')
                                                     :(return)
 setl4.show.end
@@ -2075,7 +2128,7 @@ odd
 
 odd.end
 
-    define('prime(n)iter,this')                 :(prime.end)
+    define('prime(n)set.this')                 :(prime.end)
 
 *   Tests if _n_ is a prime integer.
 
@@ -2088,7 +2141,7 @@ prime
 
 prime.end
 
-    define('primes(n)iter,this')                :(primes.end)
+    define('primes(n)set.this')                :(primes.end)
 
 *   Returns set of primes less than _n_.
 

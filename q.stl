@@ -1,5 +1,3 @@
-*-include '../setl4.stl'
--include 'setl4.stl'
 
     out('Test int()')
 
@@ -7,63 +5,51 @@
     out("int(1e6",int('1e6'))
     out()
     out()
-    out('Test zint')
-    zint = new('int')
+    out('Test int')
+    int = new('int')
 
 *   Mix up order in which elements added, as a test
 *   that blocks properly reordered for iteration.
 
-    add(zint, 1)
-    add(zint, 100000000)
-    add(zint, 100000003)
-    add(zint, 10000001)
-    add(zint, 100001)
-    add(zint, 100003)
-    add(zint, 10001)
-    add(zint, 10003)
-    add(zint, 10000003)
-    add(zint, 100000099)
-    add(zint, 1000001)
-    add(zint, 100000101)
-    add(zint, 1000003)
-    add(zint, 1001)
-    add(zint, 1003)
-    add(zint, 101)
-    add(zint, 103)
-    add(zint, 19)
-    add(zint, 3)
-    add(zint, 3)
-    add(zint, 5)
-    setl4.show(zint)
-    show.eval("member(zint,5)")
-    show.eval("member(zint,6)")
+    add(int, 1)
+    add(int, 100000000)
+    add(int, 100000003)
+    add(int, 10000001)
+    add(int, 100001)
+    add(int, 100003)
+    add(int, 10001)
+    add(int, 10003)
+    add(int, 10000003)
+    add(int, 100000099)
+    add(int, 1000001)
+    add(int, 100000101)
+    add(int, 1000003)
+    add(int, 1001)
+    add(int, 1003)
+    add(int, 101)
+    add(int, 103)
+    add(int, 19)
+    add(int, 3)
+    add(int, 3)
+    add(int, 5)
+    setl4.show(int)
+    show.eval("member(int,5)")
+    show.eval("member(int,6)")
     out('show index')
-    show(set.index(zint))
+    show(set.index(int))
     out('show key')
-     show(set.key(zint))
-*    &dump = 3
-*    show(zint)A
-end
-    add(Int, 10000)
-    add(Int, 100000)
-    add(Int, 1000000)
-    add(Int, 10000000)
-    add(Int, 100000000)
-    add(Int, 1000000000)
-    add(Int, 10000000000)
-    out()
-    out('expect success')
-    show.eval("member(Int,100000')")
-    out('expect failure')
-    show.eval("member(Int,100001')")
+    show(set.key(int))
+    &dump = 3
+    show(int)
     out()
     out('Test iteration')
     
-test.zint
+test.int
     
-    n = next(zint)           :f(test.zint.done)
-    out(n)                  :(test.zint)
+    n = next(int)           :f(test.int.done)
+    out(n)                  :(test.int)
 
-test.zint.done
+test.int.done
+
 end
 
