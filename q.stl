@@ -44,7 +44,7 @@
     out('show key')
     show(set.key(int))
     &dump = 3
-    show(int)
+*   show(int)
     out()
     out()
 

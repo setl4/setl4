@@ -444,35 +444,33 @@ produces `{ set 'a' 'b' 'c' }`, not `{set 'b' 'c' 'a' }`.
 *   In addition to set-theoretic functions SETL4 provides 
 *   the following utility functions.
 
--  `cardinal(n)`                Returns 'one' if _n_ is one, else _number(n)_ followed by 's'.
--  `dictionary(filename)`       Returns set of the (approximately 170,000) words in the ENABLE word list.
--  `even(n)`                    Tests if _n_ is even
--  `factorial(n)`               Returns n!  = n * (n -1) * ... * 1
--  `multiple(n,m)`              Tests if _n_ is a multiple of _m_
--  `number(n)`                  Returns _n_ as one or two words if possible, else returns _n_
--  `odd(n)`                     Tests if _n_ is odd
--  `prime(n)`                   Tests if _n_ is prime
--  `primes(n)`                  Returns set of primes less than _n_
--  `square.root(n)`             Returns integer square root on _n_
--  `thousands(s)
 -  `append(str,w,ch)`           Appends _ch_ (or space if _ch_ is null) to _str_, then appends _w_
 -  `ascii(line)`                Returns the text of line with every ascii character identified
 -  `datename(date)`             Returns string based on current time suitable for use as filename
 -  `digits()`                   Returns list of digits: '0 1 2 .. 9'
--  `frequency(str)`             Returns map giving frequency of characters in _str_
+-  `dictionary(filename)`       Returns set of the (approximately 170,000) words in the ENABLE word list.
+-  `even(n)`                    Tests if _n_ is even
+-  `factorial(n)`               Returns n!  = n * (n -1) * ... * 1
 -  `letters()`                  Returns list of letters : 'a b c ... z A B ... Z''
 -  `less(str,sub)`              Removes the first instance of each character in _sub_ from _str_,
 -  `lletters()`                 Returns list of lower case letters : 'a b c ... z'
 -  `lower(s)`                   Returns _s_ with upper case letters replaced by lower case equivalent
--  `out(text1,text2,text3)`     Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null,
 -                               then _text3_ if _text3_ is not null.
+-  `multiple(n,m)`              Tests if _n_ is a multiple of _m_
+-  `number(n)`                  Returns _n_ as one or two words if possible, else returns _n_
+-  `odd(n)`                     Tests if _n_ is odd
+-  `out(text1,text2,text3)`     Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null,
 -  `prefix(str,pre)`            Takes a list of space-separated words in _str_ and prefixes each
+-  `prime(n)`                   Tests if _n_ is prime
+-  `primes(n)`                  Returns set of primes less than _n_
 -  `                            with the string _pre_
 -  `reader(filename,expr)`      Returns sequence of lines in file _filename_, using _expr_ (if given)
 -                               to filter out lines to be ignored.
 -  `reader(str,delim)`          Like _reader(filename..)_ but reads lines from a string with lines
--  `                                separated by delimiter _delim_
 -  `slice(str,first,last)`      Same as SPITBOL _substr(str,first,last)_
+-  `square.root(n)`             Returns integer square root on _n_
+-  `thousands(s)
+-  `                                separated by delimiter _delim_
 -  `tokens(line)`               Returns sequence of the tokens in _line_
 -  `uletters()`                 Returns list of upper case letters : 'A B C ... Z''
 -  `upper(s)`                   Returns _s_ with lower case letters replaced by upper case equivalent

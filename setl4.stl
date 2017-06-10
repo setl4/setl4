@@ -456,13 +456,12 @@
 *   SETL4 Function Definitions
 *   --------------------------
 
-    define('add(set,elem)str')                  :(add.end)
+    define('add(set,elem)ara,i,n,str')              :(add.end)
 
-*   Add _elem_ to set _set_ if not already present.
-*   If _elem_ is a sequence, then add all the elements in the
-*   sequence to the set. If _elem_ is an interator ('iter')
-*   then add all the elements of the iterator to the set.
-
+*   If _elem_ is a sequence, add all its elements to _set_.
+*   If _elem_ is an interator ('iter'), add all its elements to _set_.
+*   If _elem_ in an array, add all its values in the first column to _set_.
+*   Otherwise, add _elem_ to _set_.
 
 add
 
@@ -472,13 +471,19 @@ add
     elem = ident(datatype(elem),'string') eval(elem)
     elem = integer(elem) +elem
 
+    ident(datatype(set),'array')                    :s(add.array)
     ident(set.kind(set),'int')                      :s(add.int)
-    
-*   If  _kind_ is 'map', then we are adding new element to  sequence.
-
     ident(set.kind(set),'map')                      :s(add.seq)
     ident(set.kind(set),'set')                      :s(add.set)
     error('unexpected kind to add:' set.kind(set))
+
+add.array
+
+*   Here to add the values in an array to the set.
+
+add.array.next
+
+    add(set,elem[i = i + 1])                        :s(add.array.next)f(return)
 
 add.int
 
@@ -494,6 +499,8 @@ add.int
 *   out('add.int elem',elem)
     set.block(set) = elem / setl4.config.int
     set.offset(set) = +(remdr(elem,setl4.config.int) + 1)
+*   Add _elem_ to set _set_ if not already present.
+*
     str = set.key(set)[set.block(set)]
 *   out('add.int block',set.block(set))
 *   out('add.int offset',set.offset(set))
@@ -1147,12 +1154,11 @@ new.set
 
 new.iter.next
 
-    init break(' ') . key span(' ') =               :f(new.set.done)
+    init break(' ') . key span(' ') =               :f(return)
     add(new,key)                                    :(new.iter.next)
 
 new.set.done
 
-*   Clear _next_ field as it was set during loop above.
 
     iter.next(new) =                                 :(return)
 
@@ -1544,13 +1550,13 @@ show.set
     setl4.save(v)
     loop(v)
 
-show.iter.next
+show.set.next
 
     elem = next(v)                                :f(show.set.done)
     show = show ' ' show(elem,,1)
-    lt(size(show),80)                            :s(show.iter.next)
+    lt(size(show),100)                            :s(show.set.next)
     out(show)
-    show =                                        :(show.iter.next)
+    show =                                        :(show.set.next)
 
 show.set.done
 
@@ -2024,184 +2030,35 @@ opsyn.bypass
 *   In addition to set-theoretic functions SETL4 provides 
 *   the following utility functions.
 
-*   cardinal(n)                 Returns 'one' if _n_ is one, else _number(n)_ followed by 's'.
-*   dictionary                  Returns set of the (approximately 170,000) words in the ENABLE word list.
-*   even(n)                     Tests if _n_ is even
-*   factorial(n)                Returns n!  = n * (n -1) * ... * 1
-*   multiple(n,m)               Tests if _n_ is a multiple of _m_
-*   number(n)                   Returns _n_ as one or two words if possible, else returns _n_
-*   odd(n)                      Tests if _n_ is odd
-*   prime(n)                    Tests if _n_ is prime
-*   primes(n)                   Returns set of primes less than _n_
-*   square.root(n)              Returns integer square root on _n_
-*   thousands(s)
-*   append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then appends _w_
+*   append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then _w_
 *   ascii(line)                 Returns the text of line with every ascii character identified
 *   datename(date)              Returns string based on current time suitable for use as filename
+*   dictionary                  Returns set of the (approximately 170,000) words in the ENABLE word list.
 *   digits()                    Returns list of digits: '0 1 2 .. 9'
-*   frequency(str)              Returns map giving frequency of characters in _str_
+*   even(n)                     Tests if _n_ is even
+*   factorial(n)                Returns n!  = n * (n -1) * ... * 1
 *   letters()                   Returns list of letters : 'a b c ... z A B ... Z''
 *   less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
 *   lletters()                  Returns list of lower case letters : 'a b c ... z'
 *   lower(s)                    Returns _s_ with upper case letters replaced by lower case equivalent
+*   multiple(n,m)               Tests if _n_ is a multiple of _m_
+*   number(n)                   Returns _n_ as one or two words if possible, else returns _n_
+*   odd(n)                      Tests if _n_ is odd
 *   out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null,
-*                               then _text3_ if _text3_ is not null.
-*   prefix(str,pre)             Takes a list of space-separated words in _str_ and prefixes each
-*                               with the string _pre_
+*   prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_
+*   prime(n)                    Tests if _n_ is prime
+*   primes(n)                   Returns set of primes less than _n_
 *   reader(filename,expr)       Returns sequence of lines in file _filename_, using _expr_ (if given)
-*                               to filter out lines to be ignored.
-*   reader(str,delim)           Like _reader(filename..)_ but reads lines from a string with lines
-*                                   separated by delimiter _delim_
 *   slice(str,first,last)       Same as SPITBOL _substr(str,first,last)_
+*   reader(str,delim)           Like _reader(filename..)_ but reads lines from a string with lines
+*   square.root(n)              Returns integer square root on _n_
+*   thousands(s)                Returns _s_ with a comma every three spaces from the right.
+*                               to filter out lines to be ignored.
+*                                   separated by delimiter _delim_
 *   tokens(line)                Returns sequence of the tokens in _line_
 *   uletters()                  Returns list of upper case letters : 'A B C ... Z''
 *   upper(s)                    Returns _s_ with lower case letters replaced by upper case equivalent
 *   writer(lines)               Writes sequence _lines_ to standard output.
-
-    define('cardinal(n,word)')           :(cardinal.end)
-
-*   If _n_ is one, returns 'one' followed by _word_.
-*   Otherwise returns _number(n)_ followed by _word_ and the letter 's'.
-
-cardinal
-
-    cardinal = (eq(n,1) 'one ' word, number(n) ' '  word 's'):(return)
-
-cardinal.end
-
-	define('dictionary(filename)file,word')	    :(dictionary.end)
-
-*	Initialize the global dictionary dictionary.
-
-dictionary
-
-    dictionary = new('set')
-    set.index(dictionary)  =    table(10000)
-    set.key(dictionary)  =      table(10000)
-    
-
-*	Read in dictionary from  the dictionary file, with one word per line.
-
-	filename = ident(filename) './data/dict.txt'
-	input(.file,3,filename)		                :s(dictionary.next)
-	error('unable to open dictionary file ',filename)	:(freturn)
-
-dictionary.next
-
-	word = file					                :f(dictionary.done)
-    add(dictionary,word)                        :(dictionary.next)
-
-dictionary.done
-
-	endfile(3)				                    :(return)
-
-dictionary.end
-
-    define('even(n)')                           :(even.end)
-
-*   Tests if _n_ is even.
-
-even
-
-    eq(remdr(n,2))                              :s(return)f(freturn)
-
-even.end
-
-    define('factorial(n)')                      :(factorial.end)
-
-*   Returns n! = n*(n-1)*(n-2) ... 1
-
-factorial
-
-    factorial = (eq(n,1) 1, n * factorial(n -1))    :(return)
-
-factorial.end
-
-    define('multiple(n,m)')                     :(multiple.end)
-
-*   Tests if _n_ is a multiple of _m_.
-
-multiple
-
-    multiple = eq(remdr(n,m))                   :s(return)f(freturn)
-
-multiple.end
-
-    define('number(n)')                         :(number.end)
-
-*  If _n_ can be represented as a string of one or two words then return that string. Otherwise return _n_.
-
-number
-    error('number not implemented, quitting.' )
-    number = eq(n) 'zero'                       :s(return)
-    number = g.numbers[n]
-    differ(number)                              :s(return)
-    number = n                                  :(return)
-
-number.end
-
-    define('odd(n)')                            :(odd.end)
-
-*   Tests if _n_ is odd.
-
-odd
-
-    odd = ne(remdr(n,2))                        :s(return)f(freturn)
-
-odd.end
-
-    define('prime(n)set.this')                 :(prime.end)
-
-*   Tests if _n_ is a prime integer.
-
-prime
-
-    n = integer(n) +n
-    eq(n,2)                                     :s(return)
-    even(n)                                     :s(freturn)
-    exists(new('iter 3 ' square.root(n) ' 2'), 'multiple(n,this)') :s(freturn)f(return)
-
-prime.end
-
-    define('primes(n)set.this')                :(primes.end)
-
-*   Returns set of primes less than _n_.
-
-primes
-
-    primes = filter(new('iter 2 ' (n - 1)),'prime(this)') :(return)
-    primes = new('set')
-    iter = new('iter 2 ' (n - 1))
-    loop(iter)
-
-primes.loop
-   
-    this = next(iter)                           :f(return)
-    prime(this) add(primes,this)                :(primes.loop)
-
-primes.end
-
-    define('square.root(n)')                    :(square.root.end)
-
-*   Returns square root of integer _n_, rounded up.
-
-square.root
-   
-    square.root = int(sqrt(n)) + 1              :(return)
-
-square.root.end
-
-    define('thousands(s)n')                     :(thousands.end)
-
-*   Format s with comma's every three digits from right.
-
-thousands
-
-    n = size(s)
-    thousands = le(n,3) s                       :s(return)
-    thousands = thousands(substr(s,1,n - 3)) ',' substr(s, n - 2, 3):(return)
-
-thousands.end
 
     define('append(str,w,ch)')                  :(append.end)
 
@@ -2355,6 +2212,34 @@ datename
                                                     :(return)
 datename.end
 
+	define('dictionary(filename)file,word')	    :(dictionary.end)
+
+*	Initialize the global dictionary dictionary.
+
+dictionary
+
+    dictionary = new('set')
+    set.index(dictionary)  =    table(10000)
+    set.key(dictionary)  =      table(10000)
+    
+
+*	Read in dictionary from  the dictionary file, with one word per line.
+
+	filename = ident(filename) './data/dict.txt'
+	input(.file,3,filename)		                :s(dictionary.next)
+	error('unable to open dictionary file ',filename)	:(freturn)
+
+dictionary.next
+
+	word = file					                :f(dictionary.done)
+    add(dictionary,word)                        :(dictionary.next)
+
+dictionary.done
+
+	endfile(3)				                    :(return)
+
+dictionary.end
+
     define('digits()str,ch')                        :(digits.end)
 
 *   Return string consisting of the digits 0 .. 9 separated by a space.
@@ -2370,6 +2255,26 @@ digits.next
     digits = append(digits,ch)                      :(digits.next)
 
 digits.end
+
+    define('even(n)')                           :(even.end)
+
+*   Tests if _n_ is even.
+
+even
+
+    eq(remdr(n,2))                              :s(return)f(freturn)
+
+even.end
+
+    define('factorial(n)')                      :(factorial.end)
+
+*   Returns n! = n*(n-1)*(n-2) ... 1
+
+factorial
+
+    factorial = (eq(n,1) 1, n * factorial(n -1))    :(return)
+
+factorial.end
 
     define('less(str,sub)before,after')             :(less.end)
 
@@ -2427,6 +2332,39 @@ lower
 
 lower.end
 
+    define('multiple(n,m)')                     :(multiple.end)
+
+*   Tests if _n_ is a multiple of _m_.
+
+multiple
+
+    multiple = eq(remdr(n,m))                   :s(return)f(freturn)
+
+multiple.end
+
+    define('number(n)')                         :(number.end)
+
+*  If _n_ can be represented as a string of one or two words then return that string. Otherwise return _n_.
+
+number
+    error('number not implemented, quitting.' )
+    number = eq(n) 'zero'                       :s(return)
+    number = g.numbers[n]
+    differ(number)                              :s(return)
+    number = n                                  :(return)
+
+number.end
+
+    define('odd(n)')                            :(odd.end)
+
+*   Tests if _n_ is odd.
+
+odd
+
+    odd = ne(remdr(n,2))                        :s(return)f(freturn)
+
+odd.end
+
     define('prefix(str,pre)word')                   :(prefix.end)
 
 *   Prefix takes a list of space-separated words _str_ and prefixes each
@@ -2444,21 +2382,36 @@ prefix.1
 
 prefix.end
 
-    define('uletters()str,ch')                      :(uletters.end)
+    define('prime(n)set.this')                 :(prime.end)
 
-*   Returns string consisting of the upper case letters separated by a space.
+*   Tests if _n_ is a prime integer.
 
-uletters
+prime
 
-    uletters = 
-    str = &ucase
-    
-ulleters.next
+    n = integer(n) +n
+    eq(n,2)                                     :s(return)
+    even(n)                                     :s(freturn)
+    exists(new('iter 3 ' square.root(n) ' 2'), 'multiple(n,this)') :s(freturn)f(return)
 
-    str len(1) . ch =                               :f(return)
-    uletters = append(uletters,ch)                  :(ulleters.next)
+prime.end
 
-uletters.end
+    define('primes(n)set.this')                :(primes.end)
+
+*   Returns set of primes less than _n_.
+
+primes
+
+    primes = filter(new('iter 2 ' (n - 1)),'prime(this)') :(return)
+    primes = new('set')
+    iter = new('iter 2 ' (n - 1))
+    loop(iter)
+
+primes.loop
+   
+    this = next(iter)                           :f(return)
+    prime(this) add(primes,this)                :(primes.loop)
+
+primes.end
 
 
 *   Lines
@@ -2572,6 +2525,44 @@ split.str.done
                                         :(return)
 
 split.end
+
+    define('square.root(n)')                    :(square.root.end)
+
+*   Returns square root of integer _n_, rounded up.
+
+square.root
+   
+    square.root = int(sqrt(n)) + 1              :(return)
+
+square.root.end
+
+    define('thousands(s)n')                     :(thousands.end)
+
+*   Format s with comma's every three digits from right.
+
+thousands
+
+    n = size(s)
+    thousands = le(n,3) s                       :s(return)
+    thousands = thousands(substr(s,1,n - 3)) ',' substr(s, n - 2, 3):(return)
+
+thousands.end
+
+    define('uletters()str,ch')                      :(uletters.end)
+
+*   Returns string consisting of the upper case letters separated by a space.
+
+uletters
+
+    uletters = 
+    str = &ucase
+    
+ulleters.next
+
+    str len(1) . ch =                               :f(return)
+    uletters = append(uletters,ch)                  :(ulleters.next)
+
+uletters.end
 
 *   Tokens: Lexical Scanning
 *   ------------------------
