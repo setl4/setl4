@@ -1,0 +1,61 @@
+
+-include "setl4.stl"
+    out('Test int()')
+
+    out("int(1e3",int('1e3'))
+    out("int(1e6",int('1e6'))
+    out()
+    out()
+
+    out('Test int')
+
+    int = new('int')
+
+*   Mix up order in which elements added, as a test
+*   that blocks properly reordered for iteration.
+
+    add(int, 1)
+    add(int, 100000000)
+    add(int, 100000003)
+    add(int, 10000001)
+    add(int, 100001)
+    add(int, 100003)
+    add(int, 10001)
+    add(int, 10003)
+    add(int, 10000003)
+    add(int, 100000099)
+    add(int, 1000001)
+    add(int, 100000101)
+    add(int, 1000003)
+    add(int, 1001)
+    add(int, 1003)
+    add(int, 101)
+    add(int, 103)
+    add(int, 19)
+    add(int, 3)
+    add(int, 3)
+    add(int, 5)
+
+    setl4.show(int)
+    show.eval("member(int,5)")
+    show.eval("member(int,6)")
+    out('show index')
+    show(set.index(int))
+    out('show key')
+    show(set.key(int))
+    &dump = 3
+*   show(int)
+    out()
+    out()
+
+    out('Test iteration')
+    
+test.int
+    
+    n = next(int)           :f(test.int.done)
+    out(n)                  :(test.int)
+
+test.int.done
+
+end
+

@@ -251,8 +251,6 @@
 *           _set.kind_          is the kind of the set, one of 'int', 'iter', 'map', or 'set.'
 *                               The kind is  specified when the set is created. 
 *                               The default kind is 'set'.
-*           _set.next_          Result returned by _next_ during iteration over set.
-
 *           _set.size_          the current number of members.
 
 *           _set.this_          the last value returned by the _next_ primitive
@@ -1233,9 +1231,9 @@ next.iter
 *   Here to find next element in set of type _iter_.
 
     next = iter.next(iter) = iter.next(iter) + iter.step(iter)
+    le(next,iter.high(iter))                          :f(freturn)
     set.this(set) = next
     this = next
-    le(next,iter.high(iter))                          :f(freturn)
 
 next.map
 next.set
@@ -1843,7 +1841,6 @@ setl4.show.set
     differ(set.index(set)) out('  has index table')
     differ(set.key(set))   out('  has key table')
     ne(set.size(set))      out('  size',          set.size(set))
-    differ(set.next(set))  out('  next',          iter.next(set))
                            out('}')
                                                     :(return)
 setl4.show.end
@@ -2365,7 +2362,7 @@ odd
 
 odd.end
 
-    define('prefix(str,pre)word')                   :(prefix.end)
+    define('prefix(str,pre)word')               :(prefix.end)
 
 *   Prefix takes a list of space-separated words _str_ and prefixes each
 *   with the str _pre_.
@@ -2376,13 +2373,13 @@ prefix
 
 prefix.1
 
-    str break(' ') . word span(' ')  =              :f(return)
+    str break(' ') . word span(' ')  =          :f(return)
     add1(.prefixcount)
-    prefix = append(prefix, pre word,'A')           :(prefix.1)
+    prefix = append(prefix, pre word,'A')       :(prefix.1)
 
 prefix.end
 
-    define('prime(n)set.this')                 :(prime.end)
+    define('prime(n)')                          :(prime.end)
 
 *   Tests if _n_ is a prime integer.
 
@@ -2395,7 +2392,7 @@ prime
 
 prime.end
 
-    define('primes(n)set.this')                :(primes.end)
+    define('primes(n)set.this')                 :(primes.end)
 
 *   Returns set of primes less than _n_.
 
