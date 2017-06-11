@@ -10,21 +10,18 @@ to be a language for manipulating strings.
 
 We believe that the most interesting -- and most fun -- strings to
 manipulate and study in learning the Art of Programming are to be
-found in the world's greatest literature.
-
-We have provided these texts so that, if nothing else, students will 
-be exposed to great literature as they learn about programming.
+found in the world's greatest literature; and so here include sample
+works so that -- if nothing else --  students will be exposed 
+to great literature in the course of their studies of programming.
 
 Progamming is just a very disciplined form of writing, and examination of examples chosen
 from the highest form of writing -- literature --  will, hopefully, encourage 
 students to develop their own writing skills, both in code itself, as well
 as the most important part of any program: its documentation.
 
-The two greatest works of literature in the English language are over
-four hundred years old: The King James Bible and the works of William Shakespeare.
-
-The initial files in this directory thus include the following texts
-obtained from Project Gutenberg:
+The two greatest works of literature in the English language are
+The King James Bible and the works of William Shakespeare.  The initial
+files in this directory thus include the following texts obtained from Project Gutenberg:
 
 
 http://gutenberg.org
