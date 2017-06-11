@@ -38,8 +38,7 @@ http://gutenberg.org
 -   shakespeare-sonnets.txt         - Sonnets of William Shakespeard
 
 We wish to acknowledge the work of the many volunteer members of the Gutenberg
-Project who have compiled these texts --  as well as many, many others --  
-and the project for making them freely available.
+Project who have compiled these texts, and the project for making them freely available.
 
 A dictionary is to a language what sets are to mathematics: the foundation
 on which all else rests.
