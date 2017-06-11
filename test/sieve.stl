@@ -6,13 +6,13 @@
 
 sieve
 
-	sieve = sequence.integers(n)
+	sieve = integers(n)
 	bound = square.root(n)
 	pi = 1
 
 sieve.next
 
-	prime = sequence.get(sieve,pi = pi + 1) 	:f(sieve.done)
+	prime = get(sieve,pi = pi + 1) 	:f(sieve.done)
 	gt(prime,bound)				:s(sieve.done)
 	
 	sieve = sieve % 'and(gt(element,prime),eq(remdr(element,prime)))'

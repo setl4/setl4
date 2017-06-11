@@ -2,8 +2,6 @@
 *   Licensed under the MIT license.
 
 *   TODO LIST
-*   Note that get() and put() can be used on sets due to implementation of sets.
-*   Use eval when adding values to sets, including when initialized using new()
 
 
 *   SETL4 is an implementation of SETL written in SPITBOL.
@@ -110,8 +108,9 @@
 *   low, low + step, ... high
 
 *   For example 'iterator 5 25 5' is the set {5 10 15 20 25}.
-*   Iterators support efficient iteration, and suppor only the
-*   operations of iteration and membership.
+*   Iterators support efficient iteration, but they provide only
+*   the operations of iteration and membership; you cannot
+*   add or remove an element from an iterator.
 
 *   Sets of kind 'integer' are intended or sets of integers
 *   containing many elements. See below for more details.
@@ -235,7 +234,7 @@
 *   A set is a collection unequall objects, and
 *   is represented by the datatype _set_:
 
-    data('set(set.kint,set.iter,set.index,set.key,set.kind,set.size,set.next,set.this,'
+    data('set(set.kind,set.iter,set.index,set.key,set.kind,set.size,set.this,'
 .        'set.block,set.blocks,set.offset,set.str)')
 
 *   where
@@ -362,18 +361,12 @@
 
 *   The datatpe _iterator_ is used to manage iteration:
 
-    data('iterator(iter.kind,iter.next,iter.low,iter.high,iter.step,set.block,'
+    data('iterator(iter.next,iter.low,iter.high,iter.step,set.block,'
 .                   'set.blocks,set.offset,set.str,set.block,set.offset,set.str)')
+
 *   where
 
-*   _iter.kind_         kind of iterator: one of the following:
-    
-*       'int'           iteration of set of kind 'int'
-*       'iter'          iteration over set of kind 'iter'
-*       'set'           iteration over set of kind 'set'
-
 *   _iter.next           is iteration index when iterating over set
-*                               when iterating over a 
 
 *   The following fields are used to iterate over a range:
 
@@ -418,24 +411,20 @@
 *   SETL4 Configuration Options
 *   ---------------------------
 
-*   _setl4.include_ is directory containing setl4. If you have cloned github setl4
-*   then no change is necessary. Otherwise adjust the definition.
-*   Programs using setl4 
-
-*   setl4.include = "~/setl4/"
-*   Initial size of any hash tables created when constructing
+*   Define initial sizes of tables when creating a set.
 *   a new instance of a 
 
-*   _setl4.config.size_ is default size for the _index_ and _key_ tables of a set.
+*   _setl4.config.set.table.size_ is default size for the _index_ and _key_ tables of a set.
 
-    setl4.config.size = 256
+    setl4.config.set.table.size = 256
+
+*   _setl4.config.int.table.size_ is size of index and key tables in set of kind 'int.' 
+
+    setl4.config.int.table.size = 1000
 
 *   _setl4.config.int_ is number of characters in the block for an integer set.
 *   _setl4.config.int.init_ is string of spaces of size _setl4.config.int_.
-*   _setl4.config.int.table is size of index and key tables in set of kind 'int.' 
 
-
-    setl4.config.int.table = 1000
     setl4.config.int = 1000
     setl4.config.int = 20
     setl4.config.int.init = dupl('-',setl4.config.int)
@@ -456,6 +445,8 @@
 
     define('add(set,elem)ara,i,n,str')              :(add.end)
 
+*   If _set_ is a map, define key to be _set.size(set)+1_ and element
+*   to be _elem_.
 *   If _elem_ is a sequence, add all its elements to _set_.
 *   If _elem_ is an interator ('iter'), add all its elements to _set_.
 *   If _elem_ in an array, add all its values in the first column to _set_.
@@ -464,14 +455,11 @@
 add
 
 *   Convert _elem_ that is integer to integer.
-*   Call _eval_ in case element given in exponential notation.
 
-    elem = ident(datatype(elem),'string') eval(elem)
     elem = integer(elem) +elem
-
     ident(datatype(set),'array')                    :s(add.array)
     ident(set.kind(set),'int')                      :s(add.int)
-    ident(set.kind(set),'map')                      :s(add.seq)
+    ident(set.kind(set),'map')                      :s(add.map)
     ident(set.kind(set),'set')                      :s(add.set)
     error('unexpected kind to add:' set.kind(set))
 
@@ -535,12 +523,11 @@ add.put
 
     set.key(set)[key] = elem                        :(return)
 
-add.seq
+add.map
 
 *   Add element to sequence.
 
-    set.size(set) = set.size(set) + 1
-    set.index(set)[iter.step(set)] = elem            :(add.put)
+    put(set,set.size(set) + 1, elem)                :(return)
 
 add.set
 
@@ -622,6 +609,7 @@ at.end
 *   _Compose_ returns the composition of two maps or tables.
 
 compose
+    out('enter compose')
 
     ident(datatype(a),'table')                      :s(compose.table)
 
@@ -853,8 +841,6 @@ forall.end
 
 get
 
-    out('get kind',set.kind(map))
-    out('get dt',datatype(map))
     key = integer(key) +key
     ident(set.kind(map),'int')                      :s(get.int)
     ident(set.kind(map),'map')                      :s(get.map)
@@ -1033,7 +1019,6 @@ member.end
 
 new
 
-    new = set('set',iterator(),table(set.4.config.int.table),table(setl4.conig.int.table))
     ident(init)                                     :s(new.set)
     init = init ' '
     init span(' ') =
@@ -1058,6 +1043,7 @@ new.kind
                                                     :($('new.' kind))
 new.int
     
+    new = set('set',iterator(),table(set.4.config.int.table.size),table(setl4.config.int.table.size))
     set.kind(new) = 'int'
     set.index(new) = table(1000)
     set.key(new) = table(1000)
@@ -1071,12 +1057,12 @@ new.int.next
 
 new.ite
 
-    set.kind(new) = 'iter'
-    set.key(new) = set.index(new) =
+    iter = iterator()
     ident(init) error('new initialization information needed')
-    iter.step(new) = 1
+    iter.step(iter) = 1
     ident(init) error('no initializer data for new iterator')
     seq = new('seq ' init)
+    show(seq)
 
 *   Ignore extra arguments to iterator constructor.
 
@@ -1089,35 +1075,34 @@ new.iter.1
 
 
 *   If one argument, low is one, high is the argument.
-*   Use _eval_ to evalutate the arguments in case they are 
-*   given in exponential notation.
 
-    iter.low(new) =  1
-    iter.high(new) = int(eval(get(seq,1)))
-    iter.step(new) = 1                               :(new.iter.done)
+    iter.low(iter) =  1
+    iter.high(iter) = get(seq,1)
+    iter.step(iter) = 1                             :(new.iter.done)
 
 new.iter.2
 
 *   If two arguments, low is first argument, high is the second.
 
-    iter.low(new) =  int(eval(get(seq,1)))
-    iter.high(new) = int(eval(get(seq,2)))
-    iter.step(new) = 1                               :(new.iter.done)
+    iter.low(iter) =  get(seq,1)
+    iter.high(iter) = get(seq,2)
+    iter.step(iter) = 1                             :(new.iter.done)
 
 new.iter.3
 
 *   If three arguments, low is first, high is second, step is third.
-    iter.low(new) =  eval(get(seq,1))
-    iter.high(new) = eval(get(seq,2))
-    iter.step(new) = eval(get(seq,3)) 
+    iter.low(iter) =  get(seq,1)
+    iter.high(iter) = get(seq,2)
+    iter.step(iter) = get(seq,3) 
 
 new.iter.done
 
-    set.size(new) = ((iter.high(new) - iter.low(new)) / iter.step(new)) + 1 :(return)
+    new = set('iter',iter)
+    set.size(new) = ((iter.high(iter) - iter.low(iter)) / iter.step(iter)) + 1 :(return)
 
 new.map
     
-    new = set('map',iterator(),table(setl4.config.size),table(setl4.config.size))
+    new = set('map',iterator(),table(setl4.config.set.table.size),table(setl4.config.set.table.size))
 
 *   If present, _init_ is a list consisting of a list of key/value pairs,
 *   with a colon (:) separating the key and value.
@@ -1133,7 +1118,7 @@ new.map.next
 
 new.seq
 
-    new = set('map',iterator(),table(setl4.config.size),table(setl4.config.size))
+    new = set('map',iterator(),table(setl4.config.set.table.size),table(setl4.config.set.table.size))
     init span(' ') =
     ident(init)                                     :s(return)
     init = init ' '
@@ -1146,7 +1131,7 @@ new.seq.next
 
 new.set
 
-    new = set('set',iterator(),table(setl4.config.size),table(setl4.config.size))
+    new = set('set',iterator(),table(setl4.config.set.table.size),table(setl4.config.set.table.size))
     set.kind(new) = 'set'
     ident(init)                                     :s(return)
 
@@ -1175,7 +1160,7 @@ new.stack
 
 new.stack.end
 
-    define('next(set)i,iter,kind,key,next,str,value')    :(next.end)
+    define('next(set)i,key,next,str,value')         :(next.end)
 
 *   Advance iteration by setting field _next_.  Fail if no more elements remain.
 
@@ -1197,7 +1182,7 @@ next.int
 
 *   Branch to get first block if _set.str_ is null.
 
-    ident(set.str(set))                    :s(next.int.block)
+    ident(set.str(set))                             :s(next.int.block)
 
 next.int.test
 
@@ -1208,10 +1193,10 @@ next.int.block
 *   Here to advance to next block, ending iteration if no more remain.
 
     set.block(set) = set.block(set) + 1
-    gt(set.block(set),set.blocks(set))     :s(freturn)
+    gt(set.block(set),set.blocks(set))              :s(freturn)
     set.str(set) = set.key(set)[set.index(set)[set.block(set)]]
     str = set.str(set)
-    str break('+') . key                        :f(next.int.block)
+    str break('+') . key                            :f(next.int.block)
 
 *   Here when member found. Clear the membership character and return.
 
@@ -1222,23 +1207,23 @@ next.int.block
 .          substr(str,set.offset(set) + 1)
     set.str(set) = str
     next = (set.block(set) * setl4.config.int) + size(key)
-    out('next.int returns',next)
+*   out('next.int returns',next)
     set.this(set) = next
-    this = next                                 :(return)
+    this = next                                     :(return)
 
 next.iter
 
 *   Here to find next element in set of type _iter_.
 
     next = iter.next(iter) = iter.next(iter) + iter.step(iter)
-    le(next,iter.high(iter))                          :f(freturn)
+    le(next,iter.high(iter))                        :f(freturn)
     set.this(set) = next
     this = next
 
 next.map
 next.set
 
-    next = iter.next(set) = iter.next(set) + 1
+    next = iter.next(iter) = iter.next(iter) + 1
     le(next,set.size(set))                          :f(freturn)
     next = set.index(set)[next]
     set.this(set) = next
@@ -1412,6 +1397,10 @@ random.seed.end
 
 rank
 
+*   out('enter rank')
+*   show(setl4.rank.types)
+*   out('enter rank dt',datatype(set))
+*   out('enter rank kind',set.kind(set))
     str = ident(datatype(set),'string') set
     type = get(setl4.rank.types,type) 
 
@@ -1458,13 +1447,14 @@ show
     differ(label) out('show: ' upper(label))
     differ(datatype(v),'set')                       :s($('show.' datatype(v)))
 
-*   When showing a set, save _iter.next_ and _set.this_ to avoid
-*   disrupting possible existing iteration over the set.
+*   When showing a set, save _set.index_ and _set.this_ before
+*   traversing the tables to avoid disrupting a possible 
+*   existing iteration over the set. Restore the fields
+*   after the set has been shown.
     
     kind = set.kind(v)
-    out('show kind',kind)
     ident(kind,'int')                               :s(show.int)
-    ident(kind,'iter')                              :s(show.iter)
+    ident(kind,'iter')                              :s(show.iterator)
     ident(kind,'map')                               :s(show.map)
     ident(kind,'set')                               :s(show.set)
     error('show unknown set kind',kind,' quitting.')
@@ -1488,9 +1478,11 @@ show.entry
 
     show = show ' ' show(key(v),,1)  ':' show(value(v,,1)) ' ' :(show.done)
 
-show.iter
+show.iterator
 
-    show = '{iter: low ' iter.low(v) ' high ' iter.high(v) ' step ' iter.step(v)  '} ' :(show.done)
+    show = '{show for iterator not yet done}'       :(show.done)
+    out('show.iterator dt v',datatype(v))
+    show = '{iterator  iter: low ' iter.low(v) ' high ' iter.high(v) ' step ' iter.step(v)  '} ' :(show.done)
 
 show.integer
 
@@ -1508,7 +1500,7 @@ show.map.next
 
     elem = next(v)                                  :f(show.map.done)
     show = show ' ' show(elem,,1) ':' show(set.key(v)[elem],,1)
-    lt(size(show),setl4.config.int)                 :s(show.map.next)
+    lt(size(show),80)                               :s(show.map.next)
     out(show)
     show =                                          :(show.map.next)
 
@@ -1552,7 +1544,7 @@ show.set.next
 
     elem = next(v)                                :f(show.set.done)
     show = show ' ' show(elem,,1)
-    lt(size(show),100)                            :s(show.set.next)
+    lt(size(show),80)                             :s(show.set.next)
     out(show)
     show =                                        :(show.set.next)
 
@@ -1780,7 +1772,7 @@ visit.end
 
 setl4.clear
 
-    setl4.config.size = setl4.config.stack = setl4.config.size = setl4.conig.int =
+    setl4.config.set.table.size = setl4.config.stack = setl4.config.set.table.size = setl4.config.int =
 .   setl4.stack = setl4.ascii.initialized = setl4.ascii.name = setl4.config.int.init =
 .   setl4.ascii.value = setl4.random_var = setl4.any.digit = setl4.span.digits = 
 .   setl4.break.digit = setl4.break.letter = setl4.any.letter =
@@ -1799,7 +1791,6 @@ setl4.clear.end
 setl4.restore
 
     set.this(s) = pop(setl4.stack)
-    iter.next(s) = pop(setl4.stack)                  
     set.index(s) = pop(setl4.stack)                :(return)
 
 setl4.restore.end
@@ -1811,7 +1802,6 @@ setl4.restore.end
 setl4.save
 
     push(setl4.stack,set.index(s))
-    push(setl4.stack,iter.next(s))
     push(setl4.stack,set.this(s))                   :(return)
 
 setl4.save.end
@@ -1828,7 +1818,6 @@ setl4.show
 
 setl4.show.iterator
 
-                            out('  kind'    iter.kind(set))
                             out('  next',   show(iter.next(set)))
     ne(iter.low(set))       out('  low',    iter.low(set))
     ne(iter.high(set))      out('  high',   iter.high(set))
@@ -2467,7 +2456,7 @@ reader.end
 reader.str
 
     delim = ident(delim) '/'
-    reader.str = setl4..seq()
+    reader.str = new('seq')
 
 reader.str.next
 
@@ -2626,7 +2615,7 @@ uletters.end
 
 tokens
 
-    tokens = setl4..seq()
+    tokens = new('seq')
     line '*'                                        :f(tokenl.next)
     type = 'c'
     text = line
