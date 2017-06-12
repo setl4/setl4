@@ -2,6 +2,15 @@
 
 *    &dump = 3
 
+    out('start test')
+    iter = new('iter 1 10')
+end
+    setl4.show(iter)
+*    show(iter)
+    iter = new('iter 10 1')
+    setl4.show(iter)
+*    show(iter)
+end
     out('Test set')
     out()
     set = new('set 5 10 15 20 25 25')
@@ -48,6 +57,8 @@
     out('expect failure')
     show.eval('member(iter,6)')
     out()
+    iter = new('iter 25 5 1')
+    show(iter)
     out()
 
     out('Test map')

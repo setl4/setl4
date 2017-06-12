@@ -1,61 +1,82 @@
+-include "../setl4.stl"
 
--include "setl4.stl"
-    out('Test int()')
+*    &dump = 3
 
-    out("int(1e3",int('1e3'))
-    out("int(1e6",int('1e6'))
+    out('Test set')
+    out()
+    set = new('set 5 10 15 20 25 25')
+    add(set,30)
+    show(set)
+    out()
+
+    out('test membership- expect success/failure')
+    out()
+    show.eval('member(set,5)')
+    show.eval('member(set,6)')
+    out()
+
+    out('Test exists/forall with element in set - expect success/failure')
+    out()
+    show.eval("exists(set,'eq(this,10)')")
+    show.eval("forall(set,'eq(this,10)')")
+    out()
+
+    out('Test exists/forall with element not in set - expect failure/failure')
+    out()
+    show.eval("exists(set,'eq(this,40)')")
+    show.eval("forall(set,'eq(this,40)')")
+    out()
+
+    out('Test exists/forall with element not in set - expect failure/success')
+    out()
+    show.eval("exists(set,'eq(this,6)')")
+    show.eval("forall(set,'ne(this,6)')")
     out()
     out()
 
-    out('Test int')
 
-    int = new('int')
-
-*   Mix up order in which elements added, as a test
-*   that blocks properly reordered for iteration.
-
-    add(int, 1)
-    add(int, 100000000)
-    add(int, 100000003)
-    add(int, 10000001)
-    add(int, 100001)
-    add(int, 100003)
-    add(int, 10001)
-    add(int, 10003)
-    add(int, 10000003)
-    add(int, 100000099)
-    add(int, 1000001)
-    add(int, 100000101)
-    add(int, 1000003)
-    add(int, 1001)
-    add(int, 1003)
-    add(int, 101)
-    add(int, 103)
-    add(int, 19)
-    add(int, 3)
-    add(int, 3)
-    add(int, 5)
-
-    setl4.show(int)
-    show.eval("member(int,5)")
-    show.eval("member(int,6)")
-    out('show index')
-    show(set.index(int))
-    out('show key')
-    show(set.key(int))
-    &dump = 3
-*   show(int)
+    out('Test iter')
+    out()
+    iter = new('iter 1 10 2')
+    out()
+    out('expect success')
+    out()
+    show.eval("eq(set.size(iter),5)")
+    out('expect success')
+    show.eval('member(iter,5)')
+    out()
+    out('expect failure')
+    show.eval('member(iter,6)')
     out()
     out()
 
-    out('Test iteration')
-    
-test.int
-    
-    n = next(int)           :f(test.int.done)
-    out(n)                  :(test.int)
+    out('Test map')
 
-test.int.done
+    map = new('map one:1 two:2 ten:10 forty:40 hundred:100 thousand:1000')
+    show(map)
+
+    out()
+    out('Test map get- expect success/failure')
+    out()
+    show.eval("eq(get(map,'one'),1)")
+    show.eval("eq(get(map,'one'),6)")
+    out()
+    out()
+
+    out('Test exists/forall with element in map- expect success/failure')
+    out()
+    show.eval("exists(map,'eq(get(map,this),2)')")
+    show.eval("forall(map,'eq(get(map,this),2)')")
+    out()
+    out()
+
+    out('Test exists/forall with element not in - expect failure/failure')
+    out()
+    show.eval("exists(map,'eq(this,500)')")
+    show.eval("forall(map,'eq(this,500)')")
+    out()
+    out()
+
+    out("Here endeth the test.")
 
 end
-

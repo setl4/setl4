@@ -420,6 +420,7 @@ produces `{ set 'a' 'b' 'c' }`, not `{set 'b' 'c' 'a' }`.
 -  `random.seed()`                  Sets random number seed to initialize _random_
 -  `range(map)`                     Returns set of elements in the range of a map
 -  `rank(set)`                      Returns the rank, or normal form, of a set or string.
+*   remove(set,elem)                Remove arbitary element from set, or most recent entry from map.
 -  `subset(a,b)`                    Tests if the second set is a subset of the first set
 -  `union(a,b)`                     Returns set consisting of all the members in two sets
 -  `set.size(set)`                  Returns number of elements in set _set_

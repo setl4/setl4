@@ -2,6 +2,7 @@
 *   Licensed under the MIT license.
 
 *   TODO LIST
+*   Check hbol4 to make sure performance metrics correct.
 
 
 *   SETL4 is an implementation of SETL written in SPITBOL.
@@ -103,11 +104,23 @@
 *    the second is the value.  No two entries in the map can 
 *   have the same key but different values.
 
-*   Sets of kind 'iterator' consist of positive integers of the form
+*   Sets of kind 'iterator' consist of  integers of the form
 
 *   low, low + step, ... high
 
-*   For example 'iterator 5 25 5' is the set {5 10 15 20 25}.
+*   or
+
+*   high, high - step ... low
+
+*   For example 'iterator 5 25 5' is the set {5 10 15 20 25};
+*   iteration over the iterator will go in order 5, 10 ... 25.
+*   'iterator 25 5 -5' is the same set; but iteration will
+*   go in the order 25,20 ... 5.
+*
+*   If _high_ is less than _low_, then a negative step is undersood,
+*   even if it is given as a positive value. For example, both
+*   `iter 25 5 -5` and `iter 25 5 5' go in order "25, 20 ... 1"
+    
 *   Iterators support efficient iteration, but they provide only
 *   the operations of iteration and membership; you cannot
 *   add or remove an element from an iterator.
@@ -212,6 +225,7 @@
 *   random.seed()                   Sets random number seed to initialize _random_
 *   range(map)                      Returns set of elements in the range of a map
 *   rank(set)                       Returns the rank, or normal form, of a set or string.
+*   remove(set,elem)                Remove arbitary element from set, or most recent entry from map.
 *   subset(a,b)                     Tests if the second set is a subset of the first set
 *   union(a,b)                      Returns set consisting of all the members in two sets
 *   set.size(set)                   Returns number of elements in set _set_
@@ -306,10 +320,9 @@
 *   The table _key_ maps keys in the map to the corresponding entry in the map.
 *   The entries in _key_ permit efficient retrieval of the map's value for a given key.
 
-*   SETL4 also provides the datatype _stack_ that implements a stack, providing
-*   the funcitons _push_ and _pop_. Stacks are created by the function _new.stack_.
-
-    data('stack(stack.stack,stack.top)')
+*   SETL4 supports stacks by implementing them as a sequence. The fuction
+*   _push()_ pushes a value on to the stack; the function _pop_ removes the
+*   top value.
 
 
 *   Iteration, loops
@@ -361,8 +374,8 @@
 
 *   The datatpe _iterator_ is used to manage iteration:
 
-    data('iterator(iter.next,iter.low,iter.high,iter.step,set.block,'
-.                   'set.blocks,set.offset,set.str,set.block,set.offset,set.str)')
+    data('iterator(iter.next,iter.low,iter.high,iter.step,iter.block,'
+.                   'iter.blocks,iter.offiter,iter.str,iter.block,iter.offiter,iter.str)')
 
 *   where
 
@@ -388,7 +401,7 @@
 *   The function _rank_ can be used to determine the order in which the elements 
 *   of a set are accessed during an iteration, or to 'sort' the tables implementing
 *   the set. For example, _rank(s,'+v')_ sorts a map in increasing order of the
-*   values of the map. _rank(s,'-v') sorts the values in descendng order, and
+*   values of the map. _rank(s,'-v')_ sorts the values in descendng order, and
 *   so forth. For example, here is the code to find the ten members with 
 *   the largest values in a map:
 
@@ -411,6 +424,12 @@
 *   SETL4 Configuration Options
 *   ---------------------------
 
+*   _setl4.config.channel.1_ is channel number for temporary files, that is,
+*   files created on entry to a procedure and closed before returning from
+*   the procedure.
+
+    setl4.config.channel.1 = 3
+
 *   Define initial sizes of tables when creating a set.
 *   a new instance of a 
 
@@ -428,17 +447,6 @@
     setl4.config.int = 1000
     setl4.config.int = 20
     setl4.config.int.init = dupl('-',setl4.config.int)
-
-
-*   SETL4 needs a stack
-
-    setl4.stack = stack()
-
-*   SETL4 Global Variables
-*   ----------------------
-
-    setl4.ascii.initialized = 
-
 
 *   SETL4 Function Definitions
 *   --------------------------
@@ -952,6 +960,7 @@ join.end
 
 loop
 
+    setl4.show(set)
     iter = iterator()
     set.iter(set) = iter
     ident(set.kind(set),'int')                      :s(loop.int)
@@ -1006,7 +1015,7 @@ member.set
 
 member.end
 
-    define('new(init)kind,i,len,n,key,seq,val,words)'):(new.end)
+    define('new(init)kind,i,iter,len,n,key,seq,val,words)'):(new.end)
 
 *   Construct new set with initial values determined by string _init_.
 *   The first three characters in _init_ determine the initial
@@ -1056,6 +1065,7 @@ new.int.next
     add(new,int(key))                              :(new.int.next)
 
 new.ite
+new.iter
 
     iter = iterator()
     ident(init) error('new initialization information needed')
@@ -1098,7 +1108,17 @@ new.iter.3
 new.iter.done
 
     new = set('iter',iter)
-    set.size(new) = ((iter.high(iter) - iter.low(iter)) / iter.step(iter)) + 1 :(return)
+    set.size(new) = ((iter.high(iter) - iter.low(iter)) / iter.step(iter)) + 1 
+                                                        :(return)
+
+new.iter.negative
+
+*   Here to build iterator that goes backward.
+
+    iter.step(iter) = gt(iter.step(iter)) -iter.step(iter)
+    n = iter.low(iter)
+    iter.low(iter) = iter.high(iter)
+    iter.high(iter) = n                                 :(new.iter.done)
 
 new.map
     
@@ -1160,7 +1180,7 @@ new.stack
 
 new.stack.end
 
-    define('next(set)i,key,next,str,value')         :(next.end)
+    define('next(set)i,iter,key,next,str,value')    :(next.end)
 
 *   Advance iteration by setting field _next_.  Fail if no more elements remain.
 
@@ -1213,10 +1233,12 @@ next.int.block
 
 next.iter
 
-*   Here to find next element in set of type _iter_.
+*   Here to find next element in iterator.
 
+    iter = set.iter(set)
     next = iter.next(iter) = iter.next(iter) + iter.step(iter)
-    le(next,iter.high(iter))                        :f(freturn)
+    gt(iter.step(iter)) le(next,iter.high(iter))    :f(freturn)
+    lt(iter.step(iter)) ge(next,iter.low(iter))     :f(freturn)
     set.this(set) = next
     this = next
 
@@ -1275,9 +1297,7 @@ out.end
 
 pop
 
-    eq(stack.top(stack)) error('attempt to pop from empty stack')
-    pop = stack.stack(stack)[stack.top(stack)]
-    stack.top(stack) = stack.top(stack) - 1         :(return)
+    pop = remove(stack)                             :f(freturn)s(return)
 
 pop.end
 
@@ -1287,8 +1307,7 @@ pop.end
 
 push
 
-    stack.stack(stack) = ident(stack.stack(stack)) table()
-    stack.stack(stack)[stack.top(stack) = stack.top(stack) + 1] = value :(return)
+    put(stack,set.size(stack) + 1, value)           :(return)
 
 push.end
 
@@ -1436,6 +1455,65 @@ rank.string
 
 rank.end
 
+    define('remove(set,elem)iter,this')             :(remove.end)
+
+*   If _elem_ is new, remove the most recently added element of a set or map.
+*   If _set_ is a set, then remove _elem_ from _set_ if it is a member.
+*   If _set_ is a map, remove the entry with key _value_.
+*   Return the element removed.
+
+remove
+
+    eq(set.size(set))                               :s(freturn)
+    ident(elem)                                     :s(remove.last)
+    remove = elem
+    ident(set.kind(set),'int')                      :s(remove.int)
+    ident(set.kind(set),'map')                      :s(remove.map)
+    ident(set.kind(set),'set')                      :s(remove.set)
+    error('remove not defined for set of kind ' set.kind(set))
+
+remove.int
+
+    error("remove from set of kind 'int' not yet implemented.")
+
+remove.last
+
+    remove = set.index(set)[set.size(set)]
+    set.size(set) = set.size(set) - 1               :(return)
+ 
+remove.map
+remove.set
+
+    ident(set.key(set)[elem])                      :s(return)
+
+*   Find the entry with key _elem_, assuming it's more likely
+*   to be a newer addition than one of the older elements.
+
+    iter = new('iter ' set.size(set) ' 1')
+    loop(iter)
+
+remove.find
+
+    this = next(iter)                               :f(return)
+    ident(set.index(set)[this],elem)                :f(remove.find)
+    set.key(set)[elem] =
+
+*   Adjust index entries for members added after the one we are removing.
+*   Nothing to do if set had only one element.
+
+    set.size(set) = set.size(set) - 1
+    eq(set.size(set))                               :s(return)
+
+    iter = new('iter ' this ' ' set.size(set))
+    loop(iter)
+
+remove.rest
+
+    this = next(iter)                               :f(return)
+    set.index(set)[this] = set.index(set)[this + 1] :(remove.rest)
+
+remove.end
+
     define('show(v,label,nested)ara,i,kind,elem,ent,line,hdr,map,n,set.this') :(show.end)
 
 *   Show the value of expression _v_.
@@ -1479,10 +1557,12 @@ show.entry
     show = show ' ' show(key(v),,1)  ':' show(value(v,,1)) ' ' :(show.done)
 
 show.iterator
+show.iter
 
-    show = '{show for iterator not yet done}'       :(show.done)
-    out('show.iterator dt v',datatype(v))
-    show = '{iterator  iter: low ' iter.low(v) ' high ' iter.high(v) ' step ' iter.step(v)  '} ' :(show.done)
+    show = '{iterator  :'
+.           (ne(iter.low(v))  '  low['   iter.low(v) '}','')
+.           (ne(iter.high(v)) '  high['  iter.high(v) '}','')
+.           (ne(iter.step(v)) ' step['   iter.step(v) '}','')  '} ' :(show.done)
 
 show.integer
 
@@ -1806,30 +1886,34 @@ setl4.save
 
 setl4.save.end
 
-    define('setl4.show(set,label)')                 :(setl4.show.end)
+    define('setl4.show(set,label)iter')             :(setl4.show.end)
 
 *   Show the fields of an instance of _set_ or _iterator_.
 
 setl4.show
 
     differ(label)          out(' setl4.show: '         str.upper(label))
+    ident(datatype(set),'set') ident(set.kind(set),'iter') :s(setl4.show.iter)
     ident(datatype(set),'set')                      :s(setl4.show.set)
-    ident(datatype(set),'iterator')                 :s(setl4.show.iterator)
+    error('setl4.show unsupported kind: ' set.kind(set))
 
-setl4.show.iterator
+setl4.show.iter
 
-                            out('  next',   show(iter.next(set)))
-    ne(iter.low(set))       out('  low',    iter.low(set))
-    ne(iter.high(set))      out('  high',   iter.high(set))
-    ne(iter.step(set))      out('  step',   iter.step(set))
+    out('at setl4.show.iter')
+*                            out('  next',          show(iter.next(set)))
+    ne(iter.low(set))       out('  low',            iter.low(set))
+    ne(iter.high(set))      out('  high',           iter.high(set))
+    ne(iter.step(set))      out('  step',           iter.step(set))
                                                     :(return)
+
 setl4.show.set
                            out('{')
-                           out('  kind',          set.kind(set))
-    differ(set.iter(set))  out('  has iterator')
+                           out('  kind',            set.kind(set))
     differ(set.index(set)) out('  has index table')
     differ(set.key(set))   out('  has key table')
-    ne(set.size(set))      out('  size',          set.size(set))
+    ne(set.size(set))      out('  size',            set.size(set))
+    differ(set.iter(set))  out('  iter',            show(set.iter(set)))
+    differ(set.this(set))  out('  this',            set.this(set))
                            out('}')
                                                     :(return)
 setl4.show.end
@@ -1848,13 +1932,10 @@ setl4.size.end
 
     define('setl4.sort(set,n,type)i,key,sort,itbl')  :(setl4.sort.end)
 
-*   _setl4.sort_ sorts the _index_ table of set _set_ according 
-*   to _type_ and updates the _set.index_ field to reflect the 
-*   desired order.
-*
-*   _setl4.sort_ doesn't create a new set. It just updates 
-*   the index table so that going forward entries will be 
-*   visited in the order defined by _type_.
+*   Sort index table of _set_ according to _type_ as 
+*   described below. _setl4.sort_ doesn't create a new set;
+*   it just updates the index table so that going forward
+*   entries will be visited in the order defined by _type_.
 
 setl4.sort
 
@@ -2427,7 +2508,7 @@ primes.end
 
 reader
 
-    differ(filename) input(.file,g.channel.temp,filename):s(reader.opened)
+    differ(filename) input(.file,setl4.config.channel.1,filename):s(reader.opened)
     out('unable to open reader file ' filename '.') :(freturn)
 
 reader.opened
@@ -2436,13 +2517,15 @@ reader.opened
 
 reader.next
 
-    add(map, (ident(filename) input, file))                             :f(reader.eof)s(reader.next)
+    line = (ident(filename) input, file)                :f(reader.eof)
+    out('reader', line)
+    push(reader,line)                                   :(reader.next)
 
 reader.eof
 
 *   Here at end of file; close temporary file if one was needed.
 
-    differ(filename) endfile(g.channel.temp)                            :(return)
+    differ(filename) endfile(setl4.config.channel.1)    :(return)
 
 reader.end
 
@@ -2450,6 +2533,7 @@ reader.end
 
 *   Returns a sequence of the lines in _str_,
 *   where the delimiter character _delim_ is used to mark
+*   If _delim_ is  not given, then '/' is understood.
 *   the end of a line. One intended use of _reader.str_
 *   is to assist in the construction of test programs.
 
@@ -2461,7 +2545,7 @@ reader.str
 reader.str.next
 
     str break(delim) . line delim =                 :f(return)
-    add(reader.str,line)                            :(reader.str.next)
+    push(reader,line)                               :(reader.str.next)
 
 reader.str.end
 
@@ -2713,6 +2797,7 @@ writer.end
 *   SETL4 Global variables
 *   ----------------------
 
+    setl4.ascii.initialized = 
     setl4.ascii.name = 
     setl4.ascii.value =  
     setl4.random_var =
@@ -2737,6 +2822,10 @@ writer.end
     setl4.rank.types = new('map '
 .      '+:+k +k:+k +ke:+k +key:+k -:-k -k:-k -ke:-k -key:-k '
 .      '+v:+v +va:+v +val:+v +valu:+v +value:+v -v:-v -va:-v -val:-v -valu:-v -value:-v')
+
+*   SETL4 needs a stack
+
+    setl4.stack = new('seq')
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
