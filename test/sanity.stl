@@ -2,15 +2,6 @@
 
 *    &dump = 3
 
-    out('start test')
-    iter = new('iter 1 10')
-end
-    setl4.show(iter)
-*    show(iter)
-    iter = new('iter 10 1')
-    setl4.show(iter)
-*    show(iter)
-end
     out('Test set')
     out()
     set = new('set 5 10 15 20 25 25')
@@ -67,7 +58,9 @@ end
     show(map)
 
     out()
-    out('Test map get- expect success/failure')
+    out('Test map get - expect success/failure')
+
+
     out()
     show.eval("eq(get(map,'one'),1)")
     show.eval("eq(get(map,'one'),6)")
@@ -91,3 +84,11 @@ end
     out("Here endeth the test.")
 
 end
+    out('start test')
+    iter = new('iter 1 10')
+    show(iter)
+    iter = new('iter 10 1')
+    show(iter)
+    out()
+    out()
+
