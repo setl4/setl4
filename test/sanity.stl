@@ -1,7 +1,5 @@
 -include "../setl4.stl"
 
-*    &dump = 3
-
     out('Test set')
     out()
     set = new('set 5 10 15 20 25 25')
@@ -9,6 +7,22 @@
     show(set)
     out()
 
+    setu = new('set')
+    add(setu,5)
+    add(setu,15)
+    add(setu,25)
+    add(setu,30)
+    add(setu,10)
+    add(setu,20)
+    add(setu,5)
+    show(setu)
+
+    out()
+    out('test set equality - expect success')
+    show.eval("equal(set,setu)")
+    out()
+
+    out('done')
     out('test membership- expect success/failure')
     out()
     show.eval('member(set,5)')
@@ -34,14 +48,14 @@
     out()
     out()
 
-
     out('Test iter')
     out()
     iter = new('iter 1 10 2')
+    show(iter)
     out()
     out('expect success')
-    out()
     show.eval("eq(set.size(iter),5)")
+    out()
     out('expect success')
     show.eval('member(iter,5)')
     out()
@@ -84,11 +98,3 @@
     out("Here endeth the test.")
 
 end
-    out('start test')
-    iter = new('iter 1 10')
-    show(iter)
-    iter = new('iter 10 1')
-    show(iter)
-    out()
-    out()
-

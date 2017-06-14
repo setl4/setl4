@@ -168,9 +168,12 @@
 *           _set.kind_          is the kind of the set, one of 'int', 'iter', 'map', or 'set.'
 *                               The kind is  specified when the set is created. 
 *                               The default kind is 'set'.
+
 *           _set.size_          the current number of members.
 
-*           _set.this_          the last value returned by the _next_ primitive
+*           _set.str_           is used for sets of kind 'int'
+
+*           _set.this_          the most recent value returned by the set's iterator
 
 
 *   The following fields are used only for sets of kind 'int':
@@ -266,14 +269,13 @@
 *   top value.
 
 
-*   Iteration, loops
+*   Loops, Iterators
 *   ----------------
 
-*   Iterators are used to iterate over a range of integers, over a set, or over a map.
 *   Loops in SPITBOL have the form of a test followed by the loop body,
 *   with the body with a branch back to the test.
 
-*  For example, here is a loop to print the first one hundred integers:
+*  For example, here is a loop that prints the first one hundred integers:
 
 *```
 *test
@@ -290,19 +292,34 @@
 *       output = le(i = i + 1,100) i    :s(test)
 *```
 
-*   The same loop is written in SETL4 as:
+*   SETL4 provides the datatype _iterator_ to control iteration over a 
+*   range of integers, over a set, or over a map.
 
-*```
-*   set = integers(100)
-*   loop(set)
-*next
-*   output = next(set)                  :s(test)
-*```
+    data('iterator(iter.kind,iter.next,iter.start,iter.finis,iter.step,'
+.                 'iter.block,iter.blocks,iter.offset,iter.str)')
 
-*   On return from a successful call to _next_,
-*   the field _set.this_ of the set, and the
-*   variable _this_, are each set to the result returned
-*   by _next_, so the SETL4 loop could also be written as:
+*   where
+
+*   _iter.kind_         is the king of the iterator:
+
+*       'int'           iterator over set of kind 'int'
+*       'iter'          iterator over set of kind 'iter'
+*       'map'           iterator over set of kind 'map'
+*       'set'           iterator over set of kind 'set'
+
+*   iter.next           last value returned by the iterator.
+
+*   The following fields are used to iterate over a range:
+
+*   _iter.start_        lower bound of _int_ 
+
+*   _iter.finis_       upper bound of _int_ 
+
+*   _iter.step_         number of values between members of set of kind _int_.
+
+*   Loops in SETL4 are constructed using the _loop_ and _next_ statements. 
+*   For example, the program to display the first one hundred integers can
+*   be written as:
 
 *```
 *   set = integers(100)
@@ -313,23 +330,21 @@
 *done
 *```
 
-*   The datatpe _iterator_ is used to manage iteration:
+*   The _loop_ statement creates an instance of _iterator_ to control the
+*   iteration. The _next_ statement advances the iteration by producing the
+*   next element or failing if no more elements remain.
+*   The variable _this_ is set to the next element in an iteration if a call
+*   to _next_ succeeds, so the loop can be written in SETL4 as:
 
-    data('iterator(iter.next,iter.first,iter.second,iter.step,iter.block,'
-.                   'iter.blocks,iter.offiter,iter.str,iter.block,iter.offiter,iter.str)')
+*```
+*   set = integers(100)
+*   loop(set)
+*test
+*   output = next(set)                  :s(test)
+*```
 
-*   where
-
-*   _iter.next           is iteration index when iterating over set
-
-*   The following fields are used to iterate over a range:
-
-*   _iter.first_           lower bound of _int_ 
-
-*   _iter.second_          upper bound of _int_ 
-
-*   _iter.step_          number of values between members of set of kind _int_.
-
+*   See the functions _prime_ and _primes_ defined below to see _loop_
+*   and _next_ in action. See also the code for _exists_ and _forall_.
 
 *   Additional Operations Provided as an Artifact of the Implementation
 *   -------------------------------------------------------------------
@@ -530,16 +545,11 @@ add.int
 *
 *   _Elem_ is not a member if the block is null. Otherwise see
 *   if the character corresponding to _elem_ is '+'.
-    out()
-*   out('add.int elem',elem)
     set.block(set) = elem / setl4.config.int
     set.offset(set) = +(remdr(elem,setl4.config.int) + 1)
 *   Add _elem_ to set _set_ if not already present.
 *
     str = set.key(set)[set.block(set)]
-*   out('add.int block',set.block(set))
-*   out('add.int offset',set.offset(set))
-*   out('add.int str',set.str(set))
     ident(str)                                      :s(add.int.new)
     ident(substr(str,set.offset(set),1),'+')        :s(return)f(add.int.update)
 
@@ -547,16 +557,13 @@ add.int.new
 
 *   Create new block and then merge to add the new element.
 
-*   out('add.int.new')
     set.blocks(set) = set.blocks(set) + 1
     set.index(set)[set.blocks(set)] = set.block(set)
     str = setl4.config.int.init
-*   out('add.int.new str',str)
 
 add.int.update
     
     set.size(set) = set.size(set) + 1
-*   out('add.int before update',str)
     str = eq(set.offset(set),1) '+' substr(str,2)   :s(add.int.finis)
     str = substr(str,1,set.offset(set) - 1)
 .          '+' 
@@ -565,7 +572,6 @@ add.int.update
 add.int.finis
 
     set.str(set) = str
-*   out('add.int after  update',set.str(set))
     set.key(set)[set.block(set)] = set.str(set)     :(return)
 
 add.pair
@@ -589,17 +595,10 @@ add.set
 *   Here to add element to set.
 
     member(set,elem)                                :s(return)
-    out('add.set',elem)
+
     set.size(set) = set.size(set) + 1
     set.index(set)[set.size(set)] = elem
-    set.key(set)[set.size(set)] = elem
-    out('add size',set.size(set))
-*   out('add index',set.index(set)[set.size(set)])
-*   out('add key',set.key(set)[set.size(set)])
-    :(return)
-    set.index(set)[set.size(set)] = set.key(set)[elem] = elem                   
-*   show(set)
-                                                    :(return)
+    set.key(set)[elem] = elem                       :(return)
     
 add.end
 
@@ -630,7 +629,7 @@ arb
 
     arb = integer(set) random(+set)           :s(return)
     r = random(set.size(set))
-    arb = differ(iter.step(set))         iter.first(set) + (r - 1) * step(set) :s(return)
+    arb = differ(iter.step(set))         iter.start(set) + (r - 1) * step(set) :s(return)
     arb = set.index(set)[r]                         :(return)
 arb.end
 
@@ -673,7 +672,6 @@ at.end
 *   _Compose_ returns the composition of two maps or tables.
 
 compose
-    out('enter compose')
 
     ident(datatype(a),'table')                      :s(compose.table)
 
@@ -733,8 +731,8 @@ difference.end
 *   which case use equality tests specified below.
 
 equal
-   
-    ident(datatype(a),'set') ident(datatype(b),'set'):s(equal.setl4)
+  
+    ident(datatype(a),'set') ident(datatype(b),'set'):s(equal.sets)
     ident(a,b)                                      :s(return)f(freturn)
 
 equal.setl4
@@ -747,8 +745,8 @@ equal.setl4
 
 equal.int
 
-    eq(iter.first(a),iter.first(b))                       :f(freturn)
-    eq(iter.second(a),iter.second(b))                     :f(freturn)
+    eq(iter.start(a),iter.start(b))                       :f(freturn)
+    eq(iter.finis(a),iter.finis(b))                     :f(freturn)
     eq(iter.step(a),iter.step(b))                     :f(freturn)s(return)
 
 equal.map
@@ -766,11 +764,25 @@ equal.seq
     gt(i = i + 1, set.size(a))                      :s(equal.true)
     ident(set.seq(a)[i], set.seq(b)[i])             :s(equal.seq)f(freturn)
 
+equal.sets
+   
+   
+    lt(set.size(a),set.size(b))                     :s(freturn)
+    ident(set.kind(a),set.kind(b))                  :f(freturn)
+    ident(set.kind(set),'int')                      :s(equal.int)
+    ident(set.kind(set),'iter')                     :s(equal.iter)
+    ident(set.kind(set),'map')                      :s(equal.map)
+    ident(set.kind(set),'set')                      :s(equal.set)
+    error('equal mismatched kinds')             
+
+
 equal.set
 
 *   Two sets are equal if and only if each is a subset of the other.
-
-    equal = and(set.subset(a,b),set.subset(b,a))    :f(freturn)s(return)
+    subset(a,b)                                     :f(freturn)
+    subset(b,a)                                     :f(freturn)
+                                                    :(return)
+    equal = and(subset(a,b),subset(b,a))            :f(freturn)s(return)
 
 equal.end
 
@@ -1012,27 +1024,42 @@ join.end
 
     define('loop(set)iter')                         :(loop.end)
 
-*   Set up for loop. Set next field so that on first call to _next()_
-*   the index will be advanced to the first element in the set.
+*   Create or update the iterator of _set_ so that,
+*   on first call to _next()_,  _iter.next_  will be 
+*   advanced to select the first element in the iteration.
 
 loop
 
-    iter = iterator()
-    set.iter(set) = iter
     ident(set.kind(set),'iter')                     :s(loop.iter)
     ident(set.kind(set),'int')                      :s(loop.int)
-    iter.next(iter) = 0                                :(return)
+    ident(set.kind(set),'map')                      :s(loop.map)
+    ident(set.kind(set),'set')                      :s(loop.set)
+    error('unknown kind of iterator: ' set.kind(set))
 
 loop.int
 
+    set.iter(set) = iterator()
+    iter.kind(iter) = 'int'
     iter.next(set) = set.block(iter) = set.offset(iter) = 0 :(return)
 
 loop.iter
 
-    iter =  set.iter(set)
-    iter.next(iter) = gt(iter.step(iter)) iter.first(iter) - iter.step(iter)
-    iter.next(iter) = lt(iter.step(iter)) iter.first(iter) - iter.step(iter)
+*   When iterating over a set of kind 'iter', use the iterator
+*   created when the set was created.
+
+    iter = set.iter(set)
+    differ(iter.kind(iter),'iter') error("loop.iter requires kind 'iter'")
+    iter.next(iter) = gt(iter.step(iter)) iter.start(iter) - iter.step(iter)
+    iter.next(iter) = lt(iter.step(iter)) iter.start(iter) - iter.step(iter)
                                                     :(return)
+
+loop.map
+
+    set.iter(set) = iterator('map')                     :(return)
+
+loop.set
+
+    set.iter(set) = iterator('set')                     :(return)
 
 loop.end
 
@@ -1061,16 +1088,16 @@ member.int
     block = elem / setl4.config.int
     this = +(remdr(elem,setl4.config.int) + 1)
     value = set.key(set)[block]
-    ident(value)                                      :s(freturn)
-    ident(substr(value,this,1),'+')                   :s(return)f(freturn)
+    ident(value)                                    :s(freturn)
+    ident(substr(value,this,1),'+')                 :s(return)f(freturn)
 
 member.iter
 
     integer(elem)                                   :f(freturn)
     elem = +elem
-    lt(elem,iter.first(set))                           :s(freturn)
-    gt(elem,iter.second(set))                          :s(freturn)
-    eq(remdr(elem - iter.first(set),iter.step(set)))    :s(return)f(freturn)
+    lt(elem,iter.start(set))                        :s(freturn)
+    gt(elem,iter.finis(set))                        :s(freturn)
+    eq(remdr(elem - iter.start(set),iter.step(set))):s(return)f(freturn)
 
 member.set
 
@@ -1124,14 +1151,12 @@ new.int
 new.int.next
 
     init break(' ') . key span(' ') =              :f(return)
-*   out('adding new.int key',key)
-*   out('adding new.int int(key)',int(key))
     add(new,int(key))                              :(new.int.next)
 
 new.ite
 new.iter
 
-    iter = iterator()
+    iter = iterator('iter')
     iter.step(iter) = 1
     seq = new('seq ' init)
 
@@ -1145,29 +1170,29 @@ new.iter
 new.iter.1
 
 
-    iter.first(set) =  1
-    iter.second(set) = get(seq,1)
+    iter.start(set) =  1
+    iter.finis(set) = get(seq,1)
     iter.step(set) = 1                              :(new.iter.step)
 
 new.iter.2
 
-    iter.first(iter) =  get(seq,1)
-    iter.second(iter) = get(seq,2)
+    iter.start(iter) =  get(seq,1)
+    iter.finis(iter) = get(seq,2)
     iter.step(iter) = 1                             :(new.iter.step)
 
 new.iter.3
 
-    iter.first(iter) =  get(seq,1)
-    iter.second(iter) = get(seq,2)
+    iter.start(iter) =  get(seq,1)
+    iter.finis(iter) = get(seq,2)
     iter.step(iter) = get(seq,3) 
 
 new.iter.step
 
 *   Make sure step negative if first argument to iter is greater than the second.
 
-    iter.step(iter) = gt(iter.first(iter),iter.second(iter))  gt(iter.step(iter)) -iter.step(iter)
+    iter.step(iter) = gt(iter.start(iter),iter.finis(iter))  gt(iter.step(iter)) -iter.step(iter)
     new = set('iter',iter)
-    set.size(new) = ((iter.second(iter) - iter.first(iter)) / iter.step(iter)) + 1 
+    set.size(new) = ((iter.finis(iter) - iter.start(iter)) / iter.step(iter)) + 1 
                                                     :(return)
 
 new.map
@@ -1236,17 +1261,17 @@ new.stack.end
 next
 
     iter = set.iter(set)
-
 *   Branch on kind to find next iteration value.
 
-        :($('next.' set.kind(set)))
+        :($('next.' iter.kind(iter)))
 
 next.int
 
 *   Iteration over a set    of kind 'int' makes use of the following fields:
+*
 *       set.block      is current block for iteration
 *       set.offset     is zero if this block not search, or else index of an
-*                           element of the set in this block
+                           element of the set in this block
 *       set.str        is set to the string of a block when advance to it.
 
 *   Branch to get first block if _set.str_ is null.
@@ -1276,37 +1301,24 @@ next.int.block
 .          substr(str,set.offset(set) + 1)
     set.str(set) = str
     next = (set.block(set) * setl4.config.int) + size(key)
-*   out('next.int returns',next)
-    set.this(set) = next
-    this = next                                     :(return)
+    this = set.this(set) =  next                    :(return)
 
 next.iter
 
 *   Here to find next element in iterator.
 
-    iter = set.iter(set)
-    next = iter.next(set) = iter.next(iter) + iter.step(iter)
-    gt(iter.step(set)) le(next,iter.second(iter))   :f(freturn)
-    lt(iter.step(set)) ge(next,iter.first(iter))    :f(freturn)
-    set.this(set) = next
-    this = next
-                                                    :(return)
+    next = iter.next(iter) = iter.next(iter) + iter.step(iter)
+    gt(iter.step(iter)) gt(next,iter.finis(iter))   :s(freturn)
+    lt(iter.step(iter)) lt(next,iter.finis(iter))   :s(freturn)
+    this = set.this(set) = next                     :(return)
+
 next.map
 next.set
     
-*   out('index1',set.index(set)[1])
-*   out('index2',set.index(set)[2])
-*   out('index3',set.index(set)[3])
-    iter = set.iter(set)
-    iter.next(iter) = iter.next(iter) + 1
-    next = iter.next(iter)
+    next = iter.next(iter) = iter.next(iter) + 1
     le(next,set.size(set))                          :f(freturn)
     next = set.index(set)[next]
-    out('next.set',next)
-    out('next index',set.index(set)[next])
-    out('next val',set.key(set)[next])
-    set.this(set) = next
-    this = next                                     :(return)
+    this = set.this(set) = next                     :(return)
 
 next.end
 
@@ -1356,7 +1368,6 @@ pop
 
     eq(set.size(stack))                             :s(freturn)
     pop = set.key(set)[set.index(set)[set.size(stack)]]
-*   out('datatype popped',datatype(pop))
     set.size(stack) = set.size(stack) - 1           :(return)
 
 pop.end
@@ -1367,9 +1378,7 @@ pop.end
 
 push
 
-    set.size(stack) = set.size(stack) + 1
-    set.index(set)[set.size(stack)] = set.size(stack)
-    set.key(set)[set.size(stack)] = value           :(return)
+    put(stack,set.size(stack) + 1, value)           :f(freturn)s(return)
 
 push.end
 
@@ -1476,7 +1485,6 @@ random.seed.end
 *   as "+k" or "+ke", "+value" as "+v" or +"val", and so forth.
 
 rank
- :(return)
     str = ident(datatype(set),'string') set
     type = get(setl4.rank.types,type) 
 
@@ -1586,14 +1594,14 @@ show
     differ(label) out('show: ' upper(label))
     differ(datatype(v),'set')                       :s($('show.' datatype(v)))
 
-*   When showing a set, save _set.index_ and _set.this_ before
-*   traversing the tables to avoid disrupting a possible 
-*   existing iteration over the set. Restore the fields
-*   after the set has been shown.
+*   Make a copy of the argument to avoid disrupting a possible 
+*   existing iteration over the argument.
+    
+    v = copy(v)
     
     kind = set.kind(v)
     ident(kind,'int')                               :s(show.int)
-    ident(kind,'iter')                              :s(show.iterator)
+    ident(kind,'iter')                              :s(show.iter)
     ident(kind,'map')                               :s(show.map)
     ident(kind,'set')                               :s(show.set)
     error('show unknown set kind',kind,' quitting.')
@@ -1617,14 +1625,30 @@ show.entry
 
     show = show ' ' show(key(v),,1)  ':' show(value(v,,1)) ' ' :(show.done)
 
-show.iterator
 show.iter
 
-    v = set.iter(v)
+    show = 'iter{ '
+    loop(v) 
+
+show.iter.next
+
+    elem = next(v)                                :f(show.iter.done)
+    show = show ' ' show(elem,,1)
+    lt(size(show),80)                             :s(show.iter.next)
+    out(show)
+    show =                                        :(show.iter.next)
+
+show.iter.done
+
+    show = show ' }'                                :(show.done)
+
+show.iterator
+    out('enter show.iterator')
+
     show = '{iterator'
-.           (ne(iter.first(v))  ' first:'   iter.first(v) ,'')
-.           (ne(iter.second(v)) ' second:'  iter.second(v),'')
-.           (ne(iter.step(v))   ' step:'     iter.step(v),'')  '} ' :(show.done)
+.           (ne(iter.start(v))  ' start:'   iter.start(v) ,'')
+.           (ne(iter.finis(v))  ' finis:'   iter.finis(v),'')
+.           (ne(iter.step(v))   ' step:'    iter.step(v),'')  '} ' :(show.done)
 
 show.integer
 
@@ -1632,9 +1656,8 @@ show.integer
 
 show.map
 
-    show = '{ map'
+    show = 'map{'
     rank(v,'+k')
-*   out('show.map SAVE')
     setl4.save(v)
     loop(v)
 
@@ -1649,7 +1672,6 @@ show.map.next
 
 show.map.done
 
-*   out('show.map RESTORE')
     setl4.restore(v)
     show = show ' }'                                :(show.done)
 
@@ -1680,7 +1702,7 @@ show.int.done
 
 show.set
 
-    show = '{ set'
+    show = 'set{'
     rank(v,'+k')
     setl4.save(v)
     loop(v)
@@ -1827,7 +1849,7 @@ show.q.double
 
 show.q.end
 
-    define('subset(a,b)member')                     :(subset.end)
+    define('subset(a,b)elem')                       :(subset.end)
 
 *   Tests if the second set is a subset of the first.
 
@@ -1836,10 +1858,10 @@ subset
     gt(set.size(b),set.size(a))                     :s(freturn)
     loop(b)
 
-subiter.next
+subset.next
 
-    member = next(b)                                :f(return)
-    member(a,member)                                :s(subiter.next)f(freturn)
+    elem = next(b)                                  :f(return)
+    member(a,elem)                                  :s(subset.next)f(freturn)
 
 subset.end
 
@@ -1935,10 +1957,6 @@ setl4.restore
 
     set.this(s) = pop(setl4.stack)
     set.index(s) = pop(setl4.stack)                
-*   out(datatype(set.index(s)))
-*   out('pop index')
-*   out(upper(datatype(set.index(s))))
-
                 :(return)
 
 setl4.restore.end
@@ -1949,11 +1967,8 @@ setl4.restore.end
 
 setl4.save
 
-*   out('enter setl4.SAVE')
-*   out(datatype(set.index(s)))
     push(setl4.stack,set.index(s))
     push(setl4.stack,set.this(s))                   
-*   out('SAVE size',set.size(s))
                                                     :(return)
 
 setl4.save.end
@@ -1971,20 +1986,23 @@ setl4.show
 
 setl4.show.iter
 
-    setl4.show =  'iterator:' ' first:' +iter.first(set) 
-.                 ' second:' +iter.second(set) ' step:' +iter.step(set)  :(return)
+    setl4.show =  out('(iterator  start:' +iter.start(set) 
+.                             ' finis:' +iter.finis(set)
+.                             ' step:' +iter.step(set) 
+.                             ' next:' +iter.next(set) ')')
+                                                    :(return)
 
 setl4.show.set
 
     iter = set.iter(set)
                            out('{')
-                           out('  kind',            set.kind(set))
+                           out('  kind',            show.q(set.kind(set)))
     differ(set.index(set)) out('  has index table')
     differ(set.key(set))   out('  has key table')
     ne(set.size(set))      out('  size',            set.size(set))
     differ(set.this(set))  out('  this',            set.this(set))
-    ne(iter.first(iter))   out('  first',           iter.first(iter))
-    ne(iter.second(iter))  out('  second',          iter.second(iter))
+    ne(iter.start(iter))   out('  first',           iter.start(iter))
+    ne(iter.finis(iter))  out('  second',          iter.finis(iter))
     ne(iter.step(iter))    out('  step',            iter.step(iter))
     differ(set.iter(set))  out('  ',            setl4.show(set.iter(set)))
                            out('}')
@@ -2002,7 +2020,7 @@ setl4.show.end
 setl4.size
 
     setl4.size = ident(datatype(set),'string') size(set)    :s(return)
-    setl4.size = differ(iter.step(set)) (iter.second(set) - iter.first(set) / iter.step(set)) + 1 :s(return)
+    setl4.size = differ(iter.step(set)) (iter.finis(set) - iter.start(set) / iter.step(set)) + 1 :s(return)
     setl4.size = set.size(set)                      :(return)
 
 setl4.size.end
@@ -2067,7 +2085,8 @@ setl4.sort.null
 
 setl4.sort.done
 
-    set.index(set) = tbl                            :(return)
+   set.index(set) = tbl                            
+                                                        :(return)
 
 setl4.sort.end
 
