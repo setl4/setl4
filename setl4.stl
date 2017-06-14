@@ -220,24 +220,40 @@
 *   Maps
 *   ----
 
-*   In mathematics, a map defined on a finite set is a set of 
-*   ordered pairs, or entries,  that define a relation between the 
-*   first element of an entry, its _key_, and the second element 
-*   of the entry, the value of the map for _key_.
+*   In set theory, sets are not ordered. The set _{a,b}_ is the same as (equal to)
+*   the set _{b,a}_.
+
+*   Although sets are not ordered, sets can be used to define an order pair:
 
     data('pair(first,second)')
 
-*   A map cannot have two pairs with the same first value and different second values.
+*   by defining _entry(a,b)_ to be
+*
+*       _{a,{a,b}}_
+*
+*   as it  easy to prove that, given this definition, _entry(a,b)_ is equal
+*   to _entry(c,d)_ if and only if _a_ is equal to _c_ and _b_ is equal to _d_.
+
+*   In set theory, a map defined on a finite set is a set of 
+*   ordered pairs, or entries, that define a relation between the 
+*   first element of an entry, its _key_, and the second element 
+*   of the entry, the value of the map for _key_.
+
+    data('entry(key,value)')
+
+*   A set of ordered pairs is a map if and only if there do not exist two pairs
+*   _entry(a,b)_ and _entry(c,d)_ in the set such that _a_ is equal to _c_ and _b_
+*   is not equal to _d_.
 *   For example, the map defined by the set _{[one,1],[2,two],[one,1]}_ is valid, but
-*   one cannot define a map by the set _{[one,1],[2,two],[one,3]}_.
+*   one cannot define a map based on the set _{[one,1],[2,two],[one,3]}_.
 
 *   However, SETL4 does allow the use of a set of pairs that would not 
 *   be allowed in stanard set theory to define a map. If two of more pairs
 *   have the same first value, the the last such pair encountered defines the
-*   value to be used. For exampe, the set _{[one,1],[2,two],[one,3]}_ produces
-*   the same map as _{[one,3],[2,two]}_.
+*   value to be used. For exampe, the set _{entry(one,1),entry(2,two),entry(one,3)}_ produces
+*   the same map as _{entry(one,3),entry(2,two)}_.
 
-*   Though you can use _pair_ to give a key and its associated value, the
+*   Though you can use _entry to give a key and its associated value, the
 *   preferred convention is separate a key and its value with a ':'
 *   allows you to write "key:value," so that 
 
@@ -245,7 +261,7 @@
 
 *   instead of
 
-*       new('map' pair('one',1) ' ' pair('two',2) ' ' pair('three',3) )
+*       new('map' entry('one',1) ' ' entry('two',2) ' ' entry('three',3) )
 
 *   Though in set theory, maps are defined in terms of sets, in the SETL4
 *   implementation, sets are represented are maps, by mapping each element
@@ -295,19 +311,12 @@
 *   SETL4 provides the datatype _iterator_ to control iteration over a 
 *   range of integers, over a set, or over a map.
 
-    data('iterator(iter.kind,iter.next,iter.start,iter.finis,iter.step,'
+    data('iterator(iter.next,iter.start,iter.finis,iter.step,'
 .                 'iter.block,iter.blocks,iter.offset,iter.str)')
 
 *   where
 
-*   _iter.kind_         is the king of the iterator:
-
-*       'int'           iterator over set of kind 'int'
-*       'iter'          iterator over set of kind 'iter'
-*       'map'           iterator over set of kind 'map'
-*       'set'           iterator over set of kind 'set'
-
-*   iter.next           last value returned by the iterator.
+*   _iter.next           last value returned by the iterator.
 
 *   The following fields are used to iterate over a range:
 
@@ -449,7 +458,7 @@
 *   SETL4 Functions
 *   ---------------
 *
-*   add(set,elem)                   Adds element to set, or the members of _elem_ if _elem_ is a set.
+*   add(set,elem)                   Adds element to set
 *   and(a,b)                        And: test if both operands are true
 *   arb(n)                          Returns arbitary (randomly chosen) integer in 1 .. _n_
 *   arb(set)                        Returns arbitary (randomly chosen) element of _set_
@@ -508,99 +517,110 @@
 
     define('add(set,elem)ara,i,n,str')              :(add.end)
 
-*   If _set_ is a map, define key to be _set.size(set)+1_ and element
-*   to be _elem_.
-*   If _elem_ is a sequence, add all its elements to _set_.
-*   If _elem_ is an interator ('iter'), add all its elements to _set_.
-*   If _elem_ in an array, add all its values in the first column to _set_.
-*   If _elem_ is a pair, treat its first part as a key and the second as a value.
-*   Otherwise, add _elem_ to _set_.
+*   _Add_ adds an element to a set if it not already a member.
 
 add
 
-*   Convert _elem_ that is integer to integer.
-
-    elem = integer(elem) +elem
-    ident(datatype(set),'array')                    :s(add.array)
-    ident(set.kind(set),'int')                      :s(add.int)
-    ident(set.kind(set),'map')                      :s(add.map)
-    ident(set.kind(set),'set')                      :s(add.set)
-    error('unexpected kind to add:' set.kind(set))
-
-add.array
-
-*   Here to add the values in an array to the set.
-
-add.array.next
-
-    add(set,elem[i = i + 1])                        :s(add.array.next)f(return)
-
-add.int
-
-*   Here to test if _elem_ is already in set of kind _int_, 
-*   and otherwise to add new integer to the set.
-*   Set _block_ to the block for _elem_ and set _this_ to the
-*   offset in the block's string corresponding to _elem_.
-*   Use _iter.step_ to count the number of blocks.
-*
-*   _Elem_ is not a member if the block is null. Otherwise see
-*   if the character corresponding to _elem_ is '+'.
-    set.block(set) = elem / setl4.config.int
-    set.offset(set) = +(remdr(elem,setl4.config.int) + 1)
-*   Add _elem_ to set _set_ if not already present.
-*
-    str = set.key(set)[set.block(set)]
-    ident(str)                                      :s(add.int.new)
-    ident(substr(str,set.offset(set),1),'+')        :s(return)f(add.int.update)
-
-add.int.new
-
-*   Create new block and then merge to add the new element.
-
-    set.blocks(set) = set.blocks(set) + 1
-    set.index(set)[set.blocks(set)] = set.block(set)
-    str = setl4.config.int.init
-
-add.int.update
-    
-    set.size(set) = set.size(set) + 1
-    str = eq(set.offset(set),1) '+' substr(str,2)   :s(add.int.finis)
-    str = substr(str,1,set.offset(set) - 1)
-.          '+' 
-.          (ne(set.offset(set),setl4.config.int) substr(str,set.offset(set) + 1),'')
-
-add.int.finis
-
-    set.str(set) = str
-    set.key(set)[set.block(set)] = set.str(set)     :(return)
-
-add.pair
-
-*   Add element which is a pair by treating set as a map and using _put_.
-
-    put(set,first(elem),second(elem))               :(return)
-
-add.put
-
-    set.key(set)[key] = elem                        :(return)
-
-add.map
-
-*   Add element to sequence.
-
-    put(set,set.size(set) + 1, elem)                :(return)
-
-add.set
-
-*   Here to add element to set.
-
     member(set,elem)                                :s(return)
-
     set.size(set) = set.size(set) + 1
     set.index(set)[set.size(set)] = elem
     set.key(set)[elem] = elem                       :(return)
     
 add.end
+
+*    define('Add(set,elem)ara,i,n,str')              :(Add.end)
+*
+**   _Add_ at one point allowed extensions described below
+**   Keep this code around in case want to provide similar
+**   function under a different name.
+*
+**   _Add_ Adds an element to a set if it not already a member.
+*
+*Add
+*
+**   Convert _elem_ that is integer to integer.
+*
+*    elem = integer(elem) +elem
+*    ident(datatype(set),'array')                    :s(Add.array)
+*    ident(set.kind(set),'int')                      :s(Add.int)
+*    ident(set.kind(set),'map')                      :s(Add.map)
+*    ident(set.kind(set),'set')                      :s(Add.set)
+*    error('unexpected kind to Add:' set.kind(set))
+*
+*Add.array
+*
+**   Here to Add the values in an array to the set.
+*
+*Add.array.next
+*
+*    Add(set,elem[i = i + 1])                        :s(Add.array.next)f(return)
+*
+*Add.int
+*
+**   Here to test if _elem_ is already in set of kind _int_, 
+**   and otherwise to Add new integer to the set.
+**   Set _block_ to the block for _elem_ and set _this_ to the
+**   offset in the block's string corresponding to _elem_.
+**   Use _iter.step_ to count the number of blocks.
+**
+**   _Elem_ is not a member if the block is null. Otherwise see
+**   if the character corresponding to _elem_ is '+'.
+*    set.block(set) = elem / setl4.config.int
+*    set.offset(set) = +(remdr(elem,setl4.config.int) + 1)
+**   Add _elem_ to set _set_ if not already present.
+**
+*    str = set.key(set)[set.block(set)]
+*    ident(str)                                      :s(Add.int.new)
+*    ident(substr(str,set.offset(set),1),'+')        :s(return)f(Add.int.update)
+*
+*Add.int.new
+*
+**   Create new block and then merge to Add the new element.
+*
+*    set.blocks(set) = set.blocks(set) + 1
+*    set.index(set)[set.blocks(set)] = set.block(set)
+*    str = setl4.config.int.init
+*
+*Add.int.update
+*    
+*    set.size(set) = set.size(set) + 1
+*    str = eq(set.offset(set),1) '+' substr(str,2)   :s(Add.int.finis)
+*    str = substr(str,1,set.offset(set) - 1)
+*.          '+' 
+*.          (ne(set.offset(set),setl4.config.int) substr(str,set.offset(set) + 1),'')
+*
+*Add.int.finis
+*
+*    set.str(set) = str
+*    set.key(set)[set.block(set)] = set.str(set)     :(return)
+*
+*Add.pair
+*
+**   Add element which is a pair by treating set as a map and using _put_.
+*
+*    put(set,key(elem),value(elem))               :(return)
+*
+*Add.put
+*
+*    set.key(set)[key] = elem                        :(return)
+*
+*Add.map
+*
+**   Add element to sequence.
+*
+*    put(set,set.size(set) + 1, elem)                :(return)
+*
+*Add.set
+*
+**   Here to Add element to set.
+*
+*    member(set,elem)                                :s(return)
+*
+*    set.size(set) = set.size(set) + 1
+*    set.index(set)[set.size(set)] = elem
+*    set.key(set)[elem] = elem                       :(return)
+*    
+*Add.end
 
     define('and(a,b)')                              :(and.end)
 
@@ -1039,7 +1059,6 @@ loop
 loop.int
 
     set.iter(set) = iterator()
-    iter.kind(iter) = 'int'
     iter.next(set) = set.block(iter) = set.offset(iter) = 0 :(return)
 
 loop.iter
@@ -1048,18 +1067,18 @@ loop.iter
 *   created when the set was created.
 
     iter = set.iter(set)
-    differ(iter.kind(iter),'iter') error("loop.iter requires kind 'iter'")
+    differ(set.kind(iter),'iter') error("loop.iter requires kind 'iter'")
     iter.next(iter) = gt(iter.step(iter)) iter.start(iter) - iter.step(iter)
     iter.next(iter) = lt(iter.step(iter)) iter.start(iter) - iter.step(iter)
                                                     :(return)
 
 loop.map
 
-    set.iter(set) = iterator('map')                     :(return)
+    set.iter(set) = iterator()                     :(return)
 
 loop.set
 
-    set.iter(set) = iterator('set')                     :(return)
+    set.iter(set) = iterator()                     :(return)
 
 loop.end
 
@@ -1156,7 +1175,7 @@ new.int.next
 new.ite
 new.iter
 
-    iter = iterator('iter')
+    iter = iterator()
     iter.step(iter) = 1
     seq = new('seq ' init)
 
@@ -1200,6 +1219,7 @@ new.map
     new = set('map',iterator(),table(setl4.config.set.table.size),table(setl4.config.set.table.size))
 
 *   If present, _init_ is a list consisting of a list of key/value pairs,
+
 *   with a colon (:) separating the key and value.
 
     init = init ' '
@@ -1263,7 +1283,7 @@ next
     iter = set.iter(set)
 *   Branch on kind to find next iteration value.
 
-        :($('next.' iter.kind(iter)))
+        :($('next.' set.kind(set)))
 
 next.int
 
@@ -1313,18 +1333,27 @@ next.iter
     this = set.this(set) = next                     :(return)
 
 next.map
-next.set
-    
-    next = iter.next(iter) = iter.next(iter) + 1
+
+    next = iter.next(iter) = +iter.next(iter) + 1
     le(next,set.size(set))                          :f(freturn)
     next = set.index(set)[next]
-    this = set.this(set) = next                     :(return)
+    this = set.this(set) = next                     
+*   out('next.map', this)
+                                                    :(return)
+
+next.set
+    
+    next = iter.next(iter) = +iter.next(iter) + 1
+    le(next,set.size(set))                          :f(freturn)
+    next = set.index(set)[next]
+    this = set.this(set) = next                     
+                                                    :(return)
 
 next.end
 
     define('not(expr)')                             :(not.end)
 
-*   Returns not of boolean expression.
+*   _Not_ returns the negation of a boolean expression.
 
 not
 
@@ -1335,8 +1364,8 @@ not.end
 
     define('or(a,b)')                               :(or.end)
 
-*   Tests if either operand is true, fails otherwise.
-*   Only evaluates second operand if necessary
+*   _Or_ tests if either operand is true, fails otherwise.
+*   _Or_ only evaluates second operand if necessary
 
 or
     or = integer(a) ne(a)                           :s(return)
@@ -1351,8 +1380,8 @@ or.end
 
     define('out(text1,text2,text3)type1,type2')     :(out.end)
 
-*   Output a line conisting of TEXT1, TEXT2 enclosed
-*   in brackets, followed by TEXT3.
+*   _Out_ writes a line to standard output  conisting of TEXT1, 
+*   TEXT2 enclosed in brackets, followed by TEXT3.
 
 out
 
@@ -1362,19 +1391,19 @@ out.end
 
     define('pop(stack)')                            :(pop.end)
 
-*   Pop the top item from the stack, or fail if the stack is empty.
+*   _Pop_ removes (pops)  the top item from stack, or fails if the stack is empty.
 
 pop
 
     eq(set.size(stack))                             :s(freturn)
-    pop = set.key(set)[set.index(set)[set.size(stack)]]
+    pop = set.key(stack)[set.index(stack)[set.size(stack)]]
     set.size(stack) = set.size(stack) - 1           :(return)
 
 pop.end
 
     define('push(stack,value)')                     :(push.end)
 
-*   Push _value_ onto the stack _stack_.
+*   Push adds a new value to a stack (implemented as a sequence).
 
 push
 
@@ -1384,7 +1413,7 @@ push.end
 
     define('put(map,key,value)v')                   :(put.end)
 
-*   Sets the value of the entry for key _key_ in map _map_ to be _val_,
+*   _Put_ sets the value of the entry for key _key_ in map _map_ to be _val_,
 
 put
 
@@ -1632,11 +1661,11 @@ show.iter
 
 show.iter.next
 
-    elem = next(v)                                :f(show.iter.done)
+    elem = next(v)                                  :f(show.iter.done)
     show = show ' ' show(elem,,1)
-    lt(size(show),80)                             :s(show.iter.next)
+    lt(size(show),80)                               :s(show.iter.next)
     out(show)
-    show =                                        :(show.iter.next)
+    show =                                          :(show.iter.next)
 
 show.iter.done
 
@@ -1986,25 +2015,25 @@ setl4.show
 
 setl4.show.iter
 
-    setl4.show =  out('(iterator  start:' +iter.start(set) 
-.                             ' finis:' +iter.finis(set)
-.                             ' step:' +iter.step(set) 
-.                             ' next:' +iter.next(set) ')')
+    setl4.show =  out('(iterator  start:'   +iter.start(set) 
+.                             ' finis:'     +iter.finis(set)
+.                             ' step:'      +iter.step(set) 
+.                             ' next:'      +iter.next(set) ')')
                                                     :(return)
 
 setl4.show.set
 
     iter = set.iter(set)
                            out('{')
-                           out('  kind',            show.q(set.kind(set)))
+                           out('  kind',     show.q(set.kind(set)))
     differ(set.index(set)) out('  has index table')
     differ(set.key(set))   out('  has key table')
-    ne(set.size(set))      out('  size',            set.size(set))
-    differ(set.this(set))  out('  this',            set.this(set))
-    ne(iter.start(iter))   out('  first',           iter.start(iter))
-    ne(iter.finis(iter))  out('  second',          iter.finis(iter))
-    ne(iter.step(iter))    out('  step',            iter.step(iter))
-    differ(set.iter(set))  out('  ',            setl4.show(set.iter(set)))
+    ne(set.size(set))      out('  size',     set.size(set))
+    differ(set.this(set))  out('  this',     set.this(set))
+    ne(iter.start(iter))   out('  first',    iter.start(iter))
+    ne(iter.finis(iter))  out('  second',    iter.finis(iter))
+    ne(iter.step(iter))    out('  step',     iter.step(iter))
+    differ(set.iter(set))  out('  ',         setl4.show(set.iter(set)))
                            out('}')
     differ(set.index(set)) differ(datatype(set.index(set)),'table') 
 .           error(' set.index is not table')
