@@ -38,7 +38,9 @@ You should see a list of the options. Then enter the program `try.stl`:
 If that works, then you are on you way to having fun using SETL4 to write
 more interesting programs.
 
-Directory `setl4/tests` contains test programs.
+Directory `setl4/tests` contains test programs, including the program
+`sanity-check.stl` that is used to test changes to the system. It also
+provides examples of several basic constructs and operations.
 
 Directory `setl4/examples` contains various demonstration program.
 This written in SPITBOL have a name ending in 'sbl'. One goal of the

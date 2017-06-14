@@ -541,7 +541,7 @@ add.end
 
     define('and(a,b)')                              :(and.end)
 
-*   Tests if both operand are true (not null), only 
+*   _And_ tests if both operand are true (not null), only 
 *   evaluating the second argument when necessary.
 
 and
@@ -560,7 +560,7 @@ and.end
 
     define('arb(set)n,r')                           :(arb.end)
 
-*   Returns arb (randomly selected) element of _set_.
+*   _Arb_ returns an arbitrary (randomly selected) element of a set.
 
 arb
 
@@ -572,7 +572,7 @@ arb.end
 
     define('assert(expr)')                          :(assert.end)
 
-*   Test that expression is non null, ending execution otherwise.
+*   _Assert_ tests that its argument expression is non null, ending execution otherwise.
 
 assert
 
@@ -583,7 +583,7 @@ assert.end
 
     define('assert.type(obj,typ)')                  :(assert.type.end)
 
-*   Verify that _obj_ has datatype _typ_, end execution if not.
+*   _Assert.type_ tests that _obj_ has datatype _typ_, and ends execution if not.
 
 assert.type
 
@@ -595,7 +595,7 @@ assert.type.end
 
     define('at(set,expr)this')                      :(at.end)
 
-*   Evaluate _expr_ for the current element in an iteration.
+*   _At_ evaluates _expr_ for the current element in an iteration over _set_.
 
 at
 
@@ -636,7 +636,7 @@ compose.end
 
     define('defined(map,key)entry')                 :(defined.end)
 
-*   Tests if the map _map_ has an entry for _key_.
+*   _Defined_ tests if the map _map_ has an entry for _key_.
 
 defined
     key = integer(key) +key
@@ -647,7 +647,7 @@ defined.end
 
     define('difference(a,b)this')                   :(difference.end)
 
-*   Returns set defined by set of elements of _a_ that are not in _b_.
+*   _Difference_ returns the set defined by the set of elements of _a_ that are not in _b_.
 
 difference
 
@@ -664,7 +664,7 @@ difference.end
 
     define('equal(a,b)entry,i,key,value')                        :(equal.end)
 
-*   Tests if two objects are equal. Use DIFFER unless both are sets, in
+*   _Equals_ tests if two objects are equal. Use DIFFER unless both are sets, in
 *   which case use equality tests specified below.
 
 equal
@@ -725,7 +725,7 @@ equal.end
 
     define('from(set,elem)this')                    :(from.end)
 
-*   Return set consisting of all the elements of _a_ except _elem_.
+*   _From_ removes an (existing) element from a set.
 
 from
 
@@ -741,7 +741,7 @@ from.end
 
     define('domain(map)elem)')                      :(domain.end)
 
-*   Return set of the keys in _map_.
+*   _Domain_ returns the domain of map, which is the set of the keys in _map_.
 
 domain
 
@@ -757,7 +757,7 @@ domain.end
 
     define('error(str)')                            :(error.end)
 
-*   Report cause of error and quit execution
+*   _Error_ writes out its argument string and ends execution.
 
 error
 
@@ -773,7 +773,7 @@ error.end
 
     define('exists(set,expr)this,e')                :(exists.end)
 
-*   Tests if there is an element in _set such that _expr_ is true.
+*   _Exists_ tests if there is an element in _set such that _expr_ is true.
 
 exists
 
@@ -792,7 +792,7 @@ exists.end
 
     define('false(e)')                              :(false.end)
 
-*   Tests if argument is false (null).
+*   _False_ tests if its argument is false (null).
 
 false
 
@@ -833,7 +833,7 @@ filter.end
 
     define('forall(set,expr)e')                     :(forall.end)
 
-*   Tests if _expr_ is true for all elements of _set_.
+*   _Forall_ tests if _expr_ is true for all elements of _set_.
 
 forall
 
@@ -849,7 +849,7 @@ forall.end
 
     define('get(map,key)val,entry')                 :(get.end)
 
-*   Gets the value of the key _key_ in the map _map_, or gets
+*   _Get_ gets the value of the key _key_ in the map _map_, or gets
 *   element _key_ in a set, failing if no such element.
 
 get
@@ -880,10 +880,9 @@ get.end
 
     define('int(n)')                                :(int.end)
 
-*   Returns _n_ if _n_ is an integer.
-*   Returns _n_ converted to an integer if _n_ is real.
-*   Returns the value of a string written in exponential 
-*   (scientific) notation into its integer value.
+*   _Int_ Returns _n_ if _n_ is an integer, or returns _n_ converted to an
+*   integer if _n_ is real, or returns the value of a string written in exponential 
+*   (scientific) notation converted to its integer value.
 
 int
 
@@ -900,7 +899,7 @@ int.end
 
     define('integers(n)')                           :(integers.end)
 
-*   Return set containing integers 1 .. _n_
+*   _Integers_ returns the set containing the integers 1 .. _n_
 
 integers
 
@@ -914,7 +913,7 @@ integers.end
 
     define('intersection(a,b)this')                 :(intersection.end)
 
-*   Returns intersection of sets _a_ and _b_.
+*   _Intersection_ returns the intersection of its argument sets.
 
 intersection
 
@@ -961,7 +960,7 @@ join.end
 
     define('loop(set)iter')                         :(loop.end)
 
-*   Create or update the iterator of _set_ so that,
+*   _Loop_ creates or updates the iterator of _set_ so that,
 *   on first call to _next()_,  _iter.next_  will be 
 *   advanced to select the first element in the iteration.
 
@@ -1001,7 +1000,7 @@ loop.end
 
     define('member(set,elem)kind,entry,i,iter,key,this,value,block)') :(member.end)
 
-*   Tests if _elem_ is member of _set_.
+*   _Member_ tests if _elem_ is member of _set_.
 
 member
 
@@ -1044,6 +1043,8 @@ member.set
 member.end
 
     define('new(init)kind,i,iter,len,n,key,seq,val,words)'):(new.end)
+
+*   _New_ constructs a new set and returns its value.
 
 *   Construct new set with initial values determined by string _init_.
 *   The first three characters in _init_ determine the initial
@@ -1183,7 +1184,7 @@ new.end
 
     define('new.stack()')                           :(new.stack.end)
 
-*   Returns a new stack.
+*   _New.stack_ returns a new stack.
 
 new.stack
 
@@ -1196,7 +1197,8 @@ new.stack.end
 
     define('next(set)i,iter,key,next,str,value')    :(next.end)
 
-*   Advance iteration by setting field _next_.  Fail if no more elements remain.
+*   _Next_ Advances an  iteration by setting field _next_ to the next item
+*   to be visisted, or fails if no more elements remain.
 
 next
 
@@ -1257,7 +1259,7 @@ next.map
     next = iter.next(iter) = +iter.next(iter) + 1
     le(next,set.size(set))                          :f(freturn)
     next = set.index(set)[next]
-    this = set.this(set) = entry(next,set.key(set)[next])
+    this = set.this(set) = entry(next,set.key(set)[next]) 
                                                     :(return)
 
 next.set
@@ -1283,8 +1285,8 @@ not.end
 
     define('or(a,b)')                               :(or.end)
 
-*   _Or_ tests if either operand is true, fails otherwise.
-*   _Or_ only evaluates second operand if necessary
+*   _Or_ tests if either operand is true, fails otherwise, only evaluating
+*   its second argument if necessary
 
 or
     or = integer(a) ne(a)                           :s(return)
@@ -1322,7 +1324,7 @@ pop.end
 
     define('push(stack,value)')                     :(push.end)
 
-*   Push adds a new value to a stack (implemented as a sequence).
+*   _Push_ adds a new value to a stack (implemented as a sequence).
 
 push
 
@@ -1354,7 +1356,7 @@ put.end
 
     define('range(map)elem)')                       :(range.end)
 
-*   Return set of the values of _map_.
+*   _Range_ returns the range of map, which is the set of the values in _map_.
 
 range
 
@@ -1370,8 +1372,10 @@ range.end
 
     define('random(n)')                             :(random.end)
 
-*   Return integer uniformly distributed in 1,2,...,n.
-*   If n=0 returns real uniformly distributed in the interval [0,1].
+*   _Random_ returns an integer uniformly distributed in 1,2,...,_n_ if its
+*   argument is a postive integers. If the argument is zero, _random_ returns
+*   a real value uniformly distributed in the interval [0,1].
+
 *   The algorithm can be found in section 16.1 of "Algorithms in SNOBOL4,"
 *   James F. Gimpel, John Wiley and Sons, 1976.
 
@@ -1385,7 +1389,7 @@ random.end
 
     define('random.seed()s,c')                      :(random.seed.end)
 
-*   Compute seed for random number generator from date and time.
+*   _Random.seed_ computes the seed for random number generator from the current date and time.
 
 random.seed
     setl4.random_var =
@@ -1470,6 +1474,9 @@ rank.end
 
     define('remove(set,elem)i,iter,this')             :(remove.end)
 
+*   _Remove_ removes the element _elem_  from the set _set_. _Remove_
+*   does nothing if _elem_ is not a member of the set.
+
 *   If _elem_ is new, remove the most recently added element of a set or map.
 *   If _set_ is a set, then remove _elem_ from _set_ if it is a member.
 *   If _set_ is a map, remove the entry with key _value_.
@@ -1533,7 +1540,9 @@ remove.end
 
     define('show(v,label,nested)ara,i,kind,elem,ent,line,hdr,map,n,set.this') :(show.end)
 
-*   Show the value of expression _v_.
+*   _Show_ displays the value of its first argument in a form that is hopefully both
+*   readable and pleasing to the eye.
+
 *   _lev_ is non-zero when called to list element of a compound object.
 
 show
@@ -1571,7 +1580,7 @@ show.array.2
 
 show.entry
 
-    show = show ' ' show(key(v),,1)  ':' show(value(v,,1)) ' ' :(show.done)
+    show = show ' ' show(key(v),,1)  ':' show(value(v),,1) :(show.done)
 
 show.iter
 
@@ -1612,7 +1621,8 @@ show.map
 show.map.next
 
     elem = next(v)                                  :f(show.map.done)
-    show = show ' ' show(elem,,1) ':' show(set.key(v)[elem],,1)
+*   show = show ' ' show(elem,,1) ':' show(set.key(v)[elem],,1)
+    show = show ' ' show(elem) 
     lt(size(show),80)                               :s(show.map.next)
     out(show)
     show =                                          :(show.map.next)
@@ -1711,7 +1721,7 @@ show.end
 
     define('show.b(e)')                             :(show.b.end)
 
-*   Show value of _e_ as boolean: TRUE or FALSE
+*   _Show.b_ shows the value if its argument as a boolean value: TRUE or FALSE
 
 show.b
 
@@ -1722,7 +1732,8 @@ show.b.end
 
     define('show.eval(expr)e')                      :(show.eval.end)
 
-*   Show result of evaulating _expr_ as success or fail.
+*   _Show.eval_ evaluates its argument and returns 'success' if
+*   the evaluation succeeded, or 'failure' if not.
 
 show.eval
 
@@ -1741,7 +1752,7 @@ show.eval.end
 
     define('show.line(line)')                       :(show.line.end)
 
-*   Show a line with spaces replaced by '.'
+*   _Show.line_  shows a line with spaces replaced by '.'
 
 show.line
 
@@ -1751,7 +1762,7 @@ show.line.end
 
     define('show.lines(lines,title)i,line,titled')  :(show.lines.end)
 
-*   Show the lines that are not empty in an array of lines
+*   _Show.lines_ shows the lines in _lines_ that are not empty.
 
 show.lines
 
@@ -1777,7 +1788,7 @@ show.lines.end
 
     define('show.q(str)')                           :(show.q.end)
 
-*   Show string _str_ enclosed in quotes
+*   _Show.q_ shows its argument string _str_ enclosed in quotes
 
 show.q
 
@@ -1797,7 +1808,7 @@ show.q.end
 
     define('subset(a,b)elem')                       :(subset.end)
 
-*   Tests if the second set is a subset of the first.
+*   _Subset_ tests if its second argument is a subset of the first.
 
 subset
 
@@ -1813,7 +1824,7 @@ subset.end
 
     define('this(set)')                             :(this.end)
 
-*   Returns value found in most recent call to next.
+*   _This_ returns the value determined in the most recent call to next.
 
 this
 
@@ -1823,7 +1834,7 @@ this.end
 
     define('true(e)')                               :(true.end)
 
-*   Tests if operand is true
+*   _True_ Tests if its operand is true
 
 true
 
@@ -1835,7 +1846,7 @@ true.end
 
     define('union(a,b)elem')                        :(union.end)
 
-*   Returns union of sets _a_ and _b_.
+*   _Union_ returns the union of sets _a_ and _b_.
 
 union
 
@@ -1882,7 +1893,7 @@ visit.end
 
     define('setl4.clear()')                         :(setl4.clear.end)
 
-*   Clear values of setl4 global variables. This reduces amount of &dump output.
+*   _Setl4.clear) clearis the values of setl4 global variables. This reduces amount of &dump output.
 
 setl4.clear
 
@@ -1897,7 +1908,7 @@ setl4.clear.end
 
     define('setl4.restore(s)')                      :(setl4.restore.end)
 
-*   Restore _next_ and _this_ fields of argument.
+*   _Setl4.restore_ restores the values saved by the most recent call to _setl4.push_.
 
 setl4.restore
 
@@ -1909,7 +1920,7 @@ setl4.restore.end
 
     define('setl4.save(s)')                         :(setl4.save.end)
 
-*   Save _next_ and _this_ fields of argument.
+*   _Setl4.save_ saves the _index and _this_ fields of its argument set.
 
 setl4.save
 
@@ -1921,7 +1932,7 @@ setl4.save.end
 
     define('setl4.show(set,label)iter')             :(setl4.show.end)
 
-*   Show the fields of an instance of _set_ or _iterator_.
+*   Setl4.show_ shows  the fields of an instance of _set_ or _iterator_.
 
 setl4.show
 
@@ -1961,7 +1972,7 @@ setl4.show.end
 
     define('setl4.set.size(set)')                   :(setl4.size.end)
 
-*   Return size of operand.
+*   Setl4.set.size_ returns the  size of operand.
 
 setl4.size
 
@@ -1973,7 +1984,7 @@ setl4.size.end
 
     define('setl4.sort(set,n,type)i,key,sort,itbl')  :(setl4.sort.end)
 
-*   Sort index table of _set_ according to _type_ as 
+*   _Setl4.sort_ sorts the index table of _set_ according to _type_ as 
 *   described below. _setl4.sort_ doesn't create a new set;
 *   it just updates the index table so that going forward
 *   entries will be visited in the order defined by _type_.
@@ -2069,19 +2080,18 @@ setl4.sort.table.end
 
     define('traceoff()')                            :(traceoff.end)
 
-*   Initiate tracing.
+*   _Traceoff_ ends tracing.
 
 traceoff
-    &ftrace = &trace =
 
-    g.scoring = g.tracing = 0
+    &ftrace = &trace =
     out('stop TRACING ')
 
 traceoff.end
 
     define('traceon()')                             :(traceon.end)
 
-*   Initiate tracing.
+*   _Traceon_ begins tracing.
 
 traceon
 
@@ -2101,7 +2111,7 @@ traceon.end
 
 *   define('setl4.op(ch,proc,n)')                   :(setl4.op.end)
 *
-**  Use _opsyn_ to define SETL4 operator.
+**  _Setl4.opsyn_ uses _opsyn_ to define a SETL4 operator.
 *
 *setl4.op
 *
@@ -2171,7 +2181,7 @@ opsyn.bypass
 
     define('append(str,w,ch)')                  :(append.end)
 
-*   _Appends _ch_, or ' ' if _ch_ is null, to _str_ and then appends _w_.
+*   _Appends appends _ch_, or ' ' if _ch_ is null, to _str_ and then appends _w_.
 
 append
 
@@ -2181,7 +2191,7 @@ append.end
 
     define('ascii(line)c,n,name,nul,num,pos')   :(ascii.end)
 
-*   Return the text of line with every ascii character identified.
+*   _Ascii_ returns the text of its argument string with every ascii character identified.
 
 ascii
 
@@ -2254,7 +2264,7 @@ ascii.end
 
     define('ascii.init(init)entry,name,value') :(ascii.init.end)
 
-*   Initialize maps for use by _ascii_.
+*   _Ascii.init_ Initialize maps for use by _ascii_.
 *   Since space (ascii 32) prints as space, use the name SPC for 32.
 
 ascii.init
@@ -2297,7 +2307,7 @@ ascii.init.end
 
     define('begins(str,init)')                      :(begins.end)
 
-*   Tests if string _str_ begins with string _init_.
+*   _Begind_ tests if string _str_ begins with string _init_.
 
 begins
 
@@ -2311,8 +2321,8 @@ begins.end
 
     define('datename(date)s')                       :(datename.end)
 
-*   Convert date to form with no spaces, just dashes, to be
-*   suitable for use as part of a file name.
+*   _Datename_ converts the current date date to form with no spaces,
+*   just dashes, that is suitable for use as part of a file name.
 
 datename
 
@@ -2323,7 +2333,7 @@ datename.end
 
 	define('dictionary(filename)file,word')	    :(dictionary.end)
 
-*	Initialize the global dictionary dictionary.
+*	_Dictionary_ initializes the global dictionary dictionary.
 
 dictionary
 
@@ -2351,7 +2361,7 @@ dictionary.end
 
     define('digits()str,ch')                        :(digits.end)
 
-*   Return string consisting of the digits 0 .. 9 separated by a space.
+*   _Digits_ returns the string consisting of the digits 0 .. 9 separated by a space.
 
 digits
 
@@ -2367,7 +2377,7 @@ digits.end
 
     define('even(n)')                           :(even.end)
 
-*   Tests if _n_ is even.
+*   _Even_ tests if its argument is even.
 
 even
 
@@ -2377,7 +2387,7 @@ even.end
 
     define('factorial(n)')                      :(factorial.end)
 
-*   Returns n! = n*(n-1)*(n-2) ... 1
+*   _Factorial_ computes the value of the factorial function of its argument.
 
 factorial
 
@@ -2387,7 +2397,7 @@ factorial.end
 
     define('less(str,sub)before,after')             :(less.end)
 
-*   Removes the first instance of each character in _sub_ from _str_,
+*   _Less_ removes the first instance of each character in _sub_ from _str_,
 *   where _sub_ is a substr of _str_.
 
 less
@@ -2404,7 +2414,7 @@ less.end
 
     define('lletters()str,ch')                      :(lletters.end)
 
-*   Returns string consisting of the lower case letters in _str_ separated by a space.
+*   _Lletters_ returns a string consisting of the lower case letters in _str_ separated by a space.
 
 lletters
 
@@ -2420,7 +2430,7 @@ lletters.end
 
     define('letters(str)ch')                        :(letters.end)
 
-*   Returns string consisting of the letters in string _str_ separated by a space.
+*   _Letters_ returns a string consisting of the letters in string _str_ separated by a space.
 *   Letters can be used to build a sequence of the non-blank letters in a string: _new('seq ' letters(str))_
 
 letters
@@ -2433,7 +2443,7 @@ letters.end
 
     define('lower(s)')                              :(lower.end)
 
-*   Converts argument to lower case.
+*   _Lower_ converts argument to lower case.
 
 lower
 
@@ -2443,7 +2453,7 @@ lower.end
 
     define('multiple(n,m)')                     :(multiple.end)
 
-*   Tests if _n_ is a multiple of _m_.
+*   _Multiple_ Tests if _n_ is a multiple of _m_.
 
 multiple
 
@@ -2453,7 +2463,8 @@ multiple.end
 
     define('number(n)')                         :(number.end)
 
-*  If _n_ can be represented as a string of one or two words then return that string. Otherwise return _n_.
+*  _Number_ determines if the integer _n_ can be represented as a string of one or two words,
+*   and if so, returns that string. Otherwise it returns its argument value.
 
 number
     error('number not implemented, quitting.' )
@@ -2466,7 +2477,7 @@ number.end
 
     define('odd(n)')                            :(odd.end)
 
-*   Tests if _n_ is odd.
+*   _Odd_ tests if its argument is odd.
 
 odd
 
@@ -2476,7 +2487,7 @@ odd.end
 
     define('prefix(str,pre)word')               :(prefix.end)
 
-*   Prefix takes a list of space-separated words _str_ and prefixes each
+*   _Prefix_ takes a list of space-separated words _str_ and prefixes each
 *   with the str _pre_.
 
 prefix
@@ -2493,7 +2504,7 @@ prefix.end
 
     define('prime(n)')                          :(prime.end)
 
-*   Tests if _n_ is a prime integer.
+*   _Prime_ tests if _n_ is a prime integer.
 
 prime
 
@@ -2506,7 +2517,7 @@ prime.end
 
     define('primes(n)set.this')                 :(primes.end)
 
-*   Returns set of primes less than _n_.
+*   _Primes_ returns the set of primes less than _n_.
 
 primes
 
@@ -2543,6 +2554,7 @@ primes.end
     define('reader(filename,expr)line,mark')        :(reader.end)
 
 *   _Reader_ returns a sequence of the lines in the file specified by _filename_.
+
 *   If _expr_ is not null, then _eval_ is called just after each
 *   line is read, with the variable _pair_ set to the associated pair.
 *   If _eval_ fails the line is skipped.  Otherwise returns a new pair
@@ -2573,7 +2585,7 @@ reader.end
 
     define('reader.str(str,delim)line')             :(reader.str.end)
 
-*   Returns a sequence of the lines in _str_,
+*   _Reader.str_ returns a sequence of the lines in _str_,
 *   where the delimiter character _delim_ is used to mark
 *   If _delim_ is  not given, then '/' is understood.
 *   the end of a line. One intended use of _reader.str_
@@ -2593,6 +2605,8 @@ reader.str.end
 
     define('slice(str,first,last)')                 :(slice.end)
 
+*   _Slice_ returns a slice of a string. It does the same operation as _substr),
+
 slice
 
     slice = substr(str,first,last)                  :(return)
@@ -2602,9 +2616,9 @@ slice.end
 
     define('split(str)i,word')                       :(split.end)
 
-*   If the string _str_ has no spaces, _split_ returns a sequence of
-*   the characters in _str_. Otherwise, _split_ returns a sequence
-*   of the words in _str_, where the words are separated by 
+*   _Split_ splits a string into words or characters. If the string _str_ has no spaces,
+*   _split_ returns a sequence of the characters in _str_. Otherwise, _split_
+*   returns a sequence of the words in _str_, where the words are separated by 
 *   whitespace (one of more consecutive spaces or tabs).
 
 split
@@ -2640,7 +2654,7 @@ split.end
 
     define('square.root(n)')                    :(square.root.end)
 
-*   Returns square root of integer _n_, rounded up.
+*   _Square.root_ returns the square root of its argument, rounded up.
 
 square.root
    
@@ -2650,7 +2664,7 @@ square.root.end
 
     define('thousands(s)n')                     :(thousands.end)
 
-*   Format s with comma's every three digits from right.
+*   _Thousands_ formats its argument by inserting comma's every three digits from right.
 
 thousands
 
@@ -2662,7 +2676,7 @@ thousands.end
 
     define('uletters()str,ch')                      :(uletters.end)
 
-*   Returns string consisting of the upper case letters separated by a space.
+*   _Uletters_ returns string consisting of the upper case letters separated by a space.
 
 uletters
 
@@ -2732,7 +2746,7 @@ uletters.end
 
     define('tokens(line)type,pos,text,lineno')  :(tokens.end)
 
-*   Strtokens scans _line_ and returns a table of the tokens in the line.
+*   _Tokens_ scans a line _line_ and returns a table of the tokens in the line.
 *   The table has keys from 1..n, where _n_ is the number of tokens found.
 
 *   This function is an instance of what is called a lexiical scanner, or tokenizer,
@@ -2814,7 +2828,7 @@ tokens.end
 
     define('upper(s)')                              :(upper.end)
 
-*   Convert argument to upper case.
+*   _Upper_ converts its argument to upper case.
 
 upper
 
@@ -2824,7 +2838,7 @@ upper.end
 
     define('writer(lines)')                         :(writer.end)
 
-*   Writes the lines in the sequence _lines_ to standard output.
+*   _Writer_ writes the lines in the sequence _lines_ to standard output.
 
 writer
 
