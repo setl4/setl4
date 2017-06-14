@@ -1781,7 +1781,7 @@ show.lines.end
 
 show.q
 
-    str break("'")                                  :s(show.q.single)
+    str break("'")                                  :s(show.q.double)
 
 *   Here if string does not contain a single quote, so use single quotes around it.
 
@@ -1860,10 +1860,10 @@ union.b
 
 union.end
 
-    define('visit(set,expr)')                       :(visit.end)
+    define('visit(set,expr)this')                   :(visit.end)
 
 *   _Visit_ loops over _set and calls _eval_ with argument
-*   _expr_  for each of its members.
+*   _expr_  for each of member of the set.
 
 visit
 
