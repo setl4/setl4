@@ -1,0 +1,46 @@
+
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+    &anchor = &trim = 1                 :(read)
+    &anchor =
+
+copy
+
+    output = line
+
+read
+
+    line = input                        :f(finis)
+    ident(line)                         :s(copy)
+    line '*'                            :f(read)
+    line = substr(line,2)
+    line ' '                            :s(space)
+                                        :(copy)
+space
+    line span(' ') 'define' =            :s(def)
+        :(copy)
+
+def
+
+    output = 'def[' line ']'
+    line = '# ' line                    :(copy)
+
+finis
+
+end
+
+copy
+
+    output = line
+
+read
+
+    line = input                        :f(finis)
+    line '*'                            :f(read)
+    line span(' ') 
+    line = substr(line,2)               :(copy)
+
+finis
+
+end

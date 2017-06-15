@@ -1,15 +1,14 @@
-*(   Copyright 2017, David Shields
+*    Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
 *   TODO LIST
 *   Check hbol4 to make sure performance metrics correct.
 
 
-*   SETL4 is an implementation of SETL written in SPITBOL.
+*## SETL4 is an implementation of SETL written in SPITBOL.
 
 
-*   What is SPITBOL?
-*   ----------------
+*## What is SPITBOL?
 
 *   SNOBOL is a general programming language with special emphasis on processing 
 *   strings and text that was  developed at Bell Labs in the 1960's by a team 
@@ -51,8 +50,7 @@
 *   to 2009. Dave Shieldsl has maintained SPITBOL since then.
 
 
-*   What is SETL?
-*   -------------
+*## What is SETL?
 
 *   SETL (SET Language)  is  a programming language with  finite sets as 
 *   the fundamental data type. It was created by Jacob T. "Jack" Schwartz 
@@ -67,8 +65,7 @@
 *   by a team led by Dave Shields.
 
 
-*   Why the name SETL4?
-*   -------------------
+*## Why the name SETL4?
 
 *   The SETL Project produced three implementations of SETL. The first was
 *   written by Dave Shields in BALM, a language developed by Prof. Malcom 
@@ -80,8 +77,7 @@
 *   (Dave Shields) of the NYU SETL project, hence the name SETL4.
 
 
-*   Brief Introduction to SETL4
-*   ---------------------------
+*## Brief Introduction to SETL4
 
 *   SETL4 extends SPITBOL by adding the datatype _set_ to represent
 *   finite sets. 
@@ -96,8 +92,7 @@
 
 *   where _multiple(a,b) is true if and only if _a_ is a multiple of _b_.
 
-*   Sets in SETL4
-*   -------------
+*## Sets in SETL4
 
 *   SETL4 provides several kinds of sets.
 
@@ -109,12 +104,15 @@
 *   have the same key but different values.
 
 *   Sets of kind 'iterator' consist of  integers of the form
-
+*```
 *   low, low + step, ... high
+*```
 
 *   or
 
+*```
 *   high, high - step ... low
+*```
 
 *   For example 'iterator 5 25 5' is the set {5 10 15 20 25};
 *   iteration over the iterator will go in order 5, 10 ... 25.
@@ -147,8 +145,7 @@
 *   By convention, the kinds are writtten 'int', 'iter', 'map', and 'set'.
 
 
-*   Set Data Type
-*   -------------
+*## Set Data Type
 
 *   A set is a collection unequall objects, and is represented in SETL4 by the datatype _set_:
 
@@ -157,34 +154,35 @@
 
 *   where
 
-*           _set.index_         SPITBOL table used to map the integer
-*                               id assigned each element to the value of the element.
-*                               It is needed to support iteration.
+*- _set.index_         SPITBOL table used to map the integer
+*id assigned each element to the value of the element.
+*It is needed to support iteration.
 
-*           _set.iter_          iterator for controlling iteration over the set.
+*- _set.iter_ iterator for controlling iteration over the set.
 
-*           _set.key_           SPITBOL table mapping set elements to index entries.
+*- _set.key_  SPITBOL table mapping set elements to index entries.
 
-*           _set.kind_          is the kind of the set, one of 'int', 'iter', 'map', or 'set.'
-*                               The kind is  specified when the set is created. 
-*                               The default kind is 'set'.
+*- _set.kind_ 
+*is the kind of the set, one of 'int', 'iter', 'map', or 'set.'
+*The kind is  specified when the set is created. 
+*The default kind is 'set'.
 
-*           _set.size_          the current number of members.
+*- _set.size_ the current number of members.
 
-*           _set.str_           is used for sets of kind 'int'
+*- _set.str_           is used for sets of kind 'int'
 
-*           _set.this_          the most recent value returned by the set's iterator
+*- _set.this_          the most recent value returned by the set's iterator
 
 
 *   The following fields are used only for sets of kind 'int':
 
-*           _set.block_         block 
+*- _set.block_         block 
 
-*           _set.blocks_        number of blocks
+*- _set.blocks_        number of blocks
 
-*           _set.offset_        offset within block corresponding to a given integer
+*- _set.offset_        offset within block corresponding to a given integer
 
-*           _set.str_           used to update the current block's membersip string
+* _set.str_           used to update the current block's membersip string
 
 
 *   New elements in the set are assigned an integer id.
@@ -193,7 +191,7 @@
 *   The table _set.key_ maps a key to its associated value;
 *   it is used to retrieve element values.
 
-*   Sets of integers
+*## Sets of integers
 *   ----------------
 
 *   SETL4 sets of kind _integers' provide an efficient implementation of a set with
@@ -203,22 +201,12 @@
 *   so that the first block represents the integers `0 .. _setl4_config.int_ -1 and so forth.
 *   Addition to  the set is done by setting the appropriate character in a block to '+'.
 *   New blocks are allocated only when necesary.
+
 *   The SPITBOL function BREAK is used to find the next element 
 *   in the set when iterating over the set.
 
-*   Ordered Pairs
+*## Ordered Pairs
 *   -------------
-
-*   The ordered p{air _[a,b]_ is defined as the set _{a,{a,b}}_. It is easy
-*   to prove that _[a,b]_ equals _[c,d]_ by proving that _{,a,{a,b}}_
-*   is equal to _{c,{c,d}}_. The pair is said to be ordered since we can
-*   distinguish its first and second elements, unlike sets, where _{a,b}_ is
-*   the same as _{b,a}_.
-
-
-
-*   Maps
-*   ----
 
 *   In set theory, sets are not ordered. The set _{a,b}_ is the same as (equal to)
 *   the set _{b,a}_.
@@ -231,10 +219,14 @@
 *
 *       _{a,{a,b}}_
 *
-*   as it  easy to prove that, given this definition, _pair(a,b)_ is equal
+*   It is easy to prove that, given this definition, _pair(a,b)_ is equal
 *   to _pair(c,d)_ if and only if _a_ is equal to _c_ and _b_ is equal to _d_.
 
-*   In set theory, a map defined on a finite set is a set of ordered pairs,
+
+*## Maps
+*   ----
+
+*   A map defined on a finite set is a set of ordered pairs,
 *   or entries, that define a relation between the first element of an entry,
 *   its _key_, and the second element of the entry, the value of the map for _key_.
 
@@ -254,12 +246,15 @@
 *   Though you can use _entry to give a key and its associated value, the
 *   preferred convention is separate a key and its value with a ':'
 *   allows you to write "key:value," so that 
-
+*```
 *       new('map' one:1 two:2 three:3')
 
+*```
 *   instead of
 
+*```
 *       new('map' entry('one',1) ' ' entry('two',2) ' ' entry('three',3) )
+*```
 
 *   Though in set theory, maps are defined in terms of sets, in the SETL4
 *   implementation, sets are represented are maps, by mapping each element
@@ -287,8 +282,7 @@
 *   top value.
 
 
-*   Loops, Iterators
-*   ----------------
+*## Loops, Iterators
 
 *   Loops in SPITBOL have the form of a test followed by the loop body,
 *   with the body with a branch back to the test.
@@ -318,15 +312,15 @@
 
 *   where
 
-*   _iter.next          last value returned by the iterator.
+*-  _iter.next last value returned by the iterator.
 
-*   The following fields are used to iterate over a range:
+*-  The following fields are used to iterate over a range:
 
-*   _iter.start_        starting value for iteration
+*-  _iter.start_ starting value for iteration
 
-*   _iter.finis_        finishing value for iteration
+*-  _iter.finis_ finishing value for iteration
 
-*   _iter.step_         difference between values of an iteration
+*-  _iter.step_  difference between values of an iteration
 
 *   Loops in SETL4 are constructed using the _loop_ and _next_ statements. 
 *   For example, the program to display the first one hundred integers can
@@ -357,9 +351,8 @@
 *   See the functions _prime_ and _primes_ defined below to see _loop_
 *   and _next_ in action. See also the code for _exists_ and _forall_.
 
-*   Additional Operations Provided as an Artifact of the Implementation
-*   -------------------------------------------------------------------
-*   
+*## Additional Operations Provided as an Artifact of the Implementation
+    
 *   The use of the tables _set.index_ and _set.key_ to implement a set makes it
 *   possible to provide some operations not available in in standard set theory. 
 *   For example, it is possible to retrieve elements using the function _get_. 
@@ -388,8 +381,7 @@
 *   'a', 'b' and 'c', then _show(s)_ yields `set 'a' 'b' 'c' }`, not 
 *   `set 'b' 'c' 'a' }`.
 
-*   SETL4 Configuration Options
-*   ---------------------------
+*## SETL4 Configuration Options
 
 *   _setl4.config.channel.1_ is channel number for temporary files, that is,
 *   files created on entry to a procedure and closed before returning from
@@ -415,8 +407,7 @@
     setl4.config.int = 20
     setl4.config.int.init = dupl('-',setl4.config.int)
 
-*   Additonal SETL4 data types
-*   --------------------------
+*## Additonal SETL4 data types
 
 *   SETL4 provides the following data types in addtion to _set_: 
 
@@ -427,23 +418,19 @@
 *       line(mark,text)             is a line of text and an associated mark (tag); and
 *       token(lineno,ndx,type,text) is a lexeme, or lexical token.
 
-*   Show
-*   ----
+*## Show
 
 *   The function _show_ writes out the value of a SETL4 object in a readable 
 *   form. Objects are shown in the order defined by the function _rank_.
 
 
-*   SETL4 Binary Operators:
-*   -----------------------
 
 *   '@'     s @ e   Eval            Evaluates _e_ at current element of set _s_
 *   '#'     s # e   Filter          Returns subset of set _s_ for which _e_ is true
 *   '~'     m ~ s   Membership      Tests if _m_ is member of set _s_
 
 
-*   SETL4 Unary Operators:
-*   ----------------------
+*## SETL4 Unary Operators:
 
 *   '='     =s      Iteration       Returns 'this', the current element of an iteration
 *   '|'     |str    Constructor     Returns set specified by string _str_
@@ -457,62 +444,61 @@
 *   '&'     a & b   And             True if and only if both _a_ and _b_ are true
 *   '^'     a ^ b   Or              True if and only if _a_ or _b_ is true
 
-*   SETL4 Functions
-*   ---------------
+*## SETL4 Functions
 *
-*   add(set,elem)                   Adds element to set
-*   and(a,b)                        And: test if both operands are true
-*   arb(n)                          Returns arbitary (randomly chosen) integer in 1 .. _n_
-*   arb(set)                        Returns arbitary (randomly chosen) element of _set_
-*   assert(expr)                    Tests that _expr_ is true, ends execution otherwise
-*   assert.type(obj,type)           Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise
-*   at(set,expr)                    Evaluates _expr_ for for current iterate of _set_
-*   begins(str,sub)                 Tests if string _key_ begins with string _sub_
-*   compose(a,b)                    Returns composition of two maps or tables.
-*   defined(map,key)                Tests if a map is defined for a specified key
-*   difference(a,b)                 Returns set of members of set _a_ not in the set _b_
-*   domain(map)                     Returns set of elements in the domain of a map
-*   equal(a,b)                      Tests if two SETL4 objects are equal
-*   exists(set,expr)                Tests if an expression is true for at least one element in a set
-*   from(set,elem)                  Returns set consisting of the members of a set except a specified member
-*   get(map,key)                    Gets the value of map _map_ for _key_ for a map
-*   get(set,i)                      Gets the i-th element in a set, or fails if no such element
-*   false(e)                        tests if argument is false
-*   forall(set,expr)                Tests if an expression is true for every element of a set
-*   filter(set,expr)                Filter:; returns subset of _set_ for which _expr_ is true
-*   int(s)                          Returns integer defined by _s_
-*   integers(n)                     Returns set of integers 1 ... n
-*   intersection(a,b)               Returns set of elements common to two sets
-*   join(a,b)                       Joins two strings into a single string by concatenating them
-*   loop(set)                       Set up iteration over _set_ using _next_
-*   mark(line)                      Annotates, or marks, a line
-*   member(elem,set)                Tests set membership
-*   new(str)                        Returns new set specified by _st_
-*   next(set)                       Returns next element in iteration defined by prevous _loop_, fails if no more elements
-*   not(expr)                       Not: tests if operand is false
-*   or(a,b)                         Or: tests if either operand is true
-*   push(stack,value)               Push value onto a stack
-*   pop(stack)                      Pop the top of a stack
-*   put(map,key,val)                Defines the value of a map key
-*   random(n)                       Returns random element
-*   random.seed()                   Sets random number seed to initialize _random_
-*   range(map)                      Returns set of elements in the range of a map
-*   rank(set)                       Returns the rank, or normal form, of a set or string.
-*   remove(set,elem)                Remove arbitary element from set, or most recent entry from map.
-*   subset(a,b)                     Tests if the second set is a subset of the first set
-*   union(a,b)                      Returns set consisting of all the members in two sets
-*   set.size(set)                   Returns number of elements in set _set_
-*   traceoff()                      Turns off tracing
-*   show(v,nested)                  Show value of _v_, with _nested_ set non-zero when listing member of set
-*   show.b(e)                       Show value of _b_ as boolean
-*   show.line(line)                 Show string _line_ with spaces replaced by '.'
-*   show.lines(lines,title)         Show non-empty lines in array of lines, with title 'title'
-*   show.q(str)                     Show string enclosed in appropriate quote character (" or ') 
-*   traceon()                       Turns on tracing
-*   this(set)                       Returns current iteration value for _set_
-*   true(e)                         Tests if operand is true
-*   visit(set,expr)                 Visits each element of set _set_ and evaluates _expr_ for that element
-*   words(str)                      Returns sequence of words, separated by spaces, in a string,
+*-  add(set,elem)                   Adds element to set
+*-  and(a,b)                        And: test if both operands are true
+*-  arb(n)                          Returns arbitary (randomly chosen) integer in 1 .. _n_
+*-  arb(set)                        Returns arbitary (randomly chosen) element of _set_
+*-  assert(expr)                    Tests that _expr_ is true, ends execution otherwise
+*-  assert.type(obj,type)           Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise
+*-  at(set,expr)                    Evaluates _expr_ for for current iterate of _set_
+*-  begins(str,sub)                 Tests if string _key_ begins with string _sub_
+*-  compose(a,b)                    Returns composition of two maps or tables.
+*-  defined(map,key)                Tests if a map is defined for a specified key
+*-  difference(a,b)                 Returns set of members of set _a_ not in the set _b_
+*-  domain(map)                     Returns set of elements in the domain of a map
+*-  equal(a,b)                      Tests if two SETL4 objects are equal
+*-  exists(set,expr)                Tests if an expression is true for at least one element in a set
+*-  from(set,elem)                  Returns set consisting of the members of a set except a specified member
+*-  get(map,key)                    Gets the value of map _map_ for _key_ for a map
+*-  get(set,i)                      Gets the i-th element in a set, or fails if no such element
+*-  false(e)                        tests if argument is false
+*-  forall(set,expr)                Tests if an expression is true for every element of a set
+*-  filter(set,expr)                Filter:; returns subset of _set_ for which _expr_ is true
+*-  int(s)                          Returns integer defined by _s_
+*-  integers(n)                     Returns set of integers 1 ... n
+*-  intersection(a,b)               Returns set of elements common to two sets
+*-  join(a,b)                       Joins two strings into a single string by concatenating them
+*-  loop(set)                       Set up iteration over _set_ using _next_
+*-  mark(line)                      Annotates, or marks, a line
+*-  member(elem,set)                Tests set membership
+*-  new(str)                        Returns new set specified by _st_
+*-  next(set)                       Returns next element in iteration defined by prevous _loop_, fails if no more elements
+*-  not(expr)                       Not: tests if operand is false
+*-  or(a,b)                         Or: tests if either operand is true
+*-  push(stack,value)               Push value onto a stack
+*-  pop(stack)                      Pop the top of a stack
+*-  put(map,key,val)                Defines the value of a map key
+*-  random(n)                       Returns random element
+*-  random.seed()                   Sets random number seed to initialize _random_
+*-  range(map)                      Returns set of elements in the range of a map
+*-  rank(set)                       Returns the rank, or normal form, of a set or string.
+*-  remove(set,elem)                Remove arbitary element from set, or most recent entry from map.
+*-  subset(a,b)                     Tests if the second set is a subset of the first set
+*-  union(a,b)                      Returns set consisting of all the members in two sets
+*-  set.size(set)                   Returns number of elements in set _set_
+*-  traceoff()                      Turns off tracing
+*-  show(v,nested)                  Show value of _v_, with _nested_ set non-zero when listing member of set
+*-  show.b(e)                       Show value of _b_ as boolean
+*-  show.line(line)                 Show string _line_ with spaces replaced by '.'
+*-  show.lines(lines,title)         Show non-empty lines in array of lines, with title 'title'
+*-  show.q(str)                     Show string enclosed in appropriate quote character (" or ') 
+*-  traceon()                       Turns on tracing
+*-  this(set)                       Returns current iteration value for _set_
+*-  true(e)                         Tests if operand is true
+*-  visit(set,expr)                 Visits each element of set _set_ and evaluates _expr_ for that element
+
 
 *   SETL4 Function Definitions
 *   --------------------------
