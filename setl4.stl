@@ -49,6 +49,16 @@
 *   Special credit is due Mark Emmer, who led the project from the mid 1980's
 *   to 2009. Dave Shieldsl has maintained SPITBOL since then.
 
+*   SETL4 requires a modified version of standard SPITBOL called BOL4.
+*   BOL4 differs from standard SPITBOL as follows:
+*
+*-  There is no automatic case folding. In standard SPITBOL the names 'x' and 'X' are the same.
+*   In BOL4 they are different.
+*-  The default case is lower case.
+*-  The function _set()_ has been renamed to _zet_, so that _set_ can be used as an identifier.
+*-  The default value of _&anchor_ is 1. The default value of _&trim_ is 1.
+
+*   The file `bin/setl4' is the executable for _bol4_.
 
 *## What is SETL?
 
@@ -394,7 +404,7 @@
 
 *   _setl4.config.set.table.size_ is default size for the _index_ and _key_ tables of a set.
 
-    setl4.config.set.table.size = 256
+    setl4.config.set.table.size = 1024
 
 *   _setl4.config.int.table.size_ is size of index and key tables in set of kind 'int.' 
 
@@ -1116,7 +1126,6 @@ new.iter.step
 
     lt(iter.step) out('new -step',iter.step(iter))
     iter.step(iter) = gt(iter.start(iter),iter.finis(iter))  gt(iter.step(iter)) - iter.step(iter)
-    show(iter)
     new = set('iter',iter)
     set.size(new) = ((iter.finis(iter) - iter.start(iter)) / iter.step(iter)) + 1 
                                                     :(return)
@@ -2508,14 +2517,14 @@ prime.end
 primes
 
     primes = filter(new('iter 2 ' (n - 1)),'prime(this)') :(return)
-    primes = new('set')
+    primes = new('seq 2')
     iter = new('iter 2 ' (n - 1))
     loop(set)
 
 primes.loop
    
     this = next(set)                           :f(return)
-    prime(this) add(primes,this)                :(primes.loop)
+    prime(this) push(primes,this)              :(primes.loop)
 
 primes.end
 

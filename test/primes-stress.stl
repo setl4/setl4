@@ -1,0 +1,22 @@
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+-include "../setl4.stl"
+
+*   Stress test SETL4 by counting the number of primes less than one million.
+*   The result should be 78,498.
+
+    iter = new('iter 2 1000000')
+    loop(iter)
+    count = 0
+
+p.next
+  
+    n = next(iter)                  :f(p.done)
+    count = prime(n) count + 1      :(p.next)
+
+p.done
+
+    out('# of primes less than one million ',count)
+
+end

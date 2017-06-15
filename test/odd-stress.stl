@@ -1,7 +1,7 @@
 
 -include "../setl4.stl"
 
-*   Stress test SETL4 by building set of the first million odd integers.
+*   Stress test SETL4 by building the set of odd integers less than one million.
 
     set = new('set')
     i = 1

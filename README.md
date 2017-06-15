@@ -43,7 +43,7 @@ Directory `setl4/tests` contains test programs, including the program
 provides examples of several basic constructs and operations.
 
 Directory `setl4/examples` contains various demonstration program.
-This written in SPITBOL have a name ending in 'sbl'. One goal of the
+Those written in SPITBOL have a name ending in 'sbl'. One goal of the
 project is to translate these programs to SETL4
 
 
