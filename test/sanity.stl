@@ -96,6 +96,19 @@
     out()
     out()
 
+    out('Test visit()')
+    out()
+    out('visit set')
+    show.eval("visit(set,'show(this)')")
+    out()
+    out('visit map')
+    show.eval("visit(map,'show(this)')")
+    out()
+    out('visit iter')
+    show.eval("visit(iter,'show(this)')")
+    out()
+    out()
+
     out("Here endeth the test.")
 
 end
