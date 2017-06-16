@@ -400,7 +400,6 @@
     setl4.config.channel.1 = 3
 
 *   Define initial sizes of tables when creating a set.
-*   a new instance of a 
 
 *   _setl4.config.set.table.size_ is default size for the _index_ and _key_ tables of a set.
 
@@ -2146,8 +2145,8 @@ opsyn.bypass
 
 *   append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then _w_
 *   ascii(line)                 Returns the text of line with every ascii character identified
+*   checkout(filename)          Returns ('checks out') set or map defined by a file in the libary
 *   datename(date)              Returns string based on current time suitable for use as filename
-*   dictionary                  Returns set of the (approximately 170,000) words in the ENABLE word list.
 *   digits()                    Returns list of digits: '0 1 2 .. 9'
 *   even(n)                     Tests if _n_ is even
 *   factorial(n)                Returns n!  = n * (n -1) * ... * 1
@@ -2302,10 +2301,12 @@ ascii.init.end
 
     define('begins(str,init)')                      :(begins.end)
 
-*   _Begind_ tests if string _str_ begins with string _init_.
+*   _Begin_ tests if string _str_ begins with string _init_.
+*   It returns _str_ on success, fails otherwise.
 
 begins
 
+    begins = str
     ident(str,init)                                 :s(return)
     gt(size(init),size(str))                        :s(return)
     ident(substr(str,1,size(init)),init)            :s(return)f(freturn)
@@ -2313,6 +2314,70 @@ begins
     ident(substr(str,1,size(init)),init)            :f(freturn)
 
 begins.end
+
+	define('checkout(filename)dict,file,line,nope')	:(checkout.end)
+
+*	_Checkout_ checks out (retrieves)  a file from the library as a sequence of lines,
+*   or, if the argument is null, lists the available files.
+*   The dictionary is returned as a set of words.
+
+checkout
+
+    out('enter checkout',filename)
+    differ(filename)                                :s(checkout.checkout)
+
+checkout.list
+
+    out('available texts in the checkout:')
+	out('dictionary')
+	out('genesis')
+	out('hamlet')
+	out('new-testament')
+	out('old-testament')
+	out('romeo-and-juliet')
+	out('shakespeare')
+	out('sonnets')
+    ident(nope)                                     :s(return)f(freturn)
+
+checkout.checkout
+
+*   See if _filename_ matches one of the available texts.
+
+
+	filename = begins('dictionary',filename)	    :s(checkout.txt)
+	filename = begins('genesis',filename)		    :s(checkout.txt)
+	filename = begins('hamlet',filename)		    :s(checkout.txt)
+	filename = begins('new-testament',filename)	    :s(checkout.txt)
+	filename = begins('old-testament',filename)	    :s(checkout.txt)
+	filename = begins('romeo-and-juliet',filename)  :s(checkout.txt)
+	filename = begins('shakespeare',filename)	    :s(checkout.txt)
+	filename = begins('sonnets',filename)		    :s(checkout.txt)
+
+    out('sorry, that text is not available.')
+    out('here is a list of the available texts')    :(checkout.list)
+
+checkout.txt
+
+*	Read in text from the checkout.
+
+    checkout = differ(filename,'dictionary')    new('seq')
+    checkout = ident(filename,'dictionary')     new('set')
+	filename = './library/' filename '.txt'
+    out('checking out',filename)
+	input(.file,3,filename)		                    :s(checkout.next)
+	error('unable to open checkout file ',filename)	:(freturn)
+
+checkout.next
+
+	line = file					                    :f(checkout.finis)
+*   out('read line',line)
+    add(checkout,line)                              :(checkout.next)
+
+checkout.finis
+
+	endfile(3)				                        :(return)
+
+checkout.end
 
     define('datename(date)s')                       :(datename.end)
 
@@ -2325,34 +2390,6 @@ datename
     datename = substr(datename,12,8) '-' substr(datename,1,10)
                                                     :(return)
 datename.end
-
-	define('dictionary(filename)file,word')	    :(dictionary.end)
-
-*	_Dictionary_ initializes the global dictionary dictionary.
-
-dictionary
-
-    dictionary = new('set')
-    set.index(dictionary)  =    table(10000)
-    set.key(dictionary)  =      table(10000)
-    
-
-*	Read in dictionary from  the dictionary file, with one word per line.
-
-	filename = ident(filename) './data/dict.txt'
-	input(.file,3,filename)		                :s(dictionary.next)
-	error('unable to open dictionary file ',filename)	:(freturn)
-
-dictionary.next
-
-	word = file					                :f(dictionary.done)
-    add(dictionary,word)                        :(dictionary.next)
-
-dictionary.done
-
-	endfile(3)				                    :(return)
-
-dictionary.end
 
     define('digits()str,ch')                        :(digits.end)
 
@@ -2877,6 +2914,10 @@ writer.end
 *   SETL4 needs a stack
 
     setl4.stack = new('seq')
+
+*   _setl4.config.library.texts_ is a set of the names of the available texts.
+
+    setl4.config.library.texts = new('set dictionary genesis hamlet new-testament old-testament romeo-and-juliet shakespeare sonnets')
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.

@@ -449,9 +449,9 @@ produces `{ set 'a' 'b' 'c' }`, not `{set 'b' 'c' 'a' }`.
 
 -  `append(str,w,ch)`           Appends _ch_ (or space if _ch_ is null) to _str_, then appends _w_
 -  `ascii(line)`                Returns the text of line with every ascii character identified
+*  `checkout(filename)`         Returns set or map defined by a file in the libary
 -  `datename(date)`             Returns string based on current time suitable for use as filename
 -  `digits()`                   Returns list of digits: '0 1 2 .. 9'
--  `dictionary(filename)`       Returns set of the (approximately 170,000) words in the ENABLE word list.
 -  `even(n)`                    Tests if _n_ is even
 -  `factorial(n)`               Returns n!  = n * (n -1) * ... * 1
 -  `letters()`                  Returns list of letters : 'a b c ... z A B ... Z''
