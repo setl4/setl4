@@ -2,7 +2,9 @@
 *   Licensed under the MIT license.
 
 *   TODO LIST
-*   Check hbol4 to make sure performance metrics correct.
+
+*   Should exploit fact that library/dictionary sorted by increasing
+*   order of word size.
 
 
 *## SETL4 is an implementation of SETL written in SPITBOL.
@@ -2306,20 +2308,23 @@ ascii.init.end
 
 begins
 
+    ident(str)                                      :s(freturn)
+    ident(init)                                     :s(freturn)
     begins = str
     ident(str,init)                                 :s(return)
-    gt(size(init),size(str))                        :s(return)
+    gt(size(init),size(str))                        :s(freturn)
     ident(substr(str,1,size(init)),init)            :s(return)f(freturn)
-
-    ident(substr(str,1,size(init)),init)            :f(freturn)
 
 begins.end
 
-	define('checkout(filename)dict,file,line,nope')	:(checkout.end)
+	define('checkout(filename)file,line,word')	    :(checkout.end)
 
-*	_Checkout_ checks out (retrieves)  a file from the library as a sequence of lines,
-*   or, if the argument is null, lists the available files.
-*   The dictionary is returned as a set of words.
+*	_Checkout_ checks out (retrieves)  a file from the library as a sequence of lines
+*   or a set of words. _Checkout_ lists the available files if _filename_ is null.
+
+*   Dictionary has one word per line, with upper case 'S' at end denoting
+*   that both singular and plural form are words in the dictionary.
+
 
 checkout
 
@@ -2337,42 +2342,72 @@ checkout.list
 	out('romeo-and-juliet')
 	out('shakespeare')
 	out('sonnets')
-    ident(nope)                                     :s(return)f(freturn)
+                                                    :(return)
+
 
 checkout.checkout
 
 *   See if _filename_ matches one of the available texts.
 
 
-	filename = begins('dictionary',filename)	    :s(checkout.txt)
-	filename = begins('genesis',filename)		    :s(checkout.txt)
-	filename = begins('hamlet',filename)		    :s(checkout.txt)
-	filename = begins('new-testament',filename)	    :s(checkout.txt)
-	filename = begins('old-testament',filename)	    :s(checkout.txt)
-	filename = begins('romeo-and-juliet',filename)  :s(checkout.txt)
-	filename = begins('shakespeare',filename)	    :s(checkout.txt)
-	filename = begins('sonnets',filename)		    :s(checkout.txt)
+	filename = begins('dictionary',filename)        :s(checkout.open)
+	filename = begins('enable1',filename)		    :s(checkout.open)
+	filename = begins('genesis',filename)		    :s(checkout.open)
+	filename = begins('hamlet',filename)		    :s(checkout.open)
+	filename = begins('new-testament',filename)	    :s(checkout.open)
+	filename = begins('old-testament',filename)	    :s(checkout.open)
+	filename = begins('romeo-and-juliet',filename)  :s(checkout.open)
+	filename = begins('shakespeare',filename)	    :s(checkout.open)
+	filename = begins('sonnets',filename)		    :s(checkout.open)
 
     out('sorry, that text is not available.')
     out('here is a list of the available texts')    :(checkout.list)
 
-checkout.txt
+checkout.open
 
+    out('checking out',filename)
 *	Read in text from the checkout.
 
-    checkout = differ(filename,'dictionary')    new('seq')
-    checkout = ident(filename,'dictionary')     new('set')
 	filename = './library/' filename '.txt'
     out('checking out',filename)
-	input(.file,3,filename)		                    :s(checkout.next)
+	input(.file,3,filename)		                    :s(checkout.opened)
 	error('unable to open checkout file ',filename)	:(freturn)
 
-checkout.next
+checkout.opened
+
+*   Dictionary requires special handling.
+
+    ident(filename,'dictionary')                    :s(checkout.dict)
+    checkout = set('map',iterator(),table(2000),table(2000))
+
+checkout.text.next
 
 	line = file					                    :f(checkout.finis)
 *   out('read line',line)
-    add(checkout,line)                              :(checkout.next)
+    put(checkout,set.size(checkout) + 1, line)      :(checkout.text.next)
 
+checkout.dict
+
+    checkout = set('set',iterator(),table(40000),table(40000))
+
+checkout.dict.add
+   
+*   Here to add word to the dictionary.
+
+    add(checkout,word)
+
+checkout.dict.next
+
+
+    word = file                                     :f(checkout.finis)
+    out('dict line',line)
+    ident(substr(word,size(word),1),'S')            :f(checkout.dict.add)
+
+*   Here if plural. Add plural form and them merge to add singular form.
+
+    word = substr(word,1, size(word) -1)
+    add(checkout, word 's')                         :(checkout.dict.add)
+    
 checkout.finis
 
 	endfile(3)				                        :(return)
