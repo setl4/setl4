@@ -929,34 +929,54 @@ intersection.next
 
 intersection.end
 
-    define('join(a,b)i')                             :(join.end)
+    define('join(a,b,c)i')                             :(join.end)
 
-*   _Join_ joins two strings by concatenating them. It joins
-*   two sequences by returning a sequence consisting of the
-*   elements of the first sequence followed by the elements 
-*   of the second sequence.
+*   _Join_ joins strings by concatenating them, and sequences
+*   by returning a new sequence consisting of all the elements of
+*   the first followed by all the elements of the second.
 
-    differ(datatype(a),datatype(b)) error('differing datatypes to join ' datatype(a)) 
-    ident(datatype(a),'map')                     :s(join.map)
-    differ(datatype(a),'string') error('join arguments must be strings or sets. ' datatype(a))
+*   If called with three arguments, the result returned is the same as join(join(a,b),c)`
 
-*   Here to join two strings.
+join
 
-    join = a b :(return)
+    ident(a)                                        :s(return)
+    ident(datatype(a),'map')                        :s(join.map)
+
+*   Here to join strings.
+
+    out('join a',a)
+    out('join b',b)
+    out('join c',c)
+    join = a (differ(b) b, '') (differ(c) c,'')     :(return)
 
 join.map
    
+    out('joining maps')
     join = copy(a)
+    ident(b)                                        :s(return)
 
-join.map.next
+*   Here to join first and second argument sequences.
 
-    le(i = i + 1,set.size(b))                       :f(return)
-    put(join,set.size(a) + i,get(b,i))              :(join.map.next)
+join.map.b.next
 
+    le(i = i + 1,set.size(b))                       :f(join.map.c)
+    put(join,set.size(a) + i,get(b,i))              :(join.map.b.next)
+
+join.map.c
+
+    ident(c)                                        :s(return)
+    i = 0
+
+join.map.c.next
+
+    le(i = i + 1,set.size(c))                       :f(return)
+    put(join,set.size(a) + i,get(c,i))              :(join.map.c.next)
+
+
+                                                      join.mP.X
 join.end
 
     define('loop(set)iter')                         :(loop.end)
-
 *   _Loop_ creates or updates the iterator of _set_ so that,
 *   on first call to _next()_,  _iter.next_  will be 
 *   advanced to select the first element in the iteration.
