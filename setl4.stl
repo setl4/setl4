@@ -1185,9 +1185,15 @@ new.seq
 
 new.seq.next
 
+    out('seq init',init)
     init span(' ') =
     init break(' ') . val ' ' =                     :f(return)
-    put(new,i = i + 1,val)                          :(new.seq.next)
+    out('adding key ',i + 1)
+    out('new.seq.next dt',datatype(val))
+    out('adding val',val)
+    put(new,i = i + 1,val)                          
+    show(new)
+                                                    :(new.seq.next)
 
 new.set
 
@@ -1282,8 +1288,10 @@ next.map
 
     next = iter.next(iter) = +iter.next(iter) + 1
     le(next,set.size(set))                          :f(freturn)
+    out('next.map 1',next)
     next = set.index(set)[next]
-    this = set.this(set) = entry(next,set.key(set)[next]) 
+    out('next.map 2',next)
+    this = set.this(set) = next
                                                     :(return)
 
 next.set
@@ -1333,6 +1341,7 @@ out
 *   output = text1 text2 text3
     out = ident(datatype(text1),'string') text1
     text2 = integer(text2) +text2
+    output = 'dt text2 ' datatype(text2)
     out = differ(text2) out '[' text2 ']'
     out = differ(text3) out text3
     output = out                                    :(return)
@@ -1369,6 +1378,9 @@ put
 
     key = integer(key) +key
     value = integer(value) +value
+    out('Put key',key)
+*   out('Put key',key)
+    out('Put dt value',datatype(value))
     v = set.key(map)[key]
     differ(v)                                       :s(put.value)
 
@@ -1379,7 +1391,11 @@ put
 
 put.value
 
-    set.key(map)[key] = value                       :(return)
+    out('put value',value)
+    set.key(map)[key] = value                       
+*   out('Show put',set.key(map)[key])
+*   show(map)
+                                                    :(return)
 
 put.end
 
