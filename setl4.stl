@@ -3,8 +3,10 @@
 
 *   TODO LIST
 
-*   Should exploit fact that library/dictionary sorted by increasing
-*   order of word size.
+*   Fix problem in initializing random. Bol4 date() isn't working.
+
+*   Exploit fact that library/dictionary sorted by increasing
+*   order of word size?
 
 
 *## SETL4 is an implementation of SETL written in SPITBOL.
@@ -459,8 +461,8 @@
 *
 *-  add(set,elem)                   Adds element to set
 *-  and(a,b)                        And: test if both operands are true
-*-  arb(n)                          Returns arbitary (randomly chosen) integer in 1 .. _n_
-*-  arb(set)                        Returns arbitary (randomly chosen) element of _set_
+*-  arbitrary(n)                    Returns arbitary (randomly chosen) integer in 1 .. _n_
+*-  arbitrary(set)                  Returns arbitary (randomly chosen) element of _set_
 *-  assert(expr)                    Tests that _expr_ is true, ends execution otherwise
 *-  assert.type(obj,type)           Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise
 *-  at(set,expr)                    Evaluates _expr_ for for current iterate of _set_
@@ -555,17 +557,25 @@ and
 
 and.end
 
-    define('arb(set)n,r')                           :(arb.end)
+    define('arbitrary(set)iter,n,r')                :(arbitrary.end)
 
-*   _Arb_ returns an arbitrary (randomly selected) element of a set.
+*   _Arbtrary_ returns an arbitrary (randomly selected) element of a set, or
+*   if the argument is an integer, then _arbitrary_ returns a random
+*   integer in the range 1 .. _set_.
 
-arb
+arbitrary
 
-    arb = integer(set) random(+set)           :s(return)
+    arbitrary = integer(set) random(+set)           :s(return)
     r = random(set.size(set))
-    arb = differ(iter.step(set))         iter.start(set) + (r - 1) * step(set) :s(return)
-    arb = set.index(set)[r]                         :(return)
-arb.end
+    ident(set.kind(set),'iter')                     :s(arbitrary.iter)
+    arbitrary = set.index(set)[r]                   :(return)
+
+arbitrary.iter
+
+    iter = set.iter(set)
+    arbitrary = iter.starbitraryitrary(iter) + (r - 1) * iter.step(iter) :(return)
+
+arbitrary.end
 
     define('assert(expr)')                          :(assert.end)
 
@@ -868,7 +878,9 @@ get.map
 
 get.set
 
-    ident(set.kind(set),'iter')                     :s(get.int)
+*   out('dt set',datatype(map))
+*   out('set.kind',set.kind(map))
+    ident(set.kind(map),'iter')                     :s(get.int)
     get = set.index(map)[key]
     ident(get)                                      :s(freturn)f(freturn)
     get = set.key(map)[entry]                       :(return)
@@ -900,7 +912,7 @@ int.end
 
 integers
 
-    integers = new()
+    integers = set('set',iterator(),table(n),table(n))
 
 integers.next
 
@@ -940,18 +952,8 @@ intersection.end
 join
 
     ident(a)                                        :s(return)
-    ident(datatype(a),'map')                        :s(join.map)
-
-*   Here to join strings.
-
-    out('join a',a)
-    out('join b',b)
-    out('join c',c)
-    join = a (differ(b) b, '') (differ(c) c,'')     :(return)
-
-join.map
-   
-    out('joining maps')
+    ident(datatype(a),'string')                     :s(join.string)
+*   out('joining maps')
     join = copy(a)
     ident(b)                                        :s(return)
 
@@ -972,8 +974,15 @@ join.map.c.next
     le(i = i + 1,set.size(c))                       :f(return)
     put(join,set.size(a) + i,get(c,i))              :(join.map.c.next)
 
+join.string
 
-                                                      join.mP.X
+*   Here to join strings.
+
+    out('join a',a)
+    out('join b',b)
+    out('join c',c)
+    join = a (differ(b) b, '') (differ(c) c,'')     :(return)
+
 join.end
 
     define('loop(set)iter')                         :(loop.end)
@@ -1124,10 +1133,9 @@ new.iter
 
 new.iter.1
 
-
-    iter.start(set) =  1
-    iter.finis(set) = get(seq,1)
-    iter.step(set) = 1                              :(new.iter.step)
+    iter.start(iter) =  1
+    iter.finis(iter) = get(seq,1)
+    iter.step(iter) = 1                             :(new.iter.step)
 
 new.iter.2
 
@@ -1317,12 +1325,17 @@ or.end
 
     define('out(text1,text2,text3)type1,type2')     :(out.end)
 
-*   _Out_ writes a line to standard output  conisting of TEXT1, 
-*   TEXT2 enclosed in brackets, followed by TEXT3.
+*   _Out_ writes a line to standard output  conisting of _text1_, 
+*   then _text2_ enclosed in brackets if _text2_ is not null, followed
+*   by _text3_ if _text3_ is not null.
 
 out
-
-    output = (text1 (ident(text2) '', '[' text2 ']') (differ(text3) text3, '')) :(return)
+*   output = text1 text2 text3
+    out = ident(datatype(text1),'string') text1
+    text2 = integer(text2) +text2
+    out = differ(text2) out '[' text2 ']'
+    out = differ(text3) out text3
+    output = out                                    :(return)
 
 out.end
 
@@ -1386,46 +1399,47 @@ range.next
 
 range.end
 
-    define('random(n)')                             :(random.end)
+	define('random(n)')				:(random.end)
 
-*   _Random_ returns an integer uniformly distributed in 1,2,...,_n_ if its
-*   argument is a postive integers. If the argument is zero, _random_ returns
-*   a real value uniformly distributed in the interval [0,1].
-
-*   The algorithm can be found in section 16.1 of "Algorithms in SNOBOL4,"
-*   James F. Gimpel, John Wiley and Sons, 1976.
+*	Return integer uniformly distributed in 1,2,...,n. 
+*	If n=0 returns real uniformly distributed in the interval [0,1].
+*	The Algorithm is based on that in section 16.1 of "Algorithms in SNOBOL4,"
+*	James F. Gimpel, John Wiley and Sons, 1976.
 
 random
 
-    setl4.random_var = remdr(setl4.random_var * 4676, 414971)
-    random  = setl4.random_var / 414971.0
-    random = ne(n) convert(random * n,'integer') + 1
-                                                    :(return)
+    ident(setl4.random.initialized) random.seed()
+	setl4.random.value = remdr(setl4.random.value * 4676, 414971)
+	random  = setl4.random.value / 414971.0
+	random = ne(n) convert(random * n,'integer') + 1
+							:(return)
 random.end
 
-    define('random.seed()s,c')                      :(random.seed.end)
+	define('random.seed()s,c')			:(random.seed.end)
 
-*   _Random.seed_ computes the seed for random number generator from the current date and time.
+*	Compute seed for random number generator from date and time.
 
 random.seed
-    setl4.random_var =
-    s = g.date
-    s = replace(s,'/:-','   ')
+    differ(setl4.random.initialized)                    :s(return)
+    setl4.random.initialized = 'TRUE'
+	setl4.random.value = 
+	s = date()
+	s = replace(s,'/:-','123')
 
-*   Get all the digits in s.
+*	Get all the digits in s.
 
 random.seed.loop
 
-    s len(1) . c =                                  :f(random.seed.done)
-    ident(c,' ')                                    :s(random.seed.loop)
-    setl4.random_var = setl4.random_var c           :(random.seed.loop)
+	s len(1) . c =					:f(random.seed.done)
+	ident(c,' ')					:s(random.seed.loop)
+	setl4.random.value = setl4.random.value c			:(random.seed.loop)
 
 random.seed.done
 
-*   Reverse the seed so digits depending on time come first.
+*	Reverse the seed so digits depending on time come first.
 
-    setl4.random_var = +reverse(setl4.random_var    )
-                                                    :(return)
+	setl4.random.value = +reverse(setl4.random.value)	
+							:(return)
 random.seed.end
 
     define('rank(set,type)ara,entry,key,map,seq,str,tbl,value')    :(rank.end)
@@ -1915,7 +1929,7 @@ setl4.clear
 
     setl4.config.set.table.size = setl4.config.stack = setl4.config.set.table.size = setl4.config.int =
 .   setl4.stack = setl4.ascii.initialized = setl4.ascii.name = setl4.config.int.init =
-.   setl4.ascii.value = setl4.random_var = setl4.any.digit = setl4.span.digits = 
+.   setl4.ascii.value = setl4.random.initialized = setl4.any.digit = setl4.span.digits = 
 .   setl4.break.digit = setl4.break.letter = setl4.any.letter =
 .   setl4.span.letters = setl4.span.spaces = setl4.break.space =
 .   setl4.any.word = setl4.span.word = setl.rank.map = setl4.rank.types = 
@@ -2434,14 +2448,14 @@ checkout.finis
 
 checkout.end
 
-    define('datename(date)s')                       :(datename.end)
+    define('datename()s')                           :(datename.end)
 
-*   _Datename_ converts the current date date to form with no spaces,
+*   _Datename_ converts the current date in a form with no spaces,
 *   just dashes, that is suitable for use as part of a file name.
 
 datename
 
-    datename = replace(date,' :/','---')
+    datename = replace(date(),' :/','---')
     datename = substr(datename,12,8) '-' substr(datename,1,10)
                                                     :(return)
 datename.end
@@ -2943,7 +2957,8 @@ writer.end
     setl4.ascii.initialized = 
     setl4.ascii.name = 
     setl4.ascii.value =  
-    setl4.random_var =
+    setl4.random.initialized =
+    setl4.random.value = 2017
 
 *   Useful patterns
 
@@ -2960,6 +2975,7 @@ writer.end
     setl4.any.word          =   any(&lcase &ucase '0123456789')
     setl4.span.word         =   span(&lcase &ucase '0123456789')
 
+    setlr.random.value      = 2017
 *   setl4.rank.types gives valid values for the argument _type_ in the function _rank()_
 
     setl4.rank.types = new('map '
