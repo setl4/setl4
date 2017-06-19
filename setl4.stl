@@ -1,6 +1,7 @@
 *    Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
+*   NOTE: next on map must return entry(). Nothing else makes sense.
 *   TODO LIST
 
 *   Fix problem in initializing random. Bol4 date() isn't working.
@@ -206,7 +207,6 @@
 *   it is used to retrieve element values.
 
 *## Sets of integers
-*   ----------------
 
 *   SETL4 sets of kind _integers' provide an efficient implementation of a set with
 *   many non-negative integers, such as  a set with more than a million integers.
@@ -220,7 +220,6 @@
 *   in the set when iterating over the set.
 
 *## Ordered Pairs
-*   -------------
 
 *   In set theory, sets are not ordered. The set _{a,b}_ is the same as (equal to)
 *   the set _{b,a}_.
@@ -238,7 +237,6 @@
 
 
 *## Maps
-*   ----
 
 *   A map defined on a finite set is a set of ordered pairs,
 *   or entries, that define a relation between the first element of an entry,
@@ -514,7 +512,6 @@
 
 
 *   SETL4 Function Definitions
-*   --------------------------
 
     define('add(set,elem)ara,i,n,str')              :(add.end)
 
@@ -557,7 +554,7 @@ and
 
 and.end
 
-    define('arbitrary(set)iter,n,r')                :(arbitrary.end)
+    define('arbitrary(set)iter,r')                  :(arbitrary.end)
 
 *   _Arbtrary_ returns an arbitrary (randomly selected) element of a set, or
 *   if the argument is an integer, then _arbitrary_ returns a random
@@ -568,7 +565,8 @@ arbitrary
     arbitrary = integer(set) random(+set)           :s(return)
     r = random(set.size(set))
     ident(set.kind(set),'iter')                     :s(arbitrary.iter)
-    arbitrary = set.index(set)[r]                   :(return)
+    arbitrary = set.index(set)[r]                   
+                                                   :(return)
 
 arbitrary.iter
 
@@ -827,7 +825,8 @@ false.end
 
 filter
 
-    filter = new('set')
+    filter = new(set.kind(set))
+*   ident(set.kind(set),'map')                      :s(filter.map)
 
     loop(set)
 
@@ -873,7 +872,11 @@ get.int
 
 get.map
 
+    out('get map')
+    show(map)
     get = set.key(map)[key]
+    out('get key')
+    out('get result',get)
     differ(get)                                     :s(return)f(freturn)
 
 get.set
@@ -945,7 +948,8 @@ intersection.end
 
 *   _Join_ joins strings by concatenating them, and sequences
 *   by returning a new sequence consisting of all the elements of
-*   the first followed by all the elements of the second.
+*   the first followed by all the elements of the second, and then
+*   by the elements of the third.
 
 *   If called with three arguments, the result returned is the same as join(join(a,b),c)`
 
@@ -953,26 +957,31 @@ join
 
     ident(a)                                        :s(return)
     ident(datatype(a),'string')                     :s(join.string)
-*   out('joining maps')
-    join = copy(a)
-    ident(b)                                        :s(return)
+    join = new('map')
+    out('enter join')
+    out('join a')
+    show(a)
+    out('join b')
+    show(b)
+    out('join c')
+    show(c)
 
-*   Here to join first and second argument sequences.
+join.a
 
-join.map.b.next
+    push(join,get(a,next(a)))                       :s(join.a)
+    loop(b)
 
-    le(i = i + 1,set.size(b))                       :f(join.map.c)
-    put(join,set.size(a) + i,get(b,i))              :(join.map.b.next)
+join.b
 
-join.map.c
+    push(join,get(b,next(b)))                       :s(join.b)
+    loop(c)
 
-    ident(c)                                        :s(return)
-    i = 0
+join.c
 
-join.map.c.next
-
-    le(i = i + 1,set.size(c))                       :f(return)
-    put(join,set.size(a) + i,get(c,i))              :(join.map.c.next)
+    push(join,get(c,next(c)))                       :s(join.c)
+    out('join result')
+    show(join)
+                                                    :(return)
 
 join.string
 
@@ -1062,13 +1071,17 @@ member.iter
     lt(iter.step(iter)) eq(remdr(iter.start(iter) - elem,iter.step(iter))):s(return)
                                                     :(freturn)
 
+member.map
+
+    differ(set.key(set)[key(elem)])                      :s(return)f(freturn)
+
 member.set
 
     differ(set.key(set)[elem])                      :s(return)f(freturn)
 
 member.end
 
-    define('new(init)kind,i,iter,len,n,key,seq,val,words)'):(new.end)
+    define('new(init)kind,i,index,iter,len,n,key,seq,val,values,words)'):(new.end)
 
 *   _New_ constructs a new set and returns its value.
 
@@ -1180,20 +1193,21 @@ new.seq
 
     new = set('map',iterator(),table(setl4.config.set.table.size),table(setl4.config.set.table.size))
     init span(' ') =
-    ident(init)                                     :s(return)
+*   ident(init)                                     :s(return)
+    ident(init)                                     :s(new.seq.done)
     init = init ' '
 
 new.seq.next
 
-    out('seq init',init)
     init span(' ') =
     init break(' ') . val ' ' =                     :f(return)
-    out('adding key ',i + 1)
-    out('new.seq.next dt',datatype(val))
-    out('adding val',val)
-    put(new,i = i + 1,val)                          
-    show(new)
-                                                    :(new.seq.next)
+    push(new,val)                                   :(new.seq.next)
+
+new.seq.done
+    out('new.seq done')
+    out('dt seq',datatype(new))
+    out('kind seq',set.kind(new))
+    :(return)
 
 new.set
 
@@ -1225,7 +1239,7 @@ new.stack
 
 new.stack.end
 
-    define('next(set)i,iter,key,next,str,value')    :(next.end)
+    define('next(set)iter,key,next,str,value')    :(next.end)
 
 *   _Next_ Advances an  iteration by setting field _next_ to the next item
 *   to be visisted, or fails if no more elements remain.
@@ -1286,11 +1300,13 @@ next.iter
 
 next.map
 
-    next = iter.next(iter) = +iter.next(iter) + 1
+    next = iter.next(iter) = iter.next(iter) + 1
     le(next,set.size(set))                          :f(freturn)
-    out('next.map 1',next)
-    next = set.index(set)[next]
-    out('next.map 2',next)
+    key = set.index(set)[next]
+*   out('next.map key',key)
+    next = entry(key,set.key(set)[key])
+*   out('next.map dt',datatype(next))
+*   out('next.map value',value(next))
     this = set.this(set) = next
                                                     :(return)
 
@@ -1338,12 +1354,10 @@ or.end
 *   by _text3_ if _text3_ is not null.
 
 out
-*   output = text1 text2 text3
-    out = ident(datatype(text1),'string') text1
-    text2 = integer(text2) +text2
-    output = 'dt text2 ' datatype(text2)
-    out = differ(text2) out '[' text2 ']'
-    out = differ(text3) out text3
+
+    out = setl4.simple.type(text1)
+    out = differ(setl4.simple.type(text2)) out '[' setl4.simple.type(text2) ']'
+    out = differ(setl4.simple.type(text3)) out  setl4.simple.type(text2)
     output = out                                    :(return)
 
 out.end
@@ -1366,6 +1380,12 @@ pop.end
 
 push
 
+    out('push stack')
+    out('push dt stack',datatype(stack))
+    out('push dt kind',set.kind(stack))
+    setl4.show(stack)
+*   show(stack)
+    out('push adding',value)
     put(stack,set.size(stack) + 1, value)           :f(freturn)s(return)
 
 push.end
@@ -1378,11 +1398,7 @@ put
 
     key = integer(key) +key
     value = integer(value) +value
-    out('Put key',key)
-*   out('Put key',key)
-    out('Put dt value',datatype(value))
-    v = set.key(map)[key]
-    differ(v)                                       :s(put.value)
+    differ(set.key(map)[key])                       :s(put.value)
 
 *   Here to create new entry in map, and then merge to set new value.
 
@@ -1391,11 +1407,7 @@ put
 
 put.value
 
-    out('put value',value)
-    set.key(map)[key] = value                       
-*   out('Show put',set.key(map)[key])
-*   show(map)
-                                                    :(return)
+    set.key(map)[key] = value                       :(return)
 
 put.end
 
@@ -1469,6 +1481,10 @@ random.seed.end
 
 *   The argument _type_ specifies the ordering to be used:
 
+*       '+index'    increasing order of when entry created (oldest first)
+
+*       '-index'    decreasing order of when entry created (most recent first)
+
 *       '+key'      increasing order of the values in the domain
 
 *       '-key'      decreasing order of the values in the domain
@@ -1483,6 +1499,7 @@ random.seed.end
 *   as "+k" or "+ke", "+value" as "+v" or +"val", and so forth.
 
 rank
+    :(return)
     str = ident(datatype(set),'string') set
     type = get(setl4.rank.types,type) 
 
@@ -1584,17 +1601,20 @@ remove.error
 
 remove.end
 
-    define('show(v,label,nested)ara,i,kind,elem,ent,line,hdr,map,n,set.this') :(show.end)
+    define('show(v,type,nested)ara,i,kind,elem,entry,key,line,hdr,n,set.this,value') :(show.end)
 
 *   _Show_ displays the value of its first argument in a form that is hopefully both
 *   readable and pleasing to the eye.
+
+*   If _type_ is not null, sets and maps are ranked in order given by _type_.
+*   Otherwise sets and maps are increased in ascending value of members (set)
+*   or keys (map).
 
 *   _lev_ is non-zero when called to list element of a compound object.
 
 show
 
     ident(v)                                        :s(return)
-    differ(label) out('show: ' upper(label))
     differ(datatype(v),'set')                       :s($('show.' datatype(v)))
 
 *   Make a copy of the argument to avoid disrupting a possible 
@@ -1648,9 +1668,9 @@ show.iter.done
 show.iterator
 
     show = '{iterator'
-.           (ne(iter.start(v))  ' start:'   iter.start(v) ,'')
-.           (ne(iter.finis(v))  ' finis:'   iter.finis(v),'')
-.           (ne(iter.step(v))   ' step:'    iter.step(v),'')  '} ' :(show.done)
+.           (ne(+iter.start(v))  ' start:'   iter.start(v) ,'')
+.           (ne(+iter.finis(v))  ' finis:'   iter.finis(v),'')
+.           (ne(+iter.step(v))   ' step:'    iter.step(v),'')  '} ' :(show.done)
 
 show.integer
 
@@ -1658,17 +1678,23 @@ show.integer
 
 show.map
 
+*   out('show.map dt',datatype(v))
+*   out('show.map kind',set.kind(v))
     show = 'map{'
-    rank(v,'+k')
+    rank(v,differ(type) type, '+k')
     setl4.save(v)
     loop(v)
 
 
 show.map.next
 
-    elem = next(v)                                  :f(show.map.done)
-*   show = show ' ' show(elem,,1) ':' show(set.key(v)[elem],,1)
-    show = show ' ' show(elem) 
+    entry = next(v)                                :f(show.map.done)
+    out('showing entry')
+    show(entry)
+*   out('show.map dt entry',datatype(entry))
+*   out('show.map key',key(entry))
+*   out('show.map value',value(entry))
+    show = show ' ' show(key(entry),,1) ':' show(value(entry),,1)
     lt(size(show),80)                               :s(show.map.next)
     out(show)
     show =                                          :(show.map.next)
@@ -1705,7 +1731,7 @@ show.int.done
 show.set
 
     show = 'set{'
-    rank(v,'+k')
+    rank(v,differ(type) type, '+k')
     setl4.save(v)
     loop(v)
 
@@ -1989,10 +2015,11 @@ setl4.show
 
 setl4.show.iter
 
-    setl4.show =  out('(iterator  start:'   +iter.start(set) 
-.                             ' finis:'     +iter.finis(set)
-.                             ' step:'      +iter.step(set) 
-.                             ' next:'      +iter.next(set) ')')
+    setl4.show =  out('(iterator '
+.            (ne(iter.start(set)) ' start:'   +iter.start(set), '') 
+.            (ne(iter.finis(set)) ' finis:'     +iter.finis(set),'')
+.            (ne(iter.step(set))  ' step:'      +iter.step(set),'')
+.            (ne(iter.next(set))  ' next:'      +iter.next(set),''))
                                                     :(return)
 
 setl4.show.set
@@ -2016,6 +2043,22 @@ setl4.show.set
                                                     :(return)
 setl4.show.end
 
+    define('setl4.simple.type(type)')               :(setl4.simple.type.end)
+
+*   Tests if _v_ is a 'simple' type suitable for use in _out()_.
+*   Simple types are 'integer','real', and 'string'.
+*   Returns _v_ if _type_ is a simple type, null otherwise.
+
+setl4.simple.type
+
+    setl4.simple.type = type
+    ident(datatype(type),'integer')                 :s(return)
+    ident(datatype(type),'real')                    :s(return)
+    ident(datatype(type),'string')                  :s(return)
+    setl4.simple.type =                             :(return)
+
+setl4.simple.type.end
+    
     define('setl4.set.size(set)')                   :(setl4.size.end)
 
 *   Setl4.set.size_ returns the  size of operand.
@@ -2042,12 +2085,20 @@ setl4.sort
     le(n = set.size(set),1)                         :s(return)
     differ(datatype(set),'set') error('setl4.sort bad datatype ' datatype(set))
     setl4.sort = table(n)
-    ident(type)                                     :s(setl4.sort.null)
+    ident(type)                                     :s(setl4.sort.index)
+    ident(type,'+i')                                :s(setl4.sort.index)
+    ident(type,'-i')                                :s(setl4.sort.index)
     ident(type,'+k')                                :s(setl4.sort.key)
     ident(type,'-k')                                :s(setl4.sort.key)
     ident(type,'+v')                                :s(setl4.sort.value)
     ident(type,'-v')                                :s(setl4.sort.value)
     error('setl4.sort unsupported type ' type)
+
+set4.sort.index
+
+*   Here to sort index tabl according to type.
+
+    tlb = setl4.sort.table(set.index(set),n,type)
 
 setl4.sort.key
 
@@ -2106,9 +2157,10 @@ setl4.sort.table
 
     le(n,1)                                         :s(return)
     type = substr(type,1,1)
-    ara = ident(type)        sort(table,1)          :s(setl4.sort.table.ok)
-    ara = ident(type,'+')    sort(table,2)          :s(setl4.sort.table.ok)
-    ara = ident(type,'-')    rsort(table,2)         :s(setl4.sort.table.ok)
+    ara = ident(type,'+i')    sort(table,1)          :s(setl4.sort.table.ok)
+    ara = ident(type,'-i')    rsort(table,1)         :s(setl4.sort.table.ok)
+    ara = ident(type,'+k')    sort(table,2)          :s(setl4.sort.table.ok)
+    ara = ident(type,'-k')    rsort(table,2)         :s(setl4.sort.table.ok)
 
 setl4.sort.table.ok
 
@@ -2190,7 +2242,6 @@ traceon.end
 opsyn.bypass
 
 *   Utility Functions
-*   ---------------
 
 *   In addition to set-theoretic functions SETL4 provides 
 *   the following utility functions.
@@ -2652,7 +2703,6 @@ primes.end
 
 
 *   Lines
-*   -----
 
 *   Lines can be just strings or, in some cases, a line is represented by a pair:
 
@@ -2807,8 +2857,7 @@ ulleters.next
 
 uletters.end
 
-*   Tokens: Lexical Scanning
-*   ------------------------
+*#  Tokens: Lexical Scanning
 
 
 *   A token is represented as an instance of the datatype _token_ as follows:
@@ -2967,8 +3016,7 @@ writer.next
 
 writer.end
 
-*   SETL4 Global variables
-*   ----------------------
+*## SETL4 Global variables
 
     setl4.ascii.initialized = 
     setl4.ascii.name = 
@@ -2996,7 +3044,8 @@ writer.end
 
     setl4.rank.types = new('map '
 .      '+:+k +k:+k +ke:+k +key:+k -:-k -k:-k -ke:-k -key:-k '
-.      '+v:+v +va:+v +val:+v +valu:+v +value:+v -v:-v -va:-v -val:-v -valu:-v -value:-v')
+.      '+v:+v +va:+v +val:+v +valu:+v +value:+v -v:-v -va:-v -val:-v -valu:-v -value:-v'
+.      '+i:+i +in:+i +ind:+ +inde:i+i +index:+i -i:-i -in:-i -ind:- -inde:i-i -index:-i')
 
 *   SETL4 needs a stack
 

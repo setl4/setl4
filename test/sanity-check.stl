@@ -67,7 +67,7 @@
     out()
     out()
 
-    out('Test map')
+    out('Test Map')
 
     map = new('map one:1 two:2 ten:10 forty:40 hundred:100 thousand:1000')
     show(map)
@@ -84,15 +84,15 @@
 
     out('Test exists/forall with element in map- expect success/failure')
     out()
-    show.eval("exists(map,'eq(get(map,this),2)')")
-    show.eval("forall(map,'eq(get(map,this),2)')")
+    show.eval("exists(map,'eq(key(this),2)')")
+    show.eval("forall(map,'eq(key(this),2)')")
     out()
     out()
 
     out('Test exists/forall with element not in - expect failure/failure')
     out()
-    show.eval("exists(map,'eq(this,500)')")
-    show.eval("forall(map,'eq(this,500)')")
+    show.eval("exists(map,'eq(value(this),500)')")
+    show.eval("forall(map,'eq(value(this),500)')")
     out()
     out()
 
