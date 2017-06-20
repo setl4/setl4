@@ -459,6 +459,7 @@
 *-  assert.type(obj,type)           Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise
 *-  at(set,expr)                    Evaluates _expr_ for for current iterate of _set_
 *-  begins(str,sub)                 Tests if string _key_ begins with string _sub_
+*-  compare(a,b)                    Compares two integers or strings
 *-  compose(a,b)                    Returns composition of two maps or tables.
 *-  defined(map,key)                Tests if a map is defined for a specified key
 *-  difference(a,b)                 Returns set of members of set _a_ not in the set _b_
@@ -602,6 +603,36 @@ at
     at = eval(expr)                                 :(return)
 
 at.end
+
+    define('compare(a,b)')                                          :(compare.end)
+
+*   _Compare_ compares two integers or strings, returning -1 if the _a_ is
+*   less than _b_ , 0 if both have the seq.eq value, and +1 if the _a_ is greater than _b_.
+
+compare
+
+    a = integer(a) +a
+    b = integer(b) +b
+*   out('compare ' datatype(a) ' ' datatype(b))
+    differ(datatype(a),datatype(b)) error("compare argument types differ " datatype(a) " " datatype(b))
+    ident(datatype(a),'string')                                     :s(compare.strings)
+
+*   Here to numerically compare integers.
+
+    compare = lt(a,b) -1                                            :s(return)
+    compare = eq(a,b) 0                                             :s(return)
+    compare = 1                                                     :(return)
+
+compare.strings
+
+*   Here to lexically compare strings.
+    compare = llt(a,b) -1
+    compare = leq(a,b) 0
+    compare = lgt(a,b) 1
+*   out('compare ' show(a) ' ' show(b) ' ' compare)
+                                                                :(return)
+
+compare.end
 
     define('compose(a,b)ara,i,key,n')               :(compose.end)
 
@@ -1400,6 +1431,10 @@ random
 	setl4.random.value = remdr(setl4.random.value * 4676, 414971)
 	random  = setl4.random.value / 414971.0
 	random = ne(n) convert(random * n,'integer') + 1
+
+*   Make sure random of integer never returns zero.
+
+    random = integer(random) eq(random) 1
 							:(return)
 random.end
 
@@ -2655,24 +2690,43 @@ primes.loop
 
 primes.end
 
+    define('quicksort(seq)c,seq.eq,set.gt,seq.lt,pivot,this') :(quicksort.end)
 
-    define('quicksort(seq)pivot,this')          :(quicksort.end)
+*   _Quicksort_ sorts the sequence _seq_ using Hoare's quicksort algorithm.
 
-*   Sort sequence _seq_ using Hoare's quicksort algorithm.
-*   This program is for demonstrating SETL4. Use _sorter_ for
-*   much more efficient sorting.
+*   This program is for demonstrating SETL4. 
+*   Use the much more efficient _sorter_ for production use.
 
 quicksort
 
-    quicksort = le(set.size(seq),1) seq             :s(return)
-    pivot = arbitrary(seq)
-    quicksort = join( quicksort(filter(seq,  'lt(value(this),pivot)')),
-.                               filter(seq,  'eq(value(this),pivot)'),
-.                     quicksort(filter(seq,  'gt(value(this),pivot)'))) :(return)
+    quicksort = le(set.size(seq),1) seq         :s(return)
+    seq.lt = new('map'); seq.eq = new('map'); seq.gt = new('map')
+*   pivot = get(seq,arbitrary(set.size(seq)))
+    pivot = arbitrary(set.size(seq))
+    eq(pivot) error('random zero')
+    pivot = get(seq,pivot)
+    loop(seq)
+
+quicksort.partition
+
+    this = value(next(seq))                     :f(quicksort.join)
+    c = compare(this,pivot)
+    lt(c) push(seq.lt,this)
+    eq(c) push(seq.eq,this)
+    gt(c) push(seq.gt,this)
+                                                :(quicksort.partition)
+
+quicksort.join
+
+*   Complete sort by joining together the sort of the smaller elements,
+*   the equal elements, and the sort of the greater elements.
+
+    quicksort = join(quicksort(seq.lt),seq.eq,quicksort(seq.gt)) :(return)
 
 quicksort.end
 
-*   Lines
+
+*## Lines
 
 *   Lines can be just strings or, in some cases, a line is represented by a pair:
 
