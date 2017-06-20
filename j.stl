@@ -51,12 +51,3 @@ seq.add
 
 seq.built
 
-    out('sort input')
-    show(seq)
-*end
-    sorted = quicksort(seq)
-    out('sort result')
-    out('result dt',datatype(sorted))
-*   out('result size',set.size(sorted))
-    show(sorted)
-end
