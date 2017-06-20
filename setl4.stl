@@ -472,9 +472,10 @@
 *-  false(e)                        tests if argument is false
 *-  forall(set,expr)                Tests if an expression is true for every element of a set
 *-  filter(set,expr)                Filter:; returns subset of _set_ for which _expr_ is true
-*-  int(s)                          Returns integer defined by _s_
 *-  integers(n)                     Returns set of integers 1 ... n
 *-  intersection(a,b)               Returns set of elements common to two sets
+*-  is.integer(n)                   Tests if _n_ is integer or string representing integer, returing its value if so, or else failing.
+*-  is.string(s)                    Tests if _s_ is a string, returning its value if so, or else failing.
 *-  join(a,b)                       Joins two strings into a single string by concatenating them
 *-  loop(set)                       Set up iteration over _set_ using _next_
 *-  mark(line)                      Annotates, or marks, a line
@@ -482,6 +483,7 @@
 *-  new(str)                        Returns new set specified by _st_
 *-  next(set)                       Returns next element in iteration defined by prevous _loop_, fails if no more elements
 *-  not(expr)                       Not: tests if operand is false
+*-  number(s)                       Returns integer defined by _s_
 *-  or(a,b)                         Or: tests if either operand is true
 *-  push(stack,value)               Push value onto a stack
 *-  pop(stack)                      Pop the top of a stack
@@ -851,14 +853,24 @@ false.end
 filter
 
     filter = new(set.kind(set))
-*   ident(set.kind(set),'map')                      :s(filter.map)
+    ident(set.kind(set),'map')                      :s(filter.map)
 
     loop(set)
 
-filter.loop
+filter.set.loop
 
     this = next(set)                                :f(return)
-    eval(expr) add(filter,this)                     :(filter.loop)
+    eval(expr) add(filter,this)                     :(filter.set.loop)
+
+filter.map
+
+    filter = new('map')
+    loop(set)
+
+filter.map.loop
+
+    this = next(set)                                :f(return)
+    eval(expr) push(filter,value(this))             :(filter.map.loop)
 
 filter.end
 
@@ -962,6 +974,27 @@ intersection.next
     member(b,this) add(intersection,this)           :(intersection.next)
 
 intersection.end
+
+    define('is.integer(n)')                          :(is.integer.end)
+
+*   Test if _n_ is a string with integer value or integer, return its
+*   value if so, fail otherwise.
+
+is.integer
+
+    is.integer = integer(n) +n                       :s(return)f(freturn)
+
+is.integer.end
+
+    define('is.string(s)')                          :(is.string.end)
+
+*   _Is.string_ tests if _s_ is a string , returning its value if so, or else failing.
+
+is.string
+
+    is.string = ident(datatype(s),'string') s        :s(return)f(freturn)
+
+is.string.end
 
     define('join(a,b,c)i')                             :(join.end)
 
@@ -1327,6 +1360,17 @@ not
     not = ident(expr) 1                             :s(return)f(freturn)
 
 not.end
+
+    define('number(n)')                          :(number.end)
+
+*   Test if _n_ is a string with integer value or integer, returning its
+*   value if so, or failing otherwise.
+
+number
+
+    number = integer(n) +n                      :s(return)f(freturn)
+
+number.end
 
     define('or(a,b)')                               :(or.end)
 
@@ -2246,7 +2290,6 @@ opsyn.bypass
 *   lletters()                  Returns list of lower case letters : 'a b c ... z'
 *   lower(s)                    Returns _s_ with upper case letters replaced by lower case equivalent
 *   multiple(n,m)               Tests if _n_ is a multiple of _m_
-*   number(n)                   Returns _n_ as one or two words if possible, else returns _n_
 *   odd(n)                      Tests if _n_ is odd
 *   out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null,
 *   prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_
@@ -2618,20 +2661,6 @@ multiple
 
 multiple.end
 
-    define('number(n)')                         :(number.end)
-
-*  _Number_ determines if the integer _n_ can be represented as a string of one or two words,
-*   and if so, returns that string. Otherwise it returns its argument value.
-
-number
-    error('number not implemented, quitting.' )
-    number = eq(n) 'zero'                       :s(return)
-    number = g.numbers[n]
-    differ(number)                              :s(return)
-    number = n                                  :(return)
-
-number.end
-
     define('odd(n)')                            :(odd.end)
 
 *   _Odd_ tests if its argument is odd.
@@ -2690,9 +2719,11 @@ primes.loop
 
 primes.end
 
+
     define('quicksort(seq)c,seq.eq,set.gt,seq.lt,pivot,this') :(quicksort.end)
 
 *   _Quicksort_ sorts the sequence _seq_ using Hoare's quicksort algorithm.
+*   _Seq_ must be sequence of integers or sequence of strings.
 
 *   This program is for demonstrating SETL4. 
 *   Use the much more efficient _sorter_ for production use.
@@ -2700,31 +2731,49 @@ primes.end
 quicksort
 
     quicksort = le(set.size(seq),1) seq         :s(return)
-    seq.lt = new('map'); seq.eq = new('map'); seq.gt = new('map')
-*   pivot = get(seq,arbitrary(set.size(seq)))
-    pivot = arbitrary(set.size(seq))
-    eq(pivot) error('random zero')
-    pivot = get(seq,pivot)
-    loop(seq)
+    pivot = get(seq,random(set.size(seq)))
+    number(pivot)                               :f(quicksort.other)
 
-quicksort.partition
+*   Here to sort sequence of integers.
 
-    this = value(next(seq))                     :f(quicksort.join)
-    c = compare(this,pivot)
-    lt(c) push(seq.lt,this)
-    eq(c) push(seq.eq,this)
-    gt(c) push(seq.gt,this)
-                                                :(quicksort.partition)
+    out('sorting integers')
+    show(seq)
+    out('q1')
+    q1 =  quicksort(filter(seq,'lt(value(this),pivot)'))
+    out('q2')
+    q2 =  filter(seq,'eq(value(this),pivot)')
+    out('q3')
+    q3 =  quicksort(filter(seq,'gt(value(this),pivot)'))
+    show(q1)
+    show(q2)
+    show(q3)
+    j = join(q1,q2,q3)
+    out('join')
+*   show(j)
+    quicksort = join(q1,q2,q3) :(return)
 
-quicksort.join
+                         :(return)
+    quicksort = join(
+.       quicksort(filter(seq,'lt(value(this),pivot)')),
+.       filter(seq,'eq(value(this),pivot)'),
+.       quicksort(filter(seq,'gt(value(this),pivot)')))         :(return)
 
-*   Complete sort by joining together the sort of the smaller elements,
-*   the equal elements, and the sort of the greater elements.
+quicksort.other
 
-    quicksort = join(quicksort(seq.lt),seq.eq,quicksort(seq.gt)) :(return)
+*   Here to sort sequence of strings.
+
+    is.string(pivot)                            :s(quicksort.strings)
+    error("quicksort called to sort neither integers or strings " datatype(pivot))
+
+quicksort.strings.
+
+    out('sorting strings')
+    quicksort = join(
+.       quicksort(filter(seq,'llt(value(this),pivot)')),
+.       filter(seq,'leq(value(this),pivot)'),
+.       quicksort(filter(seq,'lgt(value(this),pivot)')))         :(return)
 
 quicksort.end
-
 
 *## Lines
 
