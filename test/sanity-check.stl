@@ -84,8 +84,8 @@
 
     out('Test exists/forall with element in map- expect success/failure')
     out()
-    show.eval("exists(map,'eq(key(this),2)')")
-    show.eval("forall(map,'eq(key(this),2)')")
+    show.eval("exists(map,'eq(value(this),2)')")
+    show.eval("forall(map,'eq(value(this),2)')")
     out()
     out()
 

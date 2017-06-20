@@ -1,14 +1,8 @@
 *    Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
-*   NOTE: next on map must return entry(). Nothing else makes sense.
-*   TODO LIST
-
-*   Fix problem in initializing random. Bol4 date() isn't working.
-
-*   Exploit fact that library/dictionary sorted by increasing
-*   order of word size?
-
+*   TODO
+*       extend loop(set) to loop(set,name) to allow user to provide alternative to 'this'.
 
 *## SETL4 is an implementation of SETL written in SPITBOL.
 
@@ -372,13 +366,13 @@
 
 *   The function _rank_ can be used to determine the order in which the elements 
 *   of a set are accessed during an iteration, or to 'sort' the tables implementing
-*   the set. For example, _rank(s,'+v')_ sorts a map in increasing order of the
-*   values of the map. _rank(s,'-v')_ sorts the values in descendng order, and
+*   the set. For example, _sorter(s,'+v')_ sorts a map in increasing order of the
+*   values of the map. _sorter(s,'-v')_ sorts the values in descendng order, and
 *   so forth. For example, here is the code to find the ten members with 
 *   the largest values in a map:
 
 *```
-*       rank(map,'-v')
+*       sorter(map,'-v')
 *       largest = new('set')
 *       iter = new('iter 1 10')
 *       loop(set)
@@ -494,8 +488,8 @@
 *-  random(n)                       Returns random element
 *-  random.seed()                   Sets random number seed to initialize _random_
 *-  range(map)                      Returns set of elements in the range of a map
-*-  rank(set)                       Returns the rank, or normal form, of a set or string.
 *-  remove(set,elem)                Remove arbitary element from set, or most recent entry from map.
+*-  sorter(set)                     Sorts a set, map or string.
 *-  subset(a,b)                     Tests if the second set is a subset of the first set
 *-  union(a,b)                      Returns set consisting of all the members in two sets
 *-  set.size(set)                   Returns number of elements in set _set_
@@ -565,7 +559,7 @@ arbitrary
     arbitrary = integer(set) random(+set)           :s(return)
     r = random(set.size(set))
     ident(set.kind(set),'iter')                     :s(arbitrary.iter)
-    arbitrary = set.index(set)[r]                   
+    arbitrary = set.key(set)[set.index(set)[r]]
                                                    :(return)
 
 arbitrary.iter
@@ -872,17 +866,11 @@ get.int
 
 get.map
 
-    out('get map')
-    show(map)
     get = set.key(map)[key]
-    out('get key')
-    out('get result',get)
     differ(get)                                     :s(return)f(freturn)
 
 get.set
 
-*   out('dt set',datatype(map))
-*   out('set.kind',set.kind(map))
     ident(set.kind(map),'iter')                     :s(get.int)
     get = set.index(map)[key]
     ident(get)                                      :s(freturn)f(freturn)
@@ -958,38 +946,26 @@ join
     ident(a)                                        :s(return)
     ident(datatype(a),'string')                     :s(join.string)
     join = new('map')
-    out('enter join')
-    out('join a')
-    show(a)
-    out('join b')
-    show(b)
-    out('join c')
-    show(c)
+    loop(a)
 
 join.a
 
-    push(join,get(a,next(a)))                       :s(join.a)
+    push(join,value(next(a)))                       :s(join.a)
     loop(b)
 
 join.b
 
-    push(join,get(b,next(b)))                       :s(join.b)
+    push(join,value(next(b)))                       :s(join.b)
     loop(c)
 
 join.c
 
-    push(join,get(c,next(c)))                       :s(join.c)
-    out('join result')
-    show(join)
-                                                    :(return)
+    push(join,value(next(c)))                       :s(join.c)f(return)
 
 join.string
 
 *   Here to join strings.
 
-    out('join a',a)
-    out('join b',b)
-    out('join c',c)
     join = a (differ(b) b, '') (differ(c) c,'')     :(return)
 
 join.end
@@ -1193,8 +1169,7 @@ new.seq
 
     new = set('map',iterator(),table(setl4.config.set.table.size),table(setl4.config.set.table.size))
     init span(' ') =
-*   ident(init)                                     :s(return)
-    ident(init)                                     :s(new.seq.done)
+    ident(init)                                     :s(return)
     init = init ' '
 
 new.seq.next
@@ -1202,12 +1177,6 @@ new.seq.next
     init span(' ') =
     init break(' ') . val ' ' =                     :f(return)
     push(new,val)                                   :(new.seq.next)
-
-new.seq.done
-    out('new.seq done')
-    out('dt seq',datatype(new))
-    out('kind seq',set.kind(new))
-    :(return)
 
 new.set
 
@@ -1241,7 +1210,7 @@ new.stack.end
 
     define('next(set)iter,key,next,str,value')    :(next.end)
 
-*   _Next_ Advances an  iteration by setting field _next_ to the next item
+*   _Next_ advances an iteration by setting field _next_ to the next item
 *   to be visisted, or fails if no more elements remain.
 
 next
@@ -1257,7 +1226,7 @@ next.int
 *
 *       set.block      is current block for iteration
 *       set.offset     is zero if this block not search, or else index of an
-                           element of the set in this block
+                       element of the set in this block
 *       set.str        is set to the string of a block when advance to it.
 
 *   Branch to get first block if _set.str_ is null.
@@ -1303,10 +1272,7 @@ next.map
     next = iter.next(iter) = iter.next(iter) + 1
     le(next,set.size(set))                          :f(freturn)
     key = set.index(set)[next]
-*   out('next.map key',key)
     next = entry(key,set.key(set)[key])
-*   out('next.map dt',datatype(next))
-*   out('next.map value',value(next))
     this = set.this(set) = next
                                                     :(return)
 
@@ -1380,13 +1346,7 @@ pop.end
 
 push
 
-    out('push stack')
-    out('push dt stack',datatype(stack))
-    out('push dt kind',set.kind(stack))
-    setl4.show(stack)
-*   show(stack)
-    out('push adding',value)
-    put(stack,set.size(stack) + 1, value)           :f(freturn)s(return)
+    put(stack,set.size(stack) + 1, value)           :(return)
 
 push.end
 
@@ -1470,12 +1430,12 @@ random.seed.done
 							:(return)
 random.seed.end
 
-    define('rank(set,type)ara,entry,key,map,seq,str,tbl,value')    :(rank.end)
+    define('sorter(set,type)ara,entry,key,map,seq,str,tbl,value')    :(sorter.end)
 
-*   _Rank_ reorders the index table of a set to reflect a desired sort of elements
+*   _Sorter_ reorders the index table of a set to reflect a desired sort of elements
 *   of set, keys of maps, or values of map.
 
-*   _Rank_ can also be used to put a string in normal form by converting the string
+*   _Sorter_ can also be used to put a string in normal form by converting the string
 *   into a sequence of the characters in the string and then sorting the range
 *   of the sequence.
 
@@ -1498,42 +1458,42 @@ random.seed.end
 *   Types for keys and values may be abbreviated: "+key" may be written
 *   as "+k" or "+ke", "+value" as "+v" or +"val", and so forth.
 
-rank
-    :(return)
+sorter
+
     str = ident(datatype(set),'string') set
-    type = get(setl4.rank.types,type) 
+    type = get(setl4.sorter.types,type) 
 
 *   If the first argument is a string, build a sequence
-*   of the characters in the string, and rank the sequence.
+*   of the characters in the string, and sort the sequence.
 
     ident(datatype(set),'set') ident(set.kind(set),'int')  :s(return)
     ident(datatype(set),'set') ident(set.kind(set),'iter') :s(return)
-    differ(str)                                            :s(rank.string)
+    differ(str)                                            :s(sorter.string)
 
-rank.merge
+sorter.merge
 
 *   If  _set_ is a string, will merge here when we have 
 *   converted the string to a sequence.
 
-    rank = set
-    differ(datatype(set),'set') error('wrong type for rank')
+    sorter = set
+    differ(datatype(set),'set') error('wrong type for sorter')
     setl4.sort(set,set.size(set),type)                                    
                                                     :(return)
 
-rank.table
+sorter.table
 
-    tbl[ara[i = i + 1,1]] = ara[i,2]                :s(rank.table)f(return)
+    tbl[ara[i = i + 1,1]] = ara[i,2]                :s(sorter.table)f(return)
 
-rank.string
+sorter.string
 
 *   Rank a string by using split() to build a sequence of
 *   the characters in the string, then go to the label 
-*   _rank.merge_ to finish by ranking the map.
+*   _sorter.merge_ to finish by sortering the map.
 
     set = split(str)                                
-    type = '+v'                                     :(rank.merge)
+    type = '+v'                                     :(sorter.merge)
 
-rank.end
+sorter.end
 
     define('remove(set,elem)i,iter,this')             :(remove.end)
 
@@ -1678,10 +1638,8 @@ show.integer
 
 show.map
 
-*   out('show.map dt',datatype(v))
-*   out('show.map kind',set.kind(v))
     show = 'map{'
-    rank(v,differ(type) type, '+k')
+    sorter(v,differ(type) type, '+k')
     setl4.save(v)
     loop(v)
 
@@ -1689,11 +1647,6 @@ show.map
 show.map.next
 
     entry = next(v)                                :f(show.map.done)
-    out('showing entry')
-    show(entry)
-*   out('show.map dt entry',datatype(entry))
-*   out('show.map key',key(entry))
-*   out('show.map value',value(entry))
     show = show ' ' show(key(entry),,1) ':' show(value(entry),,1)
     lt(size(show),80)                               :s(show.map.next)
     out(show)
@@ -1711,7 +1664,7 @@ show.pair
 show.int
 
     show = '{ int'
-    rank(v,'+k')
+    sorter(v,'+k')
     setl4.save(v)
     loop(v)
 
@@ -1731,7 +1684,7 @@ show.int.done
 show.set
 
     show = 'set{'
-    rank(v,differ(type) type, '+k')
+    sorter(v,differ(type) type, '+k')
     setl4.save(v)
     loop(v)
 
@@ -2264,9 +2217,10 @@ opsyn.bypass
 *   prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_
 *   prime(n)                    Tests if _n_ is prime
 *   primes(n)                   Returns set of primes less than _n_
+*   quicksort(seq)              Use Hoare's quicksort algorithm to sort a sequence.
 *   reader(filename,expr)       Returns sequence of lines in file _filename_, using _expr_ (if given)
-*   slice(str,first,last)       Same as SPITBOL _substr(str,first,last)_
 *   reader(str,delim)           Like _reader(filename..)_ but reads lines from a string with lines
+*   slice(str,first,last)       Same as SPITBOL _substr(str,first,last)_
 *   square.root(n)              Returns integer square root on _n_
 *   thousands(s)                Returns _s_ with a comma every three spaces from the right.
 *                               to filter out lines to be ignored.
@@ -2702,6 +2656,22 @@ primes.loop
 primes.end
 
 
+    define('quicksort(seq)pivot,this')          :(quicksort.end)
+
+*   Sort sequence _seq_ using Hoare's quicksort algorithm.
+*   This program is for demonstrating SETL4. Use _sorter_ for
+*   much more efficient sorting.
+
+quicksort
+
+    quicksort = le(set.size(seq),1) seq             :s(return)
+    pivot = arbitrary(seq)
+    quicksort = join( quicksort(filter(seq,  'lt(value(this),pivot)')),
+.                               filter(seq,  'eq(value(this),pivot)'),
+.                     quicksort(filter(seq,  'gt(value(this),pivot)'))) :(return)
+
+quicksort.end
+
 *   Lines
 
 *   Lines can be just strings or, in some cases, a line is represented by a pair:
@@ -3040,7 +3010,7 @@ writer.end
     setl4.span.word         =   span(&lcase &ucase '0123456789')
 
     setlr.random.value      = 2017
-*   setl4.rank.types gives valid values for the argument _type_ in the function _rank()_
+*   setl4.rank.types gives valid values for the argument _type_ in the function _sorter()_
 
     setl4.rank.types = new('map '
 .      '+:+k +k:+k +ke:+k +key:+k -:-k -k:-k -ke:-k -key:-k '
