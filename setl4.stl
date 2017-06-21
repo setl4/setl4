@@ -2730,50 +2730,25 @@ primes.end
 
 quicksort
 
-    quicksort = le(set.size(seq),1) seq         :s(return)
-    pivot = get(seq,random(set.size(seq)))
-    number(pivot)                               :f(quicksort.other)
+    quicksort = le(set.size(seq),1) seq             :s(return)
+    pivot = arbitrary(seq)
+    number(pivot)                                   :f(quicksort.strings)
 
 *   Here to sort sequence of integers.
 
-    out('sorting integers')
-    show(seq)
-    out('q1')
-    q1 =  quicksort(filter(seq,'lt(value(this),pivot)'))
-    out('q2')
-    q2 =  filter(seq,'eq(value(this),pivot)')
-    out('q3')
-    q3 =  quicksort(filter(seq,'gt(value(this),pivot)'))
-    show(q1)
-    show(q2)
-    show(q3)
-    j = join(q1,q2,q3)
-    out('join')
-*   show(j)
-    quicksort = join(q1,q2,q3) :(return)
+    quicksort = join( quicksort(filter(seq,  'lt(value(this),pivot)')),
+.                               filter(seq,  'eq(value(this),pivot)'),
+.                     quicksort(filter(seq,  'gt(value(this),pivot)'))) :(return)
 
-                         :(return)
-    quicksort = join(
-.       quicksort(filter(seq,'lt(value(this),pivot)')),
-.       filter(seq,'eq(value(this),pivot)'),
-.       quicksort(filter(seq,'gt(value(this),pivot)')))         :(return)
-
-quicksort.other
 
 *   Here to sort sequence of strings.
 
-    is.string(pivot)                            :s(quicksort.strings)
-    error("quicksort called to sort neither integers or strings " datatype(pivot))
-
-quicksort.strings.
-
-    out('sorting strings')
-    quicksort = join(
-.       quicksort(filter(seq,'llt(value(this),pivot)')),
-.       filter(seq,'leq(value(this),pivot)'),
-.       quicksort(filter(seq,'lgt(value(this),pivot)')))         :(return)
+    quicksort = join( quicksort(filter(seq,  'llt(value(this),pivot)')),
+.                               filter(seq,  'leq(value(this),pivot)'),
+.                     quicksort(filter(seq,  'lgt(value(this),pivot)'))) :(return)
 
 quicksort.end
+
 
 *## Lines
 
