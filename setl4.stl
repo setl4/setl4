@@ -2,6 +2,7 @@
 *   Licensed under the MIT license.
 
 *   TODO
+*       Find out why sanity test is not listing set members in sorted order.
 *       extend loop(set) to loop(set,name) to allow user to provide alternative to 'this'.
 
 *## SETL4 is an implementation of SETL written in SPITBOL.
@@ -451,61 +452,61 @@
 
 *## SETL4 Functions
 *
-*-  add(set,elem)                   Adds element to set
-*-  and(a,b)                        And: test if both operands are true
-*-  arbitrary(n)                    Returns arbitary (randomly chosen) integer in 1 .. _n_
-*-  arbitrary(set)                  Returns arbitary (randomly chosen) element of _set_
-*-  assert(expr)                    Tests that _expr_ is true, ends execution otherwise
-*-  assert.type(obj,type)           Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise
-*-  at(set,expr)                    Evaluates _expr_ for for current iterate of _set_
-*-  begins(str,sub)                 Tests if string _key_ begins with string _sub_
-*-  compare(a,b)                    Compares two integers or strings
+*-  add(set,elem)                   Adds element to set.
+*-  and(a,b)                        And: test if both operands are true.
+*-  arbitrary(n)                    Returns arbitary (randomly chosen) integer in 1 .. _n_.
+*-  arbitrary(set)                  Returns arbitary (randomly chosen) element of _set_.
+*-  assert(expr)                    Tests that _expr_ is true, ends execution otherwise.
+*-  assert.type(obj,type)           Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise.
+*-  at(set,expr)                    Evaluates _expr_ for for current iterate of _set_.
+*-  begins(str,sub)                 Tests if string _key_ begins with string _sub_.
+*-  compare(a,b)                    Compares two integers or strings, returning -1 (less), 0 (equal), or +1 (greater).
 *-  compose(a,b)                    Returns composition of two maps or tables.
-*-  defined(map,key)                Tests if a map is defined for a specified key
-*-  difference(a,b)                 Returns set of members of set _a_ not in the set _b_
-*-  domain(map)                     Returns set of elements in the domain of a map
-*-  equal(a,b)                      Tests if two SETL4 objects are equal
-*-  exists(set,expr)                Tests if an expression is true for at least one element in a set
-*-  from(set,elem)                  Returns set consisting of the members of a set except a specified member
-*-  get(map,key)                    Gets the value of map _map_ for _key_ for a map
-*-  get(set,i)                      Gets the i-th element in a set, or fails if no such element
-*-  false(e)                        tests if argument is false
-*-  forall(set,expr)                Tests if an expression is true for every element of a set
-*-  filter(set,expr)                Filter:; returns subset of _set_ for which _expr_ is true
-*-  integers(n)                     Returns set of integers 1 ... n
-*-  intersection(a,b)               Returns set of elements common to two sets
+*-  defined(map,key)                Tests if a map is defined for a specified key.
+*-  difference(a,b)                 Returns set of members of set _a_ not in the set _b_.
+*-  domain(map)                     Returns set of elements in the domain of a map.
+*-  equal(a,b)                      Tests if two SETL4 objects are equal.
+*-  exists(set,expr)                Tests if an expression is true for at least one element in a set.
+*-  from(set,elem)                  Returns set consisting of the members of a set except a specified member.
+*-  get(map,key)                    Gets the value of map _map_ for _key_ for a map.
+*-  get(set,i)                      Gets the i-th element in a set, or fails if no such element.
+*-  false(e)                        tests if argument is false.
+*-  forall(set,expr)                Tests if an expression is true for every element of a set.
+*-  filter(set,expr)                Filter:; returns subset of _set_ for which _expr_ is true.
+*-  integers(n)                     Returns set of integers 1 ... n.
+*-  intersection(a,b)               Returns set of elements common to two sets.
 *-  is.integer(n)                   Tests if _n_ is integer or string representing integer, returing its value if so, or else failing.
 *-  is.string(s)                    Tests if _s_ is a string, returning its value if so, or else failing.
-*-  join(a,b)                       Joins two strings into a single string by concatenating them
-*-  loop(set)                       Set up iteration over _set_ using _next_
-*-  mark(line)                      Annotates, or marks, a line
-*-  member(elem,set)                Tests set membership
-*-  new(str)                        Returns new set specified by _st_
-*-  next(set)                       Returns next element in iteration defined by prevous _loop_, fails if no more elements
-*-  not(expr)                       Not: tests if operand is false
-*-  number(s)                       Returns integer defined by _s_
-*-  or(a,b)                         Or: tests if either operand is true
-*-  push(stack,value)               Push value onto a stack
-*-  pop(stack)                      Pop the top of a stack
-*-  put(map,key,val)                Defines the value of a map key
-*-  random(n)                       Returns random element
-*-  random.seed()                   Sets random number seed to initialize _random_
-*-  range(map)                      Returns set of elements in the range of a map
+*-  join(a,b)                       Joins two strings into a single string by concatenating them.
+*-  loop(set)                       Set up iteration over _set_ using _next_.
+*-  mark(line)                      Annotates, or marks, a line.
+*-  member(elem,set)                Tests set membership.
+*-  new(str)                        Returns new set specified by _str_.
+*-  next(set)                       Returns next element in iteration defined by prevous _loop_, fails if no more elements.
+*-  not(expr)                       Not: tests if operand is false.
+*-  number(s)                       Returns integer defined by _s_.
+*-  or(a,b)                         Or: tests if either operand is true.
+*-  push(stack,value)               Push value onto a stack.
+*-  pop(stack)                      Pop the top of a stack.
+*-  put(map,key,val)                Defines the value of a map key.
+*-  random(n)                       Returns random element.
+*-  random.seed()                   Sets random number seed to initialize _random_.
+*-  range(map)                      Returns set of elements in the range of a map.
 *-  remove(set,elem)                Remove arbitary element from set, or most recent entry from map.
 *-  sorter(set)                     Sorts a set, map or string.
-*-  subset(a,b)                     Tests if the second set is a subset of the first set
-*-  union(a,b)                      Returns set consisting of all the members in two sets
-*-  set.size(set)                   Returns number of elements in set _set_
-*-  traceoff()                      Turns off tracing
-*-  show(v,nested)                  Show value of _v_, with _nested_ set non-zero when listing member of set
-*-  show.b(e)                       Show value of _b_ as boolean
-*-  show.line(line)                 Show string _line_ with spaces replaced by '.'
-*-  show.lines(lines,title)         Show non-empty lines in array of lines, with title 'title'
-*-  show.q(str)                     Show string enclosed in appropriate quote character (" or ') 
-*-  traceon()                       Turns on tracing
-*-  this(set)                       Returns current iteration value for _set_
-*-  true(e)                         Tests if operand is true
-*-  visit(set,expr)                 Visits each element of set _set_ and evaluates _expr_ for that element
+*-  subset(a,b)                     Tests if the second set is a subset of the first set.
+*-  union(a,b)                      Returns set consisting of all the members in two sets.
+*-  set.size(set)                   Returns number of elements in set _set_.
+*-  traceoff()                      Turns off tracing.
+*-  show(v,nested)                  Show value of _v_, with _nested_ set non-zero when listing member of set.
+*-  show.b(e)                       Show value of _b_ as boolean.
+*-  show.line(line)                 Show string _line_ with spaces replaced by '.'.
+*-  show.lines(lines,title)         Show non-empty lines in array of lines, with title 'title'.
+*-  show.q(str)                     Show string enclosed in appropriate quote character (" or ') .
+*-  traceon()                       Turns on tracing.
+*-  this(set)                       Returns current iteration value for _set_.
+*-  true(e)                         Tests if operand is true.
+*-  visit(set,expr)                 Visits each element of set _set_ and evaluates _expr_ for that element.
 
 
 *   SETL4 Function Definitions
@@ -1551,8 +1552,7 @@ sorter
 
 sorter.merge
 
-*   If  _set_ is a string, will merge here when we have 
-*   converted the string to a sequence.
+*   If  _set_ is a string, will merge here when we have converted the string to a sequence.
 
     sorter = set
     differ(datatype(set),'set') error('wrong type for sorter')
@@ -2278,34 +2278,34 @@ opsyn.bypass
 *   In addition to set-theoretic functions SETL4 provides 
 *   the following utility functions.
 
-*   append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then _w_
-*   ascii(line)                 Returns the text of line with every ascii character identified
-*   checkout(filename)          Returns ('checks out') set or map defined by a file in the libary
-*   datename(date)              Returns string based on current time suitable for use as filename
-*   digits()                    Returns list of digits: '0 1 2 .. 9'
-*   even(n)                     Tests if _n_ is even
-*   factorial(n)                Returns n!  = n * (n -1) * ... * 1
-*   letters()                   Returns list of letters : 'a b c ... z A B ... Z''
-*   less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
-*   lletters()                  Returns list of lower case letters : 'a b c ... z'
-*   lower(s)                    Returns _s_ with upper case letters replaced by lower case equivalent
-*   multiple(n,m)               Tests if _n_ is a multiple of _m_
-*   odd(n)                      Tests if _n_ is odd
-*   out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null,
-*   prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_
-*   prime(n)                    Tests if _n_ is prime
-*   primes(n)                   Returns set of primes less than _n_
+*   append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then _w_.
+*   ascii(line)                 Returns the text of line with every ascii character identified.
+*   checkout(filename)          Returns ('checks out') set or map defined by a file in the libary.
+*   datename(date)              Returns string based on current time suitable for use as filename.
+*   digits()                    Returns list of digits: '0 1 2 .. 9'.
+*   even(n)                     Tests if _n_ is even.
+*   factorial(n)                Returns n!  = n * (n -1) * ... * 1.
+*   letters()                   Returns list of letters : 'a b c ... z A B ... Z''.
+*   less(str,sub)               Removes the first instance of each character in _sub_ from _str_,.
+*   lletters()                  Returns list of lower case letters : 'a b c ... z'.
+*   lower(s)                    Returns _s_ with upper case letters replaced by lower case equivalent.
+*   multiple(n,m)               Tests if _n_ is a multiple of _m_.
+*   odd(n)                      Tests if _n_ is odd.
+*   out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null.
+*   prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_.
+*   prime(n)                    Tests if _n_ is prime.
+*   primes(n)                   Returns set of primes less than _n_.
 *   quicksort(seq)              Use Hoare's quicksort algorithm to sort a sequence.
-*   reader(filename,expr)       Returns sequence of lines in file _filename_, using _expr_ (if given)
-*   reader(str,delim)           Like _reader(filename..)_ but reads lines from a string with lines
-*   slice(str,first,last)       Same as SPITBOL _substr(str,first,last)_
-*   square.root(n)              Returns integer square root on _n_
+*   reader(filename,expr)       Returns sequence of lines in file _filename_, using _expr_ (if given).
+*   reader(str,delim)           Like _reader(filename..)_ but reads lines from a string with lines.
+*   slice(str,first,last)       Same as SPITBOL _substr(str,first,last)_.
+*   square.root(n)              Returns integer square root on _n_.
 *   thousands(s)                Returns _s_ with a comma every three spaces from the right.
 *                               to filter out lines to be ignored.
-*                                   separated by delimiter _delim_
-*   tokens(line)                Returns sequence of the tokens in _line_
-*   uletters()                  Returns list of upper case letters : 'A B C ... Z''
-*   upper(s)                    Returns _s_ with lower case letters replaced by upper case equivalent
+*                                   separated by delimiter _delim_.
+*   tokens(line)                Returns sequence of the tokens in _line_.
+*   uletters()                  Returns list of upper case letters : 'A B C ... Z'.
+*   upper(s)                    Returns _s_ with lower case letters replaced by upper case equivalent.
 *   writer(lines)               Writes sequence _lines_ to standard output.
 
     define('append(str,w,ch)')                  :(append.end)
@@ -2910,12 +2910,11 @@ uletters.end
 
 *   A token is represented as an instance of the datatype _token_ as follows:
 
-    data('token(lineno,ndx,type,text)')
+    data('token(lineno,col,type,text)')
 
 *   where:
 *           _lineno_        is the line number within the file;
-*           _ndx_           is the index of the first character of the
-*                           token in the line;
+*           _col_           is the index (column number) of the first character of the token in the line;
 *           _type_          is the token's type, as described below; and
 *           _text_          is the text of the token.
 
@@ -2928,13 +2927,11 @@ uletters.end
 
 *           'l'             left opener, one of '(<[{'
 
-*           'p'             punctation, one of '.;,?!', or single quote ('),
-*                           or double quote ("),
+*           'p'             punctation, one of '.;,?!', or single quote (') or double quote ("),
 
 *           'o'             other printable character, one of '~@#$%^&*_-+=`'.
 
-*            'q'            quoted str, starting witn '"', and continuing
-*                           to the next instance of the opening quote character.
+*           'q'             quoted str, starting witn '"', and continuing to the next instance of the opening quote character.
 
 *           'r'             right closer, one of ')>]}'
 
@@ -2944,15 +2941,14 @@ uletters.end
 
 *           'u'             unprintable character, for example control-k
 
-*           'w'             word, consisting of one of more letters in
-*                           upper or lower case or "'" or "_".
+*           'w'             word, consisting of one of more letters in upper or lower case or "'" or "_".
 
-*   The longest possible str meeting the rules is used when building a token.
+*   The longest possible string meeting the rules is used when building a token.
 *   For example, 'abc' is just the word 'abc', not 'a' followed by 'bc', and so forth.
 
 *   It is recommended that the tab character NOT be used as an abbreviation for
-*   one or more spaces in the input file. If tabs are used, then _pos_ is ill-defined.
-*   If tabs are not used, then _pos_ indicates the true position in the line of
+*   one or more spaces in the input file. If tabs are used, then _col_ is ill-defined.
+*   If tabs are not used, then _col_ indicates the true position in the line of
 *   the first character of the token, and so error messages and references to the
 *   token will be exact.  For example, _pos_ could be used to indicate where to give
 *   emphasis to a token by underlining it, or enclosing it in '_' to generate
@@ -2963,23 +2959,23 @@ uletters.end
 *   _Tokens_ scans a line _line_ and returns a table of the tokens in the line.
 *   The table has keys from 1..n, where _n_ is the number of tokens found.
 
-*   This function is an instance of what is called a lexiical scanner, or tokenizer,
-*   which is the first stage in a programming language compiler, or for any program
+*   This function is an instance of what is called a lexical scanner, or tokenizer.
+*   This is the first stage in a programming language compiler, or for any program
 *   that processes text files with a specified structure.
 
 tokens
 
     tokens = new('seq')
-    line '*'                                        :f(tokenl.next)
+    line '*'                                        :f(tokens.next)
     type = 'c'
     text = line
-    line =                                          :(tokenl.new)
+    line =                                          :(tokens.new)
 
-tokenl.next
+tokens.next
 
     line ' '                                        :s(tokens.space)
     line any('0123456789')                          :s(tokens.integer)
-    line any('(<[{')                                :s(tokenl.left)
+    line any('(<[{')                                :s(tokens.left)
     line any('.;,?!')                               :s(tokens.punctuation)
     line '"'                                        :s(tokens.quote)
     line any('~@#$%^&*_-+=')                        :s(tokens.other)
@@ -2993,7 +2989,7 @@ tokenl.next
 tokens.integer
 
     type = 'i'
-    line span('0123456789') . text =                :(tokenl.new)
+    line span('0123456789') . text =                :(tokens.new)
 
 tokens.punctuation
 
@@ -3016,7 +3012,7 @@ tokens.right
 tokens.space
 
     type = 's'
-    line span(' ')  . text =                        :(tokenl.new)
+    line span(' ')  . text =                        :(tokens.new)
 
 tokens.tab
 
@@ -3026,17 +3022,17 @@ tokens.word
 
 *TODO*
     type = 'w'
-    line span(&ucase &lcase "_" "'") . text =       :(tokenl.new)
+    line span(&ucase &lcase "_" "'") . text =       :(tokens.new)
 
 tokens.character
 
 *   Here if token is single character.
 
-    line len(1) . text                              :(tokenl.new)
+    line len(1) . text                              :(tokens.new)
 
-tokenl.new
+tokens.new
 
-    setl4.add(tokens,token(lineno,pos,type,text))   :(tokenl.next)
+    setl4.add(tokens,token(lineno,pos,type,text))   :(tokens.next)
 
 tokens.end
 
