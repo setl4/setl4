@@ -1,0 +1,119 @@
+*       Copyright 2017, David Shields
+
+*       This program is licensed under the two-clause BSD License,
+*       a copy of which can be found in the file LICENSE.
+
+*       This program generates a tweetstorm for one of Shakespeare's sonnets.
+
+*       The single argument to the program is a file name.
+*       The sonnet is read from the file  and a tweetstorm 
+*       of the sonnet's text is written to standard output.
+*       The file is then updated by deleting the text of the
+*       sonnet just read.
+
+*       The text of the sonnets was obtained from Project Gutenberg,
+*       and we thank them for making the greatest literature in
+*       the English language freely available.
+
+*       Utility functions
+
+        define('read(filename)file,line,n')       	:(read.end)
+
+*       Read the argument file.
+*       g.lines is a table with the lines of the sonnet's text.
+*       Each line will become a numbered line in the tweet.
+*       g.lines['#'] gives the number of lines in g.lines.
+
+read
+
+        g.lines = table()
+        g.lines['#'] = 0
+        input(.file,3,filename)                   	:s(read.first)
+        terminal = 'fatal error: cannot open ' filename ' for input.' :(end)
+read.first
+
+        line = file                                     :f(read.eof)
+
+*       Here at start of sonnet, with line consisting of sonnet's
+*       number in roman numerals. Generate a header line and
+*       write it out.
+
+        g.title = 'Sonnet ' line ' by William Shakespeare'
+
+read.next
+        output = gt(g.lines['#'],3000) 'runaway read, quitting' :s(end)
+        g.lines[g.lines['#'] = g.lines['#'] + 1] = file :s(read.next)
+
+read.eof
+
+        endfile(3)                                      :(return)
+
+read.end
+
+        define('update(filename)file,i,line')     	:(update.end)
+
+*       Update the argument file by copying the text of 
+*       the remaining sonnets.
+
+update
+
+        i = 14
+        output(.file,3,filename)                        :s(update.copy)
+        terminal = 'fatal error: cannot open ' filename ' for output.' :(end)
+
+update.copy
+*       output = 'i[' i '] # [' g.lines['#'] ']'
+        gt(i = i + 1,g.lines['#'])              	:s(update.done)
+        file = g.lines[i]                       	:(update.copy)
+
+update.done
+
+        endfile(3)                              	:(return)
+
+update.end
+
+        define('write()i')                      	:(write.end)
+
+*       Write out the lines of the tweet in proper order (last one first),
+*       putting tweet sequence number at beginning of each line
+*       except the first.
+
+*       Put a blank line after each line of text to assist in 
+*       doing copy/paste when generating tweet.
+
+write
+
+        i = 14
+
+write.next
+
+        output = i  '/14  '  g.lines[i]         	:f(write.title)
+        output = gt(i = i - 1)                  	:s(write.next)
+
+write.title
+
+        output = 
+        output = g.title                        	:(return)
+
+write.end
+
+*       Main program.
+
+        &anchor = &trim = 1
+
+*       g.lines is a table of the lines with the sonnet texts.
+
+        g.lines = table()
+        g.lines['#'] = 0
+
+*       g.title is the title line of the sonnet.
+        g.title = 
+
+        filename = host(0)
+        terminal = ident(filename) 
+.               'Usage: sbl tweet.sbl filename'  	:s(end)
+        terminal = 'obtaining sonnet from ' filename
+        read(filename)
+        write()
+        update(filename)
+end
