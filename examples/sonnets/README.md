@@ -1,7 +1,7 @@
 # sonnets
 SPITBOL programs for analyzing and sharing the Sonnets of William Shakespeare
 
-This repository contains several SPITBOL programs that take as their input
+This directory contains several SPITBOL programs that take as their input
 the text of the sonnets of William Shakespeare.
 
 The file *1041.txt* contains the text of the sonnets as made available by Project Gutenberg.
@@ -10,7 +10,7 @@ The file *tweet.sbl* contains a program that is used to power the twitter accoun
 
 Usage:
 
-*sbl* *tweet.sbl* *todo* > *out*
+*setl4* *tweet.sbl* *todo* > *out*
 
 The file *todo* contains the sonnets that have not yet been published. *Tweet.sbl* will write the text of the next sonnet in *todo*
 to the file *out* as a tweetsrorm, then update *todo* to include the remaining sonnets.
