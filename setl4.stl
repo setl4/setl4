@@ -365,7 +365,7 @@
 *   For example, it is possible to retrieve elements using the function _get_. 
 *   _Get(s,i)_ retrieves the i-th element in the set.
 
-*   The function _rank_ can be used to determine the order in which the elements 
+*   The function _sorter can be used to determine the order in which the elements 
 *   of a set are accessed during an iteration, or to 'sort' the tables implementing
 *   the set. For example, _sorter(s,'+v')_ sorts a map in increasing order of the
 *   values of the map. _sorter(s,'-v')_ sorts the values in descendng order, and
@@ -427,7 +427,7 @@
 *## Show
 
 *   The function _show_ writes out the value of a SETL4 object in a readable 
-*   form. Objects are shown in the order defined by the function _rank_.
+*   form. Objects are shown in the order defined by the function _sorter.
 
 
 
@@ -519,6 +519,8 @@
 
 add
 
+    ident(elem,'shields') out('adding SHIELDS')
+*   differ(add.trace) out('adding dict.new ',elem)
     elem = integer(elem) +elem
     differ(set.kind(set),'map')                     :s(add.set)
     differ(datatype(elem),'entry') error("can only add 'entry' elements to a map.")
@@ -853,15 +855,19 @@ false.end
 
 filter
 
-    filter = new(set.kind(set))
+    out('filter dt seq',datatype(set))
+    out('filter set.kind',set.kind(set))
     ident(set.kind(set),'map')                      :s(filter.map)
-
+    out('filtering set')
+    filter = new('set')
     loop(set)
 
-filter.set.loop
+filter.set.next
 
     this = next(set)                                :f(return)
-    eval(expr) add(filter,this)                     :(filter.set.loop)
+    out('filter.set.next',this)
+    eval(expr) out('filter.set.next adding ',this)
+    eval(expr) add(filter,this)    :(filter.set.next)
 
 filter.map
 
@@ -871,6 +877,8 @@ filter.map
 filter.map.loop
 
     this = next(set)                                :f(return)
+    out('at filter.map.loop')
+    out('filter this',this)
     eval(expr) push(filter,value(this))             :(filter.map.loop)
 
 filter.end
@@ -1540,37 +1548,24 @@ random.seed.end
 
 sorter
 
-    str = ident(datatype(set),'string') set
+    differ(datatype(set),'string')                          :s(sorter.set)
+    sorter = setl4.sort.string(set) 
+    out('sorter returns',sorter)
+                                :(return)
+
+sorter.set
     type = get(setl4.sorter.types,type) 
 
 *   If the first argument is a string, build a sequence
 *   of the characters in the string, and sort the sequence.
 
-    ident(datatype(set),'set') ident(set.kind(set),'int')  :s(return)
-    ident(datatype(set),'set') ident(set.kind(set),'iter') :s(return)
-    differ(str)                                            :s(sorter.string)
-
-sorter.merge
-
-*   If  _set_ is a string, will merge here when we have converted the string to a sequence.
-
-    sorter = set
-    differ(datatype(set),'set') error('wrong type for sorter')
-    setl4.sort(set,set.size(set),type)                                    
-                                                    :(return)
-
+    ident(datatype(set),'set') ident(set.kind(set),'int')   :s(return)
+    ident(datatype(set),'set') ident(set.kind(set),'iter')  :s(return)
+    error('sorter - unsupported input type ' datatype(set) )
+    
 sorter.table
 
     tbl[ara[i = i + 1,1]] = ara[i,2]                :s(sorter.table)f(return)
-
-sorter.string
-
-*   Rank a string by using split() to build a sequence of
-*   the characters in the string, then go to the label 
-*   _sorter.merge_ to finish by sortering the map.
-
-    set = split(str)                                
-    type = '+v'                                     :(sorter.merge)
 
 sorter.end
 
@@ -2006,7 +2001,7 @@ setl4.clear
 .   setl4.ascii.value = setl4.random.initialized = setl4.any.digit = setl4.span.digits = 
 .   setl4.break.digit = setl4.break.letter = setl4.any.letter =
 .   setl4.span.letters = setl4.span.spaces = setl4.break.space =
-.   setl4.any.word = setl4.span.word = setl.rank.map = setl4.rank.types = 
+.   setl4.any.word = setl4.span.word = setl.sorter.map = setl4.sorter.types = 
                                                     :(return)
 setl4.clear.end
 
@@ -2114,6 +2109,7 @@ setl4.sort
 
 *   Nothing to do if set is empty or only has one element.
 
+    out('enter setl4.sort dt',datatype(set))
     le(n = set.size(set),1)                         :s(return)
     differ(datatype(set),'set') error('setl4.sort bad datatype ' datatype(set))
     setl4.sort = table(n)
@@ -2130,7 +2126,7 @@ set4.sort.index
 
 *   Here to sort index tabl according to type.
 
-    tlb = setl4.sort.table(set.index(set),n,type)
+    tbl = setl4.sort.table(set.index(set),n,type)
 
 setl4.sort.key
 
@@ -2175,6 +2171,34 @@ setl4.sort.done
                                                         :(return)
 
 setl4.sort.end
+
+    define('setl4.sort.string(str)ara,c,i,tbl')             :(setl4.sort.string.end)
+
+*   _Sorter_sorts a string into a string with all the characters
+*   in lexical (alphabetic) order.
+
+setl4.sort.string
+
+    tbl = table(size(str))
+
+setl4.sort.string.tbl
+
+    c = substr(str,i = i + 1,1)                     :f(setl4.sort.string.sort)
+    tbl[i] = c                                      :(setl4.sort.string.tbl)
+
+setl4.sort.string.sort
+
+*   Sort the table and rebuild the string in sorter order.
+
+    i = 0
+    ara = sort(tbl,2)
+    
+setl4.sort.string.build
+
+    c = ara[i = i + 1,2]                            :f(return)
+    setl4.sort.string = setl4.sort.string c         :(setl4.sort.string.build)
+
+setl4.sort.string.end
 
     define('setl4.sort.table(table,n,type)i,key,sort,itbl,vtbl') :(setl4.sort.table.end)
 
@@ -2450,7 +2474,7 @@ begins
 
 begins.end
 
-	define('checkout(filename)file,line,word')	    :(checkout.end)
+	define('checkout(filename)file,fullname,line,word')	    :(checkout.end)
 
 *	_Checkout_ checks out (retrieves)  a file from the library as a sequence of lines
 *   or a set of words. _Checkout_ lists the available files if _filename_ is null.
@@ -2498,18 +2522,20 @@ checkout.checkout
 
 checkout.open
 
-    out('checking out',filename)
+*   out('checking out',filename)
 *	Read in text from the checkout.
 
-	filename = './library/' filename '.txt'
-    out('checking out',filename)
-	input(.file,3,filename)		                    :s(checkout.opened)
+*   out('checking out',filename)
+	fullname = '../library/' filename '.txt'
+*   out('checkout fullname',fullname)
+	input(.file,3,fullname)		                    :s(checkout.opened)
 	error('unable to open checkout file ',filename)	:(freturn)
 
 checkout.opened
 
 *   Dictionary requires special handling.
 
+    out('checkout.opened',filename)
     ident(filename,'dictionary')                    :s(checkout.dict)
     checkout = set('map',iterator(),table(2000),table(2000))
 
@@ -2521,24 +2547,26 @@ checkout.text.next
 
 checkout.dict
 
+*   out('at checkout.dict')
     checkout = set('set',iterator(),table(40000),table(40000))
 
 checkout.dict.add
-   
-*   Here to add word to the dictionary.
 
     add(checkout,word)
+*   out('adding singular word',word)
 
 checkout.dict.next
 
 
     word = file                                     :f(checkout.finis)
-    out('dict line',line)
+*   out('checkout next',word)
     ident(substr(word,size(word),1),'S')            :f(checkout.dict.add)
 
 *   Here if plural. Add plural form and them merge to add singular form.
 
-    word = substr(word,1, size(word) -1)
+*   out('adding plural word',word)
+    word = substr(word,1, size(word) - 1)
+*   out('adding plural word', word 's')
     add(checkout, word 's')                         :(checkout.dict.add)
     
 checkout.finis
@@ -3084,9 +3112,9 @@ writer.end
     setl4.span.word         =   span(&lcase &ucase '0123456789')
 
     setlr.random.value      = 2017
-*   setl4.rank.types gives valid values for the argument _type_ in the function _sorter()_
+*   setl4.sorter.types gives valid values for the argument _type_ in the function _sorter()_
 
-    setl4.rank.types = new('map '
+    setl4.sorter.types = new('map '
 .      '+:+k +k:+k +ke:+k +key:+k -:-k -k:-k -ke:-k -key:-k '
 .      '+v:+v +va:+v +val:+v +valu:+v +value:+v -v:-v -va:-v -val:-v -valu:-v -value:-v'
 .      '+i:+i +in:+i +ind:+ +inde:i+i +index:+i -i:-i -in:-i -ind:- -inde:i-i -index:-i')
