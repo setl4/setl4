@@ -7,15 +7,13 @@
     define('check(this,puzzle)')        :(check.end)
 
 check
-*   out('checking ' this ' ' puzzle)
-*   ident(this,'posst') out('check posst')
-*   ident(this,'posst') out('CHECK posst')
-*   ident(this,'posst') out('size now',set.size(Dict.out))
-*   show(this)
-*   show(puzzle)
+    out('checking ' this ' ' puzzle)
+    show(this)
+    show(puzzle)
     ne(size(this),size(puzzle)) :s(check.fail)
-    this span(puzzle) rem . rest            
-    ident(rest)                         :s(check.succeed)f(check.fail)
+    this span(puzzle) . spn  rem . rest            
+    eq(size(spn),size(puzzle))          :f(freturn)
+    ident(sorter(this),puzzle)          :f(freturn)s(check.succeed)
 *:f(check.fail)s(check.succeed)
 
 check.fail
