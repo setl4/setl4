@@ -1,0 +1,61 @@
+    
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+-include "setl4.stl"
+
+    lines = reader('t.txt')
+    loop(lines)
+    s.txt = new('seq')
+    sonnet.pat = span('IVDCXL')
+    sonnets = new('seq')
+
+*   Remove blank lines and comments.
+*   Loop over lines, skipping comments and blank lines.
+*   Then look for start of sonnet.
+*   Once found, gather lines until see start of next sonnet or end of data.
+
+sonnet.find
+
+    entry = next(lines)                 :f(lines.trim)
+    txt = text(value(entry))
+    ident(txt)                          :s(sonnet.find)
+    txt '*'                             :s(sonnet.find)
+    txt span(' ') =
+    txt sonnet.pat                      :f(sonnet.find)
+
+sonnet.found
+
+*   Here after seeing line marking start of sonnet.
+    
+    out('found sonnet',txt)
+    count = count + 1
+    sonnet = new('seq')
+
+sonnet.gather 
+
+    entry  = next(lines)                :f(sonnets.end)
+    txt = text(value(entry))
+    txt span(' ') =
+    txt sonnet.pat                      :s(sonnet.end)
+    push(sonnet,txt)                    :(sonnet.gather)
+
+sonnet.end
+
+*   Here at end of sonnet
+    out('sonnet.end')
+    out()
+    out()
+    loop(sonnet)
+
+sonnet.list
+
+    s = next(sonnet)                    :f(sonnets.end)
+    show(value(s))                      :s(sonnet.list)
+
+sonnets.end
+
+    out('number of sonnets',set.size(sonnets))
+    show(sonnets)
+
+end
