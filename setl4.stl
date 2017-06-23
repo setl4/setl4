@@ -497,9 +497,8 @@
 *-  subset(a,b)                     Tests if the set _b_  is a subset of set _a_
 *-  union(a,b)                      Returns set consisting of all the members in two sets.
 *-  traceoff()                      Turns off tracing
-*-  show(v,nested)                  Shows value of _v_, with _nested_ set non-zero when listing member of set
+*-  show(v,within)                  Shows value of _v_, with _within_ set non-zero when listing member of set
 *-  show.b(e)                       Shows value of _b_ as boolean
-*-  show.line(line)                 Shows string _line_ with spaces replaced by '.'
 *-  show.lines(lines,title)         Shows non-empty lines in array of lines, with title 'title'
 *-  show.q(str)                     Shows string enclosed in appropriate quote character (" or ') .
 *-  this(set)                       Returns current iteration value for _set_.
@@ -1614,7 +1613,7 @@ remove.error
 
 remove.end
 
-    define('show(v,type,nested)ara,i,kind,elem,entry,key,line,hdr,n,set.this,value') :(show.end)
+    define('show(v,type,within)ara,i,kind,elem,entry,key,line,hdr,n,set.this,value') :(show.end)
 
 *   _Show_ displays the value of its first argument in a form that is hopefully both
 *   readable and pleasing to the eye.
@@ -1623,11 +1622,12 @@ remove.end
 *   Otherwise sets and maps are increased in ascending value of members (set)
 *   or keys (map).
 
-*   _lev_ is non-zero when called to list element of a compound object.
+*   _within is non-zero when called to list element of a compound object.
 
 show
 
     ident(v)                                        :s(return)
+    ident(datatype(set),'line')                     :s(show.line)
     differ(datatype(v),'set')                       :s($('show.' datatype(v)))
 
 *   Make a copy of the argument to avoid disrupting a possible 
@@ -1659,7 +1659,7 @@ show.array.2
 
 show.entry
 
-    show = show ' ' show(key(v),,1)  ':' show(value(v),,1) :(show.done)
+    show = show ' ' show(key(v),,within)  ':' show(value(v),,within) :(show.done)
 
 show.iter
 
@@ -1669,7 +1669,7 @@ show.iter
 show.iter.next
 
     elem = next(v)                                  :f(show.iter.done)
-    show = show ' ' show(elem,,1)
+    show = show ' ' show(elem,,within)
     lt(size(show),80)                               :s(show.iter.next)
     out(show)
     show =                                          :(show.iter.next)
@@ -1689,30 +1689,50 @@ show.integer
 
     show = v                                        :(show.done)
 
+show.line
+
+    show = show 'line(' show(mark(v),,within) ',' show.q(text(v),,within) ')' :(show.done)
+
 show.map
 
     show = 'map{'
-    sorter(v,differ(type) type, '+k')
     setl4.save(v)
+    within = 1
+    sorter(v,differ(type) type, '+k')
     loop(v)
 
 
 show.map.next
 
     entry = next(v)                                :f(show.map.done)
-    show = show ' ' show(key(entry),,1) ':' show(value(entry),,1)
+
+*   Here to show entry. Look for datatypes _line_ and _token_, showing
+*   them directly. Otherwise, show key and value separated by ':' (colon).
+    
+    show = ident(datatype(value(entry),'line'))  
+.               show show.line(v,,within)           :s(show.map.check)
+
+    show = ident(datatype(value(entry),'token'))
+.               show  show.token(v,,within)         :s(show.map.check)
+
+*   show = show ' ' show(entry,,within) ' '
+    show = show show(entry,,within) 
+
+show.map.check
+
     lt(size(show),80)                               :s(show.map.next)
     out(show)
     show =                                          :(show.map.next)
 
 show.map.done
 
+    within = 
     setl4.restore(v)
     show = show ' }'                                :(show.done)
 
 show.pair
 
-    show = show ' ' show(first(v),,1)  ':' show(second(v,,1)) ' ' :(show.done)
+    show = show ' ' show(first(v),,within)  ':' show(second(v,,within)) ' ' :(show.done)
 
 show.int
 
@@ -1724,7 +1744,7 @@ show.int
 show.int.next
 
     elem = next(v)                                  :f(show.int.done)
-    show = show ' ' show(elem,,1)
+    show = show ' ' show(elem,,within)
     lt(size(show),80)                               :s(show.int.next)
     out(show)
     show =                                          :(show.int.next)
@@ -1737,6 +1757,7 @@ show.int.done
 show.set
 
     show = 'set{'
+    within = 1
     sorter(v,differ(type) type, '+k')
     setl4.save(v)
     loop(v)
@@ -1744,13 +1765,14 @@ show.set
 show.set.next
 
     elem = next(v)                                :f(show.set.done)
-    show = show ' ' show(elem,,1)
+    show = show ' ' show(elem,,within)
     lt(size(show),80)                             :s(show.set.next)
     out(show)
     show =                                        :(show.set.next)
 
 show.set.done
 
+    within = 
     setl4.restore(v)
     show = show ' }'                                :(show.done)
 
@@ -1776,7 +1798,7 @@ show.table.error
 show.table.next
 
     le(i = i + 1,n)                                 :f(show.table.done)
-    show = show ' ' show(ara[i,1],,1) ':' show(ara[i,2],,1)    
+    show = show ' ' show(ara[i,1],,within) ':' show(ara[i,2],,within)    
     lt(size(show),80)                              :s(show.table.next)
     out(show)
     show =                                          :(show.table.next)
@@ -1793,7 +1815,7 @@ show.done
 
 *   Write out result unless listing elements of compound object.
 
-    eq(nested) out(show)                            :(return)
+    ident(within) out(show)                            :(return)
 
 show.end
 
@@ -1827,16 +1849,6 @@ show.eval.finis
     out('eval ' expr ' ' show.eval)                 :(return)
 
 show.eval.end
-
-    define('show.line(line)')                       :(show.line.end)
-
-*   _Show.line_  shows a line with spaces replaced by '.'
-
-show.line
-
-    show.line = replace(line,' ','.')               :(return)
-
-show.line.end
 
     define('show.lines(lines,title)i,line,titled')  :(show.lines.end)
 
@@ -2459,6 +2471,8 @@ begins.end
 *   Dictionary has one word per line, with upper case 'S' at end denoting
 *   that both singular and plural form are words in the dictionary.
 
+*   When checking out text files, skip blank lines and lines that start with '*'.
+
 
 checkout
 
@@ -2512,8 +2526,9 @@ checkout.opened
 checkout.text.next
 
 	line = file					                    :f(checkout.finis)
-*   out('read line',line)
-    put(checkout,set.size(checkout) + 1, line)      :(checkout.text.next)
+    ident(line)                                     :s(checkout.text.next)
+    line '*'                                        :s(checkout.text.next)
+    push(checkout,line)                             :(checkout.text.next)
 
 checkout.dictionary
 
@@ -2744,28 +2759,27 @@ quicksort.end
 
 *## Lines
 
-*   Lines can be just strings or, in some cases, a line is represented by a pair:
+*   The data type _line_ is used to represented a line of text read from a file:
 
     data('line(mark,text)')
 
 *   where
 
-*           _mark_ is defined by the value returned by an instance
+*           _mark_  identifies the source or structure of the line; and
+
+*           _text_  is the text of the line.
 *           of the _eval_ function ...
 
 *           _text_ is the text of the line.
 
-*   For example, the _reader_ function reads a file and returns a
-*   sequence of _lines_.
-
-    define('reader(filename,expr)line,mark')        :(reader.end)
+    define('reader(filename,marker)line,lines,mark,this')      :(reader.end)
 
 *   _Reader_ returns a sequence of the lines in the file specified by _filename_.
 
-*   If _expr_ is not null, then _eval_ is called just after each
-*   line is read, with the variable _pair_ set to the associated pair.
-*   If _eval_ fails the line is skipped.  Otherwise returns a new pair
-*   to be entered in the input seq.
+*   If _marker_ is not null, then it is called after each line is read
+*   to return an instance of _line_ which is added to the input sequence.
+*   If _marker_ is null, the the mark _(lineno,text)_ is returned,
+*   where _lineno_ is the line number and _text_ is the text of the line.
 
 reader
 
@@ -2775,12 +2789,27 @@ reader
 reader.opened
 
     reader = new('map')
+    lines = 0
 
 reader.next
 
-    line = (ident(filename) input, file)                :f(reader.eof)
-    out('reader', line)
-    push(reader,line)                                   :(reader.next)
+    this = (ident(filename) input, file)                :f(reader.eof)
+    lines = lines + 1
+    differ(marker)                                      :s(reader.mark)
+
+*   Here if no marker, so just use line number.
+
+    this = line(lines,this)                             :(reader.add)
+
+reader.mark
+
+*   Here to call the marker function.
+
+    this = apply(marker,lines,this)
+
+reader.add
+
+    push(reader,this)                                   :(reader.next)
 
 reader.eof
 
@@ -2790,13 +2819,15 @@ reader.eof
 
 reader.end
 
-    define('reader.str(str,delim)line')             :(reader.str.end)
+    define('reader.str(str,marker,delim)line,lines,this') :(reader.str.end)
 
 *   _Reader.str_ returns a sequence of the lines in _str_,
 *   where the delimiter character _delim_ is used to mark
 *   If _delim_ is  not given, then '/' is understood.
 *   the end of a line. One intended use of _reader.str_
 *   is to assist in the construction of test programs.
+
+*   See _reader_ for the definition and use of _marker_.
 
 reader.str
 
@@ -2805,8 +2836,23 @@ reader.str
 
 reader.str.next
 
-    str break(delim) . line delim =                 :f(return)
-    push(reader,line)                               :(reader.str.next)
+    str break(delim) . this delim =                 :f(return)
+    lines = lines + 1
+    differ(marker)                                  :s(reader.str.mark)
+
+*   Here if no marker, so use line number.
+
+    line = line(lines,line)                         :(reader.str.add)
+
+reader.str.mark
+
+*   Here to call the marker function.
+
+    this = apply(marker,lines,this)
+
+reader.str.add
+
+    push(reader,this)                                   :(reader.next)
 
 reader.str.end
 
