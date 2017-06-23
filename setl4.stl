@@ -458,7 +458,6 @@
 *-  arbitrary(set)                  Returns arbitary (randomly chosen) element of _set_.
 *-  assert(expr)                    Tests that _expr_ is true, ends execution otherwise.
 *-  assert.type(obj,type)           Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise.
-*-  at(set,expr)                    Evaluates _expr_ for for current iterate of _set_.
 *-  begins(str,sub)                 Tests if string _key_ begins with string _sub_.
 *-  compare(a,b)                    Compares two integers or strings, returning -1 (less), 0 (equal), or +1 (greater).
 *-  compose(a,b)                    Returns composition of two maps or tables.
@@ -470,9 +469,9 @@
 *-  from(set,elem)                  Returns set consisting of the members of a set except a specified member.
 *-  get(map,key)                    Gets the value of map _map_ for _key_ for a map.
 *-  get(set,i)                      Gets the i-th element in a set, or fails if no such element.
-*-  false(e)                        tests if argument is false.
+*-  false(e)                        Tests if argument is false.
 *-  forall(set,expr)                Tests if an expression is true for every element of a set.
-*-  filter(set,expr)                Filter:; returns subset of _set_ for which _expr_ is true.
+*-  filter(set,expr)                Returns set of elements in _set_ for which _expr_ is true.
 *-  integers(n)                     Returns set of integers 1 ... n.
 *-  intersection(a,b)               Returns set of elements common to two sets.
 *-  is.integer(n)                   Tests if _n_ is integer or string representing integer, returing its value if so, or else failing.
@@ -480,33 +479,33 @@
 *-  join(a,b)                       Joins two strings into a single string by concatenating them.
 *-  loop(set)                       Set up iteration over _set_ using _next_.
 *-  mark(line)                      Annotates, or marks, a line.
-*-  member(elem,set)                Tests set membership.
-*-  new(str)                        Returns new set specified by _str_.
+*-  member(elem,set)                Tests if _elem_ is a member of _set_
+*-  new(str)                        Returns a new set specified by _str_
 *-  next(set)                       Returns next element in iteration defined by prevous _loop_, fails if no more elements.
-*-  not(expr)                       Not: tests if operand is false.
+*-  not(expr)                       Tests if operand is false.
 *-  number(s)                       Returns integer defined by _s_.
-*-  or(a,b)                         Or: tests if either operand is true.
-*-  push(stack,value)               Push value onto a stack.
-*-  pop(stack)                      Pop the top of a stack.
+*-  or(a,b)                         Tests if either operand is true.
+*-  push(stack,value)               Push value onto a stack
+*-  pop(stack)                      Pop the top of a stack and return its value
 *-  put(map,key,val)                Defines the value of a map key.
-*-  random(n)                       Returns random element.
-*-  random.seed()                   Sets random number seed to initialize _random_.
-*-  range(map)                      Returns set of elements in the range of a map.
-*-  remove(set,elem)                Remove arbitary element from set, or most recent entry from map.
-*-  sorter(set)                     Sorts a set, map or string.
-*-  subset(a,b)                     Tests if the second set is a subset of the first set.
-*-  union(a,b)                      Returns set consisting of all the members in two sets.
+*-  random(n)                       Returns random integer if _n_ is integer, elsel random element of set or map
+*-  random.seed()                   Sets random number seed to initialize _random_
+*-  range(map)                      Returns set of elements in the range of a map
+*-  remove(set,elem)                Removes arbitary element from set, or most recent entry from map
 *-  set.size(set)                   Returns number of elements in set _set_.
-*-  traceoff()                      Turns off tracing.
-*-  show(v,nested)                  Show value of _v_, with _nested_ set non-zero when listing member of set.
-*-  show.b(e)                       Show value of _b_ as boolean.
-*-  show.line(line)                 Show string _line_ with spaces replaced by '.'.
-*-  show.lines(lines,title)         Show non-empty lines in array of lines, with title 'title'.
-*-  show.q(str)                     Show string enclosed in appropriate quote character (" or ') .
-*-  traceon()                       Turns on tracing.
+*-  sorter(set)                     Sorts a set, map or string.
+*-  subset(a,b)                     Tests if the set _b_  is a subset of set _a_
+*-  union(a,b)                      Returns set consisting of all the members in two sets.
+*-  traceoff()                      Turns off tracing
+*-  show(v,nested)                  Shows value of _v_, with _nested_ set non-zero when listing member of set
+*-  show.b(e)                       Shows value of _b_ as boolean
+*-  show.line(line)                 Shows string _line_ with spaces replaced by '.'
+*-  show.lines(lines,title)         Shows non-empty lines in array of lines, with title 'title'
+*-  show.q(str)                     Shows string enclosed in appropriate quote character (" or ') .
 *-  this(set)                       Returns current iteration value for _set_.
-*-  true(e)                         Tests if operand is true.
-*-  visit(set,expr)                 Visits each element of set _set_ and evaluates _expr_ for that element.
+*-  traceon()                       Turns on tracing.
+*-  true(e)                         Tests if operand is true
+*-  visit(set,expr)                 Visits each element of set _set_ and evaluates _expr_ for that element
 
 
 *   SETL4 Function Definitions
@@ -519,8 +518,6 @@
 
 add
 
-    ident(elem,'shields') out('adding SHIELDS')
-*   differ(add.trace) out('adding dict.new ',elem)
     elem = integer(elem) +elem
     differ(set.kind(set),'map')                     :s(add.set)
     differ(datatype(elem),'entry') error("can only add 'entry' elements to a map.")
@@ -597,17 +594,6 @@ assert.type
     
 
 assert.type.end
-
-    define('at(set,expr)this')                      :(at.end)
-
-*   _At_ evaluates _expr_ for the current element in an iteration over _set_.
-
-at
-
-    this = iter.next(set)
-    at = eval(expr)                                 :(return)
-
-at.end
 
     define('compare(a,b)')                                          :(compare.end)
 
@@ -865,7 +851,6 @@ filter
 filter.set.next
 
     this = next(set)                                :f(return)
-    out('filter.set.next',this)
     eval(expr) out('filter.set.next adding ',this)
     eval(expr) add(filter,this)    :(filter.set.next)
 
@@ -1548,17 +1533,11 @@ random.seed.end
 
 sorter
 
-    differ(datatype(set),'string')                          :s(sorter.set)
-    sorter = setl4.sort.string(set) 
-    out('sorter returns',sorter)
-                                :(return)
+*   Use _setl4.sort.string_ if input is a string.
 
-sorter.set
+    sorter = ident(datatype(set),'string') setl4.sort.string(set) :s(return)
+
     type = get(setl4.sorter.types,type) 
-
-*   If the first argument is a string, build a sequence
-*   of the characters in the string, and sort the sequence.
-
     ident(datatype(set),'set') ident(set.kind(set),'int')   :s(return)
     ident(datatype(set),'set') ident(set.kind(set),'iter')  :s(return)
     error('sorter - unsupported input type ' datatype(set) )
@@ -2302,35 +2281,33 @@ opsyn.bypass
 *   In addition to set-theoretic functions SETL4 provides 
 *   the following utility functions.
 
-*   append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then _w_.
-*   ascii(line)                 Returns the text of line with every ascii character identified.
-*   checkout(filename)          Returns ('checks out') set or map defined by a file in the libary.
-*   datename(date)              Returns string based on current time suitable for use as filename.
-*   digits()                    Returns list of digits: '0 1 2 .. 9'.
-*   even(n)                     Tests if _n_ is even.
-*   factorial(n)                Returns n!  = n * (n -1) * ... * 1.
-*   letters()                   Returns list of letters : 'a b c ... z A B ... Z''.
-*   less(str,sub)               Removes the first instance of each character in _sub_ from _str_,.
-*   lletters()                  Returns list of lower case letters : 'a b c ... z'.
-*   lower(s)                    Returns _s_ with upper case letters replaced by lower case equivalent.
-*   multiple(n,m)               Tests if _n_ is a multiple of _m_.
-*   odd(n)                      Tests if _n_ is odd.
-*   out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null.
-*   prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_.
-*   prime(n)                    Tests if _n_ is prime.
-*   primes(n)                   Returns set of primes less than _n_.
-*   quicksort(seq)              Use Hoare's quicksort algorithm to sort a sequence.
-*   reader(filename,expr)       Returns sequence of lines in file _filename_, using _expr_ (if given).
-*   reader(str,delim)           Like _reader(filename..)_ but reads lines from a string with lines.
-*   slice(str,first,last)       Same as SPITBOL _substr(str,first,last)_.
-*   square.root(n)              Returns integer square root on _n_.
-*   thousands(s)                Returns _s_ with a comma every three spaces from the right.
-*                               to filter out lines to be ignored.
-*                                   separated by delimiter _delim_.
-*   tokens(line)                Returns sequence of the tokens in _line_.
-*   uletters()                  Returns list of upper case letters : 'A B C ... Z'.
-*   upper(s)                    Returns _s_ with lower case letters replaced by upper case equivalent.
-*   writer(lines)               Writes sequence _lines_ to standard output.
+*   append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then _w_
+*   ascii(line)                 Returns the text of line with every ascii character identified
+*   checkout(filename)          Returns ('checks out') set or map defined by a file in the libary
+*   datename(date)              Returns string based on current time suitable for use as filename
+*   digits()                    Returns list of digits: '0 1 2 .. 9'
+*   even(n)                     Tests if _n_ is even
+*   factorial(n)                Returns n!  = n * (n -1) * ... * 1
+*   letters()                   Returns list of letters : 'a b c ... z A B ... Z''
+*   less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
+*   lletters()                  Returns list of lower case letters : 'a b c ... z'
+*   lower(s)                    Returns _s_ with upper case letters replaced by lower case equivalent
+*   multiple(n,m)               Tests if _n_ is a multiple of _m_
+*   odd(n)                      Tests if _n_ is odd
+*   out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null
+*   prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_
+*   prime(n)                    Tests if _n_ is prime
+*   primes(n)                   Returns set of primes less than _n_
+*   quicksort(seq)              Use Hoare's quicksort algorithm to sort a sequence
+*   reader(filename,expr)       Returns sequence of lines in file _filename_, using _expr_ (if given)
+*   reader(str,delim)           Like _reader(filename..)_ but reads lines from a string with lines
+*   slice(str,first,last)       Same as SPITBOL _substr(str,first,last)_
+*   square.root(n)              Returns integer square root on _n_
+*   thousands(s)                Returns _s_ with a comma every three spaces from the right
+*   tokens(line)                Returns sequence of the tokens in _line_
+*   uletters()                  Returns list of upper case letters : 'A B C ... Z'
+*   upper(s)                    Returns _s_ with lower case letters replaced by upper case equivalent
+*   writer(lines)               Writes sequence _lines_ to standard output
 
     define('append(str,w,ch)')                  :(append.end)
 
@@ -2485,8 +2462,7 @@ begins.end
 
 checkout
 
-    out('enter checkout',filename)
-    differ(filename)                                :s(checkout.checkout)
+    differ(filename)                                :s(checkout.check)
 
 checkout.list
 
@@ -2502,7 +2478,7 @@ checkout.list
                                                     :(return)
 
 
-checkout.checkout
+checkout.check
 
 *   See if _filename_ matches one of the available texts.
 
@@ -2522,21 +2498,15 @@ checkout.checkout
 
 checkout.open
 
-*   out('checking out',filename)
-*	Read in text from the checkout.
-
-*   out('checking out',filename)
 	fullname = '../library/' filename '.txt'
-*   out('checkout fullname',fullname)
 	input(.file,3,fullname)		                    :s(checkout.opened)
-	error('unable to open checkout file ',filename)	:(freturn)
+	error('unable to open file ',filename)	        :(freturn)
 
 checkout.opened
 
 *   Dictionary requires special handling.
 
-    out('checkout.opened',filename)
-    ident(filename,'dictionary')                    :s(checkout.dict)
+    ident(filename,'dictionary')                    :s(checkout.dictionary)
     checkout = set('map',iterator(),table(2000),table(2000))
 
 checkout.text.next
@@ -2545,30 +2515,24 @@ checkout.text.next
 *   out('read line',line)
     put(checkout,set.size(checkout) + 1, line)      :(checkout.text.next)
 
-checkout.dict
+checkout.dictionary
 
-*   out('at checkout.dict')
     checkout = set('set',iterator(),table(40000),table(40000))
 
-checkout.dict.add
+checkout.dictionary.add
 
     add(checkout,word)
-*   out('adding singular word',word)
 
-checkout.dict.next
-
+checkout.dictionary.next
 
     word = file                                     :f(checkout.finis)
-*   out('checkout next',word)
-    ident(substr(word,size(word),1),'S')            :f(checkout.dict.add)
+    ident(substr(word,size(word),1),'S')            :f(checkout.dictionary.add)
 
 *   Here if plural. Add plural form and them merge to add singular form.
 
-*   out('adding plural word',word)
     word = substr(word,1, size(word) - 1)
-*   out('adding plural word', word 's')
-    add(checkout, word 's')                         :(checkout.dict.add)
-    
+    add(checkout, word 's')                         :(checkout.dictionary.add)
+
 checkout.finis
 
 	endfile(3)				                        :(return)
