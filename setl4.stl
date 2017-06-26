@@ -495,6 +495,7 @@
 *-  split.line(line)                Splits line of blank-separated words into sequence.
 *-  split.string(str)               Splits string into sequence of characters.
 *-  subset(a,b)                     Tests if the set _b_  is a subset of set _a_
+*-  top(s)                          Returns top element of sequence viewed as stack.
 *-  union(a,b)                      Returns set consisting of all the members in two sets.
 *-  traceoff()                      Turns off tracing
 *-  show(v,within)                  Shows value of _v_, with _within_ set non-zero when listing member of set
@@ -1314,6 +1315,7 @@ next
 *   Branch on kind to find next iteration value.
 
     iter = set.iter(set)
+    iter = set.iter(set)
 
         :($('next.' set.kind(set)))
 
@@ -1366,6 +1368,7 @@ next.iter
 
 next.map
 
+    iter = set.iter(set)
     next = iter.next(iter) = iter.next(iter) + 1
     le(next,set.size(set))                          :f(freturn)
     key = set.index(set)[next]
@@ -1374,14 +1377,16 @@ next.map
 
 next.seq
 
+    iter = set.iter(set)
     next = iter.next(iter) = iter.next(iter) + 1
     le(next,set.size(set))                          :f(freturn)
     key = set.index(set)[next]
-    next = set.key(set)[key]
-    this = set.this(set) = next
+    next = set.key(set)[next]
+    this = set.this(set) = next                     :(return)
 
 next.set
     
+    iter = set.iter(set)
     next = iter.next(iter) = +iter.next(iter) + 1
     le(next,set.size(set))                          :f(freturn)
     next = set.index(set)[next]
@@ -1460,6 +1465,15 @@ pop.end
 *   _Push_ adds a new value to a stack (implemented as a sequence).
 
 push
+
+    ident(stack) error('push() first argument is null.')
+    differ(datatype(stack),'set')
+.       error('push() first argument is not a set, but instance of ' datatype(stack))
+    ident(set.kind(stack),'map')                    :s(push.value)
+    ident(set.kind(stack),'seq')                    :s(push.value)
+    error('first argument to push() must be set or map, is ' datatype(stack))
+
+push.value
 
     put(stack,set.size(stack) + 1, value)           :(return)
 
@@ -1762,10 +1776,6 @@ show.integer
 
     show = v                                        :(show.done)
 
-show.line
-
-    show = show 'line(' show(mark(v),,within) ',' show.q(text(v),,within) ')' :(show.done)
-
 show.map
 
     show = 'map{'
@@ -1816,7 +1826,7 @@ show.seq
 show.seq.next
 
     entry = next(v)                                :f(show.seq.done)
-    show = show show(entry,,within) 
+    show = show ' ' show(entry,,within) 
 
 show.seq.check
 
@@ -1926,7 +1936,7 @@ show.eval.finis
 
 show.eval.end
 
-    define('show.lines(lines,number)entry')         :(show.lines.end)
+    define('show.lines(lines,number)i,line')        :(show.lines.end)
 
 *   Show a sequence of lines, including the line number if _number_ not null.
 
@@ -1936,10 +1946,11 @@ show.lines
 
 show.lines.next
 
-    entry = next(lines)                             :f(return)
-    line = value(entry)
-    ident(number)   out(value(entry))               :s(show.lines.next)
-    out(lpad(key(entry),6) line)                    :(show.lines.next)
+    line = next(lines)                              :f(return)
+    i = i + 1
+    gt(i,100) error('i too big')
+    ident(number)    out(line)                      :s(show.lines.next)
+    differ(number)   out(lpad(i,6) '  ' line)       :(show.lines.next)
 
 show.lines.end
 
@@ -1989,6 +2000,18 @@ this
 
 this.end
 
+    define('top(stack)')                            :(top.end)
+
+*   _Top_ returns the top element of the stack, or fails if the stack is empty.
+
+top
+
+    differ(datatype(stack),'set') error('argument to top() is not a stack.')
+    eq(size(stack))                                 :s(freturn)
+    top = get(stack,set.size(stack))                :(return)
+
+top.end
+
     define('true(e)')                               :(true.end)
 
 *   _True_ Tests if its operand is true
@@ -2007,7 +2030,7 @@ true.end
 
 union
 
-*   Arrange so set a is the larger 
+*   Arrange so set _a_ is the larger 
 
     ge(set.size(a),set.size(b))                     :s(union.a)
     union = a
@@ -2016,7 +2039,7 @@ union
 
 union.a
 
-*   Make copy of a by making copy of a's table.
+*   Make copy of _a_ to start things off.
 
     union = copy(a)
     loop(b)
@@ -2047,17 +2070,18 @@ visit.end
     define('words(line,w)word')                      :(words.end)
 
 *   _Words_ returns a sequence of the words in _line_, where _w_
-*   defines the allowed characters in a word.
+*   is a string that defines the allowed characters in a word.
 
 words
 
-    out('enter words',line)
-    w = ident(datatype(w),'string') span(w)
+*   out('enter words',line)
+*   out('enter words dt w',datatype(w))
+*   out('w',show.q(w))
     words = new('seq #' size(line))
 
 words.next
 
-    line w . word =                                 :s(words.add)
+    line span(w) . word =                           :s(words.add)
 
 *   No word begins at this character, so move on to the next one.
 
@@ -2065,7 +2089,6 @@ words.next
 
 words.add
 
-    out('words.add',word)
     push(words, word)                               :(words.next)
 
 words.end
@@ -2115,15 +2138,12 @@ setl4.save.end
 
 setl4.show
 
-    out('enter SETL4.SHOW dt set',datatype(set))
-    out('enter SETL4.SHOW')
     ident(datatype(set),'iterator')                 :s(setl4.show.iter)
     ident(datatype(set),'set')                      :s(setl4.show.set)
     error('setl4.show unsupported kind: ' set.kind(set))
 
 setl4.show.iter
 
-    out('SETL4.SHOW.ITER dt iter',datatype(set))
     setl4.show =  out('(iterator '
 .            (ne(iter.start(set)) ' start:'     +iter.start(set), '') 
 .            (ne(iter.finis(set)) ' finis:'     +iter.finis(set),'')
@@ -2393,7 +2413,7 @@ opsyn.bypass
 *   letters()                   Returns list of letters : 'a b c ... z A B ... Z''
 *   less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
 *   lletters()                  Returns list of lower case letters : 'a b c ... z'
-*   lower(s)                    Returns _s_ with upper case letters replaced by lower case equivalent
+*   lower.case(s)               Returns _s_ with upper case letters replaced by lower case equivalent
 *   multiple(n,m)               Tests if _n_ is a multiple of _m_
 *   odd(n)                      Tests if _n_ is odd
 *   out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null
@@ -2408,7 +2428,7 @@ opsyn.bypass
 *   thousands(s)                Returns _s_ with a comma every three spaces from the right
 *   tokens(line)                Returns sequence of the tokens in _line_
 *   uletters()                  Returns list of upper case letters : 'A B C ... Z'
-*   upper(s)                    Returns _s_ with lower case letters replaced by upper case equivalent
+*   upper.case(s)               Returns _s_ with lower case letters replaced by upper case equivalent
 *   writer(lines)               Writes sequence _lines_ to standard output
 
     define('append(str,w,ch)')                  :(append.end)
@@ -2739,15 +2759,15 @@ letters
 
 letters.end
 
-    define('lower(s)')                              :(lower.end)
+    define('lower.case(s)')                         :(lower.case.end)
 
-*   _Lower_ converts argument to lower case.
+*   _Lower.case_ converts argument to lower case.
 
-lower
+lower.case
 
-    lower = replace(s,&ucase,&lcase)                :(return)
+    lower.case = replace(s,&ucase,&lcase)           :(return)
 
-lower.end
+lower.case.end
 
     define('multiple(n,m)')                     :(multiple.end)
 
@@ -2847,10 +2867,11 @@ quicksort
 
 quicksort.end
 
-    define('reader(filename)line')                  :(reader.end)
+    define('reader(filename,undent)line')           :(reader.end)
 
 *   _Reader_ returns a sequence of the lines in the file specified by _filename_.
 *   Lines are read from standard input if _filename_ is null.
+*   If _undent_ is not null, leading spaces in lines are eliminated.
 
 reader
 
@@ -2866,6 +2887,11 @@ reader.next
     line = (ident(filename) input, file)                :f(reader.eof)
     ident(line)                                         :s(reader.next)
     line '*'                                            :s(reader.next)
+    ident(undent)                                       :s(reader.add)
+    line span(' ') =
+
+reader.add
+
     push(reader,line)                                   :(reader.next)
 
 reader.eof
@@ -3115,15 +3141,15 @@ tokens.new
 
 tokens.end
 
-    define('upper(s)')                              :(upper.end)
+    define('upper.case(s)')                         :(upper.case.end)
 
-*   _Upper_ converts its argument to upper case.
+*   _Upper.case_ converts its argument to upper case.
 
-upper
+upper.case
 
-    upper = replace(s,&lcase,&ucase)                :(return)
+    upper.case = replace(s,&lcase,&ucase)           :(return)
 
-upper.end
+upper.case.end
 
     define('writer(lines)')                         :(writer.end)
 

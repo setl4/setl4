@@ -3,132 +3,220 @@
 *   Licensed under the MIT license.
 
 -include "setl4.stl"
+    
+*   &dump = 3
 
-    &dump = 3
+    define('list(sonnet,title)line')                :(list.end)
 
-    define('process.line(line)entry,i,ref,word,ws')   :(process.line.end)
+*   List the text of a sonnet, prefaced by _title_, and including line numbers.
 
-*   Process a line in a sonnet by extracting its words, updating the
-*   count of the number of times a word is used, and the list of
-*   references to the word.
+list
 
-process.line
+    out()
+    out('listing sonnet')
+    out(title)
+    show.lines(sonnet,1)                            :(return)
 
-*   _Words.line_ is list of words seen in line line. Don't add a new
-*   reference if the word has already been found in the line.
+list.end
 
-    ws = words(line,word.pat)
-    out('process.line ws',set.size(ws))
-    show(ws)
-    words.line = new('set #10')
+    define('analyze(sonnet,word.str)line,entry,i,ref,seen,word,word.pat,words.this')   :(analyze.end)
+
+*   _Analyze_  looks at  each line in a sonnet, extracting its words,
+*   updating the  of the number of times a word is used, and.
+*   builds a list of references for each word.
+
+analyze
+
+    loop(sonnet)
+
+analyze.next.line
+
+    g.words = differ(seen) union(g.words,seen)
+    line = next(sonnet)                             :f(return)
+*   _Words.this is a seqence of the words seen in this line.
+
+    words.this = words(line,word.str)
+    seen = new('set #10')
     i = 0
-    loop(words.line)
+    loop(words.this)
 
-process.next
+analyze.next.word
 
-    entry = next(words.line)                        :f(return)
-    out('process word entry',datatype(entry))
-    word = value(entry) 
-    out('process.line.word dt line',datatype(word))
+    word = lower.case(next(words.this))             :f(analyze.next.line)
+    member(seen,words.this)                         :s(analyze.seen.word)
+    add(seen,word)
+
+analyze.seen.word
+
     i = i + 1
-    out("sonnet word " word " in line " i)
-    add(sonnets.words,word)
-    put(used,word,get(used,word) + 1)
-    member(words.line,word)                         :s(process.next)
-    add(words.line,word)
-    ref = get(uses,word)
-    put(uses,word, (ident(ref) '',ref ' ') (sonnet.number '.' i))
+    put(g.count,word,get(g.count,word) + 1)
+    ref = get(g.uses,word)
+    put(g.uses,word, (ident(ref) '',ref ' ') (g.sonnet.this '.' i))
+                                                    :(analyze.next.word)
 
-process.line.end
+analyze.end
+
+    define('find(lines)id,line,lineno,sonnet') :(find.end)
+
+*   _Find_ _loops through the lines of text, starting a new sonnet
+*   when see the roman numeral with the sonnet number is seen.
+
+find
+
+    loop(lines)
+
+find.find
+
+    line = next(lines)                          :f(find.finis)
+
+*   Some of the lines in the text are indented, so eliminate the indentation.
+
+    line span(' ') =
+    lineno = lineno + 1
+
+find.check 
+
+    line span('IVDCXL') . id  rpos(0)           :f(find.find)
+    differ(size(id),size(line))                 :s(find.find)
+
+*   Save the sonnet just built unless here at start of first sonnet.
+
+    differ(sonnet) push(g.sonnets,sonnet)
+
+find.found
+
+*   Here after seeing line marking start of sonnet.
+    
+    g.sonnet.this = g.sonnet.this + 1
+
+    out()
+    push(g.numeral,line)
+    sonnet = new('seq #14')
+
+find.next 
+
+    line  = next(lines)                         :f(find.finis)
+    line span(' ') =
+    line span('IVDCXL') . id  rpos(0)           :s(find.check)
+
+    push(sonnet,line)                           
+                                                :(find.next)
+
+find.finis
+
+*   Here at end of file. Add the last sonnet.
+
+    differ(sonnet) push(g.sonnets,sonnet)       
+                                                :(return)
+
+find.end
 
 *   Main program
 
 main
 
-*   Loop through text, starting new sonnet when see the roman numeral 
-*   with the sonnet number. Collect the text of each sonnet, calling
-*   _process.line() to analyze the words in the line.
+*## Global variables
 
+*   Global variables have names that start with prefix 'g.'
 
-    used = new('map #3000')
-    sonnets = new('seq #150')
-    sonnets.words = new('set #3000')
-    uses = new('map #3000')
-    sonnet.number = 0
+*   _g.lines_ is a sequence giving all the lines in the sonnets.
 
-*   Shakespeare used single quotes within words; as for example, "lov'd."
+*   _g.numeral_ maps a sonnet's number to its equivalent in roman numerals.
 
-    word.pat = span(&ucase &lcase "'")
-    lines = reader('t.txt')
-    loop(lines)
+    g.numeral = new('map #14')
 
-sonnet.find
+*   _G.word.str_ is a string that defines a word as used in the sonnets.
+*   In addition to letters, Shakespeare used single quotes within words;
+*   as for example, "lov'd."
 
-    lind = next(lines)                         :f(sonnets.end)
-    out('sonnet.find entry',datatype(entry))
-    out('sonnet.find line',datatype(line))
-    line span(' ') =
-    out('sonnet.find line',line)
-    line span('IVDCXL') . id                    :f(sonnet.find)
-    differ(size(id),size(line))                 :s(sonnet.find)
+    g.word.str = &ucase &lcase "'"
 
-sonnet.found
+*   _G.sonnets_ is a sequence giving the sonnets.  Each sonnet has fourteen lines.
 
-*   Here after seeing line marking start of sonnet.
+    g.sonnets = new('seq #150')
+
+*   _g.words_ is the set of all the words used in the sonnets.
+
+    g.words = new('set #3000')
+
+*   _g.count_ is a map from words to the number of times the word
+*   occurs in a sonnet.
+
+    g.count = new('map #3000')
+
+*   _g.uses_ is a map from words to a string giving all the lines in the
+*   the sonnets containing an instance of the word.
+
+    g.uses = new('map #3000')
+
+*   _g.sonnet.this is the number of the current sonnet during the find.
+
+    g.sonnet.this = 0
+
+*   Here follows the main program code.
+
+*   Read in the text of the sonnets and find the text for each sonnet.
+
+    g.lines = reader('t.txt','TRUE')
+    find(g.lines)
+
+*   Analyze the text of the sonnets.
+
+    i = 0
+    loop(g.sonnets)
+
+main.analyze.next
     
-    out()
-    out('found sonnet',line)
-    sonnet.number = sonnet.number + 1
-    out('new sonnet',sonnet.number)
-    sonnet = new('seq')
-    push(sonnets,sonnet)
+    sonnet = next(g.sonnets)                    :f(main.analyze.done)
+    analyze(sonnet,g.word.str)                  :(main.analyze.next)
 
-sonnet.next 
+main.analyze.done
 
-    line  = next(lines)                            :f(sonnets.end)
-    out("at text",line)
-    line span(' ') =
-    line word.pat                                   :s(sonnet.found)
-    process.line(line)                              :(sonnet.next)
+*   Here to report results.
 
-sonnets.end
-
-*   Here at end of sonnets.
-
-    out('Shakespeare wrote ' set.size(sonnets) ' sonnets.')
-.   out("His sonnets contain " set.size(sonnets.words)
-.       " words in " (set.size(sonnets) * 15)  " lines.")
+    out('Shakespeare wrote ' set.size(g.sonnets) ' sonnets.')
+.   out("His sonnets contain " set.size(g.words)
+.       " words in " (set.size(g.lines) - (set.size(g.sonnets) * 14))   " lines.")
 
     out()
-    out()
-    out('All the words used in the sonnets, with most used first:')
+    out('The thirty most frequently used words in the sonnets:')
+    
+    i = 0
+main.often
 
-    show(sonnets.words,'-v')
+    out('showing g.count')
+    show(g.count)
+    out()
+    show(g.count,'-v')
+    out()
 
     out("Uses of each word, in form of sonnet number and line number within the sonnet:")
 
-    loop(uses)
+    loop(g.uses)
 
 uses.next
 
-    entry = next(uses)                              :f(uses.done)
-    out(lpad(key(entry),20) value(entry))           :(uses.next)
+    entry = next(g.uses)                            :f(uses.done)
+    out(lpad(key(entry),12) ' '  value(entry))      :(uses.next)
 
 uses.done
 
+end
     out()
     out()
 
 *   List the text of the sonnets, including the line numbers.
 
-    loop(sonnets)
+    loop(g.sonnets)
+    i = 0
 
-text.next
+list.next
 
-    entry = next(sonnets)                           :f(text.end)
-    out(key(entry))
-    show(value(entry),1)                            :(text.next)
+    i = i + 1
+    out('LIST SONNET ',get(g.numeral,i))
+    sonnet = next(g.sonnets)                        :f(list.end)
+    out(sonnet,g.numeral(sonnet))                   :(list.next)
 
-text.end
+list.end
 
 end
