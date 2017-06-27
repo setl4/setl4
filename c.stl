@@ -4,7 +4,47 @@
 
 -include "setl4.stl"
     
-*   &dump = 3
+    &dump = 3
+
+*## Global variables
+
+*   Global variables have names that start with prefix 'g.'
+
+*   _g.lines_ is a sequence giving all the lines in the sonnets.
+
+*   _g.numeral_ maps a sonnet's number to its equivalent in roman numerals.
+
+    g.numeral = new('map #14')
+
+*   _G.word.str_ is a string that defines a word as used in the sonnets.
+*   In addition to letters, Shakespeare used single quotes within words;
+*   as for example, "lov'd."
+
+    g.word.str = &ucase &lcase "'"
+
+*   _G.sonnets_ is a sequence giving the sonnets.  Each sonnet has fourteen lines.
+
+    g.sonnets = new('seq #150')
+
+*   _g.words_ is the set of all the words used in the sonnets.
+
+    g.words = new('set #3000')
+
+*   _g.count_ is a map from words to the number of times the word
+*   occurs in a sonnet.
+
+    g.count = new('map #3000')
+
+*   _g.uses_ is a map from words to a string giving all the lines in the
+*   the sonnets containing an instance of the word.
+
+    g.uses = new('map #3000')
+
+*   _g.sonnet.this is the number of the current sonnet during the find.
+
+    g.sonnet.this = 0
+
+*   Analyze the text of the sonnets.
 
     define('list(sonnet,title)line')                :(list.end)
 
@@ -19,7 +59,7 @@ list
 
 list.end
 
-    define('analyze(sonnet,word.str)line,entry,i,ref,seen,word,word.pat,words.this')   :(analyze.end)
+    define('analyze(sonnet,sonnet.num,word.str)line,entry,i,line.num,ref,seen,word,word.pat,words.this')   :(analyze.end)
 
 *   _Analyze_  looks at  each line in a sonnet, extracting its words,
 *   updating the  of the number of times a word is used, and.
@@ -33,25 +73,32 @@ analyze.next.line
 
     g.words = differ(seen) union(g.words,seen)
     line = next(sonnet)                             :f(return)
+    line.num = line.num + 1
+
 *   _Words.this is a seqence of the words seen in this line.
 
     words.this = words(line,word.str)
     seen = new('set #10')
-    i = 0
+    i = num = 0
     loop(words.this)
 
 analyze.next.word
 
     word = lower.case(next(words.this))             :f(analyze.next.line)
-    member(seen,words.this)                         :s(analyze.seen.word)
+
+*   Update count of number of times words used.
+
+    put(g.count,word,get(g.count,word) + 1)
+
+*   See if have seen the word in this line, in which case go to next word.
+
+    member(seen,words.this)                         :s(analyze.next.word)
     add(seen,word)
 
-analyze.seen.word
+*   Add reference for the word in this line.
 
-    i = i + 1
-    put(g.count,word,get(g.count,word) + 1)
     ref = get(g.uses,word)
-    put(g.uses,word, (ident(ref) '',ref ' ') (g.sonnet.this '.' i))
+    put(g.uses,word, (ident(ref) '',ref ' ') (sonnet.num '.' line.num))
                                                     :(analyze.next.word)
 
 analyze.end
@@ -113,54 +160,13 @@ find.end
 
 *   Main program
 
-main
-
-*## Global variables
-
-*   Global variables have names that start with prefix 'g.'
-
-*   _g.lines_ is a sequence giving all the lines in the sonnets.
-
-*   _g.numeral_ maps a sonnet's number to its equivalent in roman numerals.
-
-    g.numeral = new('map #14')
-
-*   _G.word.str_ is a string that defines a word as used in the sonnets.
-*   In addition to letters, Shakespeare used single quotes within words;
-*   as for example, "lov'd."
-
-    g.word.str = &ucase &lcase "'"
-
-*   _G.sonnets_ is a sequence giving the sonnets.  Each sonnet has fourteen lines.
-
-    g.sonnets = new('seq #150')
-
-*   _g.words_ is the set of all the words used in the sonnets.
-
-    g.words = new('set #3000')
-
-*   _g.count_ is a map from words to the number of times the word
-*   occurs in a sonnet.
-
-    g.count = new('map #3000')
-
-*   _g.uses_ is a map from words to a string giving all the lines in the
-*   the sonnets containing an instance of the word.
-
-    g.uses = new('map #3000')
-
-*   _g.sonnet.this is the number of the current sonnet during the find.
-
-    g.sonnet.this = 0
-
-*   Here follows the main program code.
-
 *   Read in the text of the sonnets and find the text for each sonnet.
 
     g.lines = reader('t.txt','TRUE')
+
     find(g.lines)
 
-*   Analyze the text of the sonnets.
+main
 
     i = 0
     loop(g.sonnets)
@@ -168,7 +174,8 @@ main
 main.analyze.next
     
     sonnet = next(g.sonnets)                    :f(main.analyze.done)
-    analyze(sonnet,g.word.str)                  :(main.analyze.next)
+    i = i + 1
+    analyze(sonnet,i,g.word.str)                :(main.analyze.next)
 
 main.analyze.done
 
@@ -176,31 +183,29 @@ main.analyze.done
 
     out('Shakespeare wrote ' set.size(g.sonnets) ' sonnets.')
 .   out("His sonnets contain " set.size(g.words)
-.       " words in " (set.size(g.lines) - (set.size(g.sonnets) * 14))   " lines.")
+.       " words in " (set.size(g.lines) - set.size(g.sonnets))   " lines.")
 
     out()
-    out('The thirty most frequently used words in the sonnets:')
-    
+    out('The most frequently used words in the sonnets:')
+    sorter(g.count,'-v')
+    loop(g.count)
     i = 0
-main.often
 
-    out('showing g.count')
-    show(g.count)
+main.count
+
+    entry = next(g.count)                           :f(main.count.done)
+    out(lpad(key(entry),10) '  ' value(entry))
+    lt(i = i + 1,30)                                :s(main.count)
+    i = 0
+
+main.count.done
+
+    out('SHOWING G.COUNT')
+*   show(g.count)
+    sorter(g.count,'-v')
+end
     out()
-    show(g.count,'-v')
-    out()
-
-    out("Uses of each word, in form of sonnet number and line number within the sonnet:")
-
-    loop(g.uses)
-
-uses.next
-
-    entry = next(g.uses)                            :f(uses.done)
-    out(lpad(key(entry),12) ' '  value(entry))      :(uses.next)
-
-uses.done
-
+*   show(g.count,'-v')
 end
     out()
     out()
