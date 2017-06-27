@@ -640,10 +640,12 @@ compare.end
 
 compose
 
+    out('ENTER COMPOSE dt a',datatype(a))
     ident(datatype(a),'table')                      :s(compose.table)
 
 *   Here to compose two maps.
 
+    out('compose dt a',datatype(a))
     n = set.size(a)
     compose = eq(n) new('map')                      :s(return)
     compose = new('map #' n)
@@ -655,18 +657,19 @@ compose.map.next
     key = set.index(compose)[i] = set.index(a)[i]
     value = set.key(b)[set.key(a)[key]]
     set.key(compose)[key] = value                   :(compose.map.next)
-*
-*compose.table
-*
-*    ara = convert(a,'array')                        :f(show.table.error)
-*    prototype(ara) break(',') . n
-*    compose = table(n)
-*
-*compose.table.next
-*
-*    key = ara[i = i + 1,2]                          :f(return)
-*    compose[i] = b[key]                             :(compose.table.next)
-*
+
+compose.table
+
+    out('ENTER COMPOSE.TABLE')
+    ara = convert(a,'array')                        :f(show.table.error)
+    prototype(ara) break(',') . n
+    compose = table(n)
+
+compose.table.next
+
+    key = ara[i = i + 1,2]                          :f(return)
+    compose[i] = b[key]                             :(compose.table.next)
+
 compose.end
 
     define('defined(map,key)entry')                 :(defined.end)
@@ -1567,10 +1570,12 @@ random.seed.done
 							:(return)
 random.seed.end
 
-    define('sorter(set,type)ara,entry,key,map,seq,str,tbl,value')    :(sorter.end)
+    define('sorter(set,type)ara,entry,i,key,,map,n,seq,str,tbl,tmp.table,value') :(sorter.end)
 
-*   _Sorter_ reorders the tables used to represent a map  to reflect
+*   _Sorter_ sorts the index table of _set_ according to _type_ to reflect
 *   a desired sort of the elements of set, keys or maps, or values of map.
+*   _Sorter_ doesn't create a new set, but just updates the index table so that,
+*   going forward, entries will be visited in the order specified by _type_.
 
 *   _Sorter_ can also be used to put a string in normal form by converting the string
 *   into a sequence of the characters in the string and then sorting the range
@@ -1598,9 +1603,11 @@ sorter
     out('ENTER SORTER KIND',set.kind(set))
     out('ENTER SORTER TYPE',type)
 
-*   Use _setl4.sorter.string_ if input is a string.
+*   Use _setl4.string.sorter_ if input is a string.
 
-    sorter = ident(datatype(set),'string') setl4.sorter.string(set) :s(return)
+    sorter = ident(datatype(set),'string') setl4.string.sorter(set) :s(return)
+
+    n = set.size(set)
 
 *   Here to detect cases for which sort has no meaning, in which case
 *   return immediately. This includes the case 'int' which, though possible
@@ -1610,15 +1617,70 @@ sorter
     type = get(setl4.sorter.types,type) 
     ident(datatype(set),'set') ident(set.kind(set),'int')   :s(return)
     ident(datatype(set),'set') ident(set.kind(set),'iter')  :s(return)
-    ident(datatype(set),'set')                        :s(sorter.set)
+    ident(datatype(set),'set')                      :s(sorter.set)
     error('sorter - unsupported input type ' datatype(set) )
     
 sorter.set
 
-*   Here in case sort makes sense, so just pass on to _setl4.sorter_ to
-*   do the actual sort.
+*   Nothing to do if set is empty or only has one element.
 
-    sorter = setl4.sorter(set,type,set.size(set))  :(return)
+    le(n = set.size(set),1)                         :s(return)
+    differ(datatype(set),'set') error('sorter bad datatype ' datatype(set))
+    sorter = table(n)
+    ident(type)                                     :s(sorter.index)
+    ident(type,'+i')                                :s(sorter.index)
+    ident(type,'-i')                                :s(sorter.index)
+    ident(type,'+k')                                :s(sorter.key)
+    ident(type,'-k')                                :s(sorter.key)
+    ident(type,'+v')                                :s(sorter.value)
+    ident(type,'-v')                                :s(sorter.value)
+    error('sorter unsupported type ' type)
+
+sorter.index
+
+*   Here to sort index table according to type.
+
+    tbl = setl4.table.sorter(set,type,n)            :(sorter.done)
+
+sorter.key
+
+*   If sorting by key, just need to sort the index table.
+
+    sorter = table(n)
+    tbl = setl4.table.sorter(set,type,n)            :(sorter.done)
+
+sorter.key.next
+
+    le(i = i + 1,n)                                 :f(sorter.done)
+    tbl[i] = set.index(set)[ara[i,1]]               :(sorter.key.next)
+    
+sorter.value
+
+*   Here to  sort by value: build table mapping index numbers into
+*   the values associated with their keys, and sort that.
+
+    tbl = compose(set.index(set),set.key(set))
+    type = ident(type,'+v') '+k'
+    type = ident(type,'-v') '-k'
+    tmp.table = setl4.table.sorter(tbl,type,n)
+
+sorter.value.next
+
+*   The table is in proper order, so replace values with the keys
+*   associated with that value.
+
+    
+sorter.null
+
+*   Here to sort on the order in which entries were created.
+
+*   show(set.index(set),'sorter index')
+    tbl = setl4.table.sorter(set.index(set),n)      :(sorter.done)
+
+sorter.done
+
+   set.index(set) = tbl                            
+                                                    :(return)
 
 sorter.end
 
@@ -1797,7 +1859,7 @@ show.map
 
 show.map.next
 
-    entry = next(v)                                :f(show.map.done)
+    entry = next(v)                                 :f(show.map.done)
 
 *   Here to show entry. Look for datatypes _line_ and _token_, showing
 *   them directly. Otherwise, show key and value separated by ':' (colon).
@@ -2208,133 +2270,53 @@ setl4.size
 
 setl4.size.end
 
-    define('setl4.sorter(set,type,n)i,key,sort,itbl')  :(setl4.sorter.end)
 
-*   _Setl4.sort_ sorts the index table of _set_ according to _type_ as 
-*   described below. _setl4.sorter_ doesn't create a new set;
-*   it just updates the index table so that, going forward,
-*   entries will be visited in the order specified by _type_.
-
-setl4.sorter
-
-*   Nothing to do if set is empty or only has one element.
-
-    out('ENTER SETL4.SORTER DT',datatype(set))
-    out('ENTER SETL4.SORTER KIND',set.kind(set))
-    out('ENTER SETL4.SORTER TYPE',type)
-    le(n = set.size(set),1)                         :s(return)
-    differ(datatype(set),'set') error('setl4.sorter bad datatype ' datatype(set))
-    setl4.sorter = table(n)
-    ident(type)                                     :s(setl4.sorter.index)
-    ident(type,'+i')                                :s(setl4.sorter.index)
-    ident(type,'-i')                                :s(setl4.sorter.index)
-    ident(type,'+k')                                :s(setl4.sorter.key)
-    ident(type,'-k')                                :s(setl4.sorter.key)
-    ident(type,'+v')                                :s(setl4.sorter.value)
-    ident(type,'-v')                                :s(setl4.sorter.value)
-    error('setl4.sorter unsupported type ' type)
-
-setl4.sorter.index
-
-*   Here to sort index tabl according to type.
-
-    tbl = setl4.sorter.table(set,type,n)
-
-setl4.sorter.key
-
-*   If sorting by key, just need to sort the index table.
-
-    setl4.sorter = table(n)
-    tbl = setl4.sorter.table(set,type,n)
-
-setl4.sorter.key.next
-
-    le(i = i + 1,n)                                 :f(setl4.sorter.done)
-    setl4.sorter[i] = set.index(set)[ara[i,1]]        :(setl4.sorter.key.next)
-    
-setl4.sorter.value
-
-*   Here to  sort by value: build table mapping index numbers into
-*   the values associated with their keys, and sort that.
-
-    tbl = compose(set.index(set),set.key(set))
-    type = ident(type,'+v') '+k'
-    type = ident(type,'-v') '-k'
-    tbl = setl4.sorter.table(tbl,type,n)
-
-setl4.sorter.value.next
-
-*   The table is in proper order, so replace values with the keys
-*   associated with that value.
-
-    le(i = i + 1,n)                                 :f(setl4.sorter.done)
-    setl4.sorter[i] = set.index(set)[tbl[i]]          :(setl4.sorter.value.next)
-    
-setl4.sorter.null
-
-*   Here to sort on the order in which entries were created.
-
-*   show(set.index(set),'setl4.sorter index')
-    tbl = setl4.sorter.table(set.index(set),n)        :(setl4.sorter.done)
-
-setl4.sorter.done
-
-   set.index(set) = tbl                            
-                                                        :(return)
-
-setl4.sorter.end
-
-    define('setl4.sorter.string(str)ara,c,i,tbl')             :(setl4.sorter.string.end)
+    define('setl4.string.sorter(str)ara,c,i,tbl')   :(setl4.string.sorter.end)
 
 *   _Sorter_sorts a string into a string with all the characters
 *   in lexical (alphabetic) order.
 
-setl4.sorter.string
+setl4.string.sorter
 
     tbl = table(size(str))
 
-setl4.sorter.string.tbl
+setl4.string.sorter.tbl
 
-    c = substr(str,i = i + 1,1)                     :f(setl4.sorter.string.sort)
-    tbl[i] = c                                      :(setl4.sorter.string.tbl)
+    c = substr(str,i = i + 1,1)                     :f(setl4.string.sorter.sort)
+    tbl[i] = c                                      :(setl4.string.sorter.tbl)
 
-setl4.sorter.string.sort
+setl4.string.sorter.sort
 
 *   Sort the table and rebuild the string in sorter order.
 
     i = 0
     ara = sort(tbl,2)
     
-setl4.sorter.string.build
+setl4.string.sorter.next
 
     c = ara[i = i + 1,2]                            :f(return)
-    setl4.sorter.string = setl4.sorter.string c         :(setl4.sorter.string.build)
+    setl4.string.sorter = setl4.string.sorter c     :(setl4.string.sorter.next)
 
-setl4.sorter.string.end
+setl4.string.sorter.end
 
-    define('setl4.sorter.table(set,type)i,key,sort,index,index.table,key.table,n,sorted.table,tmp.table') :(setl4.sorter.table.end)
+    define('setl4.table.sorter(set,type)i,key,sort,index,index.table,n,sorted.table,tmp.table') :(setl4.table.sorter.end)
 
-*   _Setl4.sort.table_ returns an index table derived from the index table of _set_ that
-*   reflects the desired sort order given by _type_.
+*   _Setl4.table.sorter_ returns an index table derived from the
+*   index table of _set_ that reflects the ordering given by _type_.
 
-setl4.sorter.table
+setl4.table.sorter
 
+    ident(datatype(set),'table')                    :s(setl4.table.sorter.table)
     n = set.size(set)
-    out('ENTER SORTER setl4.sorter.table type',type)
-    out('ENTER SORTER setl4.sorter.table n',n)
+    out('ENTER SORTER setl4.table.sorter type',type)
+    out('ENTER SORTER setl4.table.sorter n',n)
     le(n,1)                                         :s(return)
 
-*   Get the current index and key tables.
+*   Get the current index table.
 
     index.table = set.index(set)
-    key.table = set.key(set)
 
     type = substr(type,1,1)
-    ident(type,'+v')                                    :s(setl4.sorter.table.value)
-    ident(type,'-v')                                    :s(setl4.sorter.table.value)
-
-*   Here to sort the index table
-
     ara = ident(type,'+i')    sort(index.table,1)
     ara = ident(type,'-i')    rsort(index.table,1)
     ara = ident(type,'+k')    sort(index.table,2)
@@ -2343,54 +2325,25 @@ setl4.sorter.table
     sorted.table = table(n)
     index = 0
 
-setl4.sorter.table.index.build
+setl4.table.sorter.index.build
 
-    le(index = index + 1,n)                                         :f(setl4.sorter.table.finis)
+    le(index = index + 1,n)                         :f(setl4.table.sorter.finis)
     index = ara[i,1]
-    sorted.table[index] = index.table[index]                        :(setl4.sorter.table.next)
+    sorted.table[index] = index.table[index]        :(setl4.table.sorter.next)
 
-setl4.sorter.table.error
+setl4.table.sorter.error
 
-    error('error in setl4.sorter.table converting table to array')
+    error('error in setl4.table.sorter converting table to array')
 
-setl4.sorter.table.value
 
-*   To sort on value, need to create intermediate table mapping indices in the index table
-*   to the associated values, sort the temporary table, and then build a new index table.
-
-    i = 0
-    tmp.table = table(n)
-
-setl4.sorter.table.value.build
-    
-    le(i = i + 1,set.size(set))                                     :f(setl4.sorter.table.value.built)
-    key = index.table[i]
-    value = key.table[key]
-    tmp.table[i] = value                                            :(setl4.sorter.table.value.build)
-
-setl4.sorter.table.value.built
-
-*   Sort the temporary table.
-
-    ara = ident(type,'+v')      sort(tmp.table,2)
-    ara = ident(type,'-v')      rsort(tmp.table,2)
-    sorted.table = table(n)
-    i = 0
-
-*   Build new index table.
-
-setl4.sorter.index.new
-
-    le(i = i + 1,n)                                                 :f(setl4.sorter.table.finis)
-    index = ara[i,1]
-    key = index.table[index]
-    sorted.table[index] = key                                       :(setl4.sorter.index.new)
-
-setl4.sorter.table.finis
+setl4.table.sorter.finis
 
     set.index(set) = sorted.table
 
-setl4.sorter.table.end
+setl4.table.sorter.table
+    error('setl4.sorter.table not implemented')
+
+setl4.table.sorter.end
 
     define('traceoff()')                            :(traceoff.end)
 
