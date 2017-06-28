@@ -640,7 +640,6 @@ compare.end
 
 compose
 
-    out('ENTER COMPOSE dt a',datatype(a))
     ident(datatype(a),'table')                      :s(compose.table)
 
 *   Here to compose two maps.
@@ -660,15 +659,15 @@ compose.map.next
 
 compose.table
 
-    out('ENTER COMPOSE.TABLE')
     ara = convert(a,'array')                        :f(show.table.error)
     prototype(ara) break(',') . n
     compose = table(n)
+    i = 0
 
 compose.table.next
 
-    key = ara[i = i + 1,2]                          :f(return)
-    compose[i] = b[key]                             :(compose.table.next)
+    le(i = i + 1,n)                                 :f(return)
+    compose[i] = b[a[i]]                            :(compose.table.next)
 
 compose.end
 
@@ -1263,8 +1262,6 @@ new.map
 new.map.next
 
     init break(':') . key ':' break(' ') . val span(' ') =  :f(return)
-*   out('new.map key',show(key))
-*   out('new.map val',show(val))
     put(new,key,val)                                
                 :(new.map.next)
 
@@ -1570,7 +1567,7 @@ random.seed.done
 							:(return)
 random.seed.end
 
-    define('sorter(set,type)ara,entry,i,key,,map,n,seq,str,tbl,tmp.table,value') :(sorter.end)
+    define('sorter(set,type)ara,entry,i,key,index.table,map,n,seq,str,tbl,value.table,value') :(sorter.end)
 
 *   _Sorter_ sorts the index table of _set_ according to _type_ to reflect
 *   a desired sort of the elements of set, keys or maps, or values of map.
@@ -1600,14 +1597,12 @@ random.seed.end
 
 sorter
 
-    out('ENTER SORTER KIND',set.kind(set))
-    out('ENTER SORTER TYPE',type)
-
 *   Use _setl4.string.sorter_ if input is a string.
 
     sorter = ident(datatype(set),'string') setl4.string.sorter(set) :s(return)
 
     n = set.size(set)
+    index.table = set.index(set)
 
 *   Here to detect cases for which sort has no meaning, in which case
 *   return immediately. This includes the case 'int' which, though possible
@@ -1617,42 +1612,32 @@ sorter
     type = get(setl4.sorter.types,type) 
     ident(datatype(set),'set') ident(set.kind(set),'int')   :s(return)
     ident(datatype(set),'set') ident(set.kind(set),'iter')  :s(return)
-    ident(datatype(set),'set')                      :s(sorter.set)
+    ident(datatype(set),'set')                              :s(sorter.set)
     error('sorter - unsupported input type ' datatype(set) )
     
 sorter.set
 
 *   Nothing to do if set is empty or only has one element.
 
-    le(n = set.size(set),1)                         :s(return)
+    le(n,1)                                         :s(return)
     differ(datatype(set),'set') error('sorter bad datatype ' datatype(set))
-    sorter = table(n)
-    ident(type)                                     :s(sorter.index)
-    ident(type,'+i')                                :s(sorter.index)
-    ident(type,'-i')                                :s(sorter.index)
-    ident(type,'+k')                                :s(sorter.key)
-    ident(type,'-k')                                :s(sorter.key)
+    ident(type) error('sorter null type')
+
     ident(type,'+v')                                :s(sorter.value)
     ident(type,'-v')                                :s(sorter.value)
-    error('sorter unsupported type ' type)
 
-sorter.index
+*   Here to sort index table.
 
-*   Here to sort index table according to type.
+    tbl = setl4.table.sorter(index.table,index.table,type,n)            
+    differ(datatype(tbl),'table') error('sorter result not table')
+                                                    :(sorter.finis)
+    i = 0
 
-    tbl = setl4.table.sorter(set,type,n)            :(sorter.done)
+sorter.index.next
 
-sorter.key
-
-*   If sorting by key, just need to sort the index table.
-
-    sorter = table(n)
-    tbl = setl4.table.sorter(set,type,n)            :(sorter.done)
-
-sorter.key.next
-
-    le(i = i + 1,n)                                 :f(sorter.done)
-    tbl[i] = set.index(set)[ara[i,1]]               :(sorter.key.next)
+    le(i = i + 1,n)                                 :f(sorter.finis)
+    out('sorter.index.next',i)
+    tbl[i] = index.table[ara[i,1]]                  :(sorter.index.next)
     
 sorter.value
 
@@ -1662,25 +1647,20 @@ sorter.value
     tbl = compose(set.index(set),set.key(set))
     type = ident(type,'+v') '+k'
     type = ident(type,'-v') '-k'
-    tmp.table = setl4.table.sorter(tbl,type,n)
-
-sorter.value.next
+    value.table = setl4.table.sorter(tbl,index.table,type,n)
+    i = 0
 
 *   The table is in proper order, so replace values with the keys
 *   associated with that value.
 
+sorter.value.next
     
-sorter.null
+    le(i = i + 1,n)                                 :f(sorter.finis)
+    tbl[i] = value.table[ara[i,1]]                  :(sorter.value.next)
+    
+sorter.finis
 
-*   Here to sort on the order in which entries were created.
-
-*   show(set.index(set),'sorter index')
-    tbl = setl4.table.sorter(set.index(set),n)      :(sorter.done)
-
-sorter.done
-
-   set.index(set) = tbl                            
-                                                    :(return)
+   set.index(set) = tbl                             :(return)
 
 sorter.end
 
@@ -1852,9 +1832,8 @@ show.map
     show = 'map{'
     setl4.save(v)
     within = 1
-    sorter(v,differ(type) type, '+k')
-    out('Show.map loop dt v',datatype(v))
-    out('Show.map kind ',set.kind(v))
+*SORTER*
+*   sorter(v,differ(type) type, '+k')
     loop(v)
 
 show.map.next
@@ -1891,7 +1870,8 @@ show.seq
     show = 'seq{'
     setl4.save(v)
     within = 1
-    sorter(v,differ(type) type, '+k')
+*SORTER*
+*   sorter(v,differ(type) type, '+k')
     loop(v)
 
 show.seq.next
@@ -1915,7 +1895,8 @@ show.set
 
     show = 'set{'
     within = 1
-    sorter(v,differ(type) type, '+k')
+*SORTER*
+*   sorter(v,differ(type) type, '+k')
     setl4.save(v)
     loop(v)
 
@@ -1943,6 +1924,7 @@ show.string
 
 show.table
 
+    within = 1
     show = 'table ['
     ara = convert(v,'array')                        :f(show.table.error)
     i = 0
@@ -1962,6 +1944,7 @@ show.table.next
 
 show.table.done
 
+    within = 
     show = show ' ]'                                :(show.done)
  
 show.string.quote
@@ -2227,9 +2210,14 @@ setl4.show.set
                                         out('{')
                                         out('  kind',     show.q(set.kind(set)))
     ne(set.size(set))                   out('  size',     set.size(set))
-    differ(set.index(set))              out('  has index table')
-    differ(iter)                        out('  has iterator')
-    differ(set.key(set))                out('  has key table')
+
+    differ(set.index(set)) differ(set.key(set))
+.                                       out('  has index and key tables')
+
+*   differ(set.index(set))              out('  has index table')
+*   differ(set.key(set))                out('  has key table')
+
+*   differ(iter)                        out('  has iterator')
     differ(set.this(set))               out('  this',     set.this(set))
     differ(iter) ne(iter.start(iter))   out('  start',    iter.start(iter))
     differ(iter) ne(iter.finis(iter))   out('  finis',    iter.finis(iter))
@@ -2299,7 +2287,7 @@ setl4.string.sorter.next
 
 setl4.string.sorter.end
 
-    define('setl4.table.sorter(set,type)i,key,sort,index,index.table,n,sorted.table,tmp.table') :(setl4.table.sorter.end)
+    define('setl4.table.sorter(set,index.table,type,n)i,key,sort,index,sorted.table,tmp.table') :(setl4.table.sorter.end)
 
 *   _Setl4.table.sorter_ returns an index table derived from the
 *   index table of _set_ that reflects the ordering given by _type_.
@@ -2307,41 +2295,64 @@ setl4.string.sorter.end
 setl4.table.sorter
 
     ident(datatype(set),'table')                    :s(setl4.table.sorter.table)
-    n = set.size(set)
-    out('ENTER SORTER setl4.table.sorter type',type)
-    out('ENTER SORTER setl4.table.sorter n',n)
     le(n,1)                                         :s(return)
-
-*   Get the current index table.
 
     index.table = set.index(set)
 
-    type = substr(type,1,1)
-    ara = ident(type,'+i')    sort(index.table,1)
-    ara = ident(type,'-i')    rsort(index.table,1)
-    ara = ident(type,'+k')    sort(index.table,2)
-    ara = ident(type,'-k')    rsort(index.table,2)
+    ara = ident(type,'+i')    sort(index.table,1)   :s(setl4.table.sorter.set.sorted)
+    ara = ident(type,'-i')    rsort(index.table,1)  :s(setl4.table.sorter.set.sorted)
+    ara = ident(type,'+k')    sort(index.table,2)   :s(setl4.table.sorter.set.sorted)
+    ara = ident(type,'-k')    rsort(index.table,2)  :s(setl4.table.sorter.set.sorted)
+
+    error('setl4.table.sorter unsupported key type: ' type)
+
+setl4.table.sorter.set.sorted
+
+    differ(datatype(ara),'array') 
+.               error('setl4.table.sorter sort result not array:' datatype(ara))
 
     sorted.table = table(n)
     index = 0
 
-setl4.table.sorter.index.build
+setl4.table.sorter.set.next
 
-    le(index = index + 1,n)                         :f(setl4.table.sorter.finis)
+    le(i = i + 1,n)                                 :f(setl4.table.sorter.finis)
     index = ara[i,1]
-    sorted.table[index] = index.table[index]        :(setl4.table.sorter.next)
+    sorted.table[index] = index.table[i]            
+*   out('setl4.table.sorter.set i',i)
+*   out('setl4.table.sorter.set index',index)
+*   out('setl4.table.sorter.set index.table[i]',index.table[i])
+*   out('setl4.table.sorter.set sorted.table[index]',sorted.table[index])
+                                                    :(setl4.table.sorter.set.next)
 
+setl4.table.sorter.table
+
+    ara = ident(type,'+k')    sort(set,2)           :s(setl4.table.sorter.sorted)
+    ara = ident(type,'-k')    rsort(set,2)          :s(setl4.table.sorter.sorted)
+    error('setl4.table.sorter unexpected type :' type)
+
+setl4.table.sorter.sorted
+
+    sorted.table = table(n)
+    index = 0
+
+setl4.table.sorter.table.next
+
+    le(i = i + 1,n)                                 :f(setl4.table.sorter.finis)
+    index = ara[i,1]                                :f(setl4.table.sorter.error)
+*   out('setl4.table.sorter.table i',i)
+*   out('setl4.table.sorter.table index',index)
+*   out('setl4.table.sorter.table index.table[index]',index.table[index])
+*   out('setl4.table.sorter.table sorted.table[index]',sorted.table[index])
+    sorted.table[index] = index.table[index]
+                                                    :(setl4.table.sorter.table.next)
 setl4.table.sorter.error
 
-    error('error in setl4.table.sorter converting table to array')
-
+    error('setl4.table.sorter error, array out of bounds reference.')
 
 setl4.table.sorter.finis
 
-    set.index(set) = sorted.table
-
-setl4.table.sorter.table
-    error('setl4.sorter.table not implemented')
+    setl4.table.sorter = sorted.table               :(return)
 
 setl4.table.sorter.end
 
