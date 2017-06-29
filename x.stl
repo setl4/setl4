@@ -4,34 +4,13 @@
 
 -include "setl4.stl"
 
-    out("new('map one:1 two:2 hundred:3 ten:10 million:1000000 eight:8')")
-    m = new('map one:1 two:2 hundred:3 ten:10 million:1000000 eight:8')
+    out("new('map one:1 two:2 hundred:100 ten:10 million:1000000 eight:8')")
+    m = new('map one:1 two:2 hundred:100 ten:10 million:1000000 eight:8')
+
     out('test map')
+
+    out('no')
     show(m,'no')
-    out()
-    out()
-
-    out('+k')
-    show(m,'+k')
-    out()
-    out()
-    out()
-
-    out('-k')
-    show(m,'-k')
-    out()
-    out()
-    out()
-
-    out('-v')
-    show(m,'+v')
-    out()
-    out()
-    out()
-
-    out('_v')
-    show(m,'-v')
-    out()
     out()
     out()
 
@@ -39,11 +18,31 @@
     show(m,'+i')
     out()
     out()
-    out()
 
     out('-i')
     show(m,'-i')
+    out()
+    out()
 
+    out('+k')
+    show(m,'+k')
+    out()
+    out()
+
+    out('-k')
+    show(m,'-k')
+    out()
+    out()
+
+    out('-v')
+    show(m,'+v')
+    out()
+    out()
+
+    out('_v')
+    show(m,'-v')
+    out()
+    out()
 end
 
 

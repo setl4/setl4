@@ -2132,6 +2132,7 @@ remove.end
 show
 
     type = ident(type) '+k'
+*   out('enter show type',type)
 
     ident(v)                                        :s(return)
     ident(datatype(set),'line')                     :s(show.line)
@@ -2163,11 +2164,11 @@ show.array.1
 
 show.array.2
     first = ara[add1(.i),1]                         :f(show.array.done)
-    out(lpad(i,3) tab show(first) tab show(ara[i,2])) :(show.array.2)
+    out(lpad(i,3) tab show(first,type) tab show(ara[i,2],type)) :(show.array.2)
 
 show.entry
 
-    show = show ' ' show(key(v),,within)  ':' show(value(v),,within) :(show.done)
+    show = show ' ' show(key(v),type,within)  ':' show(value(v,type),type,within) :(show.done)
 
 show.int
 
@@ -2179,7 +2180,7 @@ show.int
 show.int.next
 
     elem = next(v)                                  :f(show.int.done)
-    show = show ' ' show(elem,,within)
+    show = show ' ' show(elem,type,within)
     lt(size(show),80)                               :s(show.int.next)
     out(show)
     show =                                          :(show.int.next)
@@ -2197,7 +2198,7 @@ show.iter
 show.iter.next
 
     elem = next(v)                                  :f(show.iter.done)
-    show = show ' ' show(elem,,within)
+    show = show ' ' show(elem,type,within)
     lt(size(show),80)                               :s(show.iter.next)
     out(show)
     show =                                          :(show.iter.next)
@@ -2235,8 +2236,8 @@ show.map.next
     show = ident(datatype(value(entry),'token'))
 .               show  show.token(v,,within)         :s(show.map.check)
 
-*   show = show ' ' show(entry,,within) ' '
-    show = show show(entry,,within) 
+*   show = show ' ' show(entry,type,within) ' '
+    show = show show(entry,type,within) 
 
 show.map.check
 
@@ -2252,7 +2253,7 @@ show.map.done
 
 show.pair
 
-    show = show ' ' show(first(v),,within)  ':' show(second(v,,within)) ' ' :(show.done)
+    show = show ' ' show(first(v),type,within)  ':' show(second(v,type,within)) ' ' :(show.done)
 
 show.seq
 
@@ -2265,7 +2266,7 @@ show.seq
 show.seq.next
 
     entry = next(v)                                :f(show.seq.done)
-    show = show ' ' show(entry,,within) 
+    show = show ' ' show(entry,type,within) 
 
 show.seq.check
 
@@ -2290,7 +2291,7 @@ show.set
 show.set.next
 
     elem = next(v)                                :f(show.set.done)
-    show = show ' ' show(elem,,within)
+    show = show ' ' show(elem,type,within)
     lt(size(show),80)                             :s(show.set.next)
     out(show)
     show =                                        :(show.set.next)
@@ -2324,7 +2325,7 @@ show.table.error
 show.table.next
 
     le(i = i + 1,n)                                 :f(show.table.done)
-    show = show ' ' show(ara[i,1],,within) ':' show(ara[i,2],,within)    
+    show = show ' ' show(ara[i,1],type,within) ':' show(ara[i,2],type,within)    
     lt(size(show),80)                              :s(show.table.next)
     out(show)
     show =                                          :(show.table.next)
@@ -2456,9 +2457,11 @@ slice.end
 
 sorter
 
+    ident(type) error('sorter null type.')
     ident(type,'no')                                        :s(return)
 
     out('enter sorter type',type)
+
 *   Use _setl4.string.sorter_ if input is a string.
 
     sorter = ident(datatype(set),'string') setl4.string.sorter(set) :s(return)
@@ -2474,12 +2477,10 @@ sorter
 *   thought through.
 
     type = get(setl4.sorter.types,type) 
+
+    differ(datatype(set),'set') error('sorter - unsupported input type ' datatype(set) )
     ident(datatype(set),'set') ident(set.kind(set),'int')   :s(return)
     ident(datatype(set),'set') ident(set.kind(set),'iter')  :s(return)
-    ident(datatype(set),'set')                              :s(sorter.set)
-    error('sorter - unsupported input type ' datatype(set) )
-    
-sorter.set
 
 *   Nothing to do if set is empty or only has one element.
 
@@ -2490,6 +2491,7 @@ sorter.set
     ident(type,'+v')                                :s(sorter.value)
     ident(type,'-v')                                :s(sorter.value)
 
+*   out('sorter sorting index table.')
 *   Here to sort index table.
 
     tbl = setl4.set.sorter(set,type)            
@@ -2499,9 +2501,12 @@ sorter.set
 
 sorter.index.next
 
+    error('why did we reach here')
     le(i = i + 1,n)                                 :f(sorter.finis)
-*   out('sorter.index.next',i)
-    tbl[i] = index.table[ara[i,1]]                  :(sorter.index.next)
+    out('SORTEr.index.next i',i)
+    out('sorter.index.next ara[i,1]',ara[i,1])
+    out('sorter.index.next index.table(ara[i,1])',ara[i,1])
+    tbl[i] = set.index(set)[ara[i,1]]               :(sorter.index.next)
     
 sorter.value
 
@@ -2509,9 +2514,12 @@ sorter.value
 *   the values associated with their keys, and sort that.
 
     tbl = compose(set.index(set),set.key(set))
+    out('showing composed table')
+    show(tbl)
     type = ident(type,'+v') '+k'
     type = ident(type,'-v') '-k'
     value.table = setl4.table.sorter(set,type,tbl)
+    show(value.table)
     i = 0
 
 *   The table is in proper order, so replace values with the keys
@@ -2524,11 +2532,7 @@ sorter.value.next
     
 sorter.finis
 
-*   out('sorter.finis')
-*   show(tbl)
     set.index(set) = tbl                             
-*   show(set)
-*   out('exit sorter')
                                                     :(return)
 
 sorter.end
@@ -3025,6 +3029,7 @@ setl4.set.sorter.set.next
 *   out('setl4.set.sorter.set index',index)
 *   out('setl4.set.sorter.set index.table[index]',set.index(set)[index])
 *   out('setl4.set.sorter.set setl4.set.sorter[i]',setl4.set.sorter[i])
+*   out()
     setl4.set.sorter[i] = set.index(set)[index]            
                                                     :(setl4.set.sorter.set.next)
 
