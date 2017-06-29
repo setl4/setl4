@@ -877,7 +877,7 @@ checkout.finis
 
 checkout.end
 
-    define('compare(a,b)')                                          :(compare.end)
+    define('compare(a,b)')                          :(compare.end)
 
 *   _Compare_ compares two integers or strings, returning -1 if the _a_ is
 *   less than _b_ , 0 if both have the seq.eq value, and +1 if the _a_ is greater than _b_.
@@ -892,9 +892,9 @@ compare
 
 *   Here to numerically compare integers.
 
-    compare = lt(a,b) -1                                            :s(return)
-    compare = eq(a,b) 0                                             :s(return)
-    compare = 1                                                     :(return)
+    compare = lt(a,b) -1                            :s(return)
+    compare = eq(a,b) 0                             :s(return)
+    compare = 1                                     :(return)
 
 compare.strings
 
@@ -903,13 +903,17 @@ compare.strings
     compare = leq(a,b) 0
     compare = lgt(a,b) 1
 *   out('compare ' show(a) ' ' show(b) ' ' compare)
-                                                                :(return)
+                                                    :(return)
 
 compare.end
 
-    define('compose(a,b)ara,i,key,value')               :(compose.end)
+    define('compose(a,b)ara,entry,i')               :(compose.end)
 
 *   _Compose_ returns the composition of two maps or tables.
+*   Given maps _a_ and _b_ such that _range(a)_ is a subset of _domain(b)_,
+*   then the composition _c_ of _a_ and _b_ is defined as follows:
+*   Let A be a member of the domain of _a_. Let B be the value of _a[A]_.
+*   Then _c[A]_ is defined as _b[B]_.
 
 compose
 
@@ -917,26 +921,19 @@ compose
 
 *   Here to compose two maps.
 
-    out('compose dt a',datatype(a))
     n = set.size(a)
     compose = eq(n) new('map')                      :s(return)
     compose = new('map #' n)
     set.size(compose) = n
+    loop(a)
 
 compose.map.next
 
-*   le(i = i + 1,set.size(a))                       :f(return)
-    le(i = i + 1,set.size(a))                       :f(compose.done)
-    key = set.index(compose)[i] = set.index(a)[i]
-    value = set.key(b)[set.key(a)[key]]
-    set.key(compose)[key] = value                   :(compose.map.next)
+    entry  = next(a)                                :f(return)
+    put(compose,key,get(b,value(entry)))            :(compose.map.next)
 
 compose.table
 
-    out('composing first')
-    show(a)
-    out('composing second')
-    show(b)
     ara = convert(a,'array')                        :f(show.table.error)
     prototype(ara) break(',') . n
     compose = table(n)
@@ -947,8 +944,6 @@ compose.table.next
     le(i = i + 1,n)                                 :f(return)
     compose[i] = b[a[i]]                            :(compose.table.next)
 
-compose.done
- :(return)
 compose.end
 
     define('datename()s')                           :(datename.end)
@@ -970,7 +965,7 @@ datename.end
 defined
     key = integer(key) +key
     defined = set.key(map)[key]                     
-    differ(defined)                                  :s(return)f(freturn)
+    differ(defined)                                 :s(return)f(freturn)
 
 defined.end
 
@@ -2467,16 +2462,12 @@ sorter
     ident(type) error('sorter null type.')
     ident(type,'no')                                        :s(return)
 
-    out('enter sorter type',type)
-
 *   Use _setl4.string.sorter_ if input is a string.
 
     sorter = ident(datatype(set),'string') setl4.string.sorter(set) :s(return)
 
     n = set.size(set)
     index.table = set.index(set)
-*   out('sorter index table')
-*   show(index.table)
 
 *   Here to detect cases for which sort has no meaning, in which case
 *   return immediately. This includes the case 'int' which, though possible
@@ -2498,9 +2489,6 @@ sorter
     ident(type,'+v')                                :s(sorter.value)
     ident(type,'-v')                                :s(sorter.value)
 
-*   out('sorter sorting index table.')
-*   Here to sort index table.
-
     tbl = setl4.set.sorter(set,type)            
     differ(datatype(tbl),'table') error('sorter result not table')
                                                     :(sorter.finis)
@@ -2510,9 +2498,6 @@ sorter.index.next
 
     error('why did we reach here')
     le(i = i + 1,n)                                 :f(sorter.finis)
-    out('SORTEr.index.next i',i)
-    out('sorter.index.next ara[i,1]',ara[i,1])
-    out('sorter.index.next index.table(ara[i,1])',ara[i,1])
     tbl[i] = set.index(set)[ara[i,1]]               :(sorter.index.next)
     
 sorter.value
@@ -2521,13 +2506,9 @@ sorter.value
 *   the values associated with their keys, and sort that.
 
     tbl = compose(set.index(set),set.key(set))
-    out('showing composed table')
-    show(tbl)
     type = ident(type,'+v') '+k'
     type = ident(type,'-v') '-k'
     value.table = setl4.table.sorter(set,type,tbl)
-    show(value.table)
-    out('shown value table')
     i = 0
 
 *   The table is in proper order, so replace values with the keys
@@ -2536,12 +2517,11 @@ sorter.value
 sorter.value.next
     
     le(i = i + 1,n)                                 :f(sorter.finis)
-    tbl[i] = value.table[ara[i,1]]                  :(sorter.value.next)
+    tbl[i] = value.table[i]                         :(sorter.value.next)
     
 sorter.finis
 
-    set.index(set) = tbl                             
-                                                    :(return)
+    set.index(set) = tbl                            :(return)
 
 sorter.end
 
@@ -3012,7 +2992,6 @@ setl4.save.end
 setl4.set.sorter
 
     le(set.size(set),1)                                         :s(return)
-*   out('setl4.set.sorter index.table')
     ara = ident(type,'+i')    sort( set.index(set), 1)  :s(setl4.set.sorter.1)
     ara = ident(type,'-i')    rsort(set.index(set), 1)  :s(setl4.set.sorter.1)
     ara = ident(type,'+k')    sort( set.index(set), 2)  :s(setl4.set.sorter.1)
@@ -3032,12 +3011,6 @@ setl4.set.sorter.set.next
 
     le(i = i + 1,n)                                 :f(return)
     index = ara[i,1]
-    out('setl4.set.sorter.set i',i)
-    out('setl4.set.sorter.set ara[i,1]',ara[i,1])
-    out('setl4.set.sorter.set index',index)
-    out('setl4.set.sorter.set index.table[index]',set.index(set)[index])
-    out('setl4.set.sorter.set setl4.set.sorter[i]',setl4.set.sorter[i])
-    out()
     setl4.set.sorter[i] = set.index(set)[index]            
                                                     :(setl4.set.sorter.set.next)
 
@@ -3150,7 +3123,7 @@ setl4.string.sorter.end
 
 setl4.table.sorter
 
-    le(set.size(set),1)                                         :s(return)
+    le(set.size(set),1)                             :s(return)
 
     ara = ident(type,'+i')    sort(tbl,1)           :s(setl4.table.sorter.1)
     ara = ident(type,'-i')    rsort(tbl,1)          :s(setl4.table.sorter.1)
@@ -3165,13 +3138,8 @@ setl4.table.sorter.1
 
 setl4.table.sorter.table.next
 
-    le(i = i + 1,set.size(set))                                 :f(return)
-    index = ara[i,1]                                            :f(setl4.table.sorter.error)
-*   out('setl4.table.sorter.table i',i)
-*   out('setl4.table.sorter.table ara[i,1]',ara[i,1])
-*   out('setl4.table.sorter.table index',index)
-*   out('setl4.table.sorter.table index.table[index]',index.table[index])
-*   out('setl4.table.sorter.table setl4.table.sorter[i]',setl4.table.sorter[i])
+    le(i = i + 1,set.size(set))                     :f(return)
+    index = ara[i,1]                                :f(setl4.table.sorter.error)
     setl4.table.sorter[i] = index.table[index]
                                                     :(setl4.table.sorter.table.next)
 setl4.table.sorter.error

@@ -1,0 +1,137 @@
+Test set
+
+set{ 5 10 15 20 25 30 }
+
+set{ 5 10 15 20 25 30 }
+
+test set equality - expect success
+eval equal(set,setu) success
+
+
+test membership- expect success/failure
+
+eval member(set,5) success
+eval member(set,6) failure
+
+Test exists/forall with element in set - expect success/failure
+
+eval exists(set,'eq(this,10)') success
+eval forall(set,'eq(this,10)') failure
+
+Test exists/forall with element not in set - expect failure/failure
+
+eval exists(set,'eq(this,40)') failure
+eval forall(set,'eq(this,40)') failure
+
+Test exists/forall with element not in set - expect failure/success
+
+eval exists(set,'eq(this,6)') failure
+eval forall(set,'ne(this,6)') success
+
+
+Test iter
+
+map{ }
+{iterator} 
+
+expect success
+eval eq(set.size(iter),5) failure
+
+map{ }
+expect success
+eval member(iter,5) failure
+
+expect failure
+eval member(iter,6) failure
+
+map{ }
+{iterator} 
+
+
+Test Map
+map{ 'forty':40 'hundred':100 'one':1 'ten':10 'thousand':1000 'two':2 }
+
+Test map get - expect success/failure
+
+eval eq(get(map,'one'),1) success
+eval eq(get(map,'one'),6) failure
+
+
+Test exists/forall with element in map- expect success/failure
+
+eval exists(map,'eq(value(this),2)') success
+eval forall(map,'eq(value(this),2)') failure
+
+
+Test exists/forall with element not in - expect failure/failure
+
+eval exists(map,'eq(value(this),500)') failure
+eval forall(map,'eq(value(this),500)') failure
+
+
+Test visit()
+
+visit set
+5
+10
+15
+20
+25
+30
+eval visit(set,'show(this)') success
+
+visit map
+'one'
+1
+ 'one':1
+'two'
+2
+ 'two':2
+'ten'
+10
+ 'ten':10
+'forty'
+40
+ 'forty':40
+'hundred'
+100
+ 'hundred':100
+'thousand'
+1000
+ 'thousand':1000
+eval visit(map,'show(this)') success
+
+visit iter
+eval visit(iter,'show(this)') success
+
+
+new('map one:1 two:2 hundred:100 ten:10 million:1000000 eight:8')
+test map
+no
+map{ 'one':1 'two':2 'hundred':100 'ten':10 'million':1000000 'eight':8 }
+
+
++i
+map{ 'one':1 'two':2 'hundred':100 'ten':10 'million':1000000 'eight':8 }
+
+
+-i
+map{ 'eight':8 'million':1000000 'ten':10 'hundred':100 'two':2 'one':1 }
+
+
++k
+map{ 'eight':8 'hundred':100 'million':1000000 'one':1 'ten':10 'two':2 }
+
+
+-k
+map{ 'two':2 'ten':10 'one':1 'million':1000000 'hundred':100 'eight':8 }
+
+
++v
+map{ 'one':1 'two':2 'eight':8 'ten':10 'hundred':100 'million':1000000 }
+
+
+-v
+map{ 'million':1000000 'hundred':100 'ten':10 'eight':8 'two':2 'one':1 }
+
+Here endeth the test.
