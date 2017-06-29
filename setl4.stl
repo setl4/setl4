@@ -2,63 +2,64 @@
 *   Licensed under the MIT license.
 
 *   TODO
-*       Find out why sanity test is not listing set members in sorted order.
 *       extend loop(set) to loop(set,name) to allow user to provide alternative to 'this'.
 
-*## SETL4 is an implementation of SETL written in SPITBOL.
+*# SETL4 - An Implementation of SETL Written in SPITBOL
 
 
 *## What is SPITBOL?
 
-*   SNOBOL is a general programming language with special emphasis on processing 
-*   strings and text that was  developed at Bell Labs in the 1960's by a team 
-*   led by Ralph Griswold. The final version was called SNOBOL4.
+*   SNOBOL is a general purpose programming language with special emphasis
+*   on processing strings and text that was developed at Bell Labs in the
+*   1960's by a team led by Ralph Griswold. The final version was called SNOBOL4.
 
 *   Macro SPITBOL, or SPITBOL, is a very efficient implementation of SNOBOL4.
 *   Created by Robert B. K. Dewar and Ken Belcher in 1969, SPITBOL/360 
-*   was written in IBM/360 assembly language, in what Dewar called
-*   "aggressive assembly."
+*   was written in IBM/360 assembly language, in a style Dewar termed
+*   "aggressive assembly." That is, using every trick in the book to write
+*   the fastest, most compact, code possible.
 *
 *   For example, SNOBOL4 requires maintaining a count of the number of 
 *   statements executed and the ability to stop execution when a specified 
 *   number of statements have been executed.  SPITBOL/360 does this by
 *   computing an unnormalized floating point constant such that successive 
-*   increments result in floating point overflow when the limit is reached.
+*   increments of it result in floating point overflow when the limit is reached.
 
 *   Dewar and Belcher also wrote Realia COBOL, a COBOL compiler for Intel/x86 
-*   written in COBOL. It produced very efficient code, better
-*   code than, for example, that produced by IBM's product COBOL compiler.
+*   written in COBOL. It produced very efficient code, better code than,
+*   for example, that produced by IBM's product COBOL compiler.
 
-*   Dewar ported SPITBOL/360 to several machines. Dewar joined the CIMS faculty
-*   as a Professor in the early 1970's. In 1973, while working
-*   with Anthony P. "Tony" McCann of Leeds University, he developed
-*   Minimal, a portable assembly language. Dewar and McCann then rewrote
-*   SPITBOL in Minimal, producing Macro SPITBOL, or SPITBOL. 
-*   The implementation has proved very stable, with few changes in
-*   several decades.
+*   Dewar ported SPITBOL/360 to several machines. Dewar joined the faculty
+*   of the Courant Institute of Mathematical Sciences (CIMS) of New York
+*   University (NYU) as a Professor in the early 1970's. In 1973,
+*   while working with Anthony P. "Tony" McCann of Leeds University,
+*   Dewar created Minimal, a portable assembly language. Dewar and
+*   McCann then rewrote SPITBOL in Minimal, resulting in Macro SPITBOL,
+*   or SPITBOL. The implementation has proved very stable, with only
+*   minor changes in the last several decades.
 
 *   Macro SPITBOL is remarkably small. The code consists of about 28,000
 *   lines: 2000 lines of comments defining Minimal, 5000 lines of constant/data 
-*   declarations, and 21,000 lines of code.  Every line has a comment.
-*   The executable for x86 Linux is 144 kilobytes.
+*   declarations, and 21,000 lines of code.  Every line of code has a comment.
+*   The executable for x86 Linux is less than 150 kilobytes.
 
 *   SPITBOL was implemented for many machines and operating systems by
 *   a small team that included Steve Duff, Mark Emmer, Bob Goldberg, and Dave Shields:
 *   ICL 1900, Univac, CDC 6600, IBM PC, Apple Macintosh, SUN Solaris Sparc, 
 *   Microsoft (DOS/NT/Windows), Intel x86_64 (Unix/Linux), and x86_64 Apple iOS.  
 *   Special credit is due Mark Emmer, who led the project from the mid 1980's
-*   to 2009. Dave Shieldsl has maintained SPITBOL since then.
+*   to 2009. Dave Shields has maintained SPITBOL since then.
 
 *   SETL4 requires a modified version of standard SPITBOL called BOL4.
 *   BOL4 differs from standard SPITBOL as follows:
 *
-*-  There is no automatic case folding. In standard SPITBOL the names 'x' and 'X' are the same.
-*   In BOL4 they are different.
+*-  There is no automatic case folding. In standard SPITBOL the names 'x' and 'X' are the same;
+*   they are different in BOL4.
 *-  The default case is lower case.
 *-  The function _set()_ has been renamed to _zet_, so that _set_ can be used as an identifier.
 *-  The default value of _&anchor_ is 1. The default value of _&trim_ is 1.
 
-*   The file `bin/setl4' is the executable for _bol4_.
+*   The file `bin/setl4' provided as part of the distribution is the executable for _bol4_.
 
 *## What is SETL?
 
@@ -83,14 +84,15 @@
 *   leave from IBM, and the third by Robert B. K. Dewar and Art Grand in LITTLE,
 *   a low-level implementation language developed at CIMS.
 
-*   SETL4 is the fourth implementation of SETL produced by a member 
-*   (Dave Shields) of the NYU SETL project, hence the name SETL4.
+*   SETL4 is the fourth implementation of SETL produced during the course of
+*   the SETL Project.  Dave Shields wrote the first implementation. This was
+*   followed by two more implementations. This is the fourth implementation
+*   written by a member of the SETL project,  hence the name SETL4.
 
 
 *## Brief Introduction to SETL4
 
-*   SETL4 extends SPITBOL by adding the datatype _set_ to represent
-*   finite sets. 
+*   SETL4 extends SPITBOL by adding the datatype _set_ to represent finite sets. 
 
 *   A set is a collection of distinct elements: for example,  _{a,b,c}_ is a set,
 *   as is _{a,b,c,a}_; however, _{a,b,c,a}_ has only three elements, and is 
@@ -100,7 +102,7 @@
 
 *           !exists(|'int 2 P' @ 'multiple(P,this)')
 
-*   where _multiple(a,b) is true if and only if _a_ is a multiple of _b_.
+*   where _multiple(a,b)_ is true if and only if _a_ is a multiple of _b_.
 
 *## Sets in SETL4
 
@@ -163,8 +165,7 @@
 
 *   where
 
-*- _set.index_         SPITBOL table used to map the integer
-*id assigned each element to the value of the element.
+*- _set.index_         SPITBOL table used to map the integer id assigned each element to the value of the element.
 *It is needed to support iteration.
 
 *- _set.iter_ iterator for controlling iteration over the set.
@@ -448,29 +449,46 @@
 *   '&'     a & b   And             True if and only if both _a_ and _b_ are true
 *   '^'     a ^ b   Or              True if and only if _a_ or _b_ is true
 
+*## Sample data
+
+*   Programs need data. Since SPITBOL is designed to analyze and manipulate text, SETL4 provides
+*   a library consisting of several works chosen from the world's greatest literature, including
+*   the works of William Shakespeare, a dictionary, and the text of the King James version
+*   of the Bible. Except for the dictionary, all texts were obtained using Project Gutenberg.
+
+*   As an extension of SPITBOL, SETL4 brings the raw power and speed of SPITBOL to the task
+*   of working with text. Additional functions are provided, including a lexical scanner, or
+*   tokenizer, to assist in performing deep, detailed analysis of textual structure.
+
+*   Several of these functions have as their purpose the translation of text into sets, maps,
+*   and sequences. For example, the tokenizer returns a sequence consisting of the tokens
+*   in a line of text.
+
 *## SETL4 Functions
+
+*   SETL4 provides the following functions:
 *
 *-  add(set,elem)               Adds element to set.
-*-  and(a,b)                    And: test if both operands are true.
-*   append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then _w_
+*-  and(a,b)                    Tests if both operands are true.
+*-  append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then _w_
 *-  arbitrary(n)                Returns arbitary (randomly chosen) integer in 1 .. _n_.
 *-  arbitrary(set)              Returns arbitary (randomly chosen) element of _set_.
 *-  ascii(line)                 Returns the text of line with every ascii character identified
 *-  assert(expr)                Tests that _expr_ is true, ends execution otherwise.
 *-  assert.type(obj,type)       Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise.
 *-  begins(str,sub)             Tests if string _key_ begins with string _sub_.
-*-  checkout(filename)          Returns ('checks out') set or map defined by a file in the libary
+*-  checkout(filename)          Returns ('checks out') set or map defined by a text file from the libary
 *-  compare(a,b)                Compares two integers or strings, returning -1 (less), 0 (equal), or +1 (greater).
 *-  compose(a,b)                Returns composition of two maps or tables.
-*   datename(date)              Returns string based on current time suitable for use as filename
+*-  datename(date)              Returns string based on current time suitable for use as filename.
 *-  defined(map,key)            Tests if a map is defined for a specified key.
 *-  difference(a,b)             Returns set of members of set _a_ not in the set _b_.
-*-  digits()                    Returns list of digits: '0 1 2 .. 9'
+*-  digits()                    Returns list of digits: '0 1 2 .. 9'.
 *-  domain(map)                 Returns set of elements in the domain of a map.
 *-  equal(a,b)                  Tests if two SETL4 objects are equal.
-*   even(n)                     Tests if _n_ is even
+*-  even(n)                     Tests if _n_ is even.
 *-  exists(set,expr)            Tests if an expression is true for at least one element in a set.
-*-  factorial(n)                Returns n!  = n * (n -1) * ... * 1
+*-  factorial(n)                Returns n!  = n * (n -1) * ... * 1.
 *-  from(set,elem)              Returns set consisting of the members of a set except a specified member.
 *-  get(map,key)                Gets the value of map _map_ for _key_ for a map.
 *-  get(set,i)                  Gets the i-th element in a set, or fails if no such element.
@@ -481,56 +499,55 @@
 *-  intersection(a,b)           Returns set of elements common to two sets.
 *-  is.integer(n)               Tests if _n_ is integer or string representing integer, returing its value if so, or else failing.
 *-  is.string(s)                Tests if _s_ is a string, returning its value if so, or else failing.
-*-  letters()                   Returns list of letters : 'a b c ... z A B ... Z''
 *-  join(a,b)                   Joins two strings into a single string by concatenating them.
 *-  less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
 *-  loop(set)                   Set up iteration over _set_ using _next_.
-*-  lower.case(s)               Returns _s_ with upper case letters replaced by lower case equivalent
-*-  multiple(n,m)               Tests if _n_ is a multiple of _m_
-*-  odd(n)                      Tests if _n_ is odd
-*-  out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null
-*-  prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_
-*-  member(elem,set)            Tests if _elem_ is a member of _set_
-*-  new(str)                    Returns a new set specified by _str_
+*-  tolower(s)                  Returns _s_ with upper case letters replaced by lower case equivalent.
+*-  multiple(n,m)               Tests if _n_ is a multiple of _m_.
+*-  odd(n)                      Tests if _n_ is odd.
+*-  out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null.
+*-  prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_.
+*-  member(elem,set)            Tests if _elem_ is a member of _set_.
+*-  new(str)                    Returns a new set specified by _str_.
 *-  next(set)                   Returns next element in iteration defined by prevous _loop_, fails if no more elements.
 *-  not(expr)                   Tests if operand is false.
 *-  number(s)                   Returns integer defined by _s_.
 *-  or(a,b)                     Tests if either operand is true.
-*-  push(stack,value)           Push value onto a stack
-*-  pop(stack)                  Pop the top of a stack and return its value
-*   prime(n)                    Tests if _n_ is prime
-*   primes(n)                   Returns set of primes less than _n_
+*-  push(stack,value)           Push value onto a stack.
+*-  pop(stack)                  Pop the top of a stack and return its value.
+*-  prime(n)                    Tests if _n_ is prime.
+*-  primes(n)                   Returns set of primes less than _n_.
 *-  put(map,key,val)            Defines the value of a map key.
-*   quicksort(seq)              Use Hoare's quicksort algorithm to sort a sequence
-*-  random(n)                   Returns random integer if _n_ is integer, elsel random element of set or map
-*-  random.seed()               Sets random number seed to initialize _random_
-*-  range(map)                  Returns set of elements in the range of a map
-*   reader(filename,expr)       Returns sequence of lines in file _filename_, using _expr_ (if given)
-*   reader(str,delim)           Like _reader(filename..)_ but reads lines from a string with lines
-*-  remove(set,elem)            Removes arbitary element from set, or most recent entry from map
+*-  quicksort(seq)              Use Hoare's quicksort algorithm to sort a sequence.
+*-  random(n)                   Returns random integer if _n_ is integer, elsel random element of set or map.
+*-  random.seed()               Sets random number seed to initialize _random_.
+*-  range(map)                  Returns set of elements in the range of a map.
+*-  reader(filename,expr)       Returns sequence of lines in file _filename_, using _expr_ (if given).
+*-  reader(str,delim)           Like _reader(filename..)_ but reads lines from a string with lines.
+*-  remove(set,elem)            Removes arbitary element from set, or most recent entry from map.
 *-  set.size(set)               Returns number of elements in set _set_.
-*-  show(v,within)              Shows value of _v_, with _within_ set non-zero when listing member of set
-*-  show.b(e)                   Shows value of _b_ as boolean
+*-  show(v,within)              Shows value of _v_, with _within_ set non-zero when listing membe.r of set
+*-  show.b(e)                   Shows value of _b_ as boolean.
 *-  show.lines(lines,number)    Shows a sequence of lines, with id if _number_ not null.
-*-  show.q(str)                 Shows string enclosed in appropriate quote character (" or ') .
-*   slice(str,first,last)       Same as SPITBOL _substr(str,first,last)_
-*-  sorter(set,type)            Sorts a set, map or string according to _type_
+*-  show.q(str)                 Shows string enclosed in appropriate quote character (" or ').
+*-  slice(str,first,last)       Same as SPITBOL _substr(str,first,last)_.
+*-  sorter(set,type)            Sorts a set, map or string according to _type_.
 *-  split.line(line)            Splits line of blank-separated words into sequence.
 *-  split.string(str)           Splits string into sequence of characters.
-*   square.root(n)              Returns integer square root on _n_
+*-  square.root(n)              Returns integer square root on _n_
 *-  subset(a,b)                 Tests if the set _b_  is a subset of set _a_
 *-  this(set)                   Returns current iteration value for _set_.
-*   thousands(s)                Returns _s_ with a comma every three spaces from the right
+*-  thousands(s)                Returns _s_ with a comma every three spaces from the right.
 *-  top(s)                      Returns top element of sequence viewed as stack.
 *-  traceon()                   Turns on tracing.
 *-  traceoff()                  Turns off tracing
-*   tokens(line)                Returns sequence of the tokens in _line_
-*-  true(e)                     Tests if operand is true
+*-  tokens(line)                Returns sequence of the tokens in _line_.
+*-  true(e)                     Tests if operand is true.
 *-  union(a,b)                  Returns set consisting of all the members in two sets.
-*   upper.case(s)               Returns _s_ with lower case letters replaced by upper case equivalent
-*-  visit(set,expr)             Visits each element of set _set_ and evaluates _expr_ for that element
+*-  toupper(s)                  Returns _s_ with upper case letters replaced by lower case equivalent.
+*-  visit(set,expr)             Visits each element of set _set_ and evaluates _expr_ for that element.
 *-  words(line,w)               Returns sequence of words (defined by _w_) in _line_.
-*   writer(lines)               Writes sequence _lines_ to standard output
+*-  writer(lines)               Writes sequence _lines_ to standard output.
 
 
 *   SETL4 Function Definitions
@@ -584,7 +601,7 @@ and
 
 and.end
 
-    define('append(str,w,ch)')                  :(append.end)
+    define('append(str,w,ch)')                      :(append.end)
 
 *   _Appends appends _ch_, or ' ' if _ch_ is null, to _str_ and then appends _w_.
 
@@ -775,11 +792,10 @@ begins.end
 *	_Checkout_ checks out (retrieves)  a file from the library as a sequence of lines
 *   or a set of words. _Checkout_ lists the available files if _filename_ is null.
 
-*   Dictionary has one word per line, with upper case 'S' at end denoting
+*   Dictionary has one word per line, with toupper 'S' at end denoting
 *   that both singular and plural form are words in the dictionary.
 
 *   When checking out text files, skip blank lines and lines that start with '*'.
-
 
 checkout
 
@@ -1108,7 +1124,7 @@ exists.done
 
 exists.end
 
-    define('factorial(n)')                      :(factorial.end)
+    define('factorial(n)')                          :(factorial.end) 
 
 *   _Factorial_ computes the value of the factorial function of its argument.
 
@@ -1363,6 +1379,23 @@ join.string
 
 join.end
 
+    define('less(str,sub)before,after')             :(less.end)
+
+*   _Less_ removes the first instance of each character in _sub_ from _str_,
+*   where _sub_ is a substr of _str_.
+
+less
+
+    ident(str)                                      :s(return)
+    less = str
+
+less.ch
+    sub len(1) . ch =                               :f(return)
+    less break(ch) . before  ch rem . after
+    less = before after                             :(less.ch)
+
+less.end
+
     define('loop(set)iter')                         :(loop.end)
 *   _Loop_ creates or updates the iterator of _set_ so that,
 *   on first call to _next()_,  _iter.next_  will be 
@@ -1452,6 +1485,16 @@ member.set
     differ(set.key(set)[elem])                      :s(return)f(freturn)
 
 member.end
+
+    define('multiple(n,m)')                         :(multiple.end)
+
+*   _Multiple_ Tests if _n_ is a multiple of _m_.
+
+multiple
+
+    multiple = eq(remdr(n,m))                       :s(return)f(freturn)
+
+multiple.end
 
     define('new(init)kind,i,index,iter,len,n,key,seq,val,values,words)'):(new.end)
 
@@ -1725,6 +1768,16 @@ number
 
 number.end
 
+    define('odd(n)')                                :(odd.end)
+
+*   _Odd_ tests if its argument is odd.
+
+odd
+
+    odd = ne(remdr(n,2))                        :s(return)f(freturn)
+
+odd.end
+
     define('or(a,b)')                               :(or.end)
 
 *   _Or_ tests if either operand is true, fails otherwise, only evaluating
@@ -1755,7 +1808,6 @@ out
     output = out                                    :(return)
 
 out.end
-
     define('pop(stack)')                            :(pop.end)
 
 *   _Pop_ removes (pops)  the top item from stack, or fails if the stack is empty.
@@ -1767,6 +1819,54 @@ pop
     set.size(stack) = set.size(stack) - 1           :(return)
 
 pop.end
+
+    define('prefix(str,pre)word')               :(prefix.end)
+
+*   _Prefix_ takes a list of space-separated words _str_ and prefixes each
+*   with the str _pre_.
+
+prefix
+
+    str = str ' ';* so each word followed by space
+
+prefix.1
+
+    str break(' ') . word span(' ')  =          :f(return)
+    add1(.prefixcount)
+    prefix = append(prefix, pre word,'A')       :(prefix.1)
+
+prefix.end
+
+    define('prime(n)')                          :(prime.end)
+
+*   _Prime_ tests if _n_ is a prime integer.
+
+prime
+
+    n = integer(n) +n
+    eq(n,2)                                     :s(return)
+    even(n)                                     :s(freturn)
+    exists(new('iter 3 ' square.root(n) ' 2'), 'multiple(n,this)') :s(freturn)f(return)
+
+prime.end
+
+    define('primes(n)set.this')                 :(primes.end)
+
+*   _Primes_ returns the set of primes less than _n_.
+
+primes
+
+    primes = filter(new('iter 2 ' (n - 1)),'prime(this)') :(return)
+    primes = new('seq 2')
+    iter = new('iter 2 ' (n - 1))
+    loop(set)
+
+primes.loop
+   
+    this = next(set)                           :f(return)
+    prime(this) push(primes,this)              :(primes.loop)
+
+primes.end
 
     define('push(stack,value)')                     :(push.end)
 
@@ -1808,21 +1908,34 @@ put.value
 
 put.end
 
-    define('range(map)elem)')                       :(range.end)
+    define('quicksort(seq)c,seq.eq,set.gt,seq.lt,pivot,this') :(quicksort.end)
 
-*   _Range_ returns the range of map, which is the set of the values in _map_.
+*   _Quicksort_ sorts the sequence _seq_ using Hoare's quicksort algorithm.
+*   _Seq_ must be sequence of integers or sequence of strings.
 
-range
+*   This program is for demonstrating SETL4. 
+*   Use the much more efficient _sorter_ for production use.
 
-    range = new()
-    loop(map)
+quicksort
 
-range.next
+    quicksort = le(set.size(seq),1) seq             :s(return)
+    pivot = arbitrary(seq)
+    number(pivot)                                   :f(quicksort.strings)
 
-    entry = next(map)                               :f(return)
-    add(range,value(key(entry)))                    :(range.next)
+*   Here to sort sequence of integers.
 
-range.end
+    quicksort = join( quicksort(filter(seq,  'lt(value(this),pivot)')),
+.                               filter(seq,  'eq(value(this),pivot)'),
+.                     quicksort(filter(seq,  'gt(value(this),pivot)'))) :(return)
+
+
+*   Here to sort sequence of strings.
+
+    quicksort = join( quicksort(filter(seq,  'llt(value(this),pivot)')),
+.                               filter(seq,  'leq(value(this),pivot)'),
+.                     quicksort(filter(seq,  'lgt(value(this),pivot)'))) :(return)
+
+quicksort.end
 
 	define('random(n)')				:(random.end)
 
@@ -1870,6 +1983,75 @@ random.seed.done
 	setl4.random.value = +reverse(setl4.random.value)	
 							:(return)
 random.seed.end
+
+    define('range(map)elem)')                       :(range.end)
+
+*   _Range_ returns the range of map, which is the set of the values in _map_.
+
+range
+
+    range = new()
+    loop(map)
+
+range.next
+
+    entry = next(map)                               :f(return)
+    add(range,value(key(entry)))                    :(range.next)
+
+range.end
+
+    define('reader(filename,undent)line')           :(reader.end)
+
+*   _Reader_ returns a sequence of the lines in the file specified by _filename_.
+*   Lines are read from standard input if _filename_ is null.
+*   If _undent_ is not null, leading spaces in lines are eliminated.
+
+reader
+
+    differ(filename) input(.file,setl4.config.channel.1,filename):s(reader.opened)
+    out('unable to open reader file ' filename '.') :(freturn)
+
+reader.opened
+
+    reader = new('seq')
+
+reader.next
+
+    line = (ident(filename) input, file)                :f(reader.eof)
+    ident(line)                                         :s(reader.next)
+    line '*'                                            :s(reader.next)
+    ident(undent)                                       :s(reader.add)
+    line span(' ') =
+
+reader.add
+
+    push(reader,line)                                   :(reader.next)
+
+reader.eof
+
+*   Here at end of file; close temporary file if one was needed.
+
+    differ(filename) endfile(setl4.config.channel.1)    :(return)
+
+reader.end
+
+    define('reader.str(str,delim)line')             :(reader.str.end)
+
+*   _Reader.str_ returns a sequence of the lines in _str_, where 
+*   the character _delim_ is used to indicate end of line.
+*   If _delim_ is  not given, then '/' is understood.
+
+reader.str
+
+    delim = ident(delim) '/'
+    reader.str = new('seq')
+
+reader.str.next
+
+    str break(delim) . line delim =                 :f(return)
+    push(reader.str,line)                           :(reader.str.next)
+
+reader.str.end
 
     define('remove(set,elem)i,iter,this')           :(remove.end)
 
@@ -1949,6 +2131,8 @@ remove.end
 *   _within is non-zero when called to list element of a compound object.
 
 show
+
+    type = ident(type) '+k'
 
     ident(v)                                        :s(return)
     ident(datatype(set),'line')                     :s(show.line)
@@ -2039,8 +2223,7 @@ show.map
     show = 'map{'
     setl4.save(v)
     within = 1
-*SORTER*
-*   sorter(v,differ(type) type, '+k')
+    sorter(v,type)
     loop(v)
 
 show.map.next
@@ -2077,8 +2260,7 @@ show.seq
     show = 'seq{'
     setl4.save(v)
     within = 1
-*SORTER*
-*   sorter(v,differ(type) type, '+k')
+    sorter(v,type)
     loop(v)
 
 show.seq.next
@@ -2102,8 +2284,7 @@ show.set
 
     show = 'set{'
     within = 1
-*SORTER*
-*   sorter(v,differ(type) type, '+k')
+    sorter(v,type)
     setl4.save(v)
     loop(v)
 
@@ -2235,6 +2416,17 @@ show.q.double
 
 show.q.end
 
+    define('slice(str,first,last)')                 :(slice.end)
+
+*   _Slice_ returns a slice of a string. It does the same operation as _substr),
+
+slice
+
+    slice = substr(str,first,last)                  :(return)
+
+slice.end
+
+
     define('sorter(set,type)ara,entry,i,key,index.table,map,n,seq,str,tbl,value.table,value') :(sorter.end)
 
 *   _Sorter_ sorts the index table of _set_ according to _type_ to reflect
@@ -2339,400 +2531,6 @@ sorter.finis
 
 sorter.end
 
-    define('subset(a,b)elem')                       :(subset.end)
-
-*   _Subset_ tests if its second argument is a subset of the first.
-
-subset
-
-    gt(set.size(b),set.size(a))                     :s(freturn)
-    loop(b)
-
-subset.next
-
-    elem = next(b)                                  :f(return)
-    member(a,elem)                                  :s(subset.next)f(freturn)
-
-subset.end
-
-    define('this(set)')                             :(this.end)
-
-*   _This_ returns the value determined in the most recent call to next.
-
-this
-
-    this = set.this(set)                            :(return)
-
-this.end
-
-    define('top(stack)')                            :(top.end)
-
-*   _Top_ returns the top element of the stack, or fails if the stack is empty.
-
-top
-
-    differ(datatype(stack),'set') error('argument to top() is not a stack.')
-    eq(size(stack))                                 :s(freturn)
-    top = get(stack,set.size(stack))                :(return)
-
-top.end
-
-    define('true(e)')                               :(true.end)
-
-*   _True_ Tests if its operand is true
-
-true
-
-    e = integer(e) +e
-    integer(e) ne(e)                                :s(return)
-    differ(e)                                       :s(return)f(freturn)
-
-true.end
-
-    define('union(a,b)elem')                        :(union.end)
-
-*   _Union_ returns the union of sets _a_ and _b_.
-
-union
-
-*   Arrange so set _a_ is the larger 
-
-    ge(set.size(a),set.size(b))                     :s(union.a)
-    union = a
-    a = b
-    b = union
-
-union.a
-
-*   Make copy of _a_ to start things off.
-
-    union = copy(a)
-    loop(b)
-
-union.b
-
-    elem = next(b)                                  :f(return)
-    add(union,elem)                                 :(union.b)
-
-union.end
-
-    define('visit(set,expr)this')                   :(visit.end)
-
-*   _Visit_ loops over _set and calls _eval_ with argument
-*   _expr_  for each of member of the set.
-
-visit
-
-    loop(set)
-
-visit.next
-
-    this = next(set)                                :f(return)
-    eval(expr)                                      :(visit.next)
-
-visit.end
-
-    define('words(line,w)word')                      :(words.end)
-
-*   _Words_ returns a sequence of the words in _line_, where _w_
-*   is a string that defines the allowed characters in a word.
-
-words
-
-*   out('enter words',line)
-*   out('enter words dt w',datatype(w))
-*   out('w',show.q(w))
-    words = new('seq #' size(line))
-
-words.next
-
-    line span(w) . word =                           :s(words.add)
-
-*   No word begins at this character, so move on to the next one.
-
-    line len(1) =                                   :f(return)s(words.next)
-
-words.add
-
-    push(words, word)                               :(words.next)
-
-words.end
-
-
-    define('traceoff()')                            :(traceoff.end)
-
-*   _Traceoff_ ends tracing.
-
-traceoff
-
-    &ftrace = &trace =
-    out('stop TRACING ')
-
-traceoff.end
-
-    define('traceon()')                             :(traceon.end)
-
-*   _Traceon_ begins tracing.
-
-traceon
-
-    out('start TRACING')
-*   &ftrace = &trace = 1500000
-    g.scoring = g.tracing = 1
-                                                    :(return)
-traceon.end
-
-*   SETL4 uses some of the undefined SPITBOL operators for SETL4 functions.
-
-*   Characters available for use by 'opsyn' to associate the character
-*   with a function.
-
-*   binary  &  @  #  %  ~
-*   unary:  !  %  /  #  =  | /
-
-*   define('setl4.op(ch,proc,n)')                   :(setl4.op.end)
-*
-**  _Setl4.opsyn_ uses _opsyn_ to define a SETL4 operator.
-*
-*setl4.op
-*
-*   opsyn(ch,proc,n)                                :s(return)
-*   error('fatal problem with opsyn for ' ch ')
-*
-*setl4.op.end
-
-    :(opsyn.bypass)
-    output = 'at opsyn'
-*   SETL4 binary operators
-
-*    opsyn('&','and',        2)
-    opsyn('@','at',         2)
-    opsyn('#','filter',     2)
-    opsyn('~','member',     2)
-*   opsyn('^','or',        2)
-
-*   SETL4 unary operators:
-
-    opsyn('=','this',       1)
-    opsyn('|','new',        1)
-    opsyn('!','not',        1)
-    opsyn('#','setl4.size', 1)
-    opsyn('/','split',      1)
-
-*   Use of opsyn for 'and' and 'or' deferred since supporting them requires
-*   mucking about with bol4.
-
-opsyn.bypass
-
-*   Utility Functions
-
-*   In addition to set-theoretic functions SETL4 provides 
-*   the following utility functions.
-
-
-    define('less(str,sub)before,after')             :(less.end)
-
-*   _Less_ removes the first instance of each character in _sub_ from _str_,
-*   where _sub_ is a substr of _str_.
-
-less
-
-    ident(str)                                      :s(return)
-    less = str
-
-less.ch
-    sub len(1) . ch =                               :f(return)
-    less break(ch) . before  ch rem . after
-    less = before after                             :(less.ch)
-
-less.end
-
-    define('letters(str)ch')                        :(letters.end)
-
-*   _Letters_ returns a string consisting of the letters in string _str_ separated by a space.
-*   Letters can be used to build a sequence of the non-blank letters in a string: _new('seq ' letters(str))_
-
-letters
-
-    str len(1) . ch =                               :f(return)
-    ident(ch,' ')                                   :s(letters)
-    letters = letters (differ(letters) ' ', '') ch  :(letters)
-
-letters.end
-
-    define('lower.case(s)')                         :(lower.case.end)
-
-*   _Lower.case_ converts argument to lower case.
-
-lower.case
-
-    lower.case = replace(s,&ucase,&lcase)           :(return)
-
-lower.case.end
-
-    define('multiple(n,m)')                     :(multiple.end)
-
-*   _Multiple_ Tests if _n_ is a multiple of _m_.
-
-multiple
-
-    multiple = eq(remdr(n,m))                   :s(return)f(freturn)
-
-multiple.end
-
-    define('odd(n)')                            :(odd.end)
-
-*   _Odd_ tests if its argument is odd.
-
-odd
-
-    odd = ne(remdr(n,2))                        :s(return)f(freturn)
-
-odd.end
-
-    define('prefix(str,pre)word')               :(prefix.end)
-
-*   _Prefix_ takes a list of space-separated words _str_ and prefixes each
-*   with the str _pre_.
-
-prefix
-
-    str = str ' ';* so each word followed by space
-
-prefix.1
-
-    str break(' ') . word span(' ')  =          :f(return)
-    add1(.prefixcount)
-    prefix = append(prefix, pre word,'A')       :(prefix.1)
-
-prefix.end
-
-    define('prime(n)')                          :(prime.end)
-
-*   _Prime_ tests if _n_ is a prime integer.
-
-prime
-
-    n = integer(n) +n
-    eq(n,2)                                     :s(return)
-    even(n)                                     :s(freturn)
-    exists(new('iter 3 ' square.root(n) ' 2'), 'multiple(n,this)') :s(freturn)f(return)
-
-prime.end
-
-    define('primes(n)set.this')                 :(primes.end)
-
-*   _Primes_ returns the set of primes less than _n_.
-
-primes
-
-    primes = filter(new('iter 2 ' (n - 1)),'prime(this)') :(return)
-    primes = new('seq 2')
-    iter = new('iter 2 ' (n - 1))
-    loop(set)
-
-primes.loop
-   
-    this = next(set)                           :f(return)
-    prime(this) push(primes,this)              :(primes.loop)
-
-primes.end
-
-
-    define('quicksort(seq)c,seq.eq,set.gt,seq.lt,pivot,this') :(quicksort.end)
-
-*   _Quicksort_ sorts the sequence _seq_ using Hoare's quicksort algorithm.
-*   _Seq_ must be sequence of integers or sequence of strings.
-
-*   This program is for demonstrating SETL4. 
-*   Use the much more efficient _sorter_ for production use.
-
-quicksort
-
-    quicksort = le(set.size(seq),1) seq             :s(return)
-    pivot = arbitrary(seq)
-    number(pivot)                                   :f(quicksort.strings)
-
-*   Here to sort sequence of integers.
-
-    quicksort = join( quicksort(filter(seq,  'lt(value(this),pivot)')),
-.                               filter(seq,  'eq(value(this),pivot)'),
-.                     quicksort(filter(seq,  'gt(value(this),pivot)'))) :(return)
-
-
-*   Here to sort sequence of strings.
-
-    quicksort = join( quicksort(filter(seq,  'llt(value(this),pivot)')),
-.                               filter(seq,  'leq(value(this),pivot)'),
-.                     quicksort(filter(seq,  'lgt(value(this),pivot)'))) :(return)
-
-quicksort.end
-
-    define('reader(filename,undent)line')           :(reader.end)
-
-*   _Reader_ returns a sequence of the lines in the file specified by _filename_.
-*   Lines are read from standard input if _filename_ is null.
-*   If _undent_ is not null, leading spaces in lines are eliminated.
-
-reader
-
-    differ(filename) input(.file,setl4.config.channel.1,filename):s(reader.opened)
-    out('unable to open reader file ' filename '.') :(freturn)
-
-reader.opened
-
-    reader = new('seq')
-
-reader.next
-
-    line = (ident(filename) input, file)                :f(reader.eof)
-    ident(line)                                         :s(reader.next)
-    line '*'                                            :s(reader.next)
-    ident(undent)                                       :s(reader.add)
-    line span(' ') =
-
-reader.add
-
-    push(reader,line)                                   :(reader.next)
-
-reader.eof
-
-*   Here at end of file; close temporary file if one was needed.
-
-    differ(filename) endfile(setl4.config.channel.1)    :(return)
-
-reader.end
-
-    define('reader.str(str,delim)line')             :(reader.str.end)
-
-*   _Reader.str_ returns a sequence of the lines in _str_, where 
-*   the character _delim_ is used to indicate end of line.
-*   If _delim_ is  not given, then '/' is understood.
-
-reader.str
-
-    delim = ident(delim) '/'
-    reader.str = new('seq')
-
-reader.str.next
-
-    str break(delim) . line delim =                 :f(return)
-    push(reader.str,line)                           :(reader.str.next)
-
-reader.str.end
-
-    define('slice(str,first,last)')                 :(slice.end)
-
-*   _Slice_ returns a slice of a string. It does the same operation as _substr),
-
-slice
-
-    slice = substr(str,first,last)                  :(return)
-
-slice.end
-
-
-
     define('split.line(line)word')                  :(split.line.end)
 
 *   _Split.lines_ splits a line into a sequence of words, where words are separated by one of more spaces.
@@ -2783,6 +2581,32 @@ square.root
 
 square.root.end
 
+    define('subset(a,b)elem')                       :(subset.end)
+
+*   _Subset_ tests if its second argument is a subset of the first.
+
+subset
+
+    gt(set.size(b),set.size(a))                     :s(freturn)
+    loop(b)
+
+subset.next
+
+    elem = next(b)                                  :f(return)
+    member(a,elem)                                  :s(subset.next)f(freturn)
+
+subset.end
+
+    define('this(set)')                             :(this.end)
+
+*   _This_ returns the value determined in the most recent call to next.
+
+this
+
+    this = set.this(set)                            :(return)
+
+this.end
+
     define('thousands(s)n')                     :(thousands.end)
 
 *   _Thousands_ formats its argument by inserting comma's every three digits from right.
@@ -2831,7 +2655,7 @@ thousands.end
 
 *           'u'             unprintable character, for example control-k
 
-*           'w'             word, consisting of one of more letters in upper or lower case or "'" or "_".
+*           'w'             word, consisting of one of more letters in upper or lowercase, or "'" or "_".
 
 *   The longest possible string meeting the rules is used when building a token.
 *   For example, 'abc' is just the word 'abc', not 'a' followed by 'bc', and so forth.
@@ -2926,15 +2750,141 @@ tokens.new
 
 tokens.end
 
-    define('upper.case(s)')                         :(upper.case.end)
+    define('tolower(s)')                            :(tolower.end)
 
-*   _Upper.case_ converts its argument to upper case.
+*   _Lower.case_ converts argument to tolower.
 
-upper.case
+tolower
 
-    upper.case = replace(s,&lcase,&ucase)           :(return)
+    tolower = replace(s,&ucase,&lcase)              :(return)
 
-upper.case.end
+tolower.end
+
+    define('top(stack)')                            :(top.end)
+
+*   _Top_ returns the top element of the stack, or fails if the stack is empty.
+
+top
+
+    differ(datatype(stack),'set') error('argument to top() is not a stack.')
+    eq(size(stack))                                 :s(freturn)
+    top = get(stack,set.size(stack))                :(return)
+
+top.end
+
+    define('toupper(s)')                         :(toupper.end)
+
+*   _Upper.case_ converts its argument to toupper.
+
+toupper
+
+    toupper = replace(s,&lcase,&ucase)           :(return)
+
+toupper.end
+
+    define('traceoff()')                            :(traceoff.end)
+
+*   _Traceoff_ ends tracing.
+
+traceoff
+
+    &ftrace = &trace =
+    out('stop TRACING ')
+
+traceoff.end
+
+    define('traceon()')                             :(traceon.end)
+
+*   _Traceon_ begins tracing.
+
+traceon
+
+    out('start TRACING')
+*   &ftrace = &trace = 1500000
+    g.scoring = g.tracing = 1
+                                                    :(return)
+traceon.end
+
+    define('true(e)')                               :(true.end)
+
+*   _True_ Tests if its operand is true
+
+true
+
+    e = integer(e) +e
+    integer(e) ne(e)                                :s(return)
+    differ(e)                                       :s(return)f(freturn)
+
+true.end
+
+    define('union(a,b)elem')                        :(union.end)
+
+*   _Union_ returns the union of sets _a_ and _b_.
+
+union
+
+*   Arrange so set _a_ is the larger 
+
+    ge(set.size(a),set.size(b))                     :s(union.a)
+    union = a
+    a = b
+    b = union
+
+union.a
+
+*   Make copy of _a_ to start things off.
+
+    union = copy(a)
+    loop(b)
+
+union.b
+
+    elem = next(b)                                  :f(return)
+    add(union,elem)                                 :(union.b)
+
+union.end
+
+    define('visit(set,expr)this')                   :(visit.end)
+
+*   _Visit_ loops over _set and calls _eval_ with argument
+*   _expr_  for each of member of the set.
+
+visit
+
+    loop(set)
+
+visit.next
+
+    this = next(set)                                :f(return)
+    eval(expr)                                      :(visit.next)
+
+visit.end
+
+    define('words(line,w)word')                      :(words.end)
+
+*   _Words_ returns a sequence of the words in _line_, where _w_
+*   is a string that defines the allowed characters in a word.
+
+words
+
+*   out('enter words',line)
+*   out('enter words dt w',datatype(w))
+*   out('w',show.q(w))
+    words = new('seq #' size(line))
+
+words.next
+
+    line span(w) . word =                           :s(words.add)
+
+*   No word begins at this character, so move on to the next one.
+
+    line len(1) =                                   :f(return)s(words.next)
+
+words.add
+
+    push(words, word)                               :(words.next)
+
+words.end
 
     define('writer(lines)')                         :(writer.end)
 
@@ -2949,6 +2899,57 @@ writer.next
     output = next(lines)                            :f(return)s(writer.next)
 
 writer.end
+
+
+*   SETL4 uses some of the undefined SPITBOL operators for SETL4 functions.
+
+*   Characters available for use by 'opsyn' to associate the character
+*   with a function.
+
+*   binary  &  @  #  %  ~
+*   unary:  !  %  /  #  =  | /
+
+*   define('setl4.op(ch,proc,n)')                   :(setl4.op.end)
+*
+**  _Setl4.opsyn_ uses _opsyn_ to define a SETL4 operator.
+*
+*setl4.op
+*
+*   opsyn(ch,proc,n)                                :s(return)
+*   error('fatal problem with opsyn for ' ch ')
+*
+*setl4.op.end
+
+    :(opsyn.bypass)
+    output = 'at opsyn'
+*   SETL4 binary operators
+
+*    opsyn('&','and',        2)
+    opsyn('@','at',         2)
+    opsyn('#','filter',     2)
+    opsyn('~','member',     2)
+*   opsyn('^','or',        2)
+
+*   SETL4 unary operators:
+
+    opsyn('=','this',       1)
+    opsyn('|','new',        1)
+    opsyn('!','not',        1)
+    opsyn('#','setl4.size', 1)
+    opsyn('/','split',      1)
+
+*   Use of opsyn for 'and' and 'or' deferred since supporting them requires
+*   mucking about with bol4.
+
+opsyn.bypass
+*## SETL4 internal functions
+
+*   Functions whose names begin with _setl4_ are for internal use only, and are
+*   not meant to be called directly by the SETL4 user.
+
+*   Their definitions and implmentations may change at any time, so use them
+*   directly at your own peril.
+
 
     define('setl4.clear()')                         :(setl4.clear.end)
 
@@ -3209,4 +3210,3 @@ setl4.table.sorter.end
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
-
