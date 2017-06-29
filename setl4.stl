@@ -925,13 +925,18 @@ compose
 
 compose.map.next
 
-    le(i = i + 1,set.size(a))                       :f(return)
+*   le(i = i + 1,set.size(a))                       :f(return)
+    le(i = i + 1,set.size(a))                       :f(compose.done)
     key = set.index(compose)[i] = set.index(a)[i]
     value = set.key(b)[set.key(a)[key]]
     set.key(compose)[key] = value                   :(compose.map.next)
 
 compose.table
 
+    out('composing first')
+    show(a)
+    out('composing second')
+    show(b)
     ara = convert(a,'array')                        :f(show.table.error)
     prototype(ara) break(',') . n
     compose = table(n)
@@ -942,6 +947,8 @@ compose.table.next
     le(i = i + 1,n)                                 :f(return)
     compose[i] = b[a[i]]                            :(compose.table.next)
 
+compose.done
+ :(return)
 compose.end
 
     define('datename()s')                           :(datename.end)
@@ -2520,6 +2527,7 @@ sorter.value
     type = ident(type,'-v') '-k'
     value.table = setl4.table.sorter(set,type,tbl)
     show(value.table)
+    out('shown value table')
     i = 0
 
 *   The table is in proper order, so replace values with the keys
@@ -3024,12 +3032,12 @@ setl4.set.sorter.set.next
 
     le(i = i + 1,n)                                 :f(return)
     index = ara[i,1]
-*   out('setl4.set.sorter.set i',i)
-*   out('setl4.set.sorter.set ara[i,1]',ara[i,1])
-*   out('setl4.set.sorter.set index',index)
-*   out('setl4.set.sorter.set index.table[index]',set.index(set)[index])
-*   out('setl4.set.sorter.set setl4.set.sorter[i]',setl4.set.sorter[i])
-*   out()
+    out('setl4.set.sorter.set i',i)
+    out('setl4.set.sorter.set ara[i,1]',ara[i,1])
+    out('setl4.set.sorter.set index',index)
+    out('setl4.set.sorter.set index.table[index]',set.index(set)[index])
+    out('setl4.set.sorter.set setl4.set.sorter[i]',setl4.set.sorter[i])
+    out()
     setl4.set.sorter[i] = set.index(set)[index]            
                                                     :(setl4.set.sorter.set.next)
 
