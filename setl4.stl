@@ -1623,7 +1623,6 @@ new.seq.next
 
     init span(' ') =
     init break(' ') . val ' ' =                     :f(return)
-    out('New.SEQ.next',val)
     push(new,val)                                   :(new.seq.next)
 
 new.set
@@ -2463,8 +2462,8 @@ sorter
 
     n = set.size(set)
     index.table = set.index(set)
-    out('sorter index table')
-    show(index.table)
+*   out('sorter index table')
+*   show(index.table)
 
 *   Here to detect cases for which sort has no meaning, in which case
 *   return immediately. This includes the case 'int' which, though possible
@@ -2498,7 +2497,7 @@ sorter.set
 sorter.index.next
 
     le(i = i + 1,n)                                 :f(sorter.finis)
-    out('sorter.index.next',i)
+*   out('sorter.index.next',i)
     tbl[i] = index.table[ara[i,1]]                  :(sorter.index.next)
     
 sorter.value
@@ -2522,11 +2521,11 @@ sorter.value.next
     
 sorter.finis
 
-    out('sorter.finis')
-    show(tbl)
+*   out('sorter.finis')
+*   show(tbl)
     set.index(set) = tbl                             
-    show(set)
-    out('exit sorter')
+*   show(set)
+*   out('exit sorter')
                                                     :(return)
 
 sorter.end
@@ -3011,23 +3010,20 @@ setl4.set.sorter.1
     differ(datatype(ara),'array') 
 .               error('setl4.set.sorter sort result not array:' datatype(ara))
 
-    setl4.table.sorter = table(n)
+    setl4.set.sorter = table(n)
     index = 0
 
 setl4.set.sorter.set.next
 
-    le(i = i + 1,n)                                 :f(setl4.set.sorter.finis)
+    le(i = i + 1,n)                                 :f(return)
     index = ara[i,1]
-    out('setl4.set.sorter.set i',i)
-    out('setl4.set.sorter.set ara[i,1]',ara[i,1])
-    out('setl4.set.sorter.set index',index)
-    out('setl4.set.sorter.set index.table[index]',index.table[index])
-    out('setl4.set.sorter.set setl4.table.sorter[i]',setl4.table.sorter[i])
-    setl4.table.sorter[i] = index.table[index]            
+*   out('setl4.set.sorter.set i',i)
+*   out('setl4.set.sorter.set ara[i,1]',ara[i,1])
+*   out('setl4.set.sorter.set index',index)
+*   out('setl4.set.sorter.set index.table[index]',set.index(set)[index])
+*   out('setl4.set.sorter.set setl4.set.sorter[i]',setl4.set.sorter[i])
+    setl4.set.sorter[i] = set.index(set)[index]            
                                                     :(setl4.set.sorter.set.next)
-setl4.set.sorter.finis
-
-    setl4.set.sorter = setl4.table.sorter               :(return)
 
 setl4.set.sorter.end
 
@@ -3155,11 +3151,11 @@ setl4.table.sorter.table.next
 
     le(i = i + 1,set.size(set))                                 :f(return)
     index = ara[i,1]                                            :f(setl4.table.sorter.error)
-    out('setl4.table.sorter.table i',i)
-    out('setl4.table.sorter.table ara[i,1]',ara[i,1])
-    out('setl4.table.sorter.table index',index)
-    out('setl4.table.sorter.table index.table[index]',index.table[index])
-    out('setl4.table.sorter.table setl4.table.sorter[i]',setl4.table.sorter[i])
+*   out('setl4.table.sorter.table i',i)
+*   out('setl4.table.sorter.table ara[i,1]',ara[i,1])
+*   out('setl4.table.sorter.table index',index)
+*   out('setl4.table.sorter.table index.table[index]',index.table[index])
+*   out('setl4.table.sorter.table setl4.table.sorter[i]',setl4.table.sorter[i])
     setl4.table.sorter[i] = index.table[index]
                                                     :(setl4.table.sorter.table.next)
 setl4.table.sorter.error
