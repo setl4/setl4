@@ -17,7 +17,6 @@
     out()
     out()
 
-end
     out('-k')
     show(m,'-k')
     out()

@@ -2456,6 +2456,9 @@ slice.end
 
 sorter
 
+    ident(type,'no')                                        :s(return)
+
+    out('enter sorter type',type)
 *   Use _setl4.string.sorter_ if input is a string.
 
     sorter = ident(datatype(set),'string') setl4.string.sorter(set) :s(return)
