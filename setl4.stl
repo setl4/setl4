@@ -1188,8 +1188,6 @@ filter.map
 filter.map.loop
 
     this = next(set)                                :f(return)
-    out('at filter.map.loop')
-*   out('filter this',this)
     eval(expr) push(filter,value(this))             :(filter.map.loop)
 
 filter.seq
@@ -2120,7 +2118,7 @@ remove.error
 
 remove.end
 
-    define('show(v,type,within)ara,i,kind,elem,entry,key,line,hdr,n,set.this,value') :(show.end)
+    define('show(v,type,within,noquote)ara,i,kind,elem,entry,key,line,hdr,n,set.this,str,value') :(show.end)
 
 *   _Show_ displays the value of its first argument in a form that is hopefully both
 *   readable and pleasing to the eye.
@@ -2130,6 +2128,8 @@ remove.end
 *   or keys (map).
 
 *   _within is non-zero when called to list element of a compound object.
+
+*   Strings are shown enclosed in quote character unless _noquote_ is not null.
 
 show
 
@@ -2310,7 +2310,24 @@ show.string
 
     show = integer(v) v                             :s(show.done)
 
-    show = show.q(v)                                :(show.done)
+    show = 
+    gt(size(v),80)                                  :s(show.string.long)
+    show = (ident(unquote) show.q(v), v)            :(show.done)
+
+show.string.long
+
+*   Here to show a string with more than 80 characters, so show it
+*   80 characters at a time. Add space at end to simplify loop below.
+
+    v = v ' '
+
+show.string.next
+
+    v break(' ') . key span(' ') =                  :f(show.done)
+    show = show (ident(show) '', ' ') key
+    lt(size(show),60)                               :s(show.string.next)
+    out(show)
+    show =                                          :(show.string.next)
 
 show.table
 
@@ -2394,7 +2411,7 @@ show.lines.next
     i = i + 1
     gt(i,100) error('i too big')
     ident(number)    out(line)                      :s(show.lines.next)
-    differ(number)   out(lpad(i,6) '  ' line)       :(show.lines.next)
+    differ(number)   out(lpad(i,4) '  ' line)       :(show.lines.next)
 
 show.lines.end
 

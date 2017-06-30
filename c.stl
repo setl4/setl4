@@ -4,11 +4,20 @@
 
 -include "setl4.stl"
     
-    &dump = 3
+*   &dump = 3
 
 *## Global variables
 
 *   Global variables have names that start with prefix 'g.'
+
+*   Avoid processing and listing mentions of any of following common words:
+
+    g.avoid = new('set '
+.           'a all and are as be but by do doth for from his have how i if in is it '
+.           'love make me mine more my no not o of or on more say see self '
+.           'shall should since so some still such sweet that the '
+.           'thee their then they these thine this those thou to thy what when '
+.           'where which will with you your')
 
 *   _g.lines_ is a sequence giving all the lines in the sonnets.
 
@@ -46,19 +55,6 @@
 
 *   Analyze the text of the sonnets.
 
-    define('list(sonnet,title)line')                :(list.end)
-
-*   List the text of a sonnet, prefaced by _title_, and including line numbers.
-
-list
-
-    out()
-    out('listing sonnet')
-    out(title)
-    show.lines(sonnet,1)                            :(return)
-
-list.end
-
     define('analyze(sonnet,sonnet.num,word.str)line,entry,i,line.num,ref,seen,word,word.pat,words.this')   :(analyze.end)
 
 *   _Analyze_  looks at  each line in a sonnet, extracting its words,
@@ -84,15 +80,31 @@ analyze.next.line
 
 analyze.next.word
 
-    word = lower.case(next(words.this))             :f(analyze.next.line)
+    word = tolower(next(words.this))                :f(analyze.next.line)
+
+*   Shakespeare enclosed some phrases in quotes, so fix spurious instances
+*   of single quote that result.
+
+    word break("'")                                 :f(analyze.word)
+    ident(word,"'")                                 
+    word "'" =
+*   break(reverse(word),"'")                        :s(analyze.next.word)
+
+analyze.word
+
+    member(g.avoid,word)                            :s(analyze.next.word)
 
 *   Update count of number of times words used.
 
     put(g.count,word,get(g.count,word) + 1)
 
-*   See if have seen the word in this line, in which case go to next word.
+*   See if have already seen this word in this line,
+*   in which case continue on to next word.
 
     member(seen,words.this)                         :s(analyze.next.word)
+
+*   Add the word to the set of words seen in this line.
+
     add(seen,word)
 
 *   Add reference for the word in this line.
@@ -112,7 +124,7 @@ find
 
     loop(lines)
 
-find.find
+find.line
 
     line = next(lines)                          :f(find.finis)
 
@@ -123,8 +135,8 @@ find.find
 
 find.check 
 
-    line span('IVDCXL') . id  rpos(0)           :f(find.find)
-    differ(size(id),size(line))                 :s(find.find)
+    line span('IVDCXL') . id  rpos(0)           :f(find.line)
+    differ(size(id),size(line))                 :s(find.line)
 
 *   Save the sonnet just built unless here at start of first sonnet.
 
@@ -136,7 +148,6 @@ find.found
     
     g.sonnet.this = g.sonnet.this + 1
 
-    out()
     push(g.numeral,line)
     sonnet = new('seq #14')
 
@@ -144,10 +155,9 @@ find.next
 
     line  = next(lines)                         :f(find.finis)
     line span(' ') =
+    ident(line)                                 :s(find.line)
     line span('IVDCXL') . id  rpos(0)           :s(find.check)
-
-    push(sonnet,line)                           
-                                                :(find.next)
+    push(sonnet,line)                           :(find.next)
 
 find.finis
 
@@ -158,70 +168,116 @@ find.finis
 
 find.end
 
+    define('list(sonnet,title)line')                :(list.end)
+
+*   List the text of a sonnet, prefaced by _title_, and including line numbers.
+
+list
+
+    out()
+    out('Sonnet ' title)
+    out()
+    show.lines(sonnet,1)                            :(return)
+
+list.end
+
+
+    define('main()entry,i,line,str,this)')          :(main.end)
+
 *   Main program
-
-*   Read in the text of the sonnets and find the text for each sonnet.
-
-    g.lines = reader('t.txt','TRUE')
-
-    find(g.lines)
 
 main
 
+
+*   Read in the text of the sonnets and find the text for each sonnet.
+
+*   g.lines = reader('sonnets.txt','TRUE')
+    g.lines = reader('t.txt','TRUE')
+
+    find(g.lines)   
+
+*
     i = 0
     loop(g.sonnets)
 
 main.analyze.next
     
     sonnet = next(g.sonnets)                    :f(main.analyze.done)
-    i = i + 1
-    analyze(sonnet,i,g.word.str)                :(main.analyze.next)
+    analyze(sonnet,i = i + 1,g.word.str)        :(main.analyze.next)
 
 main.analyze.done
 
 *   Here to report results.
 
     out('Shakespeare wrote ' set.size(g.sonnets) ' sonnets.')
-.   out("His sonnets contain " set.size(g.words)
-.       " words in " (set.size(g.lines) - set.size(g.sonnets))   " lines.")
+.   out("The sonnets contain " set.size(g.words)
+.       " words in " (set.size(g.sonnets) * 14)   " lines.")
 
     out()
     out('The most frequently used words in the sonnets:')
+    out()
+
+*   Build set of the most frequently used words by sorting the map _g.count_,
+*   then listing its first few entries.
+
     sorter(g.count,'-v')
-    loop(g.count)
+    most = new('set')
     i = 0
+    visit(g.count,'le(i = i + 1,30) add(most,this)')
+    loop(most)
 
-main.count
+main.counts.next
 
-    entry = next(g.count)                           :f(main.count.done)
-    out(lpad(key(entry),10) '  ' value(entry))
-    lt(i = i + 1,30)                                :s(main.count)
-    i = 0
+    out(lpad(key(next(most)),10) '  ' value(this))  :s(main.counts.next)
 
-main.count.done
+*   List the references.
 
-    out('SHOWING G.COUNT')
-*   show(g.count)
-    sorter(g.count,'-v')
-end
     out()
-*   show(g.count,'-v')
-end
-    out()
+    out('Concordance')
     out()
 
+    sorter(g.uses,'+k')
+
+    loop(g.uses)
+
+main.avoid.next
+
+    this = next(g.uses)                             :f(main.avoided)
+    member(avoid,this)                              :f(main.avoid.next)
+    put(g.uses,this,'')                             :(main.avoid.next)
+
+main.avoided
+
+    loop(g.uses)
+
+main.uses.next
+
+    entry = next(g.uses)                            :f(main.uses.listed)
+    str = rpad(key(entry),10) ' ' value(entry)
+
+*   List _str_ as unquoted string (that's why fourth argument to _show()_ is 1).
+
+    lt(size(str),60) out(str)
+    ge(size(str),60) show(str,,,1)
+                            
+                                                    :(main.uses.next)
+
+main.uses.listed
+
+    out('uses listed')
 *   List the text of the sonnets, including the line numbers.
 
     loop(g.sonnets)
     i = 0
 
-list.next
+main.list.next
 
-    i = i + 1
-    out('LIST SONNET ',get(g.numeral,i))
-    sonnet = next(g.sonnets)                        :f(list.end)
-    out(sonnet,g.numeral(sonnet))                   :(list.next)
+    list(next(g.sonnets),get(g.numeral,i = i + 1))  :s(main.list.next)
 
-list.end
+                                                    :(return)
+
+main.end
+
+    main()
 
 end
