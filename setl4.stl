@@ -1403,7 +1403,7 @@ less.end
 
 loop
 
-    ident(set.kind(set),'iter')                     :s(loop.iter)
+	    ident(set.kind(set),'iter')                     :s(loop.iter)
     ident(set.kind(set),'int')                      :s(loop.int)
     ident(set.kind(set),'map')                      :s(loop.map)
     ident(set.kind(set),'seq')                      :s(loop.map)

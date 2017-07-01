@@ -8,6 +8,8 @@ The file *1041.txt* contains the text of the sonnets as made available by Projec
 
 The file *tweet.sbl* contains a program that is used to power the twitter account @thebardstorms. 
 
+The file *sonnets.stl* contains a program that does a textual analysis of the sonnets.
+
 Usage:
 
 *setl4* *tweet.sbl* *todo* > *out*
