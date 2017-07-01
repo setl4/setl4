@@ -1,52 +1,64 @@
+
+
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
 *   Program to align the goto fields in a program.
 
     &anchor = &trim = 1
-    margin = 48
+    margin = 55
 
 copy
 
-*       Merge here to copy the current line and continue to the next.
+*   Merge here to copy the current line and continue to the next.
 
-    output = line
+    output = trim(line)
 
 loop
 
-    line = input    :f(end)
-    ident(line)                 :s(copy)
+    line = input                                     :f(end)
+
+*   Copy blank and comment lines as it.
+
+    ident(line)                                      :s(copy)
+    line '*'                                         :s(copy)
 
 *   See if line has colon. Continue to next line if not.
 
-    line break(':')                 :f(copy)
+    line break(':')                                  :f(copy)
 
 *   See if line just contains goto field.
-    
 
     iline = line
     iline span(' ') =
-    iline ':'                              :f(loop.text)
-* Here if just goto
-*   line.in = line
-    line = rpad(' ',margin) iline       
-*   line.out = line
-*   output = 'OLD ' line.in
-*   output = 'NEW ' line
-                :(copy)
+    ident(iline)                                     :s(copy)
+    iline ':'                                        :f(loop.text)
+
+*   Here if line just has goto field.
+
+    line = rpad(' ',margin) iline                    :(copy)
 
 loop.text
 
+
+
 *   Here if line contains goto field after text.
+*   Look at reverse of line, extract the goto field, then put line
+*   back together. This avoids thinking we have a goto field when in
+*   fact there is colon in string within the line.
 
-    line breakx(" ") . first  " " ":"  rem . last :f(copy)
+    rline = reverse(line)
+    rline break(':') . last ':'  rem . first         :f(copy)
 
-*   Copy line as is if text if too large to allow alignment.
+*   Trim leading blanks from first, which corresonds to trimming the reverse.
 
-    ge(size(first),margin)  :s(copy)
+    first span(' ') =
 
-*   Here if goto to left of margin,so pad it out and copy.
+*   Here if goto to left of margin, so pad it out and copy.
 
-    line = rpad(first,margin) ":" last  :(copy)
+    first = trim(reverse(first))
+    last = trim(reverse(last))
+*   output = '[*' rpad(first,margin) ']'  ":[" last ']'
+    line = rpad(first,margin) ":" last          :(copy)
 
 end
