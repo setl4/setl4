@@ -3,25 +3,50 @@
 
 *   Program to align the goto fields in a program.
 
+    &anchor = &trim = 1
+    margin = 48
+
 copy
 
-	output = line
-	align = 48
-	margin = align - 8
+*       Merge here to copy the current line and continue to the next.
+
+    output = line
 
 loop
 
-	line = input			:f(end)
-	line '*'			:s(copy)
-	line break(':')			:f(copy)
+    line = input    :f(end)
+    ident(line)                 :s(copy)
 
-*	Here if ':'. See if after column 40.
+*   See if line has colon. Continue to next line if not.
 
-	iline = line
-	iline break(':') . first ':' rem . last = :f(copy)
-	lt(size(first),margin)		:s(copy)
+    line break(':')                 :f(copy)
 
-	first = trim(first)
-	last span(' ') =
-	line = rpad(trim(first),align) ':' last :(copy)
+*   See if line just contains goto field.
+    
+
+    iline = line
+    iline span(' ') =
+    iline ':'                              :f(loop.text)
+* Here if just goto
+*   line.in = line
+    line = rpad(' ',margin) iline       
+*   line.out = line
+*   output = 'OLD ' line.in
+*   output = 'NEW ' line
+                :(copy)
+
+loop.text
+
+*   Here if line contains goto field after text.
+
+    line breakx(" ") . first  " " ":"  rem . last :f(copy)
+
+*   Copy line as is if text if too large to allow alignment.
+
+    ge(size(first),margin)  :s(copy)
+
+*   Here if goto to left of margin,so pad it out and copy.
+
+    line = rpad(first,margin) ":" last  :(copy)
+
 end
