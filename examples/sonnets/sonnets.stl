@@ -2,15 +2,12 @@
 *   Licensed under the MIT license.
 
 -include "../../setl4.stl"
-    
-*   &dump = 3
 
 * This is a simplified version of the sonnet program.
 * I still hadn't gotten usages of single quote right, and
 * decided that who was I to decide whether a word used by
 * Shakespeare was or was not "common."
-
-* The more complex version can be found following the end line for the code.
+* The more complex version can be found following the end line for this code.
 
 *## Global variables
 
@@ -190,7 +187,6 @@ main.scan.next
 
 main.scan.done
 
-	out('scanned')
 *   Here to report results.
 
     out('Textual analysis of the Sonnets of William Shakespeare.')
