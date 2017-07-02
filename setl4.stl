@@ -2,6 +2,7 @@
 *    Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
+ &dump = 3
 *   TODO
 *       extend loop(set) to loop(set,name) to allow user to provide alternative to 'this'.
 
@@ -60,7 +61,7 @@
 *-  The function _set()_ has been renamed to _zet_, so that _set_ can be used as an identifier.
 *-  The default value of _&anchor_ is 1. The default value of _&trim_ is 1.
 
-*   The file `bin/setl4' provided as part of the distribution is the executable for _bol4_.
+*   The file `bin/setl4' provided as part of the distribution is the executable for _spitbol4_.
 
 *## What is SETL?
 
@@ -431,8 +432,7 @@
 
 
 
-*   '@'     s @ e   Eval            Evaluates _e_ at current element of set _s_
-*   '#'     s # e   Filter          Returns subset of set _s_ for which _e_ is true
+*   '@'     s @ e   Filter          Returns subset of set _s_ for which _e_ is true
 *   '~'     m ~ s   Membership      Tests if _m_ is member of set _s_
 
 
@@ -442,13 +442,7 @@
 *   '|'     |str    Constructor     Returns set specified by string _str_
 *   '!'     !expr   Not             True if and only if _expr_ is false
 *   '#'     #s      Size            Number of elements in set _s_
-*   '/'     /s      Split           Splits a string into a sequence of words
-
-*   The following operator definitions are not yet in effect, due to a need
-*   to change the underlying SPITBOL implementation.
-
-*   '&'     a & b   And             True if and only if both _a_ and _b_ are true
-*   '^'     a ^ b   Or              True if and only if _a_ or _b_ is true
+*   '/'     /s      Split           Divides a string into a sequence of words
 
 *## Sample data
 
@@ -550,7 +544,7 @@
 *-  words(line,w)               Returns sequence of words (defined by _w_) in _line_.
 *-  writer(lines)               Writes sequence _lines_ to standard output.
 
-
+        output = 'at definitions'
 *   SETL4 Function Definitions
 
     define('add(set,elem)ara,i,n,str')                 :(add.end)
@@ -2912,6 +2906,7 @@ writer.next
 
 writer.end
 
+    out('at writer.end')
 
 *   SETL4 uses some of the undefined SPITBOL operators for SETL4 functions.
 
@@ -2921,39 +2916,38 @@ writer.end
 *   binary  &  @  #  %  ~
 *   unary:  !  %  /  #  =  | /
 
-*   define('setl4.op(ch,proc,n)')                   :(setl4.op.end)
-*
-**  _Setl4.opsyn_ uses _opsyn_ to define a SETL4 operator.
-*
-*setl4.op
-*
-*   opsyn(ch,proc,n)                                :s(return)
-*   error('fatal problem with opsyn for ' ch ')
-*
-*setl4.op.end
+    define('setl4.op(ch,proc,n)')                       :(setl4.op.end)
+ 
+*  _Setl4.opsyn_ uses _opsyn_ to define a SETL4 operator.
+ 
+setl4.op
 
-                                                       :(opsyn.bypass)
-    output = 'at opsyn'
+    out('setl4.op op',ch)
+    out('setl4.op proc',proc)
+    out('setl4.op n',n)
+    opsyn(ch,proc,n)                                    :s(return)
+
+    error('fatal problem with opsyn for ' ch)
+ 
+setl4.op.end
+
+    out('at setl4.op.end')
 *   SETL4 binary operators
 
-*    opsyn('&','and',        2)
-    opsyn('@','at',         2)
-    opsyn('#','filter',     2)
+*   setl4.op('@','filter',2)
+*   setl4.op('~','member',2)
+    opsyn('@','filter',     2)
     opsyn('~','member',     2)
-*   opsyn('^','or',        2)
 
 *   SETL4 unary operators:
 
     opsyn('=','this',       1)
     opsyn('|','new',        1)
     opsyn('!','not',        1)
-    opsyn('#','setl4.size', 1)
-    opsyn('/','split',      1)
+    setl4.op('#','setl4.size',1)
+*   opsyn('#','setl4.size', 1)
+*   opsyn('/','split',      1)
 
-*   Use of opsyn for 'and' and 'or' deferred since supporting them requires
-*   mucking about with bol4.
-
-opsyn.bypass
 *## SETL4 internal functions
 
 *   Functions whose names begin with _setl4_ are for internal use only, and are
@@ -3094,12 +3088,14 @@ setl4.simple.type
 
 setl4.simple.type.end
 
-    define('setl4.set.size(set)')                      :(setl4.size.end)
+    define('setl4.size(set)')                          :(setl4.size.end)
 
 *   Setl4.set.size_ returns the  size of operand.
 
 setl4.size
 
+    out('enter setl4.size')
+    setl4.show(set)
     setl4.size = ident(datatype(set),'string') size(set):s(return)
     setl4.size = differ(iter.step(set)) (iter.finis(set) - iter.start(set) / iter.step(set)) + 1:s(return)
     setl4.size = set.size(set)                         :(return)

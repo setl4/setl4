@@ -1,0 +1,11 @@
+
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+-include "setl4.stl"
+
+    out('start hi')
+    s = integers(100)
+    out('size i',set.size(s))
+    out('size i',#s)
+end
