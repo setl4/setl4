@@ -2,10 +2,23 @@
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
--include "setl4.stl"
+*-include "setl4.stl"
 
-    out('start hi')
-    s = integers(100)
-    out('size i',set.size(s))
-    out('size i',#s)
+ define('double.it(a)') :(double.it.end)
+
+double.it
+ double.it = a + a :(return)
+double.it.end
+
+ opsyn('%','double.it',1)
+
+    output =  %33
+end
+
+    output = 'start hi'
+*   s = integers(100)
+    output = 'size i'  double.it(100)
+ s = new('set 10 30 20')
+    n = #s
+    output = 'size  i  ' n
 end

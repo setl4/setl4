@@ -2,7 +2,6 @@
 *    Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
- &dump = 3
 *   TODO
 *       extend loop(set) to loop(set,name) to allow user to provide alternative to 'this'.
 
@@ -435,15 +434,6 @@
 *   '@'     s @ e   Filter          Returns subset of set _s_ for which _e_ is true
 *   '~'     m ~ s   Membership      Tests if _m_ is member of set _s_
 
-
-*## SETL4 Unary Operators:
-
-*   '='     =s      Iteration       Returns 'this', the current element of an iteration
-*   '|'     |str    Constructor     Returns set specified by string _str_
-*   '!'     !expr   Not             True if and only if _expr_ is false
-*   '#'     #s      Size            Number of elements in set _s_
-*   '/'     /s      Split           Divides a string into a sequence of words
-
 *## Sample data
 
 *   Programs need data. Since SPITBOL is designed to analyze and manipulate text, SETL4 provides
@@ -544,7 +534,6 @@
 *-  words(line,w)               Returns sequence of words (defined by _w_) in _line_.
 *-  writer(lines)               Writes sequence _lines_ to standard output.
 
-        output = 'at definitions'
 *   SETL4 Function Definitions
 
     define('add(set,elem)ara,i,n,str')                 :(add.end)
@@ -1796,6 +1785,8 @@ or.end
 
 out
 
+    output = text1 ' ' text2 ' ' text3 :(return)
+*HERE OUT
     out = setl4.simple.type(text1)
     out = differ(setl4.simple.type(text2)) out '[' setl4.simple.type(text2) ']'
     out = differ(setl4.simple.type(text3)) out  setl4.simple.type(text2)
@@ -2029,6 +2020,7 @@ reader.eof
 
 reader.end
 
+    output = 'AT HERE'
     define('reader.str(str,delim)line')                :(reader.str.end)
 
 *   _Reader.str_ returns a sequence of the lines in _str_, where
@@ -2908,46 +2900,6 @@ writer.end
 
     out('at writer.end')
 
-*   SETL4 uses some of the undefined SPITBOL operators for SETL4 functions.
-
-*   Characters available for use by 'opsyn' to associate the character
-*   with a function.
-
-*   binary  &  @  #  %  ~
-*   unary:  !  %  /  #  =  | /
-
-    define('setl4.op(ch,proc,n)')                       :(setl4.op.end)
- 
-*  _Setl4.opsyn_ uses _opsyn_ to define a SETL4 operator.
- 
-setl4.op
-
-    out('setl4.op op',ch)
-    out('setl4.op proc',proc)
-    out('setl4.op n',n)
-    opsyn(ch,proc,n)                                    :s(return)
-
-    error('fatal problem with opsyn for ' ch)
- 
-setl4.op.end
-
-    out('at setl4.op.end')
-*   SETL4 binary operators
-
-*   setl4.op('@','filter',2)
-*   setl4.op('~','member',2)
-    opsyn('@','filter',     2)
-    opsyn('~','member',     2)
-
-*   SETL4 unary operators:
-
-    opsyn('=','this',       1)
-    opsyn('|','new',        1)
-    opsyn('!','not',        1)
-    setl4.op('#','setl4.size',1)
-*   opsyn('#','setl4.size', 1)
-*   opsyn('/','split',      1)
-
 *## SETL4 internal functions
 
 *   Functions whose names begin with _setl4_ are for internal use only, and are
@@ -3072,6 +3024,7 @@ setl4.show.set
                                                        :(return)
 setl4.show.end
 
+    output = ' at show.end'
     define('setl4.simple.type(type)')                  :(setl4.simple.type.end)
 
 *   Tests if _v_ is a 'simple' type suitable for use in _out()_.
@@ -3204,3 +3157,53 @@ setl4.table.sorter.end
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
+ 
+*** Rest of code is for opsyn. Not working, so comment out for now (DS 3 Jul 2017)
+**  _Setl4.opsyn_ uses _opsyn_ to define a SETL4 operator.
+* 
+*setl4.op
+*
+*    out('setl4.op op',ch)
+*    out('setl4.op proc',proc)
+*    out('setl4.op n',n)
+*    opsyn(ch,proc,n)                                    :s(return)
+*
+*    error('fatal problem with opsyn for ' ch)
+* 
+*   SETL4 uses some of the undefined SPITBOL operators for SETL4 functions.
+
+*   Characters available for use by 'opsyn' to associate the character
+*   with a function.
+
+*   binary  &  @  #  %  ~
+*   unary:  !  %  /  #  =  | /
+
+*setl4.op.end
+*   define('setl4.op(ch,proc,n)')                       :(setl4.op.end)
+*
+*    out('at setl4.op.end')
+**   SETL4 binary operators
+*
+**   setl4.op('@','filter',2)
+**   setl4.op('~','member',2)
+**   opsyn('@','filter',     2)
+**   opsyn('~','member',     2)
+*
+* &dump = 3
+**   SETL4 unary operators:
+*
+**   opsyn('=','this',       1)
+**   opsyn('|','new',        1)
+**   opsyn('!','not',        1)
+**   opsyn('#','setl4.size', 1)
+**   opsyn('/','split',      1)
+*
+*
+**## SETL4 Unary Operators:
+*
+**   '='     =s      Iteration       Returns 'this', the current element of an iteration
+**   '|'     |str    Constructor     Returns set specified by string _str_
+**   '!'     !expr   Not             True if and only if _expr_ is false
+**   '#'     #s      Size            Number of elements in set _s_
+**   '/'     /s      Split           Divides a string into a sequence of words
+*
