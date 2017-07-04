@@ -1,0 +1,114 @@
+-include  "../setl4.stl"
+    &stlimit = 100000
+
+    
+    define('list(set)elem,this')                  :(list.end)
+
+*   List elements of set, one per line
+
+list
+
+    out = '{'
+    loop(set)
+
+list.next
+
+    this = next(set)                                :f(return)
+    out('  ',this)                                  :(list.next)
+
+list.end
+
+    define('Value(str)first,second')                :(Value.end)
+
+*   Evaluate argument _str_ after replacing instance of 'a=b' with 'ab'
+
+Value
+
+*   March through _str_,putting spaces around binary operators, and doing concatenation as needed.
+
+Value.next
+
+    str len(1) . ch =                               :f(Value.eval)
+    Value = ident(ch,'+') Value ' + '               :s(Value.next)
+    Value = ident(ch,'-') Value ' - '               :s(Value.next)
+    ident(ch,'=')                                   :s(Value.next)
+    Value = Value ch                                :(Value.next)
+
+Value.eval
+
+    Value = eval(str)                               
+    out('Value.out',Value)
+                                                   :(return)
+
+Value.end
+
+    define('main()')                                 :(main.end)
+
+*   Need to generate all strings of form 1x2x3x4x5x6x7x8x9
+*   where x may be '+', '-', or '=' (concatendate).
+
+main
+
+*   Iteratively build set of possibilites P, begining with the set 
+
+    Q = new('set 1+2x3x4x5x6x7x8x9  1-2x3x4x5x6x7x8x9 1=2x3x4x5x6x7x8x9') 
+
+*   Then, iterate over the set by finding the first instance of 'x', quitting
+*   if no instances of 'x' are found.
+
+
+p.loop
+
+*   Set P to Q and repeat until more instances of 'x' remain, which
+*   will occur when P and Q have the same size.
+
+    out('showing Q')
+    list(Q)
+    P = copy(Q)
+    loop(P)
+    Q = new('set')
+
+p.next
+
+    this = next(P)                                  :f(p.done)
+    out('next P')
+    out('this',this)
+    this break('x')                                 :s(q.add)
+
+*   Here if no instance of 'x', so just add element to Q.
+
+    out('no x')
+    add(Q,this)                                     :(p.next)
+
+q.add
+
+*   Here if instance of x'. Add three elements to Q, 
+*   one with x='+', one with x='-', and one with x='='.
+
+    out('have x')
+    this = first 'X' second
+    add(Q,replace(this,'X','+')) 
+    add(Q,replace(this,'X','-')) 
+    add(Q,replace(this,'X','=')) 
+                                                    :(p.next)
+
+p.done
+
+    out('p.done')
+    ne(set.size(P),set.size(Q))                     :s(p.loop)
+
+*   Filter P, keeping only elements with value 100.
+
+    out('before evaluation')
+    show(Q)
+    R = filter(Q,"eq(Value(this),100)")
+    out('after evaluation')
+    show(R)
+
+main.end
+
+    main()
+
+end
+*   that yield the value 100.
+

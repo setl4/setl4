@@ -1786,7 +1786,6 @@ or.end
 out
 
     output = text1 ' ' text2 ' ' text3 :(return)
-*HERE OUT
     out = setl4.simple.type(text1)
     out = differ(setl4.simple.type(text2)) out '[' setl4.simple.type(text2) ']'
     out = differ(setl4.simple.type(text3)) out  setl4.simple.type(text2)
@@ -2898,8 +2897,6 @@ writer.next
 
 writer.end
 
-    out('at writer.end')
-
 *## SETL4 internal functions
 
 *   Functions whose names begin with _setl4_ are for internal use only, and are
@@ -3024,7 +3021,6 @@ setl4.show.set
                                                        :(return)
 setl4.show.end
 
-    output = ' at show.end'
     define('setl4.simple.type(type)')                  :(setl4.simple.type.end)
 
 *   Tests if _v_ is a 'simple' type suitable for use in _out()_.
