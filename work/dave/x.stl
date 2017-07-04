@@ -1,0 +1,16 @@
+
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+-include "../../setl4.stl"
+    s1 = new('set a')
+    show(s1)
+    s2 = new('set a b')
+    show(s2)
+    
+    s = new('seq')
+    push(s,s1)
+    push(s,s2)
+    show(s)
+end
+
