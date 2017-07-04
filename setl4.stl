@@ -1,5 +1,5 @@
 
-*    Copyright 2017, David Shields
+*   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
 *   TODO
@@ -786,18 +786,36 @@ begins
 
 begins.end
 
-    define('binary(n)')                         :(binary.end)
+    define('binary(n)')                                 :(binary.end)
 
 *   _Binary_returns a string with the value of _n_ as a binary number.
 
 binary
 
-*   out('binary n',n)
-*   out('binary now',binary)
-    eq(n)                               :s(return)
-    binary = even(n) '0' binary
-    binary = odd(n)  '1' binary
-    n = n / 2                           :(binary)
+    n = n * 2
+
+binary.next
+
+    n = n / 2
+
+*   out()
+*   out('binary.next binary',show.q(binary))
+*   out('binary.next n',n)
+*   out()
+
+    binary = eq(n)   '0'                          :s(return)
+    binary = eq(n,1) '1'                        :s(return)
+    binary = even(n) binary(n / 2) '0'
+    binary = odd(n)  binary(n / 2) '1' 
+                                                :(return)
+
+                                                        :(binary.next)
+
+binary.done
+
+*   binary = ident(binary) '0'                          :s(return)
+*   binary = gt(size(binary),1) substr(binary,2)          
+                                                        :(return)
 
 binary.end
 
