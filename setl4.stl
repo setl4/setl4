@@ -462,6 +462,7 @@
 *-  assert(expr)                Tests that _expr_ is true, ends execution otherwise.
 *-  assert.type(obj,type)       Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise.
 *-  begins(str,sub)             Tests if string _key_ begins with string _sub_.
+*-  binary(n)                   Returns string with value of _n_ in binary number.
 *-  checkout(filename)          Returns ('checks out') set or map defined by a text file from the libary
 *-  compare(a,b)                Compares two integers or strings, returning -1 (less), 0 (equal), or +1 (greater).
 *-  compose(a,b)                Returns composition of two maps or tables.
@@ -544,10 +545,10 @@
 
 add
 
+    differ(datatype(set),'set') error('attempt to add to non-set ' datatype(set))
     elem = integer(elem) +elem
     ident(set.kind(set),'map')                         :s(add.map)
-    ident(set.kind(set),'seq')                         :s(add.seq)
-    differ(set.kind(set),'map')                        :s(add.set)
+    ident(set.kind(set),'seq')                         :s(add.seq)f(add.set)
 
 add.map
 
@@ -560,6 +561,20 @@ add.seq
 
 add.set
     member(set,elem)                                   :s(return)
+
+    ident(setl4.add.trace) :s(add.notrace)
+    out('ADD SET')
+    out('add set dt set',datatype(set))
+    setl4.show(set)
+    show(set)
+    out('add set dt elem',datatype(elem))
+    setl4.show(elem)
+    show(elem)
+
+add.notrace
+
+    differ(setl4.add.trace) out('add.notrace')
+    differ(setl4.add.trace) setl4.show(set)
     set.size(set) = set.size(set) + 1
     set.index(set)[set.size(set)] = elem
     set.key(set)[elem] = elem                          :(return)
@@ -770,6 +785,21 @@ begins
     ident(substr(str,1,size(init)),init)               :s(return)f(freturn)
 
 begins.end
+
+    define('binary(n)')                         :(binary.end)
+
+*   _Binary_returns a string with the value of _n_ as a binary number.
+
+binary
+
+*   out('binary n',n)
+*   out('binary now',binary)
+    eq(n)                               :s(return)
+    binary = even(n) '0' binary
+    binary = odd(n)  '1' binary
+    n = n / 2                           :(binary)
+
+binary.end
 
 	define('checkout(filename)file,fullname,line,word')   :(checkout.end)
 
@@ -1785,7 +1815,7 @@ or.end
 
 out
 
-    output = text1 ' ' text2 ' ' text3 :(return)
+*   output = text1 ' ' text2 ' ' text3 :(return)
     out = setl4.simple.type(text1)
     out = differ(setl4.simple.type(text2)) out '[' setl4.simple.type(text2) ']'
     out = differ(setl4.simple.type(text3)) out  setl4.simple.type(text2)
@@ -2019,7 +2049,6 @@ reader.eof
 
 reader.end
 
-    output = 'AT HERE'
     define('reader.str(str,delim)line')                :(reader.str.end)
 
 *   _Reader.str_ returns a sequence of the lines in _str_, where
