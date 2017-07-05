@@ -81,22 +81,16 @@ visit set
 eval visit(set,'show(this)') success
 
 visit map
-'one'
 1
  'one':1
-'two'
 2
  'two':2
-'ten'
 10
  'ten':10
-'forty'
 40
  'forty':40
-'hundred'
 100
  'hundred':100
-'thousand'
 1000
  'thousand':1000
 eval visit(map,'show(this)') success

@@ -3,7 +3,6 @@
 *   Licensed under the MIT license.
 
 *   TODO
-*       extend loop(set) to loop(set,name) to allow user to provide alternative to 'this'.
 
 *# SETL4 - An Implementation of SETL Written in SPITBOL
 
@@ -161,7 +160,7 @@
 
 *   A set is a collection unequall objects, and is represented in SETL4 by the datatype _set_:
 
-    data('set(set.kind,set.iter,set.index,set.key,set.kind,set.size,set.this,'
+    data('set(set.kind,set.iter,set.index,set.key,set.kind,set.size,'
 .        'set.block,set.blocks,set.offset,set.str)')
 
 *   where
@@ -181,10 +180,6 @@
 *- _set.size_ the current number of members.
 
 *- _set.str_           is used for sets of kind 'int'
-
-*- _set.this_          the most recent value returned by the set's iterator
-
-*- _set.thisname_      name of variable to be updated by _next()_. Default is 'this'.
 
 
 *   The following fields are used only for sets of kind 'int':
@@ -314,6 +309,43 @@
 *       output = le(i = i + 1,100) i    :s(test)
 *```
 
+*   Loops in SETL4 are constructed using the _loop_ and _next_ statements.
+
+*   A loop has the form:
+
+*```
+*       loop(set,thisname)
+*       
+*   set.next
+*       var = next(set)     :f(set.done)
+*       out(this)           :(set.next)
+*   set.done
+*```
+
+*   The first operand specifies of _loop_ gives the set or range of values
+*   of the iteration.  The optional second argument names a variable that is
+*   updated as part of successful call to _next_.  The name _this_ is used
+*   if the second argument is not given. The _loop_ statement above can be
+*   written as _loop(set)_ or also _loop(set,.this)_ or _loop(set,'this').
+*
+*   Loops can have a specific variable associated with a loop.
+
+*```
+*       loop(set,.this.s)
+*       ...
+*   set.next
+*       next(set)           :f(set.done)
+*       out(this.s)         :(set.next)
+*   set.done
+*```
+
+*   The _loop_ statement creates an instance of _iterator_ to control the
+*   iteration. The _next_ statement advances the iteration by producing the
+*   next element or failing if no more elements remain.
+
+*   See the functions _prime_ and _primes_ defined below to see _loop_
+*   and _next_ in action. See also the code for _exists_ and _forall_.
+
 *   SETL4 provides the datatype _iterator_ to control iteration over a
 *   range of integers, over a set, or over a map.
 
@@ -322,44 +354,17 @@
 
 *   where
 
-*-  _iter.next last value returned by the iterator.
+*-  _iter.next      last value returned by the iterator.
 
 *-  The following fields are used to iterate over a range:
 
-*-  _iter.start_ starting value for iteration
+*-  _iter.start_    starting value for iteration
 
-*-  _iter.finis_ finishing value for iteration
+*-  _iter.finis_    finishing value for iteration
 
-*-  _iter.step_  difference between values of an iteration
+*-  _iter.step_     difference between values of an iteration
 
-*   Loops in SETL4 are constructed using the _loop_ and _next_ statements.
-*   For example, the program to display the first one hundred integers can
-*   be written as:
-
-*```
-*   set = integers(100)
-*   loop(set)
-*next
-*   this = next(set)                  :f(done)
-*   output = this                     :s(test)
-*done
-*```
-
-*   The _loop_ statement creates an instance of _iterator_ to control the
-*   iteration. The _next_ statement advances the iteration by producing the
-*   next element or failing if no more elements remain.
-*   The variable _this_ is set to the next element in an iteration if a call
-*   to _next_ succeeds, so the loop can be written in SETL4 as:
-
-*```
-*   set = integers(100)
-*   loop(set)
-*test
-*   output = next(set)                  :s(test)
-*```
-
-*   See the functions _prime_ and _primes_ defined below to see _loop_
-*   and _next_ in action. See also the code for _exists_ and _forall_.
+*-  _iter.thisname_ name of iteration variable to be update to iteration value
 
 *## Additional Operations Provided as an Artifact of the Implementation
 
@@ -386,7 +391,7 @@
 *       add(largest,next(set))               :s(largest.add)
 *```
 
-*   _Rank_ is used by the _show_ function to display the values of a set or
+*   _Sorter_ is used by the _show_ function to display the values of a set or
 *   map in a standard order. For example, if _s_ is a set with the elements
 *   'a', 'b' and 'c', then _show(s)_ yields `set 'a' 'b' 'c' }`, not
 *   `set 'b' 'c' 'a' }`.
@@ -485,11 +490,11 @@
 *-  forall(set,expr)            Tests if an expression is true for every element of a set.
 *-  integers(n)                 Returns set of integers 1 ... n.
 *-  intersection(a,b)           Returns set of elements common to two sets.
-*-  is.integer(n)               Tests if _n_ is integer or string representing integer, returing its value if so, or else failing.
+*-  is.integer(n)               Tests if string or integer _n_ has integer value. Returns it if so, or else fails.
 *-  is.string(s)                Tests if _s_ is a string, returning its value if so, or else failing.
 *-  join(a,b)                   Joins two strings into a single string by concatenating them.
 *-  less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
-*-  loop(set)                   Set up iteration over _set_ using _next_.
+*-  loop(set,this)              Set up iteration over _set_ using _next_. _this_ names variable updated during iteration.
 *-  tolower(s)                  Returns _s_ with upper case letters replaced by lower case equivalent.
 *-  multiple(n,m)               Tests if _n_ is a multiple of _m_.
 *-  odd(n)                      Tests if _n_ is odd.
@@ -1431,7 +1436,8 @@ less.ch
 
 less.end
 
-    define('loop(set,thisname)iter')                    :(loop.end)
+
+    define('loop(set,thisname)iter')                   :(loop.end)
 
 *   _Loop_ creates or updates the iterator of _set_ so that,
 *   on first call to _next()_,  _iter.next_  will be
@@ -1445,16 +1451,16 @@ loop
 
     iter = iterator()
 
-	ident(set.kind(set),'iter')                        :s(loop.iter)
+	ident(set.kind(set),'iter')                           :s(loop.iter)
     ident(set.kind(set),'int')                         :s(loop.int)
     ident(set.kind(set),'map')                         :s(loop.map)
     ident(set.kind(set),'seq')                         :s(loop.map)
     ident(set.kind(set),'set')                         :s(loop.set)
-    error('unknown kind of iterator                    : ' set.kind(set))
+    error('unknown kind of iterator, ' set.kind(set))
 
 loop.int
 
-    iter.next(set) = set.block(iter) = set.offset(iter) = 0 :(loop.finis)
+    iter.next(set) = set.block(iter) = set.offset(iter) = 0:(loop.finis)
 
 loop.iter
 
@@ -1472,14 +1478,10 @@ loop.set
 
 loop.finis
 
-    thisname = ident(thisname) 'this'
-    out()
-    out('loop thisname',thisname)
-    thisname = .thisname
+    thisname = ident(thisname) .this
+    thisname = ident(datatype(thisname),'string') .thisname
     iter.thisname(iter) = thisname
-    out('thisname dt',datatype(iter.thisname(iter)))
-    out()
-    set.iter(set) = iter                                :(return)
+    set.iter(set) = iter                               :(return)
 
 loop.end
 
@@ -1700,7 +1702,7 @@ new.stack
 
 new.stack.end
 
-    define('next(set)iter,key,next,str,thisname,value') :(next.end)
+    define('next(set)iter,key,next,str,thisname,value'):(next.end)
 
 *   _Next_ advances an iteration or fails if no more elements remain.
 
@@ -1708,7 +1710,7 @@ next
 
 *   Branch on kind to find next iteration value.
 
-    iter = set.iter(set)                                :($('next.' set.kind(set)))
+    iter = set.iter(set)                               :($('next.' set.kind(set)))
 
 next.int
 
@@ -1745,7 +1747,7 @@ next.int.block
 .          '+'
 .          substr(str,set.offset(set) + 1)
     set.str(set) = str
-    next = (set.block(set) * setl4.config.int) + size(key) :(next.finis)
+    next = (set.block(set) * setl4.config.int) + size(key):(next.finis)
 
 next.iter
 
@@ -1754,39 +1756,34 @@ next.iter
     next = iter.next(iter) = iter.next(iter) + iter.step(iter)
     gt(iter.step(iter)) gt(next,iter.finis(iter))      :s(freturn)
     lt(iter.step(iter)) lt(next,iter.finis(iter))      :s(freturn)
-                                                        :(next.finis)
+                                                       :(next.finis)
 
 next.map
 
     next = iter.next(iter) = iter.next(iter) + 1
     le(next,set.size(set))                             :f(freturn)
     key = set.index(set)[next]
-    next = entry(key,set.key(set)[key])                 :(next.finis)
+    next = entry(key,set.key(set)[key])                :(next.finis)
 
 next.seq
 
     next = iter.next(iter) = iter.next(iter) + 1
     le(next,set.size(set))                             :f(freturn)
     key = set.index(set)[next]
-    next = set.key(set)[next]                           :(next.finis)
+    next = set.key(set)[next]                          :(next.finis)
 
 next.set
 
     next = iter.next(iter) = +iter.next(iter) + 1
     le(next,set.size(set))                             :f(freturn)
-    next = set.index(set)[next]                         :(next.finis)
+    next = set.index(set)[next]                        :(next.finis)
 
 next.finis
 
-*   Here to set thisname to the next iteration value.
+*   Here to update _thisname_  to the next iteration value.
 
-    out('next.finis')
-    set.this(set) = next
     thisname = iter.thisname(iter)
-    out('next dt nextname',thisname)
-    thisname = next
-    out()
-                                                        :(return)
+    $(thisname) = next                                 :(return)
 
 next.end
 
@@ -1952,7 +1949,7 @@ prime
 
 prime.end
 
-    define('primes(n)set.this')                        :(primes.end)
+    define('primes(n)this')                             :(primes.end)
 
 *   _Primes_ returns the set of primes less than _n_.
 
@@ -2225,7 +2222,7 @@ remove.error
 
 remove.end
 
-    define('show(v,type,within,noquote)ara,i,kind,elem,entry,key,line,hdr,n,set.this,str,value'):(show.end)
+    define('show(v,type,within,noquote)ara,i,kind,elem,entry,key,line,hdr,n,this,str,value'):(show.end)
 
 *   _Show_ displays the value of its first argument in a form that is hopefully both
 *   readable and pleasing to the eye.
@@ -2727,7 +2724,7 @@ subset.end
 
 this
 
-    this = set.this(set)                               :(return)
+    this = iter.thisname(set)                           :(return)
 
 this.end
 
@@ -3054,7 +3051,6 @@ setl4.clear.end
 
 setl4.restore
 
-    set.this(s) = pop(setl4.stack)
     set.index(s) = pop(setl4.stack)
                                                        :(return)
 
@@ -3067,7 +3063,6 @@ setl4.restore.end
 setl4.save
 
     push(setl4.stack,set.index(s))
-    push(setl4.stack,set.this(s))
                                                        :(return)
 
 setl4.save.end
@@ -3136,7 +3131,6 @@ setl4.show.set
 *   differ(set.key(set))                out('  has key table')
 
 *   differ(iter)                        out('  has iterator')
-    differ(set.this(set))               out('  this',     set.this(set))
     differ(iter) ne(iter.start(iter))   out('  start',    iter.start(iter))
     differ(iter) ne(iter.finis(iter))   out('  finis',    iter.finis(iter))
     differ(iter) ne(iter.step(iter))    out('  step',     iter.step(iter))
