@@ -1,0 +1,25 @@
+Installing musl
+
+You need musl library and musl-gcc wrapper to build SPITBOL4.
+
+ Here's how to install musl:
+
+Go to http://www.musl-libc.org and Download the mainline version.
+
+Unpack the tar file and go the musl directory.
+
+Do
+  ./configure
+  make
+  sudo install musl
+
+Then edit the ~/.bashrc file and add this line at the end
+
+  export PATH=/usr/local/musl/bin/;$PATH
+
+Test this with
+
+  which musl-gcc
+
+which should return name of file in /usr/local/musl/bin
+

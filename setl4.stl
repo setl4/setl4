@@ -492,6 +492,7 @@
 *-  multiple(n,m)               Tests if _n_ is a multiple of _m_.
 *-  odd(n)                      Tests if _n_ is odd.
 *-  out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null.
+*-  powerset(set)               Return the powerset of _set_, the set of all the subsets of _set_.
 *-  prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_.
 *-  member(elem,set)            Tests if _elem_ is a member of _set_.
 *-  new(str)                    Returns a new set specified by _str_.
@@ -562,19 +563,19 @@ add.seq
 add.set
     member(set,elem)                                   :s(return)
 
-    ident(setl4.add.trace) :s(add.notrace)
-    out('ADD SET')
-    out('add set dt set',datatype(set))
-    setl4.show(set)
-    show(set)
-    out('add set dt elem',datatype(elem))
-    setl4.show(elem)
-    show(elem)
+*   ident(setl4.add.trace) :s(add.notrace)
+*   out('ADD SET')
+*   out('add set dt set',datatype(set))
+*   setl4.show(set)
+*   show(set)
+*   out('add set dt elem',datatype(elem))
+*   setl4.show(elem)
+*   show(elem)
 
 add.notrace
 
-    differ(setl4.add.trace) out('add.notrace')
-    differ(setl4.add.trace) setl4.show(set)
+*   differ(setl4.add.trace) out('add.notrace')
+*   differ(setl4.add.trace) setl4.show(set)
     set.size(set) = set.size(set) + 1
     set.index(set)[set.size(set)] = elem
     set.key(set)[elem] = elem                          :(return)
@@ -1435,7 +1436,7 @@ less.end
 
 loop
 
-	    ident(set.kind(set),'iter')                       :s(loop.iter)
+	ident(set.kind(set),'iter')                        :s(loop.iter)
     ident(set.kind(set),'int')                         :s(loop.int)
     ident(set.kind(set),'map')                         :s(loop.map)
     ident(set.kind(set),'seq')                         :s(loop.map)
@@ -1663,10 +1664,10 @@ new.set
     set.kind(new) = 'set'
     ident(init)                                        :s(return)
 
-new.iter.next
+new.set.iter.next
 
     init break(' ') . key span(' ') =                  :f(return)
-    add(new,key)                                       :(new.iter.next)
+    add(new,key)                                       :(new.set.iter.next)
 
 new.set.done
 
@@ -1852,6 +1853,63 @@ pop
 
 pop.end
 
+    define('powerset(set)b,i,j,n,N,s,this')            :(powerset.end)
+
+*   Return the powerset of _set_, defined as the set of all subsets of a set.
+
+powerset
+
+    powerset = new('set')
+
+*   Let _n_ be the size of _set_.
+*   The powerset of the empty set is the empty set.
+
+    n = set.size(set)
+    eq(n)                                              :s(return)
+
+*   Compute _N_ = 2 to the powerset _n_.
+
+    N = 1
+    i = 0
+
+powerset.N
+
+    le(i = i + 1,n)                                    :f(powerset.N.done)
+    N = N * 2                                          :(powerset.N)
+
+powerset.N.done
+
+*   Compute the powerset as follows:
+
+*   Loop for i = 0 ... N - 1:
+*       Let _b_ be the string containing the binary value of _i_, padded to length _n_.
+*       Set _this_ to the empty set.
+*       Loop for _j_ = _size(b)_ ... _1_
+*           If the _j_-th character of _b_ is '1' then add
+*           the _j_-th element of _set_ to _this_.
+*       Add _this_ to _powerset_.
+
+    i = -1
+
+powerset.next.i
+
+    lt(i = i + 1,N)                                    :f(return)
+    b = binary(i,n)
+    this = new('set')
+    j = size(b) + 1
+
+powerset.next.j
+
+    gt(j = j - 1)                                      :f(powerset.j.done)
+    s = substr(b,j,1)
+    ident(s,'1') add(this,set.index(set)[j])
+                                                       :(powerset.next.j)
+
+powerset.j.done
+
+    add(powerset,this)                                 :(powerset.next.i)
+
+powerset.end
     define('prefix(str,pre)word')                      :(prefix.end)
 
 *   _Prefix_ takes a list of space-separated words _str_ and prefixes each
@@ -2040,16 +2098,20 @@ range.end
 
 reader
 
-    differ(filename) input(.file,setl4.config.channel.1,filename):s(reader.opened)
+    line  = input
+    out('first',line)
+    ident(filename)                                     :s(reader.read)
+    input(.file,setl4.config.channel.1,filename):s(reader.opened)
     out('unable to open reader file ' filename '.')    :(freturn)
 
-reader.opened
+reader.read
 
     reader = new('seq')
 
 reader.next
 
     line = (ident(filename) input, file)               :f(reader.eof)
+    out(line)
     ident(line)                                        :s(reader.next)
     line '*'                                           :s(reader.next)
     ident(undent)                                      :s(reader.add)
@@ -2215,7 +2277,7 @@ show.int
 show.int.next
 
     elem = next(v)                                     :f(show.int.done)
-    show = show ' ' show(elem,type,within)
+    show = show ' ' show(elem,type,'TRUE')
     lt(size(show),80)                                  :s(show.int.next)
     out(show)
     show =                                             :(show.int.next)
@@ -2223,6 +2285,7 @@ show.int.next
 show.int.done
 
     setl4.restore(v)
+    within =
     show = show ' }'                                   :(show.done)
 
 show.iter
@@ -2233,7 +2296,7 @@ show.iter
 show.iter.next
 
     elem = next(v)                                     :f(show.iter.done)
-    show = show ' ' show(elem,type,within)
+    show = show ' ' show(elem,type,'TRUE')
     lt(size(show),80)                                  :s(show.iter.next)
     out(show)
     show =                                             :(show.iter.next)
@@ -2255,9 +2318,8 @@ show.integer
 
 show.map
 
-    show = 'map{'
     setl4.save(v)
-    within = 1
+    show = 'map{'
     sorter(v,type)
     loop(v)
 
@@ -2269,10 +2331,10 @@ show.map.next
 *   them directly. Otherwise, show key and value separated by ':' (colon).
 
     show = ident(datatype(value(entry),'token'))
-.               show  show.token(v,,within)            :s(show.map.check)
+.               show  show.token(v,,'TRUE')            :s(show.map.check)
 
-*   show = show ' ' show(entry,type,within) ' '
-    show = show show(entry,type,within)
+*   show = show ' ' show(entry,type,'TRUE') ' '
+    show = show show(entry,type,'TRUE')
 
 show.map.check
 
@@ -2288,12 +2350,12 @@ show.map.done
 
 show.pair
 
-    show = show ' ' show(first(v),type,within)  ':' show(second(v,type,within)) ' ':(show.done)
+    show = show ' ' show(first(v),type,'TRUE')  ':' show(second(v,type,'TRUE')) ' ':(show.done)
 
 show.seq
 
-    show = 'seq{'
     setl4.save(v)
+    show = 'seq{'
     within = 1
     sorter(v,type)
     loop(v)
@@ -2301,7 +2363,7 @@ show.seq
 show.seq.next
 
     entry = next(v)                                    :f(show.seq.done)
-    show = show ' ' show(entry,type,within)
+    show = show ' ' show(entry,type,'TRUE')
 
 show.seq.check
 
@@ -2317,24 +2379,24 @@ show.seq.done
 
 show.set
 
+    setl4.save(v)
     show = 'set{'
     within = 1
     sorter(v,type)
-    setl4.save(v)
     loop(v)
 
 show.set.next
 
     elem = next(v)                                     :f(show.set.done)
-    show = show ' ' show(elem,type,within)
+    show = show ' ' show(elem,type,'TRUE')
     lt(size(show),80)                                  :s(show.set.next)
     out(show)
     show =                                             :(show.set.next)
 
 show.set.done
 
-    within =
     setl4.restore(v)
+    within =
     show = show ' }'                                   :(show.done)
 
 show.string
@@ -2345,7 +2407,7 @@ show.string
 
     show =
     gt(size(v),80)                                     :s(show.string.long)
-    show = (ident(unquote) show.q(v), v)               :(show.done)
+    show = (ident(unquote) show.q(v), v)               :(show.within)
 
 show.string.long
 
@@ -2356,7 +2418,7 @@ show.string.long
 
 show.string.next
 
-    v break(' ') . key span(' ') =                     :f(show.done)
+    v break(' ') . key span(' ') =                     :f(show.within)
     show = show (ident(show) '', ' ') key
     lt(size(show),60)                                  :s(show.string.next)
     out(show)
@@ -2377,7 +2439,7 @@ show.table.error
 show.table.next
 
     le(i = i + 1,n)                                    :f(show.table.done)
-    show = show ' ' show(ara[i,1],type,within) '       :' show(ara[i,2],type,within)
+    show = show ' ' show(ara[i,1],type,'TRUE') '       :' show(ara[i,2],type,'TRUE')
     lt(size(show),80)                                  :s(show.table.next)
     out(show)
     show =                                             :(show.table.next)
@@ -2389,13 +2451,19 @@ show.table.done
 
 show.string.quote
 
-    show = '"'  v '"'                                  :(show.done)
+    show = '"'  v '"'                                  :(show.within)
 
 show.done
 
-*   Write out result unless listing elements of compound object.
+   ident(within) out(show)                            :(return)
+    differ(show) out(show)
+                                                        :(return)
+show.within
 
-    ident(within) out(show)                            :(return)
+*   Here when showing member of composite object.
+
+                                :(return)
+    differ(show) out(show)                              :(return)
 
 show.end
 
@@ -3090,8 +3158,8 @@ setl4.simple.type.end
 
 setl4.size
 
-    out('enter setl4.size')
-    setl4.show(set)
+*   out('enter setl4.size')
+*   setl4.show(set)
     setl4.size = ident(datatype(set),'string') size(set):s(return)
     setl4.size = differ(iter.step(set)) (iter.finis(set) - iter.start(set) / iter.step(set)) + 1:s(return)
     setl4.size = set.size(set)                         :(return)
