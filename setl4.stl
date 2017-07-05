@@ -184,6 +184,8 @@
 
 *- _set.this_          the most recent value returned by the set's iterator
 
+*- _set.thisname_      name of variable to be updated by _next()_. Default is 'this'.
+
 
 *   The following fields are used only for sets of kind 'int':
 
@@ -315,7 +317,7 @@
 *   SETL4 provides the datatype _iterator_ to control iteration over a
 *   range of integers, over a set, or over a map.
 
-    data('iterator(iter.next,iter.start,iter.finis,iter.step,'
+    data('iterator(iter.next,iter.start,iter.finis,iter.step,iter.thisname,'
 .                 'iter.block,iter.blocks,iter.offset,iter.str)')
 
 *   where
@@ -1429,12 +1431,19 @@ less.ch
 
 less.end
 
-    define('loop(set)iter')                            :(loop.end)
+    define('loop(set,thisname)iter')                    :(loop.end)
+
 *   _Loop_ creates or updates the iterator of _set_ so that,
 *   on first call to _next()_,  _iter.next_  will be
 *   advanced to select the first element in the iteration.
 
+*   If _thisname_ is not null, then _thisname_ is set to 'this'.
+*   On each call to _next()_ during the iteration established
+*   by _loop_, the value of the iterate will be assigned to _thisname_.
+
 loop
+
+    iter = iterator()
 
 	ident(set.kind(set),'iter')                        :s(loop.iter)
     ident(set.kind(set),'int')                         :s(loop.int)
@@ -1445,29 +1454,32 @@ loop
 
 loop.int
 
-    iter = iterator()
-    iter.next(set) = set.block(iter) = set.offset(iter) = 0
-    set.iter(set) = iter                               :(return)
+    iter.next(set) = set.block(iter) = set.offset(iter) = 0 :(loop.finis)
 
 loop.iter
 
 *   When iterating over a set of kind 'iter', use the iterator
 *   created when the set was created.
 
-    iter = set.iter(set)
     differ(set.kind(set),'iter') error("loop.iter requires kind 'iter'")
     iter.next(iter) = gt(iter.step(iter)) iter.start(iter) - iter.step(iter)
     iter.next(iter) = lt(iter.step(iter)) iter.start(iter) - iter.step(iter)
-                                                       :(return)
+                                                       :(loop.finis)
 
 loop.map
 loop.seq
-
-    set.iter(set) = iterator()                         :(return)
-
 loop.set
 
-    set.iter(set) = iterator()                         :(return)
+loop.finis
+
+    thisname = ident(thisname) 'this'
+    out()
+    out('loop thisname',thisname)
+    thisname = .thisname
+    iter.thisname(iter) = thisname
+    out('thisname dt',datatype(iter.thisname(iter)))
+    out()
+    set.iter(set) = iter                                :(return)
 
 loop.end
 
@@ -1688,19 +1700,15 @@ new.stack
 
 new.stack.end
 
-    define('next(set)iter,key,next,str,value')         :(next.end)
+    define('next(set)iter,key,next,str,thisname,value') :(next.end)
 
-*   _Next_ advances an iteration by setting field _next_ to the next item
-*   to be visisted, or fails if no more elements remain.
+*   _Next_ advances an iteration or fails if no more elements remain.
 
 next
 
 *   Branch on kind to find next iteration value.
 
-    iter = set.iter(set)
-    iter = set.iter(set)
-
-                                                       :($('next.' set.kind(set)))
+    iter = set.iter(set)                                :($('next.' set.kind(set)))
 
 next.int
 
@@ -1737,8 +1745,7 @@ next.int.block
 .          '+'
 .          substr(str,set.offset(set) + 1)
     set.str(set) = str
-    next = (set.block(set) * setl4.config.int) + size(key)
-    this = set.this(set) =  next                       :(return)
+    next = (set.block(set) * setl4.config.int) + size(key) :(next.finis)
 
 next.iter
 
@@ -1747,34 +1754,39 @@ next.iter
     next = iter.next(iter) = iter.next(iter) + iter.step(iter)
     gt(iter.step(iter)) gt(next,iter.finis(iter))      :s(freturn)
     lt(iter.step(iter)) lt(next,iter.finis(iter))      :s(freturn)
-    this = set.this(set) = next                        :(return)
+                                                        :(next.finis)
 
 next.map
 
-    iter = set.iter(set)
     next = iter.next(iter) = iter.next(iter) + 1
     le(next,set.size(set))                             :f(freturn)
     key = set.index(set)[next]
-    next = entry(key,set.key(set)[key])
-    this = set.this(set) = next                        :(return)
+    next = entry(key,set.key(set)[key])                 :(next.finis)
 
 next.seq
 
-    iter = set.iter(set)
     next = iter.next(iter) = iter.next(iter) + 1
     le(next,set.size(set))                             :f(freturn)
     key = set.index(set)[next]
-    next = set.key(set)[next]
-    this = set.this(set) = next                        :(return)
+    next = set.key(set)[next]                           :(next.finis)
 
 next.set
 
-    iter = set.iter(set)
     next = iter.next(iter) = +iter.next(iter) + 1
     le(next,set.size(set))                             :f(freturn)
-    next = set.index(set)[next]
-    this = set.this(set) = next
-                                                       :(return)
+    next = set.index(set)[next]                         :(next.finis)
+
+next.finis
+
+*   Here to set thisname to the next iteration value.
+
+    out('next.finis')
+    set.this(set) = next
+    thisname = iter.thisname(iter)
+    out('next dt nextname',thisname)
+    thisname = next
+    out()
+                                                        :(return)
 
 next.end
 
