@@ -18,31 +18,35 @@ list.next
 
 list.end
 
-    define('Value(str)first,second')                :(Value.end)
+    define('Value(str)tmp')                         :(Value.end)
 
 *   Evaluate argument _str_ after replacing instance of 'a=b' with 'ab'
 
 Value
 
 *   March through _str_,putting spaces around binary operators, and doing concatenation as needed.
+*   First, expand str so that '+' and '-' have space before and after operator symbol, and do 
+*   concatenation implied by '.'.
+
 
 Value.next
 
     str len(1) . ch =                               :f(Value.eval)
-    Value = ident(ch,'+') Value ' + '               :s(Value.next)
-    Value = ident(ch,'-') Value ' - '               :s(Value.next)
+    tmp = ident(ch,'+') first ' + '               :s(Value.next)
+    tmp = ident(ch,'-') first ' - '               :s(Value.next)
     ident(ch,'=')                                   :s(Value.next)
-    Value = Value ch                                :(Value.next)
+    tmp = first ch                                :(Value.next)
 
 Value.eval
 
-    Value = eval(str)                               
+    out('Value.in',tmp)
+    Value = eval(tmp)                               
     out('Value.out',Value)
                                                    :(return)
 
 Value.end
 
-    define('main()')                                 :(main.end)
+    define('main()P,Q,this')                        :(main.end)
 
 *   Need to generate all strings of form 1x2x3x4x5x6x7x8x9
 *   where x may be '+', '-', or '=' (concatendate).
@@ -51,7 +55,8 @@ main
 
 *   Iteratively build set of possibilites P, begining with the set 
 
-    Q = new('set 1+2x3x4x5x6x7x8x9  1-2x3x4x5x6x7x8x9 1=2x3x4x5x6x7x8x9') 
+*   Q = new('set 1+2x3x4x5x6x7x8x9  1-2x3x4x5x6x7x8x9 1=2x3x4x5x6x7x8x9') 
+    Q = new('set 1+2x3x  1-2x3x 1=2x3x') 
 
 *   Then, iterate over the set by finding the first instance of 'x', quitting
 *   if no instances of 'x' are found.

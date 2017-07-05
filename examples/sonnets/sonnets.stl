@@ -1,3 +1,4 @@
+
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
@@ -49,7 +50,7 @@
 
 *   Analyze the text of the sonnets.
 
-    define('find(lines)id,line,lineno,sonnet') :(find.end)
+    define('find(lines)id,line,lineno,sonnet')         :(find.end)
 
 *   _Find_ _loops through the lines of text, starting a new sonnet
 *   when see the roman numeral with the sonnet number is seen.
@@ -60,17 +61,17 @@ find
 
 find.line
 
-    line = next(lines)                          :f(find.finis)
+    line = next(lines)                                 :f(find.finis)
 
 *   Some of the lines in the text are indented, so eliminate the indentation.
 
     line span(' ') =
     lineno = lineno + 1
 
-find.check 
+find.check
 
-    line span('IVDCXL') . id  rpos(0)           :f(find.line)
-    differ(size(id),size(line))                 :s(find.line)
+    line span('IVDCXL') . id  rpos(0)                  :f(find.line)
+    differ(size(id),size(line))                        :s(find.line)
 
 *   Save the sonnet just built unless here at start of first sonnet.
 
@@ -79,30 +80,30 @@ find.check
 find.found
 
 *   Here after seeing line marking start of sonnet.
-    
+
     g.sonnet.this = g.sonnet.this + 1
 
     push(g.numeral,line)
     sonnet = new('seq #14')
 
-find.next 
+find.next
 
-    line  = next(lines)                         :f(find.finis)
+    line  = next(lines)                                :f(find.finis)
     line span(' ') =
-    ident(line)                                 :s(find.line)
-    line span('IVDCXL') . id  rpos(0)           :s(find.check)
-    push(sonnet,line)                           :(find.next)
+    ident(line)                                        :s(find.line)
+    line span('IVDCXL') . id  rpos(0)                  :s(find.check)
+    push(sonnet,line)                                  :(find.next)
 
 find.finis
 
 *   Here at end of file. Add the last sonnet.
 
-    differ(sonnet) push(g.sonnets,sonnet)       
-                                                :(return)
+    differ(sonnet) push(g.sonnets,sonnet)
+                                                       :(return)
 
 find.end
 
-    define('list(sonnet,title)line')                :(list.end)
+    define('list(sonnet,title)line')                   :(list.end)
 
 *   List the text of a sonnet, prefaced by _title_, and including line numbers.
 
@@ -111,12 +112,12 @@ list
     out()
     out('Sonnet ' title)
     out()
-    show.lines(sonnet,1)                            :(return)
+    show.lines(sonnet,1)                               :(return)
 
 list.end
 
 
-    define('scan(sonnet,sonnet.num,word.str)line,entry,i,line.num,ref,seen,word,word.pat,words.this')   :(scan.end)
+    define('scan(sonnet,sonnet.num,word.str)line,entry,i,line.num,ref,seen,word,word.pat,words.this'):(scan.end)
 
 *   _Scan_ looks at each line in a sonnet, extracting its words,
 *   updating the  of the number of times a word is used, and.
@@ -129,7 +130,7 @@ scan
 scan.next.line
 
     g.words = differ(seen) union(g.words,seen)
-    line = next(sonnet)                             :f(return)
+    line = next(sonnet)                                :f(return)
     line.num = line.num + 1
 
 *   _Words.this_ is a seqence of the words seen in this line.
@@ -141,14 +142,14 @@ scan.next.line
 
 scan.next.word
 
-    word = tolower(next(words.this))                :f(scan.next.line)
+    word = tolower(next(words.this))                   :f(scan.next.line)
     g.words.count = g.words.count + 1
     put(g.count,word,get(g.count,word) + 1)
 
 *   See if have already seen this word in this line,
 *   in which case continue on to next word.
 
-    member(seen,words.this)                         :s(scan.next.word)
+    member(seen,words.this)                            :s(scan.next.word)
 
 *   Add the word to the set of words seen in this line.
 
@@ -160,11 +161,11 @@ scan.next.word
 *   out('adding ref at ' sonnet.num '.' line.num ' for ',word)
     ref = get(g.uses,word)
     put(g.uses,word, (ident(ref) '',ref ' ') (sonnet.num '.' line.num))
-                                                    :(scan.next.word)
+                                                       :(scan.next.word)
 
 scan.end
 
-    define('main()entry,i,line,str,this)')          :(main.end)
+    define('main()entry,i,line,str,this)')             :(main.end)
 
 *   Main program
 
@@ -174,16 +175,16 @@ main
 
     g.lines = reader('sonnets.txt','TRUE')
 
-    find(g.lines)   
+    find(g.lines)
 
 *
     i = 0
     loop(g.sonnets)
 
 main.scan.next
-    
-    sonnet = next(g.sonnets)                    :f(main.scan.done)
-    scan(sonnet,i = i + 1,g.word.str)        :(main.scan.next)
+
+    sonnet = next(g.sonnets)                           :f(main.scan.done)
+    scan(sonnet,i = i + 1,g.word.str)                  :(main.scan.next)
 
 main.scan.done
 
@@ -201,7 +202,7 @@ main.scan.done
 *   Build set of the most frequently used words by sorting the map _g.count_,
 *   then listing its first few entries.
 
-    out('The most frequently used words:')
+    out('The most frequently used words                :')
     out()
 
     sorter(g.count,'-v')
@@ -212,10 +213,10 @@ main.scan.done
 
 main.counts.next
 
-    entry = next(most)			            :f(main.counted)
+    entry = next(most)                                 :f(main.counted)
     key = key(entry)
     key = ident(key,"i") "I"
-    out(lpad(key,10) '  ' value(entry))             :(main.counts.next)
+    out(lpad(key,10) '  ' value(entry))                :(main.counts.next)
 
 main.counted
 
@@ -230,7 +231,7 @@ main.counted
 
 main.uses.next
 
-    entry = next(g.uses)                            :f(main.uses.listed)
+    entry = next(g.uses)                               :f(main.uses.listed)
     ident(key(entry)) error('null key.')
     str = rpad(key(entry),10) ' ' value(entry)
 *   ident(substr(str,1,1),'0') error('zero at start of ref')
@@ -239,7 +240,7 @@ main.uses.next
 
     lt(size(str),60) out(str)
     ge(size(str),60) show(str,,,1)
-                                                    :(main.uses.next)
+                                                       :(main.uses.next)
 main.uses.listed
 
 *   List the text of the sonnets, including the line numbers.
@@ -249,9 +250,9 @@ main.uses.listed
 
 main.list.next
 
-    list(next(g.sonnets),get(g.numeral,i = i + 1))  :s(main.list.next)
+    list(next(g.sonnets),get(g.numeral,i = i + 1))     :s(main.list.next)
 
-                                                    :(return)
+                                                       :(return)
 
 main.end
 
@@ -265,7 +266,7 @@ end
 *   Licensed under the MIT license.
 
 -include "setl4.stl"
-    
+
 *   &dump = 3
 
 *## Global variables
@@ -321,7 +322,7 @@ end
 
 *   Analyze the text of the sonnets.
 
-    define('find(lines)id,line,lineno,sonnet') :(find.end)
+    define('find(lines)id,line,lineno,sonnet')         :(find.end)
 
 *   _Find_ _loops through the lines of text, starting a new sonnet
 *   when see the roman numeral with the sonnet number is seen.
@@ -332,7 +333,7 @@ find
 
 find.line
 
-    line = next(lines)                          :f(find.finis)
+    line = next(lines)                                 :f(find.finis)
 
 *   Some of the lines in the text are indented, so eliminate the indentation.
 
@@ -344,10 +345,10 @@ find.line
     line = ident(substr(line,1,1),"'") substr(line,2)
     line = ident(substr(line,size(line),1),"'") substr(line,1,size(line) - 1)
 
-find.check 
+find.check
 
-    line span('IVDCXL') . id  rpos(0)           :f(find.line)
-    differ(size(id),size(line))                 :s(find.line)
+    line span('IVDCXL') . id  rpos(0)                  :f(find.line)
+    differ(size(id),size(line))                        :s(find.line)
 
 *   Save the sonnet just built unless here at start of first sonnet.
 
@@ -356,30 +357,30 @@ find.check
 find.found
 
 *   Here after seeing line marking start of sonnet.
-    
+
     g.sonnet.this = g.sonnet.this + 1
 
     push(g.numeral,line)
     sonnet = new('seq #14')
 
-find.next 
+find.next
 
-    line  = next(lines)                         :f(find.finis)
+    line  = next(lines)                                :f(find.finis)
     line span(' ') =
-    ident(line)                                 :s(find.line)
-    line span('IVDCXL') . id  rpos(0)           :s(find.check)
-    push(sonnet,line)                           :(find.next)
+    ident(line)                                        :s(find.line)
+    line span('IVDCXL') . id  rpos(0)                  :s(find.check)
+    push(sonnet,line)                                  :(find.next)
 
 find.finis
 
 *   Here at end of file. Add the last sonnet.
 
-    differ(sonnet) push(g.sonnets,sonnet)       
-                                                :(return)
+    differ(sonnet) push(g.sonnets,sonnet)
+                                                       :(return)
 
 find.end
 
-    define('list(sonnet,title)line')                :(list.end)
+    define('list(sonnet,title)line')                   :(list.end)
 
 *   List the text of a sonnet, prefaced by _title_, and including line numbers.
 
@@ -388,12 +389,12 @@ list
     out()
     out('Sonnet ' title)
     out()
-    show.lines(sonnet,1)                            :(return)
+    show.lines(sonnet,1)                               :(return)
 
 list.end
 
 
-    define('scan(sonnet,sonnet.num,word.str)line,entry,i,line.num,ref,seen,word,word.pat,words.this')   :(scan.end)
+    define('scan(sonnet,sonnet.num,word.str)line,entry,i,line.num,ref,seen,word,word.pat,words.this'):(scan.end)
 
 *   _Scan_ looks at each line in a sonnet, extracting its words,
 *   updating the  of the number of times a word is used, and.
@@ -406,7 +407,7 @@ scan
 scan.next.line
 
     g.words = differ(seen) union(g.words,seen)
-    line = next(sonnet)                             :f(return)
+    line = next(sonnet)                                :f(return)
     line.num = line.num + 1
 
 *   _Words.this_ is a seqence of the words seen in this line.
@@ -418,13 +419,13 @@ scan.next.line
 
 scan.next.word
 
-    word = tolower(next(words.this))                :f(scan.next.line)
+    word = tolower(next(words.this))                   :f(scan.next.line)
 
 *   Shakespeare enclosed some phrases in quotes, so fix spurious instances
 *   of single quote that result.
 
     word "'" =
-    ident(word,"'")                                 :s(scan.next.word)
+    ident(word,"'")                                    :s(scan.next.word)
 
 *   Eliminate initial and final instances of single quote ("'") in a word.
 
@@ -435,13 +436,13 @@ scan.word
 
     g.words.count = g.words.count + 1
     g.the.count = ident(word,'the') g.the.count + 1
-    g.common.count = member(g.common,word) g.common.count + 1 :s(scan.next.word)
+    g.common.count = member(g.common,word) g.common.count + 1:s(scan.next.word)
     put(g.count,word,get(g.count,word) + 1)
 
 *   See if have already seen this word in this line,
 *   in which case continue on to next word.
 
-    member(seen,words.this)                         :s(scan.next.word)
+    member(seen,words.this)                            :s(scan.next.word)
 
 *   Add the word to the set of words seen in this line.
 
@@ -453,11 +454,11 @@ scan.word
 *   out('adding ref at ' sonnet.num '.' line.num ' for ',word)
     ref = get(g.uses,word)
     put(g.uses,word, (ident(ref) '',ref ' ') (sonnet.num '.' line.num))
-                                                    :(scan.next.word)
+                                                       :(scan.next.word)
 
 scan.end
 
-    define('main()entry,i,line,str,this)')          :(main.end)
+    define('main()entry,i,line,str,this)')             :(main.end)
 
 *   Main program
 
@@ -468,16 +469,16 @@ main
     g.lines = reader('sonnets.txt','TRUE')
 *   g.lines = reader('t.txt','TRUE')
 
-    find(g.lines)   
+    find(g.lines)
 
 *
     i = 0
     loop(g.sonnets)
 
 main.scan.next
-    
-    sonnet = next(g.sonnets)                    :f(main.scan.done)
-    scan(sonnet,i = i + 1,g.word.str)        :(main.scan.next)
+
+    sonnet = next(g.sonnets)                           :f(main.scan.done)
+    scan(sonnet,i = i + 1,g.word.str)                  :(main.scan.next)
 
 main.scan.done
 
@@ -512,7 +513,7 @@ main.scan.done
 
 main.counts.next
 
-    out(lpad(key(next(most)),10) '  ' value(this))  :s(main.counts.next)
+    out(lpad(key(next(most)),10) '  ' value(this))     :s(main.counts.next)
 
 *   List the references.
 
@@ -525,7 +526,7 @@ main.counts.next
 
 main.uses.next
 
-    entry = next(g.uses)                            :f(main.uses.listed)
+    entry = next(g.uses)                               :f(main.uses.listed)
     ident(key(entry)) error('null key.')
     str = rpad(key(entry),10) ' ' value(entry)
 *   ident(substr(str,1,1),'0') error('zero at start of ref')
@@ -534,7 +535,7 @@ main.uses.next
 
     lt(size(str),60) out(str)
     ge(size(str),60) show(str,,,1)
-                                                    :(main.uses.next)
+                                                       :(main.uses.next)
 main.uses.listed
 
 *   List the text of the sonnets, including the line numbers.
@@ -544,9 +545,9 @@ main.uses.listed
 
 main.list.next
 
-    list(next(g.sonnets),get(g.numeral,i = i + 1))  :s(main.list.next)
+    list(next(g.sonnets),get(g.numeral,i = i + 1))     :s(main.list.next)
 
-                                                    :(return)
+                                                       :(return)
 
 main.end
 
