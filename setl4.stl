@@ -1207,18 +1207,15 @@ false.end
 
 filter
 
-    out('filter dt seq',datatype(set))
     out('filter set.kind',set.kind(set))
     ident(set.kind(set),'map')                         :s(filter.map)
     ident(set.kind(set),'seq')                         :s(filter.seq)
-    out('filtering set')
     filter = new('set')
     loop(set)
 
 filter.set.next
 
     this = next(set)                                   :f(return)
-    eval(expr) out('filter.set.next adding ',this)
     eval(expr) add(filter,this)                        :(filter.set.next)
 
 filter.map
@@ -2700,13 +2697,12 @@ split.string
     split.string = new('seq')
     str span(' ') =
     ident(str)                                         :s(return)
-    str break(' ')                                     :f(split.string)
 
 split.string.next
 
 *   Here to split.stringing into a sequence of its characters.
 
-    str len(1) . c =                                   :f(split.string.done)
+    str len(1) . c =                                   :f(return)
     put(split.string,i = i + 1, c)                     :(split.string.next)
 
 split.string.end

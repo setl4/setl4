@@ -33,5 +33,25 @@ main
     out('Found ' set.size(found) ' words:' )
     out()
     show(found)
- 
+   
+*   Map words in found to their length.
+
+    sizes = new('map')
+    
+    loop(found)
+
+word.next
+
+    word = next(found)                  :f(sized)
+    put(sizes,word,size(word))          :(word.next)
+
+sized
+
+    out()
+    out()
+    out('Solution sorted by word size:')
+    out()
+    show(sizes,'-v',30)
+
 end
+
