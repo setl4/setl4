@@ -25,6 +25,7 @@ product
 
     out('enter product')
     product = new('set')
+    set.in = new('set')
     set.out = new('set')
 
 *   Set the initial value of _set.in_ to be a set of _n_ empty sequences
@@ -37,9 +38,8 @@ product
     sets.n = set.size(sets)
     eq(sets.n)                                       :s(return)
 
-*   Size of result is product of sizes of the sets. Use this
-*   value for the size of the output sets.
-*   Estimate size of each new sequence as _n_.
+*   Size of result is product of sizes of the sets. Use this value for the
+*   size of the output sets. Estimate size of each new sequence as _n_.
 
     loop(sets)
     n.all = 1
@@ -53,7 +53,7 @@ product.init.next
     
     le(set.i = set.i + 1,n)                 :f(product.init.done)
     out('set.i',set.i)
-    add(set.out,new('seq'))                 :(product.init.next)
+    add(set.in,new('seq'))                 :(product.init.next)
 
 product.init.done
     
@@ -65,18 +65,28 @@ product.init.done
 product.next.set
 
     next.set = next(sets)                                  :f(return)
+    out('product.next.set')
+    show(set.in)
+    show(next.set)
     set.out = new('set #' n.all)
     loop(next.set)
 
 product.next
 
     this = next(next.set)
+    out('product.next this')
+    show(this)
+    out('product.next')
+    show(set.in)
     loop(set.in)
 
 product.next.in
 
     seq = next(set.in)                      :f(product.next.done)
+    out('product.next.in')
+    out('seq dt',datatype(seq))
     push(seq,this)                        
+    show(seq)
     add(set.out,seq)                        :(product.next.in)
 
 product.next.done
