@@ -4,8 +4,7 @@
 
 -include "../setl4.stl"
 
-    &stlimit = 10000
-    define('product(sets)strings,elem,set.in,set.out,this,n,n.all,seq,dt,t') :(product.end)
+    define('product(sets)set.in,set.out,this,n,n.all,set.i,seq,dt,t') :(product.end)
 
 *   _Product_ returns the Cartesian product of a sequence of strings or sets.
 *   For a sequence of strings, _product_ returns the string obtained
@@ -26,21 +25,25 @@
 
 product
 
+    out('enter product')
+    product = new('set')
+    set.out = new('set')
+
+*   Set the initial value of _set.in_ to be a set of _n_ empty sequences
+
+    set.in = new('set')
+    set.i = 0
+
 *   Cartesian product of empty set is an empty sequence.
 
     sets.n = set.size(sets)
     eq(sets.n)                                       :s(return)
 
-    out('enter product')
-    product = new('set')
-    set.out = new('set')
-    set.in = new('set')
-
 *   Size of result is product of sizes of the sets. Use this
 *   value for the size of the output sets.
 *   Estimate size of each new sequence as _n_.
 
-    loop(sets,.sets.this)
+    loop(sets)
     n.all = 1
 
 product.get.size
@@ -48,62 +51,51 @@ product.get.size
     n.all = n.all * set.size(next(sets))    :s(product.get.size)
     out('n.all',n.all)
 
-*   Loop over the sets.
-
-    loop(sets,.sets.this) 
-
-*   Set the initial value of _set.in_ from the first element of _sets_
-
-    next(sets)                                          :f(product.init.done)
-    strings = ident(strings) ident(datatype(set.this),'string') 'TRUE'
-    out('strings',strings)
-    set.in = differ(strings) new('set ' set.this)       :s(product.init.done)
-
-*   Here if inputs are sequences, so set _set.in_ to a set of the
-*   same size as the first input, with each new element an empty sequence.
-
-
-
-    le(i = i + 1,sets.n) add(set.in, new('seq #' n))    :s(product.init.seq)
+product.init.next
+    
+    le(set.i = set.i + 1,n)                 :f(product.init.done)
+    out('set.i',set.i)
+    add(set.out,new('seq'))                 :(product.init.next)
 
 product.init.done
 
-*   Loop over the remaining input sets.
+*   Loop over the input sets.
+*   Initialize set.in to the first element in sets
 
+    loop(sets)
+    set.in = next(sets)
+    out('initial set.in')
+    show(set.in)
+    
 product.next.set
 
-    next(sets)                                  :f(product.done)
+    next.set = next(sets)                                  :f(return)
     out('product.next.set')
-    show(sets.this)
+    show(next.set)
     out()
     set.out = new('set #' n.all)
-
-    loop(sets.this,.set.this)
+    loop(next.set)
 
 product.next
 
-    next(sets.this)                             :f(product.next.set)
-
-    out('product.next',set.this)
-    show(set.this)
-
-*   Let this.n be the size of the _in.this_. Create a new entry for
-*   each entry in _set.in_, the first for the first element in _set.this_,
-*   the second for the second elekeng in _set.this_, and so forth.
-
-*   Loop over set.in, 
-
-    loop(set.in,.in.this)
+    this = next(next.set)
+    out('product.next this')
+    show(this)
+    out()
+    out('product.next set.in')
+    show(set.in)
+    loop(set.in)
 
 product.next.in
 
-    elem = next(set.in)                            :f(product.next.done)
-    ident(elem)                                    :s(product.next.in)
-    out('product.next.in dt elem',datatype(elem))
-    out('product.next.in elem',elem)
-    ident(strings) add(set.out,join(set.this,elem))
-    differ(strings) push(set.this,elem)
-                                                    :(product.next.in)
+*HERE*
+    seq = next(set.in)                      :f(product.next.done)
+    out('product.next.in seq')
+    show(seq)
+    out()
+    ident(seq)                              :s(product.next.in)
+*   seq = ident(datatype(seq),'string') join(seq,this)
+    add(set.out,seq)                        :(product.next.in)
 
 product.next.done
 
@@ -114,8 +106,6 @@ product.next.done
     set.in = set.out                    
     show(set.in)
                                             :(product.next.set)
-product.don
-            :(return)
 
 product.end
     

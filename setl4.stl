@@ -2344,7 +2344,7 @@ show.integer
 show.map
 
     setl4.save(v)
-    show = 'map{'
+    show = '{'
     sorter(v,type)
     loop(v)
 
@@ -2380,7 +2380,7 @@ show.pair
 show.seq
 
     setl4.save(v)
-    show = 'seq{'
+    show = '{'
     within = 1
     sorter(v,type)
     loop(v)
@@ -2405,7 +2405,7 @@ show.seq.done
 show.set
 
     setl4.save(v)
-    show = 'set{'
+    show = '{'
     within = 1
     sorter(v,type)
     loop(v)
