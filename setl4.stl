@@ -1852,10 +1852,11 @@ out
 out.end
     define('pop(stack)')                               :(pop.end)
 
-*   _Pop_ removes (pops)  the top item from stack, or fails if the stack is empty.
+*   _Pop_ removes (pops) the top item from stack, or fails if the stack is empty.
 
 pop
 
+    pop = stack
     eq(set.size(stack))                                :s(freturn)
     pop = set.key(stack)[set.index(stack)[set.size(stack)]]
     set.size(stack) = set.size(stack) - 1              :(return)
@@ -1969,10 +1970,12 @@ primes.end
 
     define('push(stack,value)')                        :(push.end)
 
-*   _Push_ adds a new value to a stack (implemented as a sequence).
+*   _Push_ adds a new value to a stack (implemented as a sequence). It
+*   returns the stack as its value.
 
 push
 
+    push = stack
     ident(stack) error('push() first argument is null.')
     differ(datatype(stack),'set')
 .       error('push() first argument is not a set, but instance of ' datatype(stack))
