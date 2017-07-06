@@ -1,0 +1,76 @@
+    define('product(sets)')                         :(product.end)
+
+*   _Product_ returns the Cartesian product of a sequence of sets.
+
+product
+
+    product = new('seq')
+
+
+*   Cartesian product of empty set is an empty sequence.
+
+    n = set.size(sets)
+    eq(n)                                       :s(return)
+
+product.first
+
+    seq = get(sets,1)
+
+*   Add sequence for each element in the first set.
+
+    loop(seq)
+
+product.first.next
+
+    next(seq)                                   :f(product.first.done)
+    push(this,new('seq #' n'))
+    add(product,this)                           :(product.first.next)
+
+product.first.done
+
+*   For remaining sets, iterate over the curent value of _product_. For each
+*   element, loop over the elements of the next set, creating a new entry when needed.
+
+*   When first see the sequence for an element, make copy of it, and then update it.
+*   Then for the remaining elements in the current set, add a new entry consisting of
+*   the copied sequence with the remaining element added.
+
+    loop(product,.this.p)
+    i = 0
+
+product.p
+
+    next(product)                               :f(product.p.done)
+    i = i + 1
+    tmp = (eq(i,1) copy(this.p) 
+    eq(i,1) push(this.p
+    seq = 
+    seq = (eq(i,1)  
+    j = set
+    le(i = i + 1,n)                              :f(return)
+    seq = this.seq
+
+*   Add sequence for each element in the first set.
+
+    loop(seq,.this.seq)
+    k = 0
+
+product.first.next
+
+
+    next(seq)                                 :f(product.first.done)
+    k = k + 1
+    eq(k,1) push(
+    s = new('seq #' n')
+    push(s,this)                                
+    add(product,s)
+                                                :(product.first.next)
+
+product.first.done
+
+
+
+product.next
+
+    
+
