@@ -499,6 +499,7 @@
 *-  multiple(n,m)               Tests if _n_ is a multiple of _m_.
 *-  odd(n)                      Tests if _n_ is odd.
 *-  out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null.
+*-  pack(seq)                   Packs sequence of strings into single string.
 *-  powerset(set)               Return the powerset of _set_, the set of all the subsets of _set_.
 *-  prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_.
 *-  member(elem,set)            Tests if _elem_ is a member of _set_.
@@ -1850,20 +1851,35 @@ out
     output = out                                       :(return)
 
 out.end
-    define('pop(stack)')                               :(pop.end)
+
+    define('pack(seq)i')                                :(pack.end)
+
+*   _Pack_ packs a sequence of strings into a single string.
+
+pack
+
+    loop(seq)
+
+pack.next
+
+    pack = pack next(seq)                               :s(pack.next)f(return)
+
+pack.end
+
+    define('pop(stack)')                                :(pop.end)
 
 *   _Pop_ removes (pops) the top item from stack, or fails if the stack is empty.
 
 pop
 
     pop = stack
-    eq(set.size(stack))                                :s(freturn)
+    eq(set.size(stack))                                 :s(freturn)
     pop = set.key(stack)[set.index(stack)[set.size(stack)]]
-    set.size(stack) = set.size(stack) - 1              :(return)
+    set.size(stack) = set.size(stack) - 1               :(return)
 
 pop.end
 
-    define('powerset(set)b,i,j,n,N,s,this')            :(powerset.end)
+    define('powerset(set)b,i,j,n,N,s,this')             :(powerset.end)
 
 *   Return the powerset of _set_, defined as the set of all subsets of a set.
 
@@ -1875,7 +1891,7 @@ powerset
 *   The powerset of the empty set is the empty set.
 
     n = set.size(set)
-    eq(n)                                              :s(return)
+    eq(n)                                               :s(return)
 
 *   Compute _N_ = 2 to the powerset _n_.
 

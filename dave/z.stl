@@ -1,0 +1,10 @@
+
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+-include "../setl4.stl"
+
+ s = new('set a b c')
+    show(s)
+end
+
