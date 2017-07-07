@@ -1,10 +1,13 @@
 
+
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
 -include "../setl4.stl"
 
-    define('product(sets,strings)set.in,set.out,this,i,seq,set.i,dt,t') :(product.end)
+    &stlimit = 25000
+
+    define('product(sets,strings)set.in,set.out,this,i,seq,set.i,dt,t'):(product.end)
 
 *   _Product_ returns the Cartesian product of a sequence of strings or sets.
 
@@ -15,12 +18,11 @@
 *   If there is just one input, return a copy of it.
 
 *   Otherwise compute the product in steps, with the output
-*   from one step serving as input to the next.
-*   For each element in the first set, build a sequence consisting
-*   of the element and add it to the output set.
-*   For each element in the remaining sets, iterate the input set.
-*   Get the existing sequence of the element, add the element from
-*   the remaining set to the sequence, and continue.
+*   from one step serving as input to the next. For each element
+*   in the first set, build a sequence consisting of the element
+*   and add it to the output set. For each element in the remaining sets,
+*   iterate the input set. Get the existing sequence of the element,
+*   add the element from the remaining set to the sequence, and continue.
 
 *   Return as the product the last output set computed.
 
@@ -31,7 +33,7 @@ product
 
 *   The product of an empty set is the empty set.
 
-    eq(set.size(sets))                              :s(return)
+    eq(set.size(sets))                                 :s(return)
 
 *   The product of a single set is the set itself.
 
@@ -42,76 +44,66 @@ product
 *   Initialize set.in from the first set.
 
     next(sets)
-    set.in = copy(sets.this)              
-    show(set.in)
+    set.out = copy(sets.this)
 
 product.next
 
-    next(sets)                                  :f(product.done)
-    out('product.next.set')
-    product1(set.out,set.in,sets.this,strings) 
-
-                                     :(product.next)
+    next(sets)                                         :f(product.done)
+    set.in = set.out
+    set.out = product1(set.in,sets.this,strings)       :(product.next)
 
 product.done
 
-    product = set.out                       :(return)
+    product = set.out                                  :(return)
 
 product.end
-    
-    define('product1(out,in,set,strings)s,seq,set.this') :(product1.end)
+
+    define('product1(in,set,strings)in.this,set.out,s,seq,set.this'):(product1.end)
 
 product1
- 
-    out("ENTER 1")
-    show(in)
-    out('strings',strings)
-    show(set)
-    out()
-    loop(set,.set.this)
+
+    set.out = new('set')
+
+*   Loop over input set.
+
+    loop(in,.in.this)
 
 product1.set.next
 
-    next(set)                           :f(product1.done)
-    out('ct1 set.this')
+    next(in)                                           :f(product1.done)
 
-    out('product1.set.next')
-    show(set.this)
+*   Here with new element in _set_. Generate a new element in _out_ using _in_ and this element.
 
-    loop(in,in.this)
+    loop(set,.set.this)
 
 product1.next
 
-    next(in)                            :f(product1.set.next)
-    out('product1.next')
-    show(in.this)
-    differ(strings) add(out,join(in.this,convert(set.this,'string')))
-    ident(strings)  add(out,join(in.this,set.this))
-    out('updated out')
-    show(out)
-                                        :(product1.next)
+    next(set)                                          :f(product1.set.next)
+
+    output  = differ(strings) '[' join(in.this,set.this) ']'
+    differ(strings) add(set.out,join(in.this,convert(set.this,'string')))
+    ident(strings)  add(set.out,join(in.this,set.this))
+                                                       :(product1.next)
 
 product1.done
 
-    out("EXIT 1")
-    show(out)
-    out()
+    product1 = set.out                                 :(return)
 
 product1.end
 
-    define('test(sets)')                    :(test.end)
+    define('test(sets,strings)')                               :(test.end)
 
 test
 
     out()
     out('enter test')
     show(sets)
-    p = product(sets,'TRUE')
+    p = product(sets,strings)
     out('computed')
     show(p)
     out()
     out()
-                                            :(return)
+                                                       :(return)
 test.end
 
     s1 = new('set a b')
@@ -119,8 +111,15 @@ test.end
     q1 = new('seq')
     push(q1,s1)
     push(q1,s2)
+    test(q1,'TRUE')
+
+    s1 = new('set 10 20')
+    s2 = new('set I V C')
+    q1 = new('seq')
+    add(q1,s1)
+    add(q1,s2)
     test(q1)
     out('end test')
 
 end
- 
+
