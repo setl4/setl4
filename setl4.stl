@@ -1436,6 +1436,9 @@ loop
 
     iter = iterator()
 
+    Out('ENTER LOOP')
+    Out('datatype set',datatype(set))
+
 	ident(set.kind(set),'iter')                           :s(loop.iter)
     ident(set.kind(set),'int')                         :s(loop.int)
     ident(set.kind(set),'map')                         :s(loop.map)
@@ -1463,6 +1466,7 @@ loop.set
 
 loop.finis
 
+    Out('exit loop')
     thisname = ident(thisname) .this
     thisname = ident(datatype(thisname),'string') .thisname
     iter.thisname(iter) = thisname
@@ -1835,6 +1839,16 @@ out
     output = out                                       :(return)
 
 out.end
+
+    define('out.dt(v)')                                 :(out.dt.end)
+
+*   Show datatype of _v_
+
+out.dt
+
+    out('Datatype ' v,eval('datatype(' v ')'))          :(return)
+
+out.dt.end
 
     define('pack(seq)i')                                :(pack.end)
 
@@ -2225,7 +2239,7 @@ remove.error
 
 remove.end
 
-    define('show(v,type,within,noquote)ara,i,kind,elem,entry,key,line,hdr,n,this,str,value'):(show.end)
+    define('show(v,type,limit,within,noquote)ara,i,kind,elem,entry,key,line,hdr,n,this,str,value'):(show.end)
 
 *   _Show_ displays the value of its first argument in a form that is hopefully both
 *   readable and pleasing to the eye.
@@ -2238,10 +2252,14 @@ remove.end
 
 *   Strings are shown enclosed in quote character unless _noquote_ is not null.
 
+*   If _limit_ is not null, at most _limit_ elements of compount object _v_ are listed.
+
 show
 
+    limit = differ(limit) +limit
+    ident(v)                                            :s(return)
+
     type = ident(type) '+k'
-*   out('enter show type',type)
 
     ident(v)                                           :s(return)
     ident(datatype(set),'line')                        :s(show.line)
@@ -2277,7 +2295,7 @@ show.array.2
 
 show.entry
 
-    show = show ' ' show(key(v),type,within)  ':' show(value(v,type),type,within):(show.done)
+    show = show ' ' show(key(v),type,,within)  ':' show(value(v,type),type,,within):(show.done)
 
 show.int
 
@@ -2329,24 +2347,27 @@ show.integer
     show = v                                           :(show.done)
 
 show.map
+*HERE*
 
     setl4.save(v)
     show = '{'
     sorter(v,type)
     loop(v)
+    within = 'TRUE'
 
 show.map.next
 
     entry = next(v)                                    :f(show.map.done)
+*   lt(limit = limit -1)                               :s(show.map.done)
 
 *   Here to show entry. Look for datatypes _line_ and _token_, showing
 *   them directly. Otherwise, show key and value separated by ':' (colon).
 
-    show = ident(datatype(value(entry),'token'))
-.               show  show.token(v,,'TRUE')            :s(show.map.check)
+*   show = ident(datatype(value(entry),'token'))
+*               show  show.token(v,,'TRUE')            :s(show.map.check)
 
-*   show = show ' ' show(entry,type,'TRUE') ' '
-    show = show show(entry,type,'TRUE')
+*   show = show ' ' show(entry,type,,'TRUE') ' '
+    show = show show(entry,type,,'TRUE')
 
 show.map.check
 
@@ -2362,20 +2383,25 @@ show.map.done
 
 show.pair
 
-    show = show ' ' show(first(v),type,'TRUE')  ':' show(second(v,type,'TRUE')) ' ':(show.done)
+    show = show ' ' show(first(v),type,,'TRUE')  ':' show(second(v,type,,'TRUE')) ' ':(show.done)
 
 show.seq
+    :(show.map)
 
     setl4.save(v)
     show = '{'
     within = 1
     sorter(v,type)
     loop(v)
+    within = 'TRUE'
 
 show.seq.next
 
     entry = next(v)                                    :f(show.seq.done)
-    show = show ' ' show(entry,type,'TRUE')
+*   lt(limit = limit -1)                               :s(show.seq.done)
+    out('show.seq.next key',key(entry))
+    out('show.seq.next value',value(entry))
+    show = show ' ' show(entry,type,,'TRUE')
 
 show.seq.check
 
@@ -2396,11 +2422,13 @@ show.set
     within = 1
     sorter(v,type)
     loop(v)
+    within = 'TRUE'
 
 show.set.next
 
     elem = next(v)                                     :f(show.set.done)
-    show = show ' ' show(elem,type,'TRUE')
+*   lt(limit = limit -1)                               :s(show.set.done)
+    show = show ' ' show(elem,type,,'TRUE')
     lt(size(show),80)                                  :s(show.set.next)
     out(show)
     show =                                             :(show.set.next)
@@ -2451,7 +2479,7 @@ show.table.error
 show.table.next
 
     le(i = i + 1,n)                                    :f(show.table.done)
-    show = show ' ' show(ara[i,1],type,'TRUE') '       :' show(ara[i,2],type,'TRUE')
+    show = show ' ' show(ara[i,1],type,,'TRUE') '       :' show(ara[i,2],type,,'TRUE')
     lt(size(show),80)                                  :s(show.table.next)
     out(show)
     show =                                             :(show.table.next)
@@ -2890,7 +2918,7 @@ tolower.end
 top
 
     differ(datatype(stack),'set') error('argument to top() is not a stack.')
-    eq(size(stack))                                    :s(freturn)
+    eq(set.size(stack))                                :s(freturn)
     top = get(stack,set.size(stack))                   :(return)
 
 top.end
@@ -3109,7 +3137,7 @@ setl4.show
 
     ident(datatype(set),'iterator')                    :s(setl4.show.iter)
     ident(datatype(set),'set')                         :s(setl4.show.set)
-    error('setl4.show unsupported kind                 : ' set.kind(set))
+                                                        :(return)
 
 setl4.show.iter
 
@@ -3119,6 +3147,8 @@ setl4.show.iter
 .            (ne(iter.step(set))  ' step               :'      +iter.step(set),'') ')' )
                                                        :(return)
 
+setl4.show.map
+setl4.show.seq
 setl4.show.set
 
     iter = set.iter(set)
@@ -3233,6 +3263,18 @@ setl4.table.sorter.error
     error('setl4.table.sorter error, array out of bounds reference.')
 
 setl4.table.sorter.end
+
+    define('Out(text1,text2,text3)type1,type2')         :(Out.end)
+
+*   _Out_ is just another name for _out_. Use it for debugging, as
+*   will be the be easy to find calls to it, to delete them once they
+*   have served their purpose.
+
+Out
+
+    out('O:' text1,text2,text3)                         :(return)
+
+Out.end
 
 
 *## SETL4 Global variables

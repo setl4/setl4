@@ -28,6 +28,9 @@
 
 product
 
+    out('enter product')
+    show(sets)
+
     product = new('set')
     set.out = new('set')
 
@@ -45,6 +48,8 @@ product
 
     next(sets)
     set.out = copy(sets.this)
+    out('initial set.out')
+    show(set.out)
 
 product.next
 
@@ -61,6 +66,10 @@ product.end
     define('product1(in,set,strings)in.this,set.out,s,seq,set.this'):(product1.end)
 
 product1
+
+    Out('ENTER PRODUCT1')
+    Out('dt in',datatype(in))
+    Out('dt set',datatype(set))
 
     set.out = new('set')
 
@@ -80,6 +89,8 @@ product1.next
 
     next(set)                                          :f(product1.set.next)
 
+    out('dt in.this',datatype(in.this))
+    out('dt set.this',datatype(set.this))
     output  = differ(strings) '[' join(in.this,set.this) ']'
     differ(strings) add(set.out,join(in.this,convert(set.this,'string')))
     ident(strings)  add(set.out,join(in.this,set.this))
@@ -87,6 +98,7 @@ product1.next
 
 product1.done
 
+    Out('EXIT PRODUCT1')
     product1 = set.out                                 :(return)
 
 product1.end
@@ -106,20 +118,34 @@ test
                                                        :(return)
 test.end
 
-    s1 = new('set a b')
-    s2 = new('set 1 2 3')
-    q1 = new('seq')
-    push(q1,s1)
-    push(q1,s2)
-    test(q1,'TRUE')
+    s1 = new("set a b")
+    s2 = new("set 1 2 3")
+    seq = new("seq")
+    push(seq,s1)
+    push(seq,s2)
+    out('showing seq')
+    show(seq)
+    out('seq shown')
+    test(seq,"TRUE")
 
-    s1 = new('set 10 20')
-    s2 = new('set I V C')
-    q1 = new('seq')
-    add(q1,s1)
-    add(q1,s2)
-    test(q1)
-    out('end test')
+    out('testing sequence of sets')
+    s1 = new("set 10 20")
+    s2 = new("set I V C")
+    seq = new("seq")
+    push(seq,s1)
+    push(seq,s2)
+*   out('showing top')
+*   show(top(seq))
+    out('showing seq')
+    setl4.show(seq)
+    show(seq)
+    p = product(seq)
+    out('computed')
+    show(p)
+end
+    
+*   test(seq)
+    out("end test")
 
 end
 
