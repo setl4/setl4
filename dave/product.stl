@@ -46,6 +46,10 @@ product
 
     set.in = copy(sets.this)              
 
+*   Iterate past the first set since we are done with it.
+
+    next(sets)
+
 product.next.sets
 
     out('product.next.set')
@@ -54,7 +58,6 @@ product.next.sets
     out()
 
     set.out = new('set')
-
     loop(sets.this,.set.this)
 
 product.next.set
@@ -77,15 +80,20 @@ product.next.done
 
 product.end
     
-    define('product1(out,in,set,strings)s,seq')                     :(product1.end)
+    define('product1(out,in,set,strings)s,seq,set.this') :(product1.end)
 
 product1
  
+    out('enterproduct1')
+    out('---')
+    show(set)
+    out('---')
     loop(set,.set.this)
 
 product1.set.next
 
     next(set)                           :f(return)
+    out('ct1 set.this')
 
     out('product1.set.next')
     show(set.this)
