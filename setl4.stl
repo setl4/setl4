@@ -571,19 +571,6 @@ add.seq
 add.set
     member(set,elem)                                   :s(return)
 
-*   ident(setl4.add.trace) :s(add.notrace)
-*   out('ADD SET')
-*   out('add set dt set',datatype(set))
-*   setl4.show(set)
-*   show(set)
-*   out('add set dt elem',datatype(elem))
-*   setl4.show(elem)
-*   show(elem)
-
-add.notrace
-
-*   differ(setl4.add.trace) out('add.notrace')
-*   differ(setl4.add.trace) setl4.show(set)
     set.size(set) = set.size(set) + 1
     set.index(set)[set.size(set)] = elem
     set.key(set)[elem] = elem                          :(return)

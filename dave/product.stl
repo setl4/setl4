@@ -26,7 +26,6 @@
 
 product
 
-    out('enter product')
     product = new('set')
     set.out = new('set')
 
@@ -36,47 +35,27 @@ product
 
 *   The product of a single set is the set itself.
 
-    product = eq(set.size(sets),1) copy(sets)   :s(return)
-
 *   Loop over the input sets
 
     loop(sets,.sets.this)
 
 *   Initialize set.in from the first set.
 
-    set.in = copy(sets.this)              
-
-*   Iterate past the first set since we are done with it.
-
     next(sets)
-
-product.next.sets
-
-    out('product.next.set')
-    next(sets)                                  :f(product.next.done)
-    show(sets.this)
-    out()
-
-    set.out = new('set')
-    loop(sets.this,.set.this)
-
-product.next.set
-
-    next(sets.this)                             :f(product.next.done)
-    out('set.this dt',datatype(set.this))
-    out('next.set')
-    show(set.this)
-    product1(set.out,set.in,set.this,strings)  :(product.next.set)
-
-product.next.done
-
-    out('product.next.done')
-    product = set.out
-    show(product)
-    out('product.next.done updated set.in')
-    set.in = set.out                    
+    set.in = copy(sets.this)              
     show(set.in)
-                                            :(product.next.sets)
+
+product.next
+
+    next(sets)                                  :f(product.done)
+    out('product.next.set')
+    product1(set.out,set.in,sets.this,strings) 
+
+                                     :(product.next)
+
+product.done
+
+    product = set.out                       :(return)
 
 product.end
     
@@ -84,15 +63,16 @@ product.end
 
 product1
  
-    out('enterproduct1')
-    out('---')
+    out("ENTER 1")
+    show(in)
+    out('strings',strings)
     show(set)
-    out('---')
+    out()
     loop(set,.set.this)
 
 product1.set.next
 
-    next(set)                           :f(return)
+    next(set)                           :f(product1.done)
     out('ct1 set.this')
 
     out('product1.set.next')
@@ -111,6 +91,12 @@ product1.next
     show(out)
                                         :(product1.next)
 
+product1.done
+
+    out("EXIT 1")
+    show(out)
+    out()
+
 product1.end
 
     define('test(sets)')                    :(test.end)
@@ -119,9 +105,9 @@ test
 
     out()
     out('enter test')
-    out('number of sets',set.size(sets))
     show(sets)
     p = product(sets,'TRUE')
+    out('computed')
     show(p)
     out()
     out()
