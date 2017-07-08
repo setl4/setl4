@@ -1436,8 +1436,8 @@ loop
 
     iter = iterator()
 
-    Out('ENTER LOOP')
-    Out('datatype set',datatype(set))
+*   Out('ENTER LOOP')
+*   Out('datatype set',datatype(set))
 
 	ident(set.kind(set),'iter')                           :s(loop.iter)
     ident(set.kind(set),'int')                         :s(loop.int)
@@ -1466,7 +1466,6 @@ loop.set
 
 loop.finis
 
-    Out('exit loop')
     thisname = ident(thisname) .this
     thisname = ident(datatype(thisname),'string') .thisname
     iter.thisname(iter) = thisname
@@ -1748,19 +1747,20 @@ next.iter
                                                        :(next.finis)
 
 next.map
+next.seq
 
     next = iter.next(iter) = iter.next(iter) + 1
     le(next,set.size(set))                             :f(freturn)
     key = set.index(set)[next]
     next = entry(key,set.key(set)[key])                :(next.finis)
 
-next.seq
-
-    next = iter.next(iter) = iter.next(iter) + 1
-    le(next,set.size(set))                             :f(freturn)
-    key = set.index(set)[next]
-    next = set.key(set)[next]                          :(next.finis)
-
+*next.seq
+*
+*    next = iter.next(iter) = iter.next(iter) + 1
+*    le(next,set.size(set))                             :f(freturn)
+*    key = set.index(set)[next]
+*    next = set.key(set)[next]                          :(next.finis)
+*
 next.set
 
     next = iter.next(iter) = +iter.next(iter) + 1
@@ -2308,7 +2308,7 @@ show.int.next
 
     elem = next(v)                                     :f(show.int.done)
     show = show ' ' show(elem,type,'TRUE')
-    lt(size(show),80)                                  :s(show.int.next)
+    lt(size(show),72)                                  :s(show.int.next)
     out(show)
     show =                                             :(show.int.next)
 
@@ -2327,7 +2327,7 @@ show.iter.next
 
     elem = next(v)                                     :f(show.iter.done)
     show = show ' ' show(elem,type,'TRUE')
-    lt(size(show),80)                                  :s(show.iter.next)
+    lt(size(show),72)                                  :s(show.iter.next)
     out(show)
     show =                                             :(show.iter.next)
 
@@ -2347,7 +2347,6 @@ show.integer
     show = v                                           :(show.done)
 
 show.map
-*HERE*
 
     setl4.save(v)
     show = '{'
@@ -2371,7 +2370,7 @@ show.map.next
 
 show.map.check
 
-    lt(size(show),80)                                  :s(show.map.next)
+    lt(size(show),72)                                  :s(show.map.next)
     out(show)
     show =                                             :(show.map.next)
 
@@ -2386,10 +2385,13 @@ show.pair
     show = show ' ' show(first(v),type,,'TRUE')  ':' show(second(v,type,,'TRUE')) ' ':(show.done)
 
 show.seq
-    :(show.map)
+*HERE*
 
+*   If the sequence has more than ten elements, list as map.
+
+    gt(set.size(v),10)                                  :s(show.map)
     setl4.save(v)
-    show = '{'
+    show = '['
     within = 1
     sorter(v,type)
     loop(v)
@@ -2399,13 +2401,11 @@ show.seq.next
 
     entry = next(v)                                    :f(show.seq.done)
 *   lt(limit = limit -1)                               :s(show.seq.done)
-    out('show.seq.next key',key(entry))
-    out('show.seq.next value',value(entry))
-    show = show ' ' show(entry,type,,'TRUE')
+    show = show ' ' show(value(entry),type,,'TRUE')
 
 show.seq.check
 
-    lt(size(show),80)                                  :s(show.seq.next)
+    lt(size(show),72)                                  :s(show.seq.next)
     out(show)
     show =                                             :(show.seq.next)
 
@@ -2413,7 +2413,7 @@ show.seq.done
 
     within =
     setl4.restore(v)
-    show = show ' }'                                   :(show.done)
+    show = show ' ]'                                   :(show.done)
 
 show.set
 
@@ -2429,7 +2429,7 @@ show.set.next
     elem = next(v)                                     :f(show.set.done)
 *   lt(limit = limit -1)                               :s(show.set.done)
     show = show ' ' show(elem,type,,'TRUE')
-    lt(size(show),80)                                  :s(show.set.next)
+    lt(size(show),72)                                  :s(show.set.next)
     out(show)
     show =                                             :(show.set.next)
 
@@ -2446,13 +2446,13 @@ show.string
     show = integer(v) v                                :s(show.done)
 
     show =
-    gt(size(v),80)                                     :s(show.string.long)
+    gt(size(v),72)                                     :s(show.string.long)
     show = (ident(unquote) show.q(v), v)               :(show.within)
 
 show.string.long
 
-*   Here to show a string with more than 80 characters, so show it
-*   80 characters at a time. Add space at end to simplify loop below.
+*   Here to show a string with more than 72 characters, so show it
+*   72 characters at a time. Add space at end to simplify loop below.
 
     v = v ' '
 
@@ -2480,7 +2480,7 @@ show.table.next
 
     le(i = i + 1,n)                                    :f(show.table.done)
     show = show ' ' show(ara[i,1],type,,'TRUE') '       :' show(ara[i,2],type,,'TRUE')
-    lt(size(show),80)                                  :s(show.table.next)
+    lt(size(show),72)                                  :s(show.table.next)
     out(show)
     show =                                             :(show.table.next)
 
