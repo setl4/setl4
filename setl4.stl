@@ -1860,7 +1860,7 @@ pack
 
 pack.next
 
-    pack = pack next(seq)                               :s(pack.next)f(return)
+    pack = pack value(next(seq))                               :s(pack.next)f(return)
 
 pack.end
 
