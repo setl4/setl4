@@ -1,0 +1,57 @@
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+-include "../setl4.stl"
+
+*   Program to solve the "Spellng Bee" puzzle published each week
+*   in the Sunday New York Times.
+
+*   The puzzle consists of a center letter surrounded by several other letters.  The 
+*   task is to find as many words as possible that are at least five letters long, consist
+*   only of the letters in the puzzle, and have at least one instance of the center letter.
+
+main
+
+    puzzle = host(0)
+    puzzle '-u' span(' ') =
+    puzzle '-u' =
+    ident(puzzle) out('Usage: setl4 spelling-bee.stl -u puzzle')   
+    ident(puzzle) out('  Put the center letter first in list after -u') :s(end)
+
+    out('Solving "puzzle"')
+
+
+    center = substr(puzzle,1,1)
+    dictionary = checkout('dictionary')
+    out()
+    out('Dictionary has ' thousands(set.size(dictionary)) ' words.')
+    found = filter(dictionary, "this ? span('" puzzle "') rpos(0)" )
+    found = filter(found,"ge(size(this),5)")
+
+    found = filter(found, "this ? break('" center "')" )
+    out()
+    out('Found ' set.size(found) ' words:' )
+    out()
+    show(found)
+   
+*   Map words in found to their length.
+
+    sizes = new('map')
+    
+    loop(found)
+
+word.next
+
+    word = next(found)                  :f(sized)
+    put(sizes,word,size(word))          :(word.next)
+
+sized
+
+    out()
+    out()
+    out('Solution sorted by word size:')
+    out()
+    show(sizes,'-v',30)
+
+end
+

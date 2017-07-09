@@ -1839,8 +1839,6 @@ or.end
 
 out
 
-    output = 'enter out 1 ' text1
-    output = 'enter out 2 ' text2
 *   output = text1 ' ' text2 ' ' text3 :(return)
     out = setl4.simple.type(text1)
     out = differ(setl4.simple.type(text2)) out '[' setl4.simple.type(text2) ']'
@@ -2262,8 +2260,6 @@ remove.end
 *   If _limit_ is not null, at most _limit_ elements of compount object _v_ are listed.
 
 show
-    Out('enter show')
-    Out('show dt v',datatype(v))
 
 *   limit = differ(limit) +limit
     ident(v)                                           :s(return)
@@ -2330,7 +2326,7 @@ show.seq
 
 *   If the sequence has more than ten elements, list as map.
 
-    encloser = (le(set.size(v),10 ) '[]','{}')
+    encloser = (le(set.size(v),10 )'[]','{}')
     gt(set.size(v),10)                                 :s(show.map)f(show.compound)
 
 show.compound
@@ -2351,7 +2347,7 @@ show.compound.next
 *   show = ident(datatype(value(entry),'token'))
 *               show  show.token(v,,'TRUE')            :s(show.map.check)
 
-    ident(kind,'map')   show(elem,type,,within)        :s(show.compound.next)
+    ident(kind,'map')   show(elem,type,,within))       :s(show.compound.next)
 
 *   _Kind_ is 'seq' only if writing out sequence with ten or fewer elements,
 *   so just write the value.
@@ -2369,7 +2365,7 @@ show.compound.done
 show.table
 
     within = 'TRUE'
-    show.out('[')
+    show.out([')
     ara = convert(v,'array')                           :f(show.table.error)
     i = 0
     prototype(ara) break(',') . n                      :(show.table.next)
@@ -2385,7 +2381,7 @@ show.table.next
 
 show.table.done
 
-    show.out(']')                                       :(show.finis)
+    show.out('])                                       :(show.finis)
 
 show.finis
 
@@ -2400,25 +2396,12 @@ show.end
 show.done
 
     gt(size(show.line),72) out(show.line)
-    show.line = gt(size(show.line,72)) 
+    show.line = gt(size(show.line,72)
     ident(within)                                      :s(return)
     differ(show.line) out(show.line)
     show.line =                                        :(return)
 
 show.done.end
-
-    define('show.out(str)')                            :(show.out.end)
-
-*   Append _str_ to _show.line_.
-
-show.out
-
-    Out('show.out str',str)
-    show.line = show.line str         
-    Out('show.out show.line',show.line)
-                                                      :(return)
-
-show.out.end
 
     define('show.simple(v)')                           :(show.simple.end)
 
@@ -2427,11 +2410,17 @@ show.out.end
 show.simple
 
     integer(v) show.out(+v)                            :s(return)
-    ident(datatype(v),'string') show.q(v)              :s(return)
-    ident(datatype(v),'real') show.out(v)              :s(return)
-    ident(datatype(v),'set')                          :s(show.simple.iterator)
+
+*   Show a string by enclosing it in quotes.
+
+
+    ident(datatype(v),'string') show.q(v)              :s(return(
+    ident(datatype,'real') show.out(v)                 :s(return)
     error('show.simple unsupported type ' datatype(v))
                                                        :(return)
+
+show.simple.end
+
 show.integer
 
     show.out(v)                                        :(return)
@@ -3255,7 +3244,6 @@ Out.end
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
 
-end
 *** Rest of code is for opsyn. Not working, so comment out for now (DS 3 Jul 2017)
 **  _Setl4.opsyn_ uses _opsyn_ to define a SETL4 operator.
 *

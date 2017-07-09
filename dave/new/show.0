@@ -1,0 +1,273 @@
+    define('show(v,type,limit,within,noquote)ara,i,kind,elem,entry,key,line,hdr,n,this,str,value'):(show.end)
+
+*   _Show_ displays the value of its first argument in a form that is hopefully both
+*   readable and pleasing to the eye.
+
+*   If _type_ is not null, sets and maps are ranked in order given by _type_.
+*   Otherwise sets and maps are increased in ascending value of members (set)
+*   or keys (map).
+
+*   _within is non-zero when called to list element of a compound object.
+
+*   Strings are shown enclosed in quote character unless _noquote_ is not null.
+
+*   If _limit_ is not null, at most _limit_ elements of compount object _v_ are listed.
+
+show
+
+*   limit = differ(limit) +limit
+    ident(v)                                            :s(return)
+
+    type = ident(type) '+k'
+
+    ident(v)                                           :s(return)
+    ident(datatype(set),'line')                        :s(show.line)
+    differ(datatype(v),'set')                          :s($('show.' datatype(v)))
+
+*   Make a copy of the argument to avoid disrupting a possible
+*   existing iteration over the argument.
+
+    v = copy(v)
+
+    kind = set.kind(v)
+    ident(kind,'int')                                  :s(show.int)
+    ident(kind,'iter')                                 :s(show.iter)
+    ident(kind,'map')                                  :s(show.map)
+    ident(kind,'seq')                                  :s(show.seq)
+    ident(kind,'set')                                  :s(show.set)
+    error('show unknown set kind',kind,' quitting.')
+
+show.array
+
+    proto = prototype(ara)
+    proto break(',')                                   :s(show.array.2)
+
+*   Here for one dimensional array.
+
+show.array.1
+    first = ara[add1(.i)]                              :f(show.array.done)
+    out(lpad(i,3) tab first)                           :(show.array.1)
+
+show.array.2
+    first = ara[add1(.i),1]                            :f(show.array.done)
+    out(lpad(i,3) tab show(first,type) tab show(ara[i,2],type)):(show.array.2)
+
+show.entry
+
+    show = show ' ' show(key(v),type,,within)
+.               ':' show(value(v,type),type,,within)
+    differ(within)                                      :s(show.within)f(show.done)
+
+show.int
+
+    show = '{ int'
+    sorter(v,'+k')
+    setl4.save(v)
+    loop(v)
+
+show.int.next
+
+    elem = next(v)                                     :f(show.int.done)
+    show = show ' ' show(elem,type,'TRUE')
+    lt(size(show),72)                                  :s(show.int.next)
+    out(show)
+    show =                                             :(show.int.next)
+
+show.int.done
+
+    setl4.restore(v)
+    show = show ' }'                                   :(show.done)
+
+show.iter
+
+    show = 'iter{ '
+    loop(v)
+
+show.iter.next
+
+    elem = next(v)                                     :f(show.iter.done)
+    show = show ' ' show(elem,type,'TRUE')
+    lt(size(show),72)                                  :s(show.iter.next)
+    out(show)
+    show =                                             :(show.iter.next)
+
+show.iter.done
+
+    show = show ' }'                                   :(show.done)
+
+show.iterator
+
+    show = '{iterator'
+.           (ne(+iter.start(v))  ' start               :'   iter.start(v) ,'')
+.           (ne(+iter.finis(v))  ' finis               :'   iter.finis(v),'')
+.           (ne(+iter.step(v))   ' step:'    iter.step(v),'')  '} ':(show.done)
+
+show.integer
+
+    show = v                                           
+    differ(within)                                      :s(show.within)f(show.done)
+
+show.map
+
+    setl4.save(v)
+    show = '{'
+    sorter(v,type)
+    loop(v)
+    within = 'TRUE'
+
+show.map.next
+
+    entry = next(v)                                    :f(show.map.done)
+*   lt(limit = limit -1)                               :s(show.map.done)
+
+*   Here to show entry. Look for datatypes _line_ and _token_, showing
+*   them directly. Otherwise, show key and value separated by ':' (colon).
+
+*   show = ident(datatype(value(entry),'token'))
+*               show  show.token(v,,'TRUE')            :s(show.map.check)
+
+*   show = show ' ' show(entry,type,,'TRUE') ' '
+    show = show show(entry,type,,'TRUE')
+
+show.map.check
+
+    lt(size(show),72)                                  :s(show.map.next)
+    out(show)
+    show =                                             :(show.map.next)
+
+show.map.done
+
+    setl4.restore(v)
+    show = show ' }'
+    differ(within)                                      :s(show.within)f(show.done)
+
+show.pair
+
+    show = show ' ' show(first(v),type,,'TRUE')  ':' show(second(v,type,,'TRUE')) ' ':(show.done)
+
+show.seq
+*HERE*
+
+*   If the sequence has more than ten elements, list as map.
+
+    gt(set.size(v),10)                                  :s(show.map)
+    Out('showing short sequence')
+    setl4.save(v)
+    show = '['
+    sorter(v,type)
+    loop(v)
+    within = 'TRUE'
+
+show.seq.next
+
+    entry = next(v)                                    :f(show.seq.done)
+    Out('show.seq.next dt entry',datatype(entry))
+    Out('show.seq.next dt value entry',datatype(value(entry)))
+    Out('show.seq.next value',value(entry))
+*   lt(limit = limit -1)                               :s(show.seq.done)
+    show = show ' ' show(value(entry),type,,within)
+
+show.seq.check
+
+    lt(size(show),72)                                  :s(show.seq.next)
+    out(show)
+    show =                                             :(show.seq.next)
+
+show.seq.done
+
+    setl4.restore(v)
+    show = show ' ]'                                   
+    differ(within)                                      :s(show.within)f(show.done)
+                                                        :(show.done)
+
+show.set
+
+    setl4.save(v)
+    show = '{'
+    sorter(v,type)
+    loop(v)
+    within = 'TRUE'
+
+show.set.next
+
+    elem = next(v)                                     :f(show.set.done)
+*   lt(limit = limit -1)                               :s(show.set.done)
+    show = show ' ' show(elem,type,,'TRUE')
+    lt(size(show),72)                                  :s(show.set.next)
+    out(show)
+    show =                                             :(show.set.next)
+
+show.set.done
+
+    setl4.restore(v)
+    show = show ' }'
+    differ(within)                                      :s(show.within)f(show.done)
+
+show.string
+
+*   Don't quote string that is an integer.
+
+    integer(v)                                          :s(show.integer)
+    show = integer(v) v                                 :s(show.done)
+    differ(within)                                      :s(show.within)f(show.done)
+
+*   show =
+*   gt(size(v),72)                                      :s(show.string.long)
+*   show = (ident(unquote) show.q(v), v)                :(show.within)
+
+show.string.long
+
+*   Here to show a string with more than 72 characters, so show it
+*   72 characters at a time. Add space at end to simplify loop below.
+
+    v = v ' '
+
+show.string.next
+
+    v break(' ') . key span(' ') =                     :f(show.within)
+    show = show (ident(show) '', ' ') key
+    lt(size(show),60)                                  :s(show.string.next)
+    out(show)
+    show =                                             :(show.string.next)
+
+show.table
+
+    within = 'TRUE'
+    show = 'table ['
+    ara = convert(v,'array')                           :f(show.table.error)
+    i = 0
+    prototype(ara) break(',') . n                      :(show.table.next)
+
+show.table.error
+
+    error('error converting table to array')
+
+show.table.next
+
+    le(i = i + 1,n)                                    :f(show.table.done)
+    show = show ' ' show(ara[i,1],type,,'TRUE') '       :' show(ara[i,2],type,,'TRUE')
+    lt(size(show),72)                                  :s(show.table.next)
+    out(show)
+    show =                                             :(show.table.next)
+
+show.table.done
+
+    show = show ' ]'                                   :(show.done)
+
+show.string.quote
+
+    show = '"'  v '"'                                  :(show.within)
+
+show.done
+
+    differ(show)    out(show)                           :(return)
+
+show.within
+
+*   Here when showing member of composite object.
+
+                                :(return)
+    differ(show) out(show)                              :(return)
+
+show.end
+

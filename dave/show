@@ -1,0 +1,190 @@
+
+    define('show(v,type,limit,within)ara,i,kind,elem,entry,key,line,hdr,n,this,str,value'):(show.end)
+
+*   _Show_ displays the value of its first argument in a form that is hopefully both
+*   readable and pleasing to the eye.
+
+*   If _type_ is not null, sets and maps are ranked in order given by _type_.
+*   Otherwise sets and maps are increased in ascending value of members (set)
+*   or keys (map).
+
+*   _within is non-zero when called to list element of a compound object.
+
+*   If _limit_ is not null, at most _limit_ elements of compount object _v_ are listed.
+
+show
+
+*   limit = differ(limit) +limit
+    ident(v)                                           :s(return)
+
+*   Show nothing by writing out nothing.
+
+    ident(v)                                           :s(return)
+
+    ident(datatype(v),'array')                         :s(show.array)
+    ident(datatype(v),'table')                         :s(show.table)
+    ident(datatype(v),'iterator') show.simple(v,within):s(return)
+    differ(datatype(v),'set') show.simple(v,within)    :s(return)
+
+    type = ident(type) '+k'
+
+    kind = set.kind(v)
+    ident(kind,'int')                                  :s(show.int)
+    ident(kind,'iter')                                 :s(show.iter)
+    ident(kind,'map')                                  :s(show.map)
+    ident(kind,'seq')                                  :s(show.seq)
+    ident(kind,'set')                                  :s(show.set)
+    error('show unknown set kind',kind,' quitting.')
+
+show.array
+
+    proto = prototype(ara)
+    proto break(',')                                   :s(show.array.2)
+
+*   Here for one dimensional array.
+
+show.array.1
+    first = ara[add1(.i)]                              :f(show.array.done)
+    show.out(lpad(i,3) tab first)                      :(show.array.1)
+
+show.array.2
+    first = ara[add1(.i),1]                            :f(show.array.done)
+    show.out(lpad(i,3) tab show(first,type) tab show(ara[i,2],type)):(show.array.2)
+
+show.array.done
+
+    show.finis(within)
+
+show.entry
+
+    show.out(show(key(v),type,,within))
+    show.out(setl4.colon)
+    show.out(value(v,type),type,,within)
+    show.finis(within)
+
+show.int
+show.iter
+show.map
+show.set
+
+    encloser = '{}'                                    :(show.compount)
+
+show.pair
+
+    show.out(first(v),type,,within)
+    show.out(setl4.colon)
+    show(second(v,type,,within))                       :(show.finis)
+
+show.seq
+
+*   If the sequence has more than ten elements, list as map.
+
+    encloser = (le(set.size(v),10 )'[]','{}')
+    gt(set.size(v),10)                                 :s(show.map)f(show.compound)
+
+show.compound
+
+    show.save(v)
+    sorter(v,type)
+    loop(v)
+    within = 'TRUE'
+    show.out(substr(encloser,1,1))
+
+show.compound.next
+
+    elem = next(v)                                     :f(show.compound.done)
+
+    ident(kind,'int') show(elem,type,within)           :s(show.compount.next)
+    ident(kind,'iter') show(elem,type,within)          :s(show.compount.next)
+
+*   show = ident(datatype(value(entry),'token'))
+*               show  show.token(v,,'TRUE')            :s(show.map.check)
+
+    ident(kind,'map')   show(elem,type,,within))       :s(show.compound.next)
+
+*   _Kind_ is 'seq' only if writing out sequence with ten or fewer elements,
+*   so just write the value.
+
+    ident(kind,'seq')   show(value(elem))              :s(show.compound.next)
+    ident(kind,'set')   show(elem,type,,within)        :s(show.compount.next)
+*   lt(limit = limit -1)                               :s(show.compound.done)
+
+show.compound.done
+
+    show.out(substr(encloser,2,1))
+    show.restore(v)
+    show.finis(within)                                 :(return)
+
+show.table
+
+    within = 'TRUE'
+    show.out([')
+    ara = convert(v,'array')                           :f(show.table.error)
+    i = 0
+    prototype(ara) break(',') . n                      :(show.table.next)
+
+show.table.error
+
+    error('error converting table to array')
+
+show.table.next
+
+    le(i = i + 1,n)                                    :f(show.table.done)
+    show(ara[i,1],type,,within)                        :(show.table.next)
+
+show.table.done
+
+    show.out('])                                       :(show.finis)
+
+show.finis
+
+    show.done(within)                                  :(return)
+
+show.end
+
+    define('show.done(within)')                        :(show.done.end)
+
+*   Write out _show.line_ unless _within_ is not null.
+
+show.done
+
+    gt(size(show.line),72) out(show.line)
+    show.line = gt(size(show.line,72)
+    ident(within)                                      :s(return)
+    differ(show.line) out(show.line)
+    show.line =                                        :(return)
+
+show.done.end
+
+    define('show.simple(v)')                           :(show.simple.end)
+
+*   Show the value of an object that has no members.
+
+show.simple
+
+    integer(v) show.out(+v)                            :s(return)
+
+*   Show a string by enclosing it in quotes.
+
+
+    ident(datatype(v),'string') show.q(v)              :s(return(
+    ident(datatype,'real') show.out(v)                 :s(return)
+    error('show.simple unsupported type ' datatype(v))
+                                                       :(return)
+
+show.simple.end
+
+show.integer
+
+    show.out(v)                                        :(return)
+
+show.simple.iterator
+
+    show.out('{iterator')
+    ne(+iter.start(v))  show.out(' start               :'  iter.start(v))
+    ne(+iter.finis(v))  show.out(' finis               :'  iter.finis(v))
+    ne(+iter.step(v))   show.out(' step                :'   iter.step(v))
+    show.out('} ')
+    show.done(within)                                  :(return)
+
+show.simple.end

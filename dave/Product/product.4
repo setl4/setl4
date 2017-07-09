@@ -1,0 +1,106 @@
+    define('product(sets)')                         :(product.end)                      :f(product.finis)
+
+*   _Product_ returns the Cartesian product of a sequence of sets.
+
+*   Compute the Cartesian product as follows.
+*   If the input is the empty set, return the empty set.
+*   If there is just one input, return a copy of it.
+
+*   Otherwise compute the product in steps, with the output
+*   from one step serving as input to the next.
+*   For each element in the first set, build a sequence consisting
+*   of the element and add it to the output set.
+*   For each element in the remaining sets, iterate the input set.
+*   Get the existing sequence of the element, add the element from
+*   the the remaining set to the sequence, and continue.
+*   Return as the product the last output set computed.
+
+product
+
+    product = new('set')
+    set.out = new('set')
+    set.in = new('set')
+
+*   Cartesian product of empty set is an empty sequence.
+
+    sets.n = set.size(sets)
+    eq(sets.n)                                       :s(return)
+
+*   Size of result is product of sizes of the sets. Use this
+*   value for the size of the output sets.
+*   Estimate size of each new sequence as _n_.
+
+    loop(sets)
+    n.all = 1
+
+product.size
+
+    n.all = n.all * set.size(next(sets))    :(product.size
+
+*   Loop over the input sets.
+
+    loop(sets,.sets.this)                       :f(product.finis)
+
+product.next
+
+    next(sets)                                  :f(product.finis)
+    set.out = new('set #' n.all)
+    set.i = set.i + 1
+    gt(set.i,1)                             :s(product.remain)
+
+*   Here for first set, so just add stack with entry for each element in the set.
+
+    loop(sets.this)
+
+product.first.next
+
+    next(sets.this)                         :f(product.first.done)
+    seq = new('seq #' n)
+    push(seq,this)
+    add(set.out,seq)                        :(product.first.next)
+
+product.first.done
+
+    set.in = set.out                        :(product.next)
+
+product.remain
+
+    loop(sets.this)
+
+    loop(set.in,.this.in)
+
+    set.out = new('set #' n.all)
+                                            :(product.next)
+
+product.rest
+
+*   Here when see a set after the first, where stacks ...
+
+
+    set.i = set.i + 1
+
+*   Here for set following the first.
+
+    loop(set.in,.this.in)
+
+product.rest.in
+
+    seq = next(set.in)                      :f(product.rest.finis)
+
+    loop(sets.this)
+
+product.rest.sets.next
+
+    this = next(sets.this)                  :f(product.rest.in)
+    push(copy(seq),this)                    :(product.rest.sets.next)
+
+product.rest.done
+
+    product = set.out
+    set.out = new('set #' n.all)
+                                            :(product.next)
+
+product.next
+
+    
+
