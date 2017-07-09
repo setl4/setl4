@@ -123,6 +123,14 @@ test
     out()
                                                        :(return)
 test.end
+    s12 = new('set 2 3 4 a d f c s d')
+    s12 = new('set 2 3 4 9 12 123 15  9999999 999999999 9999999999 7777777777 '
+.           '12 124 3235 343453 4566 75775 886  74554 22 666 788866  4234234 23234 233  27752  67752 ')
+    show(s12)
+    s13 = new('set a b c as df as gg ee ghgj ij zdq tgza wg zqsg ')
+    s13 = new('set 4 99 343')
+    show(s13)
+end
 
 *   s0 = new('seq 2 4 6 8')
 *   out('showing s0')
