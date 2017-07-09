@@ -1436,9 +1436,6 @@ loop
 
     iter = iterator()
 
-*   Out('ENTER LOOP')
-*   Out('datatype set',datatype(set))
-
 	ident(set.kind(set),'iter')                           :s(loop.iter)
     ident(set.kind(set),'int')                         :s(loop.int)
     ident(set.kind(set),'map')                         :s(loop.map)
@@ -2256,7 +2253,7 @@ remove.end
 
 show
 
-    limit = differ(limit) +limit
+*   limit = differ(limit) +limit
     ident(v)                                            :s(return)
 
     type = ident(type) '+k'
@@ -2295,7 +2292,9 @@ show.array.2
 
 show.entry
 
-    show = show ' ' show(key(v),type,,within)  ':' show(value(v,type),type,,within):(show.done)
+    show = show ' ' show(key(v),type,,within)
+.               ':' show(value(v,type),type,,within)
+    differ(within)                                      :s(show.within)f(show.done)
 
 show.int
 
@@ -2315,7 +2314,6 @@ show.int.next
 show.int.done
 
     setl4.restore(v)
-    within =
     show = show ' }'                                   :(show.done)
 
 show.iter
@@ -2344,7 +2342,8 @@ show.iterator
 
 show.integer
 
-    show = v                                           :(show.done)
+    show = v                                           
+    differ(within)                                      :s(show.within)f(show.done)
 
 show.map
 
@@ -2376,9 +2375,9 @@ show.map.check
 
 show.map.done
 
-    within =
     setl4.restore(v)
-    show = show ' }'                                   :(show.done)
+    show = show ' }'
+    differ(within)                                      :s(show.within)f(show.done)
 
 show.pair
 
@@ -2390,9 +2389,9 @@ show.seq
 *   If the sequence has more than ten elements, list as map.
 
     gt(set.size(v),10)                                  :s(show.map)
+    Out('showing short sequence')
     setl4.save(v)
     show = '['
-    within = 1
     sorter(v,type)
     loop(v)
     within = 'TRUE'
@@ -2400,8 +2399,11 @@ show.seq
 show.seq.next
 
     entry = next(v)                                    :f(show.seq.done)
+    Out('show.seq.next dt entry',datatype(entry))
+    Out('show.seq.next dt value entry',datatype(value(entry)))
+    Out('show.seq.next value',value(entry))
 *   lt(limit = limit -1)                               :s(show.seq.done)
-    show = show ' ' show(value(entry),type,,'TRUE')
+    show = show ' ' show(value(entry),type,,within)
 
 show.seq.check
 
@@ -2411,15 +2413,15 @@ show.seq.check
 
 show.seq.done
 
-    within =
     setl4.restore(v)
-    show = show ' ]'                                   :(show.done)
+    show = show ' ]'                                   
+    differ(within)                                      :s(show.within)f(show.done)
+                                                        :(show.done)
 
 show.set
 
     setl4.save(v)
     show = '{'
-    within = 1
     sorter(v,type)
     loop(v)
     within = 'TRUE'
@@ -2436,18 +2438,20 @@ show.set.next
 show.set.done
 
     setl4.restore(v)
-    within =
-    show = show ' }'                                   :(show.done)
+    show = show ' }'
+    differ(within)                                      :s(show.within)f(show.done)
 
 show.string
 
 *   Don't quote string that is an integer.
 
-    show = integer(v) v                                :s(show.done)
+    integer(v)                                          :s(show.integer)
+    show = integer(v) v                                 :s(show.done)
+    differ(within)                                      :s(show.within)f(show.done)
 
-    show =
-    gt(size(v),72)                                     :s(show.string.long)
-    show = (ident(unquote) show.q(v), v)               :(show.within)
+*   show =
+*   gt(size(v),72)                                      :s(show.string.long)
+*   show = (ident(unquote) show.q(v), v)                :(show.within)
 
 show.string.long
 
@@ -2466,7 +2470,7 @@ show.string.next
 
 show.table
 
-    within = 1
+    within = 'TRUE'
     show = 'table ['
     ara = convert(v,'array')                           :f(show.table.error)
     i = 0
@@ -2486,7 +2490,6 @@ show.table.next
 
 show.table.done
 
-    within =
     show = show ' ]'                                   :(show.done)
 
 show.string.quote
@@ -2495,9 +2498,8 @@ show.string.quote
 
 show.done
 
-   ident(within) out(show)                            :(return)
-    differ(show) out(show)
-                                                        :(return)
+    differ(show)    out(show)                           :(return)
+
 show.within
 
 *   Here when showing member of composite object.

@@ -29,7 +29,6 @@
 product
 
     out('enter product')
-    show(sets)
 
     product = new('set')
     set.out = new('set')
@@ -69,7 +68,9 @@ product1
 
     Out('ENTER PRODUCT1')
     Out('dt in',datatype(in))
+    show(in)
     Out('dt set',datatype(set))
+    show(set)
 
     set.out = new('set')
 
@@ -89,8 +90,10 @@ product1.next
 
     next(set)                                          :f(product1.set.next)
 
-    out('dt in.this',datatype(in.this))
-    out('dt set.this',datatype(set.this))
+*HERE
+
+    Out('dt in.this',datatype(in.this))
+    Out('dt set.this',datatype(set.this))
     output  = differ(strings) '[' join(in.this,set.this) ']'
     differ(strings) add(set.out,join(in.this,convert(set.this,'string')))
     ident(strings)  add(set.out,join(in.this,set.this))
@@ -109,7 +112,10 @@ test
 
     out()
     out('enter test')
+    Out('show strings')
+    out('showing sets')
     show(sets)
+    :(return)
     p = product(sets,strings)
     out('computed')
     show(p)
@@ -118,27 +124,24 @@ test
                                                        :(return)
 test.end
 
-    s1 = new("set a b")
-    s2 = new("set 1 2 3")
-    seq = new("seq")
-    push(seq,s1)
-    push(seq,s2)
-    out('showing seq')
-    show(seq)
-    out('seq shown')
-    test(seq,"TRUE")
-
+*   s0 = new('seq 2 4 6 8')
+*   out('showing s0')
+*   setl4.show(s0)
+*   show(s0)
     out('testing sequence of sets')
     s1 = new("set 10 20")
-    s2 = new("set I V C")
     seq = new("seq")
     push(seq,s1)
-    push(seq,s2)
-*   out('showing top')
-*   show(top(seq))
-    out('showing seq')
-    setl4.show(seq)
+    out('showing seq 1')
     show(seq)
+    s2 = new("set I V C")
+    out('showing seq 2')
+    push(seq,s2)
+    show(s2)
+    out('showing seq 2')
+    show(seq)
+    out('done')
+end
     p = product(seq)
     out('computed')
     show(p)
@@ -149,3 +152,16 @@ end
 
 end
 
+
+    s1 = new("set a b")
+    s2 = new("set 1 2 3")
+    seq = new("seq")
+    push(seq,s1)
+    out('showing S1 FIRST')
+    show(seq)
+    push(seq,s2)
+    out('showing S2 SECOND')
+    show(seq)
+end
+    out('seq shown')
+    test(seq,"TRUE")
