@@ -1,4 +1,5 @@
 
+
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
@@ -315,7 +316,7 @@
 
 *```
 *       loop(set,thisname)
-*       
+*
 *   set.next
 *       var = next(set)     :f(set.done)
 *       out(this)           :(set.next)
@@ -738,15 +739,15 @@ ascii.init
 
 ascii.init.next
 
-    entry = setl4.l.next(ascii.init)                    :(ascii.init.finis)
+    entry = setl4.l.next(ascii.init)                   :(ascii.init.finis)
 *   Correct entry for 0 to be NUL, the NUL character
     ascii.name[substr(&alphabet,+v + 1,1)] = name
-    ascii.value[name] = +value                          :(ascii.init.next)
+    ascii.value[name] = +value                         :(ascii.init.next)
     ascii.name[] = 'NUL'
     ascii.value['NUL'] = 0
     ascii.name[' '] = 'SPC'
-    ascii.value['SPC'] = 32                            
-    ascii.value['SPC'] = 32                            
+    ascii.value['SPC'] = 32
+    ascii.value['SPC'] = 32
     ascii.name[setl4.colon] = setl4.colon
     ascii.value[setl4.colon] = 58
 
@@ -791,7 +792,7 @@ begins
 
 begins.end
 
-    define('binary(n)')                                 :(binary.end)
+    define('binary(n)')                                :(binary.end)
 
 *   _Binary_returns a string with the value of _n_ as a binary number.
 
@@ -808,19 +809,19 @@ binary.next
 *   out('binary.next n',n)
 *   out()
 
-    binary = eq(n)   '0'                          :s(return)
-    binary = eq(n,1) '1'                        :s(return)
+    binary = eq(n)   '0'                               :s(return)
+    binary = eq(n,1) '1'                               :s(return)
     binary = even(n) binary(n / 2) '0'
-    binary = odd(n)  binary(n / 2) '1' 
-                                                :(return)
+    binary = odd(n)  binary(n / 2) '1'
+                                                       :(return)
 
-                                                        :(binary.next)
+                                                       :(binary.next)
 
 binary.done
 
 *   binary = ident(binary) '0'                          :s(return)
-*   binary = gt(size(binary),1) substr(binary,2)          
-                                                        :(return)
+*   binary = gt(size(binary),1) substr(binary,2)
+                                                       :(return)
 
 binary.end
 
@@ -1846,17 +1847,17 @@ out
 
 out.end
 
-    define('out.dt(v)')                                 :(out.dt.end)
+    define('out.dt(v)')                                :(out.dt.end)
 
 *   Show datatype of _v_
 
 out.dt
 
-    out('Datatype ' v,eval('datatype(' v ')'))          :(return)
+    out('Datatype ' v,eval('datatype(' v ')'))         :(return)
 
 out.dt.end
 
-    define('pack(seq)i')                                :(pack.end)
+    define('pack(seq)i')                               :(pack.end)
 
 *   _Pack_ packs a sequence of strings into a single string.
 
@@ -1866,24 +1867,24 @@ pack
 
 pack.next
 
-    pack = pack value(next(seq))                               :s(pack.next)f(return)
+    pack = pack value(next(seq))                       :s(pack.next)f(return)
 
 pack.end
 
-    define('pop(stack)')                                :(pop.end)
+    define('pop(stack)')                               :(pop.end)
 
 *   _Pop_ removes (pops) the top item from stack, or fails if the stack is empty.
 
 pop
 
     pop = stack
-    eq(set.size(stack))                                 :s(freturn)
+    eq(set.size(stack))                                :s(freturn)
     pop = set.key(stack)[set.index(stack)[set.size(stack)]]
-    set.size(stack) = set.size(stack) - 1               :(return)
+    set.size(stack) = set.size(stack) - 1              :(return)
 
 pop.end
 
-    define('powerset(set)b,i,j,n,N,s,this')             :(powerset.end)
+    define('powerset(set)b,i,j,n,N,s,this')            :(powerset.end)
 
 *   Return the powerset of _set_, defined as the set of all subsets of a set.
 
@@ -1895,7 +1896,7 @@ powerset
 *   The powerset of the empty set is the empty set.
 
     n = set.size(set)
-    eq(n)                                               :s(return)
+    eq(n)                                              :s(return)
 
 *   Compute _N_ = 2 to the powerset _n_.
 
@@ -1970,7 +1971,7 @@ prime
 
 prime.end
 
-    define('primes(n)this')                             :(primes.end)
+    define('primes(n)this')                            :(primes.end)
 
 *   _Primes_ returns the set of primes less than _n_.
 
@@ -2132,8 +2133,8 @@ reader
 
     line  = input
     out('first',line)
-    ident(filename)                                     :s(reader.read)
-    input(.file,setl4.config.channel.1,filename):s(reader.opened)
+    ident(filename)                                    :s(reader.read)
+    input(.file,setl4.config.channel.1,filename)       :s(reader.opened)
     out('unable to open reader file ' filename '.')    :(freturn)
 
 reader.read
@@ -2263,7 +2264,7 @@ remove.end
 show
 
 *   limit = differ(limit) +limit
-    ident(v)                                            :s(return)
+    ident(v)                                           :s(return)
 
     type = ident(type) '+k'
 
@@ -2303,7 +2304,7 @@ show.entry
 
     show = show ' ' show(key(v),type,,within)
 .               setl4.colon show(value(v,type),type,,within)
-    differ(within)                                      :s(show.within)f(show.done)
+    differ(within)                                     :s(show.within)f(show.done)
 
 show.int
 
@@ -2351,8 +2352,8 @@ show.iterator
 
 show.integer
 
-    show = v                                           
-    differ(within)                                      :s(show.within)f(show.done)
+    show = v
+    differ(within)                                     :s(show.within)f(show.done)
 
 show.map
 
@@ -2386,7 +2387,7 @@ show.map.done
 
     show.restore(v)
     show = show ' }'
-    differ(within)                                      :s(show.within)f(show.done)
+    differ(within)                                     :s(show.within)f(show.done)
 
 show.pair
 
@@ -2397,7 +2398,7 @@ show.seq
 
 *   If the sequence has more than ten elements, list as map.
 
-    gt(set.size(v),10)                                  :s(show.map)
+    gt(set.size(v),10)                                 :s(show.map)
     Out('showing short sequence')
     show.save(v)
     show = '['
@@ -2423,9 +2424,9 @@ show.seq.check
 show.seq.done
 
     show.restore(v)
-    show = show ' ]'                                   
-    differ(within)                                      :s(show.within)f(show.done)
-                                                        :(show.done)
+    show = show ' ]'
+    differ(within)                                     :s(show.within)f(show.done)
+                                                       :(show.done)
 
 show.set
 
@@ -2448,15 +2449,15 @@ show.set.done
 
     show.restore(v)
     show = show ' }'
-    differ(within)                                      :s(show.within)f(show.done)
+    differ(within)                                     :s(show.within)f(show.done)
 
 show.string
 
 *   Don't quote string that is an integer.
 
-    integer(v)                                          :s(show.integer)
-    show = integer(v) v                                 :s(show.done)
-    differ(within)                                      :s(show.within)f(show.done)
+    integer(v)                                         :s(show.integer)
+    show = integer(v) v                                :s(show.done)
+    differ(within)                                     :s(show.within)f(show.done)
 
 *   show =
 *   gt(size(v),72)                                      :s(show.string.long)
@@ -2492,7 +2493,7 @@ show.table.error
 show.table.next
 
     le(i = i + 1,n)                                    :f(show.table.done)
-    show = show ' ' show(ara[i,1],type,,'TRUE') '       :' show(ara[i,2],type,,'TRUE')
+    show = show ' ' show(ara[i,1],type,,'TRUE') '      :' show(ara[i,2],type,,'TRUE')
     lt(size(show),72)                                  :s(show.table.next)
     out(show)
     show =                                             :(show.table.next)
@@ -2507,14 +2508,14 @@ show.string.quote
 
 show.done
 
-    differ(show)    out(show)                           :(return)
+    differ(show)    out(show)                          :(return)
 
 show.within
 
 *   Here when showing member of composite object.
 
-                                :(return)
-    differ(show) out(show)                              :(return)
+                                                       :(return)
+    differ(show) out(show)                             :(return)
 
 show.end
 
@@ -2583,27 +2584,27 @@ show.q.double
 
 *   Here if string contains single quote, so use double quotes around it.
 
-    show.q = '"' str '"'                                :(return)
+    show.q = '"' str '"'                               :(return)
 
 show.q.end
 
-    define('show.restore(s)')                           :(show.restore.end)
+    define('show.restore(s)')                          :(show.restore.end)
 
 *   _Show.restore_ restores the values saved by the most recent call to _setl4.push_.
 
 show.restore
 
-    set.index(s) = pop(show.stack)                      :(return)
+    set.index(s) = pop(show.stack)                     :(return)
 
 show.restore.end
 
-    define('show.save(s)')                            :(show.save.end)
+    define('show.save(s)')                             :(show.save.end)
 
 *   _Show.save_ saves the _index and _this_ fields of its argument set.
 
 show.save
 
-    push(show.stack,set.index(s))                       :(return)
+    push(show.stack,set.index(s))                      :(return)
 
 show.save.end
 
@@ -2714,7 +2715,7 @@ sorter.finis
 
 sorter.end
 
-    define('sorter.set(set,type)ara,i,index')    :(sorter.set.end)
+    define('sorter.set(set,type)ara,i,index')          :(sorter.set.end)
 
 *   _Setl4.table.sorter_ returns an index table derived from the
 *   index table of _set_ that reflects the ordering given by _type_.
@@ -2727,7 +2728,7 @@ sorter.set
     ara = ident(type,'+k')    sort( set.index(set), 2) :s(sorter.set.1)
     ara = ident(type,'-k')    rsort(set.index(set), 2) :s(sorter.set.1)
 
-    error('sorter.set unsupported key type       : ' type)
+    error('sorter.set unsupported key type             : ' type)
 
 sorter.set.1
 
@@ -2739,13 +2740,13 @@ sorter.set.1
 
 sorter.set.set.next
 
-    le(i = i + 1,n)                                     :f(return)
+    le(i = i + 1,n)                                    :f(return)
     index = ara[i,1]
-    sorter.set[i] = set.index(set)[index]               :(sorter.set.set.next)
+    sorter.set[i] = set.index(set)[index]              :(sorter.set.set.next)
 
 sorter.set.end
 
-    define('sorter.string(str)ara,c,i,tbl')             :(sorter.string.end)
+    define('sorter.string(str)ara,c,i,tbl')            :(sorter.string.end)
 
 *   _Sorter_sorts a string into a string with all the characters
 *   in lexical (alphabetic) order.
@@ -2768,25 +2769,25 @@ sorter.string.sort
 
 sorter.string.next
 
-    c = ara[i = i + 1,2]                                :f(return)
-    sorter.string = sorter.string c                     :(sorter.string.next)
+    c = ara[i = i + 1,2]                               :f(return)
+    sorter.string = sorter.string c                    :(sorter.string.next)
 
 sorter.string.end
 
-    define('sorter.table(set,type,tbl)ara,i,index'):(sorter.table.end)
+    define('sorter.table(set,type,tbl)ara,i,index')    :(sorter.table.end)
 
 *   _Setl4.table.sorter_ returns an index table derived from the
 *   index table of _set_ that reflects the ordering given by _type_.
 
 sorter.table
 
-    le(set.size(set),1)                                 :s(return)
+    le(set.size(set),1)                                :s(return)
 
-    ara = ident(type,'+i')    sort(tbl,1)               :s(sorter.table.1)
-    ara = ident(type,'-i')    rsort(tbl,1)              :s(sorter.table.1)
-    ara = ident(type,'+k')    sort(tbl,2)               :s(sorter.table.1)
-    ara = ident(type,'-k')    rsort(tbl,2)              :s(sorter.table.1)
-    error('sorter.table unexpected type          :' type)
+    ara = ident(type,'+i')    sort(tbl,1)              :s(sorter.table.1)
+    ara = ident(type,'-i')    rsort(tbl,1)             :s(sorter.table.1)
+    ara = ident(type,'+k')    sort(tbl,2)              :s(sorter.table.1)
+    ara = ident(type,'-k')    rsort(tbl,2)             :s(sorter.table.1)
+    error('sorter.table unexpected type                :' type)
 
 sorter.table.1
 
@@ -2876,7 +2877,7 @@ subset.end
 
 this
 
-    this = iter.thisname(set)                           :(return)
+    this = iter.thisname(set)                          :(return)
 
 this.end
 
@@ -3205,7 +3206,7 @@ setl4.show
 
     ident(datatype(set),'iterator')                    :s(setl4.show.iter)
     ident(datatype(set),'set')                         :s(setl4.show.set)
-                                                        :(return)
+                                                       :(return)
 
 setl4.show.iter
 
@@ -3272,7 +3273,7 @@ setl4.size
 
 setl4.size.end
 
-    define('Out(text1,text2,text3)type1,type2')         :(Out.end)
+    define('Out(text1,text2,text3)type1,type2')        :(Out.end)
 
 *   _Out_ is just another name for _out_. Use it for debugging, as
 *   will be the be easy to find calls to it, to delete them once they
@@ -3280,7 +3281,7 @@ setl4.size.end
 
 Out
 
-    out('O:' text1,text2,text3)                         :(return)
+    out('O:' text1,text2,text3)                        :(return)
 
 Out.end
 
@@ -3326,10 +3327,10 @@ Out.end
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
- 
+
 *** Rest of code is for opsyn. Not working, so comment out for now (DS 3 Jul 2017)
 **  _Setl4.opsyn_ uses _opsyn_ to define a SETL4 operator.
-* 
+*
 *setl4.op
 *
 *    out('setl4.op op',ch)
@@ -3338,7 +3339,7 @@ Out.end
 *    opsyn(ch,proc,n)                                    :s(return)
 *
 *    error('fatal problem with opsyn for ' ch)
-* 
+*
 *   SETL4 uses some of the undefined SPITBOL operators for SETL4 functions.
 
 *   Characters available for use by 'opsyn' to associate the character
