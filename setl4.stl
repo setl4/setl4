@@ -1839,8 +1839,8 @@ or.end
 
 out
 
-    output = 'enter out 1 ' text1
-    output = 'enter out 2 ' text2
+*   output = 'enter out 1 ' text1
+*   output = 'enter out 2 ' text2
 *   output = text1 ' ' text2 ' ' text3 :(return)
     out = setl4.simple.type(text1)
     out = differ(setl4.simple.type(text2)) out '[' setl4.simple.type(text2) ']'
@@ -2262,8 +2262,8 @@ remove.end
 *   If _limit_ is not null, at most _limit_ elements of compount object _v_ are listed.
 
 show
-    Out('enter show')
-    Out('show dt v',datatype(v))
+*   Out('enter show')
+*   Out('show dt v',datatype(v))
 
 *   limit = differ(limit) +limit
     ident(v)                                           :s(return)
@@ -2318,7 +2318,7 @@ show.iter
 show.map
 show.set
 
-    encloser = '{}'                                    :(show.compount)
+    encloser = '{}'                                    :(show.compound)
 
 show.pair
 
@@ -2357,14 +2357,14 @@ show.compound.next
 *   so just write the value.
 
     ident(kind,'seq')   show(value(elem))              :s(show.compound.next)
-    ident(kind,'set')   show(elem,type,,within)        :s(show.compount.next)
+    ident(kind,'set')   show(elem,type,,within)        :s(show.compound.next)
 *   lt(limit = limit -1)                               :s(show.compound.done)
 
 show.compound.done
 
     show.out(substr(encloser,2,1))
     show.restore(v)
-    show.finis(within)                                 :(return)
+    show.done(within)                                  :(return)
 
 show.table
 
@@ -2413,9 +2413,9 @@ show.done.end
 
 show.out
 
-    Out('show.out str',str)
+*   Out('show.out str',str)
     show.line = show.line str         
-    Out('show.out show.line',show.line)
+*   Out('show.out show.line',show.line)
                                                       :(return)
 
 show.out.end
@@ -3255,7 +3255,6 @@ Out.end
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
 
-end
 *** Rest of code is for opsyn. Not working, so comment out for now (DS 3 Jul 2017)
 **  _Setl4.opsyn_ uses _opsyn_ to define a SETL4 operator.
 *
