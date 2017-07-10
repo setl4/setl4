@@ -486,6 +486,7 @@
 *-  even(n)                     Tests if _n_ is even.
 *-  exists(set,expr)            Tests if an expression is true for at least one element in a set.
 *-  factorial(n)                Returns n!  = n * (n -1) * ... * 1.
+*-  frequency(s)                Returns frequency of values in sequence, map or string _s_.
 *-  from(set,elem)              Returns set consisting of the members of a set except a specified member.
 *-  get(map,key)                Gets the value of map _map_ for _key_ for a map.
 *-  get(set,i)                  Gets the i-th element in a set, or fails if no such element.
@@ -1244,6 +1245,44 @@ forall.loop
     e = eval(expr)                                     :f(freturn)s(forall.loop)
 
 forall.end
+
+
+    define('frequency(map)this')            :(frequency.end)
+
+*   _Frequency_ returns a frequency distribution for a map,
+*   sequence  or string. The frequency distribution of a string
+*   gives the number of times each character in the string occurs
+*   in the string. The distribution of a map or sequence gives,
+*   for each element in the range of the map the number of keys
+*   having that value.
+
+
+frequency
+
+    show(map)
+
+    frequency = new('map')
+    ident(datatype(map),'set')            :s(frequency.map)
+
+*   Compute distribution for string by converting string to sequence
+*   and merging with code to find distribution for a map.
+
+    map = split.string(map)
+    show(map)
+
+frequency.map
+    
+*   Here to compute frequency distribution of a map.
+
+    loop(map)
+
+frequency.next
+
+    this = value(next(map))                 :f(return)
+    this = integer(this) +this
+    put(frequency,this,get(frequency,this) + 1) :(frequency.next)
+
+frequency.end
 
     define('from(set,elem)this')                       :(from.end)
 
