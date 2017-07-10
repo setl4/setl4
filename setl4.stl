@@ -458,10 +458,8 @@
 *   in a line of text.
 
 *   In order to be able to use the program ./examples/align.stl to align the
-*   goto fields in the source, use the variable _setl4.colon_ where
+*   goto fields in the source, use the variable _char(58)_ where
 *   the colon character enclosed in quotes would normally be used.
-
-    setl4.colon = char(58)
 
 *## SETL4 Functions
 
@@ -748,8 +746,8 @@ ascii.init.next
     ascii.name[' '] = 'SPC'
     ascii.value['SPC'] = 32
     ascii.value['SPC'] = 32
-    ascii.name[setl4.colon] = setl4.colon
-    ascii.value[setl4.colon] = 58
+    ascii.name[char(58)] = char(58)
+    ascii.value[char(58)] = 58
 
 ascii.init.end
 
@@ -1650,7 +1648,7 @@ new.map
 
 new.map.next
 
-    init break(setl4.colon) . key setl4.colon break(' ') . val span(' ') =:f(return)
+    init break(char(58)) . key char(58) break(' ') . val span(' ') =:f(return)
     put(new,key,val)
                                                        :(new.map.next)
 
@@ -2262,8 +2260,7 @@ remove.end
 *   If _limit_ is not null, at most _limit_ elements of compount object _v_ are listed.
 
 show
-*   Out('enter show')
-*   Out('show dt v',datatype(v))
+
 
 *   limit = differ(limit) +limit
     ident(v)                                           :s(return)
@@ -2273,12 +2270,14 @@ show
     ident(v)                                           :s(return)
 
     ident(datatype(v),'array')                         :s(show.array)
+    ident(datatype(v),'entry')   show.entry(v)         :s(return)
+    ident(datatype(v),'integer') show.simple(v,within) :s(return)
+    ident(datatype(v),'string')  show.simple(v,within) :s(return)
     ident(datatype(v),'table')                         :s(show.table)
     ident(datatype(v),'iterator') show.simple(v,within):s(return)
     differ(datatype(v),'set') show.simple(v,within)    :s(return)
 
     type = ident(type) '+k'
-
     kind = set.kind(v)
     ident(kind,'int')                                  :s(show.int)
     ident(kind,'iter')                                 :s(show.iter)
@@ -2304,15 +2303,14 @@ show.array.2
 
 show.array.done
 
-    show.finis(within)
+                                                       :(show.finis)
 
-show.entry
+*show.entry
 
-    show.out(show(key(v),type,,within))
-    show.out(setl4.colon)
-    show.out(value(v,type),type,,within)
-    show.finis(within)
-
+    show(key(v),type,,within)
+    show(char(58)) 
+    show(value(v,type,,within))
+                                                      :(show.finis)
 show.int
 show.iter
 show.map
@@ -2323,7 +2321,7 @@ show.set
 show.pair
 
     show.out(first(v),type,,within)
-    show.out(setl4.colon)
+    show.out(char(58))
     show(second(v,type,,within))                       :(show.finis)
 
 show.seq
@@ -2363,8 +2361,7 @@ show.compound.next
 show.compound.done
 
     show.out(substr(encloser,2,1))
-    show.restore(v)
-    show.done(within)                                  :(return)
+    show.restore(v)                                     :(show.finis)
 
 show.table
 
@@ -2393,14 +2390,33 @@ show.finis
 
 show.end
 
+     define('show.entry(entry,within)str')                  :(show.entry.end)
+*
+show.entry
+
+
+     show.out(key(entry),type,,within)
+    show.out(char(58))
+    show.out(value(entry,type),type,,within)
+ :(return)
+
+show.entry.end
+
     define('show.done(within)')                        :(show.done.end)
 
 *   Write out _show.line_ unless _within_ is not null.
 
 show.done
 
-    gt(size(show.line),72) out(show.line)
-    show.line = gt(size(show.line,72)) 
+    le(size(show.line),72)                             :s(show.done.finis)
+
+*   Here to write out long line.
+
+    out(show.line)
+    show.line =
+
+show.done.finis
+
     ident(within)                                      :s(return)
     differ(show.line) out(show.line)
     show.line =                                        :(return)
@@ -2413,10 +2429,11 @@ show.done.end
 
 show.out
 
-*   Out('show.out str',str)
-    show.line = show.line str         
-*   Out('show.out show.line',show.line)
-                                                      :(return)
+    show.line = show.line (differ(show.line) ' ', '') str
+*   show.line = show.line  str
+    le(size(show.line),72)                             :s(return)
+    out(show.line)
+    show.line =                                        :(return)
 
 show.out.end
 
@@ -2427,9 +2444,10 @@ show.out.end
 show.simple
 
     integer(v) show.out(+v)                            :s(return)
-    ident(datatype(v),'string') show.q(v)              :s(return)
+    ident(datatype(v),'string') show.out(show.q(v))    :s(return)
     ident(datatype(v),'real') show.out(v)              :s(return)
-    ident(datatype(v),'set')                          :s(show.simple.iterator)
+    ident(datatype(v),'entry') show.entry(v)           :s(return)
+    ident(datatype(v),'iterator')                      :s(show.simple.iterator)
     error('show.simple unsupported type ' datatype(v))
                                                        :(return)
 show.integer
