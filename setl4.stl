@@ -1,5 +1,4 @@
 
-
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
@@ -526,7 +525,7 @@
 *-  reader(str,delim)           Like _reader(filename..)_ but reads lines from a string with lines.
 *-  remove(set,elem)            Removes arbitary element from set, or most recent entry from map.
 *-  set.size(set)               Returns number of elements in set _set_.
-*-  show(v,within)              Shows value of _v_, with _within_ set non-zero when listing membe.r of set
+*-  show(v)                     Shows value of _v_.
 *-  show.b(e)                   Shows value of _b_ as boolean.
 *-  show.lines(lines,number)    Shows a sequence of lines, with id if _number_ not null.
 *-  show.q(str)                 Shows string enclosed in appropriate quote character (" or ').
@@ -1371,6 +1370,7 @@ is.integer.end
 
 is.plain
 
+    ident(v)                                            :s(return)
     ident(datatype(v),'entry')                          :s(return)
     ident(datatype(v),'integer')                        :s(return)
     ident(datatype(v),'pair')                           :s(return)
@@ -1892,6 +1892,7 @@ pack.end
 
 plain
 
+    ident(v)                                            :s(return)
     is.plain(v)                                         :f(return)
     plain = integer(v) +v                               :s(return)
     dt = datatype(v)
@@ -2283,7 +2284,7 @@ remove.error
 
 remove.end
 
-    define('show(v,type,limit,within)ara,i,kind,elem,entry,key,line,hdr,n,this,str,value'):(show.end)
+    define('show(v,type,limit)ara,i,kind,elem,entry,key,line,hdr,n,this,str,value'):(show.end)
 
 *   _Show_ displays the value of its first argument in a form that is hopefully both
 *   readable and pleasing to the eye.
@@ -2292,27 +2293,25 @@ remove.end
 *   Otherwise sets and maps are increased in ascending value of members (set)
 *   or keys (map).
 
-*   _within is non-zero when called to list element of a compound object.
-
 *   If _limit_ is not null, at most _limit_ elements of compount object _v_ are listed.
 
 show
 
 
 *   limit = differ(limit) +limit
-    ident(v)                                           :s(return)
+    ident(v)                                            :s(return)
 
 *   Show nothing by writing out nothing.
 
-    ident(v)                                           :s(return)
+    ident(v)                                            :s(return)
 
-    ident(datatype(v),'array')                         :s(show.array)
-    ident(datatype(v),'entry')   show.entry(v)         :s(return)
-    ident(datatype(v),'integer') show.simple(v,within) :s(return)
-    ident(datatype(v),'string')  show.simple(v,within) :s(return)
-    ident(datatype(v),'table')                         :s(show.table)
-    ident(datatype(v),'iterator') show.simple(v,within):s(return)
-    differ(datatype(v),'set') show.simple(v,within)    :s(return)
+    ident(datatype(v),'array')                          :s(show.array)
+    ident(datatype(v),'entry')   show.entry(v)          :s(return)
+    ident(datatype(v),'integer') show.simple(v)         :s(return)
+    ident(datatype(v),'string')  show.simple(v)         :s(return)
+    ident(datatype(v),'table')                          :s(show.table)
+    ident(datatype(v),'iterator') show.simple(v)        :s(return)
+    differ(datatype(v),'set') show.simple(v)            :s(return)
 
     type = ident(type) '+k'
     kind = set.kind(v)
@@ -2344,10 +2343,10 @@ show.array.done
 
 *show.entry
 
-    show(key(v),type,,within)
+    show(key(v))
     show(char(58)) 
-    show(value(v,type,,within))
-                                                      :(show.finis)
+    show(value(v))
+                                                       :(show.finis)
 show.int
 show.iter
 show.map
@@ -2357,42 +2356,41 @@ show.set
 
 show.pair
 
-    show.out(first(v),type,,within)
+    show.out(first(v))
     show.out(char(58))
-    show(second(v,type,,within))                       :(show.finis)
+    show(second(v))                                    :(show.finis)
 
 show.seq
 
 *   If the sequence has more than ten elements, list as map.
 
     encloser = (le(set.size(v),10 ) '[]','{}')
-    gt(set.size(v),10)                                 :s(show.map)f(show.compound)
+    gt(set.size(v),10)                                  :s(show.map)f(show.compound)
 
 show.compound
 
     show.save(v)
     sorter(v,type)
     loop(v)
-    within = 'TRUE'
     show.out(substr(encloser,1,1))
 
 show.compound.next
 
-    elem = next(v)                                     :f(show.compound.done)
+    elem = next(v)                                      :f(show.compound.done)
 
-    ident(kind,'int') show(elem,type,within)           :s(show.compount.next)
-    ident(kind,'iter') show(elem,type,within)          :s(show.compount.next)
+    ident(kind,'int') show(elem)                        :s(show.compount.next)
+    ident(kind,'iter') show(elem)                      :s(show.compount.next)
 
 *   show = ident(datatype(value(entry),'token'))
 *               show  show.token(v,,'TRUE')            :s(show.map.check)
 
-    ident(kind,'map')   show(elem,type,,within)        :s(show.compound.next)
+    ident(kind,'map')   show(elem)                      :s(show.compound.next)
 
 *   _Kind_ is 'seq' only if writing out sequence with ten or fewer elements,
 *   so just write the value.
 
     ident(kind,'seq')   show(value(elem))              :s(show.compound.next)
-    ident(kind,'set')   show(elem,type,,within)        :s(show.compound.next)
+    ident(kind,'set')   show(elem)                      :s(show.compound.next)
 *   lt(limit = limit -1)                               :s(show.compound.done)
 
 show.compound.done
@@ -2402,7 +2400,6 @@ show.compound.done
 
 show.table
 
-    within = 'TRUE'
     show.out('[')
     ara = convert(v,'array')                           :f(show.table.error)
     i = 0
@@ -2415,7 +2412,7 @@ show.table.error
 show.table.next
 
     le(i = i + 1,n)                                    :f(show.table.done)
-    show(ara[i,1],type,,within)                        :(show.table.next)
+    show(ara[i,1])                                     :(show.table.next)
 
 show.table.done
 
@@ -2423,11 +2420,11 @@ show.table.done
 
 show.finis
 
-    show.done(within)                                  :(return)
+    show.done()                                         :(return)
 
 show.end
 
-     define('show.entry(entry,within)str')             :(show.entry.end)
+     define('show.entry(entry)str')                     :(show.entry.end)
 *
 show.entry
 
@@ -2436,16 +2433,16 @@ show.entry
     
 *   Here if entry is not plain.
 
-    show.out(key(entry),type,,within)
+    show.out(key(entry))
     show.out(char(58))
-    show.out(value(entry,type),type,,within)
+    show.out(value(entry,type))
                                                        :(return)
 
 show.entry.end
 
-    define('show.done(within)')                        :(show.done.end)
+    define('show.done()')                              :(show.done.end)
 
-*   Write out _show.line_ unless _within_ is not null.
+*   Write out _show.line_ unless in midst of showing compound object.
 
 show.done
 
@@ -2458,7 +2455,8 @@ show.done
 
 show.done.finis
 
-    ident(within)                                      :s(return)
+    gt(set.size(show.stack))                           :s(return)
+*   ident(within)                                      :s(return)
     differ(show.line) out(show.line)
     show.line =                                        :(return)
 
@@ -2502,7 +2500,7 @@ show.simple.iterator
     ne(+iter.finis(v))  show.out(' finis               :'  iter.finis(v))
     ne(+iter.step(v))   show.out(' step                :'   iter.step(v))
     show.out('} ')
-    show.done(within)                                  :(return)
+    show.done()                                        :(return)
 
 show.simple.end
     define('show.b(e)')                                :(show.b.end)
