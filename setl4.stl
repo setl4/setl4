@@ -1364,6 +1364,22 @@ is.integer
 
 is.integer.end
 
+    define('is.plain(v)')                               :(is.plain.end)
+
+*   Tests if _v_ is a 'plain' v.
+*   The plain vs are 'entry','integer','pair','real', and 'string'.
+
+is.plain
+
+    ident(datatype(v),'entry')                          :s(return)
+    ident(datatype(v),'integer')                        :s(return)
+    ident(datatype(v),'pair')                           :s(return)
+    ident(datatype(v),'real')                           :s(return)
+    ident(datatype(v),'string')                         :s(return)
+                                                        :(freturn)
+
+is.plain.end
+
     define('is.string(s)')                             :(is.string.end)
 
 *   _Is.string_ tests if _s_ is a string , returning its value if so, or else failing.
@@ -1837,13 +1853,10 @@ or.end
 
 out
 
-*   output = 'enter out 1 ' text1
-*   output = 'enter out 2 ' text2
-*   output = text1 ' ' text2 ' ' text3 :(return)
-    out = setl4.simple.type(text1)
-    out = differ(setl4.simple.type(text2)) out '[' setl4.simple.type(text2) ']'
-    out = differ(setl4.simple.type(text3)) out  setl4.simple.type(text2)
-    output = out                                       :(return)
+    text1 = is.plain(text1) plain(text1)
+    text2 = is.plain(text2) plain(text2)
+    text3 = is.plain(text3) plain(text3)
+    output  = text1 (differ(text2) '[' text2 ']', '') (differ(text3) text3,'') :(return)
 
 out.end
 
@@ -1870,6 +1883,30 @@ pack.next
     pack = pack value(next(seq))                       :s(pack.next)f(return)
 
 pack.end
+
+    define('plain(v)')                  :(plain.end)
+
+*   Tests if _v_ is a plain type, where the plain types are _entry_, _integer_,
+*   _pair_, _real_, and _string_. If _v_ is plain, then _plain_ returns its
+*   value as a string. Otherwise, _v_ is returned as the value.
+
+plain
+
+    is.plain(v)                                         :f(return)
+    plain = integer(v) +v                               :s(return)
+    dt = datatype(v)
+    plain = ident(dt,'integer') +v                      :s(return)
+    plain = ident(dt,'real')    v                       :s(return)
+    plain = ident(dt,'string')  show.q(v)               :s(return)
+
+    plain = ident(dt,'entry') is.plain(key(v)) is.plain(value(v))
+.           plain(key(entry)) char(58) plain(value(entry))    :s(return)
+
+    plain = ident(dt,'pair') is.plain(first(v)) is.plain(second(v))
+.            '(' plain(first(v)) ',' plain(second(v)) ')':s(return)
+    plain = v                                           :(return)
+
+plain.end
 
     define('pop(stack)')                               :(pop.end)
 
@@ -2390,15 +2427,19 @@ show.finis
 
 show.end
 
-     define('show.entry(entry,within)str')                  :(show.entry.end)
+     define('show.entry(entry,within)str')             :(show.entry.end)
 *
 show.entry
 
+    show.entry = is.plain(key(entry)) is.plain(value(entry))
+.           plain(key(entry)) char(58) plain(value(entry)) :s(return)
+    
+*   Here if entry is not plain.
 
-     show.out(key(entry),type,,within)
+    show.out(key(entry),type,,within)
     show.out(char(58))
     show.out(value(entry,type),type,,within)
- :(return)
+                                                       :(return)
 
 show.entry.end
 
@@ -3187,22 +3228,6 @@ setl4.show.set
 .           error('set.key is not table')
                                                        :(return)
 setl4.show.end
-
-    define('setl4.simple.type(type)')                  :(setl4.simple.type.end)
-
-*   Tests if _v_ is a 'simple' type suitable for use in _out()_.
-*   Simple types are 'integer','real', and 'string'.
-*   Returns _v_ if _type_ is a simple type, null otherwise.
-
-setl4.simple.type
-
-    setl4.simple.type = type
-    ident(datatype(type),'integer')                    :s(return)
-    ident(datatype(type),'real')                       :s(return)
-    ident(datatype(type),'string')                     :s(return)
-    setl4.simple.type =                                :(return)
-
-setl4.simple.type.end
 
     define('setl4.size(set)')                          :(setl4.size.end)
 
