@@ -494,8 +494,7 @@
 *-  forall(set,expr)            Tests if an expression is true for every element of a set.
 *-  integers(n)                 Returns set of integers 1 ... n.
 *-  intersection(a,b)           Returns set of elements common to two sets.
-*-  is.integer(n)               Tests if string or integer _n_ has integer value. Returns it if so, or else fails.
-*-  is.string(s)                Tests if _s_ is a string, returning its value if so, or else failing.
+*-  is.plain(s)                 Tests if _s_ is plain type: integer, name, real, or string.
 *-  join(a,b)                   Joins two strings into a single string by concatenating them.
 *-  less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
 *-  loop(set,this)              Set up iteration over _set_ using _next_. _this_ names variable updated during iteration.
@@ -504,6 +503,7 @@
 *-  odd(n)                      Tests if _n_ is odd.
 *-  out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null.
 *-  pack(seq)                   Packs sequence of strings into single string.
+*-  plain(v)                    Returns string representing a plain type, per is.plain().
 *-  powerset(set)               Return the powerset of _set_, the set of all the subsets of _set_.
 *-  prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_.
 *-  member(elem,set)            Tests if _elem_ is a member of _set_.
@@ -528,7 +528,6 @@
 *-  show(v)                     Shows value of _v_.
 *-  show.b(e)                   Shows value of _b_ as boolean.
 *-  show.lines(lines,number)    Shows a sequence of lines, with id if _number_ not null.
-*-  show.q(str)                 Shows string enclosed in appropriate quote character (" or ').
 *-  slice(str,first,last)       Same as SPITBOL _substr(str,first,last)_.
 *-  sorter(set,type)            Sorts a set, map or string according to _type_.
 *-  split.line(line)            Splits line of blank-separated words into sequence.
@@ -800,11 +799,6 @@ binary
 binary.next
 
     n = n / 2
-
-*   out()
-*   out('binary.next binary',show.q(binary))
-*   out('binary.next n',n)
-*   out()
 
     binary = eq(n)   '0'                               :s(return)
     binary = eq(n,1) '1'                               :s(return)
@@ -1352,43 +1346,21 @@ intersection.next
 
 intersection.end
 
-    define('is.integer(n)')                            :(is.integer.end)
-
-*   Test if _n_ is a string with integer value or integer, return its
-*   value if so, fail otherwise.
-
-is.integer
-
-    is.integer = integer(n) +n                         :s(return)f(freturn)
-
-is.integer.end
-
     define('is.plain(v)')                               :(is.plain.end)
 
-*   Tests if _v_ is a 'plain' v.
-*   The plain vs are 'entry','integer','pair','real', and 'string'.
+*   Tests if _v_  has a plain type. 
+*   The plain types are 'integer', 'name', 'real', and 'string'.
 
 is.plain
 
     ident(v)                                            :s(return)
-    ident(datatype(v),'entry')                          :s(return)
     ident(datatype(v),'integer')                        :s(return)
-    ident(datatype(v),'pair')                           :s(return)
+    ident(datatype(v),'name')                           :s(return)
     ident(datatype(v),'real')                           :s(return)
     ident(datatype(v),'string')                         :s(return)
                                                         :(freturn)
 
 is.plain.end
-
-    define('is.string(s)')                             :(is.string.end)
-
-*   _Is.string_ tests if _s_ is a string , returning its value if so, or else failing.
-
-is.string
-
-    is.string = ident(datatype(s),'string') s          :s(return)f(freturn)
-
-is.string.end
 
     define('join(a,b,c)i')                             :(join.end)
 
@@ -1853,9 +1825,7 @@ or.end
 
 out
 
-    text1 = is.plain(text1) plain(text1)
     text2 = is.plain(text2) plain(text2)
-    text3 = is.plain(text3) plain(text3)
     output  = text1 (differ(text2) '[' text2 ']', '') (differ(text3) text3,'') :(return)
 
 out.end
@@ -1893,19 +1863,28 @@ pack.end
 plain
 
     ident(v)                                            :s(return)
+    plain = v
     is.plain(v)                                         :f(return)
     plain = integer(v) +v                               :s(return)
-    dt = datatype(v)
-    plain = ident(dt,'integer') +v                      :s(return)
-    plain = ident(dt,'real')    v                       :s(return)
-    plain = ident(dt,'string')  show.q(v)               :s(return)
 
-    plain = ident(dt,'entry') is.plain(key(v)) is.plain(value(v))
-.           plain(key(entry)) char(58) plain(value(entry))    :s(return)
+*   Nothing to be done if argument is not string.
 
-    plain = ident(dt,'pair') is.plain(first(v)) is.plain(second(v))
-.            '(' plain(first(v)) ',' plain(second(v)) ')':s(return)
-    plain = v                                           :(return)
+    ident(datatype(v),'string')                         :s(plain.string)
+    error('unexpected input type to plain, ' datatype(v))
+
+plain.string
+
+    v break("'")                                        :s(plain.double)
+
+*   Here if arguent does not contain a single quote, so use single quotes around it.
+
+    plain = "'" v "'"                                   :(return)
+
+plain.double
+
+*   Here if arguent contains single quote, so use double quotes around it.
+
+    plain = '"' v '"'                                   :(return)
 
 plain.end
 
@@ -2305,13 +2284,13 @@ show
 
     ident(v)                                            :s(return)
 
+    is.plain(v)  show.out(plain(v))                     :s(show.finis)
+
     ident(datatype(v),'array')                          :s(show.array)
-    ident(datatype(v),'entry')   show.entry(v)          :s(return)
-    ident(datatype(v),'integer') show.simple(v)         :s(return)
-    ident(datatype(v),'string')  show.simple(v)         :s(return)
+    ident(datatype(v),'entry')                          :s(show.entry)
     ident(datatype(v),'table')                          :s(show.table)
-    ident(datatype(v),'iterator') show.simple(v)        :s(return)
-    differ(datatype(v),'set') show.simple(v)            :s(return)
+    ident(datatype(v),'iterator')                       :s(show.iterator)
+    differ(datatype(v),'set') error('unexpected datatype to show, ' datatype(v))
 
     type = ident(type) '+k'
     kind = set.kind(v)
@@ -2341,12 +2320,27 @@ show.array.done
 
                                                        :(show.finis)
 
-*show.entry
+show.entry
 
+    is.plain(key(v)) is.plain(value(v))                :f(show.entry.notplain)
+*   Out('plain entry stack size',set.size(show.stack))
+    show.out(plain(key(v)) char(58) plain(value(v)))   :s(show.finis)
+
+show.entry.notplain
+
+*   Out('notplain entry stack size',set.size(show.stack))
     show(key(v))
     show(char(58)) 
     show(value(v))
                                                        :(show.finis)
+show.iterator
+
+    show.out('{iterator')
+    ne(+iter.start(v))  show.out(' start ='  iter.start(v))
+    ne(+iter.finis(v))  show.out(' finis ='  iter.finis(v))
+    ne(+iter.step(v))   show.out(' step  ='  iter.step(v))
+    show.out('} ')                                     :(show.finis)
+
 show.int
 show.iter
 show.map
@@ -2355,6 +2349,11 @@ show.set
     encloser = '{}'                                    :(show.compound)
 
 show.pair
+
+    is.plain(first(v)) is.plain(second(v))             :f(show.pair.notplain)
+    show.out('(' plain(first(v)) ',' plain(second(v)) ')') :(show.finis)
+
+show.pair.notplain
 
     show.out(first(v))
     show.out(char(58))
@@ -2370,14 +2369,18 @@ show.seq
 show.compound
 
     show.save(v)
+*   Out('enter compound stack sz',set.size(show.stack))
     sorter(v,type)
     loop(v)
     show.out(substr(encloser,1,1))
+*   Out('show.compound st sz',set.size(show.stack))
 
 show.compound.next
 
     elem = next(v)                                      :f(show.compound.done)
 
+*   Out('compound.next sz',set.size(show.stack))
+    is.plain(elem)     show(plain(elem))                :s(show.compound.next)
     ident(kind,'int') show(elem)                        :s(show.compount.next)
     ident(kind,'iter') show(elem)                      :s(show.compount.next)
 
@@ -2424,22 +2427,6 @@ show.finis
 
 show.end
 
-     define('show.entry(entry)str')                     :(show.entry.end)
-*
-show.entry
-
-    show.entry = is.plain(key(entry)) is.plain(value(entry))
-.           plain(key(entry)) char(58) plain(value(entry)) :s(return)
-    
-*   Here if entry is not plain.
-
-    show.out(key(entry))
-    show.out(char(58))
-    show.out(value(entry,type))
-                                                       :(return)
-
-show.entry.end
-
     define('show.done()')                              :(show.done.end)
 
 *   Write out _show.line_ unless in midst of showing compound object.
@@ -2468,6 +2455,12 @@ show.done.end
 
 show.out
 
+    str = integer(str) +str                            :s(show.out.show)
+    differ(datatype(str),'string')
+.       error('show.out expects argument to be string, but got ' datatype(str))
+
+show.out.show
+
     show.line = show.line (differ(show.line) ' ', '') str
 *   show.line = show.line  str
     le(size(show.line),72)                             :s(return)
@@ -2476,33 +2469,6 @@ show.out
 
 show.out.end
 
-    define('show.simple(v)')                           :(show.simple.end)
-
-*   Show the value of an object that has no members.
-
-show.simple
-
-    integer(v) show.out(+v)                            :s(return)
-    ident(datatype(v),'string') show.out(show.q(v))    :s(return)
-    ident(datatype(v),'real') show.out(v)              :s(return)
-    ident(datatype(v),'entry') show.entry(v)           :s(return)
-    ident(datatype(v),'iterator')                      :s(show.simple.iterator)
-    error('show.simple unsupported type ' datatype(v))
-                                                       :(return)
-show.integer
-
-    show.out(v)                                        :(return)
-
-show.simple.iterator
-
-    show.out('{iterator')
-    ne(+iter.start(v))  show.out(' start               :'  iter.start(v))
-    ne(+iter.finis(v))  show.out(' finis               :'  iter.finis(v))
-    ne(+iter.step(v))   show.out(' step                :'   iter.step(v))
-    show.out('} ')
-    show.done()                                        :(return)
-
-show.simple.end
     define('show.b(e)')                                :(show.b.end)
 
 *   _Show.b_ shows the value if its argument as a boolean value: TRUE or FALSE
@@ -2552,33 +2518,16 @@ show.lines.next
 
 show.lines.end
 
-    define('show.q(str)')                              :(show.q.end)
-
-*   _Show.q_ shows its argument string _str_ enclosed in quotes
-
-show.q
-
-    str break("'")                                     :s(show.q.double)
-
-*   Here if string does not contain a single quote, so use single quotes around it.
-
-    show.q = "'" str "'"                               :(return)
-
-show.q.double
-
-*   Here if string contains single quote, so use double quotes around it.
-
-    show.q = '"' str '"'                               :(return)
-
-show.q.end
-
     define('show.restore(s)')                          :(show.restore.end)
 
 *   _Show.restore_ restores the values saved by the most recent call to _setl4.push_.
 
 show.restore
 
-    set.index(s) = pop(show.stack)                     :(return)
+    set.index(s) = pop(show.stack)                     
+*   Out('show.restore')
+*   setl4.show(show.stack)
+                :(return)
 
 show.restore.end
 
@@ -2588,7 +2537,10 @@ show.restore.end
 
 show.save
 
-    push(show.stack,set.index(s))                      :(return)
+    push(show.stack,set.index(s))                      
+*   Out('show.save',set.size(show.stack))
+*   setl4.show(s)
+    :(return)
 
 show.save.end
 
@@ -3125,9 +3077,6 @@ visit.end
 
 words
 
-*   out('enter words',line)
-*   out('enter words dt w',datatype(w))
-*   out('w',show.q(w))
     words = new('seq #' size(line))
 
 words.next
@@ -3206,7 +3155,7 @@ setl4.show.set
 
     iter = set.iter(set)
                                         out('{')
-                                        out('  kind',     show.q(set.kind(set)))
+                                        out('  kind',     plain(set.kind(set)))
     ne(set.size(set))                   out('  size',     set.size(set))
 
     differ(set.index(set)) differ(set.key(set))
