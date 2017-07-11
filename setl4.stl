@@ -1579,6 +1579,8 @@ multiple.end
 *   accurate. Values that are too high will cause the program to expend space to save some time;
 *   numbers that are too low will expend some time to save space.
 
+*   _New_ returns the new object.
+
 new
 
     ident(init)                                        :s(new.set)
@@ -1913,6 +1915,10 @@ plain
 
 plain.string
 
+*   String in plain form if starts with quote chacter. 
+
+    plain '"'                                           :s(return)
+    plain "'"                                           :s(return)
     v break("'")                                        :s(plain.double)
 
 *   Here if arguent does not contain a single quote, so use single quotes around it.

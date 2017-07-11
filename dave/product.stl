@@ -7,7 +7,7 @@
 
     &stlimit = 25000
 
-    define('product(sets,strings)set.in,set.out,this,i,seq,set.i,dt,t'):(product.end)
+  define('product(sets,strings)set.in,set.out,this,i,seq,set.i,dt,t'):(product.end)
 
 *   _Product_ returns the Cartesian product of a sequence of strings or sets.
 
@@ -29,6 +29,7 @@
 product
 
     out('enter product')
+    Out('strings',strings)
 
     product = new('set')
     set.out = new('set')
@@ -39,15 +40,56 @@ product
 
 *   The product of a single set is the set itself.
 
-*   Loop over the input sets
+    gt(set.size(sets),1)                                :s(product.several)
+
+    product = copy(sets)                                :(return)
+
+product.several
+
+*   Loop over the input sets, knowing there are least two sets.
 
     loop(sets,.sets.this)
 
-*   Initialize set.in from the first set.
+*   Initialize set.out from the first set.
 
     next(sets)
+
+    Out('product.several',datatype(sets.this))
+    sets.this = value(sets.this)
+    show(sets.this)
+
+    Out('strings',strings)
+    differ(strings)                                      :s(product.init.strings)
+    
+
+    Out('product of sets')
+
+*   Here to built sequence for each element in the first set consisting of a sequence
+*   with that element as its only member
+
+    loop(sets.this,.set.this)
+
+product.init.seq.next
+
+    Out('product.init.seq.next',datatype(set.this))
+    next(sets.this)                                     :f(product.init.seq.done)
+    seq = new('seq')
+    push(seq,set.this)
+    add(set.out,seq)                                    :(product.init.seq.next)
+
+product.init.seq.done
+
+    Out('product.init.seq.done')
+    show(set.out)
+                                                        :(product.next)
+
+product.init.strings 
+    Out('product of strings')
+
     set.out = copy(sets.this)
-    out('initial set.out')
+
+product.init.done
+    Out('product.init.done')
     show(set.out)
 
 product.next
@@ -90,13 +132,13 @@ product1.next
 
     next(set)                                          :f(product1.set.next)
 
-*HERE
 
     Out('dt in.this',datatype(in.this))
     Out('dt set.this',datatype(set.this))
     output  = differ(strings) '[' join(in.this,set.this) ']'
     differ(strings) add(set.out,join(in.this,convert(set.this,'string')))
-    ident(strings)  add(set.out,join(in.this,set.this))
+*HERE
+    ident(strings)  add(set.out,join(in.this,push(new('seq'),set.this)))
                                                        :(product1.next)
 
 product1.done
@@ -123,53 +165,20 @@ test
     out()
                                                        :(return)
 test.end
-    s12 = new('set 2 3 4 a d f c s d')
-    s12 = new('set 2 3 4 9 12 123 15  9999999 999999999 9999999999 7777777777 '
-.           '12 124 3235 343453 4566 75775 886  74554 22 666 788866  4234234 23234 233  27752  67752 ')
-    show(s12)
-    s13 = new('set a b c as df as gg ee ghgj ij zdq tgza wg zqsg ')
-    s13 = new('set 4 99 343')
-    show(s13)
-end
 
-*   s0 = new('seq 2 4 6 8')
-*   out('showing s0')
-*   setl4.show(s0)
-*   show(s0)
+
     out('testing sequence of sets')
     s1 = new("set 10 20")
     seq = new("seq")
     push(seq,s1)
-    out('showing seq 1')
+    out('showing set 1')
     show(seq)
     s2 = new("set I V C")
-    out('showing seq 2')
+    out('showing  set')
     push(seq,s2)
     show(s2)
-    out('showing seq 2')
+    out('showing seq')
     show(seq)
+    p = product(seq)
     out('done')
 end
-    p = product(seq)
-    out('computed')
-    show(p)
-end
-    
-*   test(seq)
-    out("end test")
-
-end
-
-
-    s1 = new("set a b")
-    s2 = new("set 1 2 3")
-    seq = new("seq")
-    push(seq,s1)
-    out('showing S1 FIRST')
-    show(seq)
-    push(seq,s2)
-    out('showing S2 SECOND')
-    show(seq)
-end
-    out('seq shown')
-    test(seq,"TRUE")
