@@ -2407,18 +2407,15 @@ show.seq
 
 show.compound
 
-    show.save(v)
-*   Out('enter compound stack sz',set.size(show.stack))
     sorter(v,type)
     loop(v)
     show.out(substr(encloser,1,1))
-*   Out('show.compound st sz',set.size(show.stack))
+    show.level = show.level + 1
 
 show.compound.next
 
     elem = next(v)                                      :f(show.compound.done)
 
-*   Out('compound.next sz',set.size(show.stack))
     is.plain(elem)     show(plain(elem))                :s(show.compound.next)
     ident(kind,'int') show(elem)                        :s(show.compount.next)
     ident(kind,'iter') show(elem)                      :s(show.compount.next)
@@ -2432,13 +2429,14 @@ show.compound.next
 *   so just write the value.
 
     ident(kind,'seq')   show(value(elem))              :s(show.compound.next)
-    ident(kind,'set')   show(elem)                      :s(show.compound.next)
+    ident(kind,'set')   show(elem)                     :s(show.compound.next)
 *   lt(limit = limit -1)                               :s(show.compound.done)
 
 show.compound.done
 
+    show.level = show.level - 1
     show.out(substr(encloser,2,1))
-    show.restore(v)                                     :(show.finis)
+            :(show.finis)
 
 show.table
 
@@ -2481,8 +2479,7 @@ show.done
 
 show.done.finis
 
-    gt(set.size(show.stack))                           :s(return)
-*   ident(within)                                      :s(return)
+    gt(show.level)                                     :s(return)
     differ(show.line) out(show.line)
     show.line =                                        :(return)
 
@@ -2556,32 +2553,6 @@ show.lines.next
     differ(number)   out(lpad(i,4) '  ' line)          :(show.lines.next)
 
 show.lines.end
-
-    define('show.restore(s)')                          :(show.restore.end)
-
-*   _Show.restore_ restores the values saved by the most recent call to _setl4.push_.
-
-show.restore
-
-    set.index(s) = pop(show.stack)                     
-*   Out('show.restore')
-*   setl4.show(show.stack)
-                :(return)
-
-show.restore.end
-
-    define('show.save(s)')                             :(show.save.end)
-
-*   _Show.save_ saves the _index and _this_ fields of its argument set.
-
-show.save
-
-    push(show.stack,set.index(s))                      
-*   Out('show.save',set.size(show.stack))
-*   setl4.show(s)
-    :(return)
-
-show.save.end
 
     define('slice(str,first,last)')                    :(slice.end)
 
@@ -3162,7 +3133,7 @@ writer.end
 setl4.clear
 
     setl4.config.set.table.size = setl4.config.stack = setl4.config.set.table.size = setl4.config.int =
-.   show.stack = setl4.ascii.initialized = setl4.ascii.name = setl4.config.int.init =
+.   setl4.ascii.initialized = setl4.ascii.name = setl4.config.int.init =
 .   setl4.ascii.value = setl4.random.initialized = setl4.any.digit = setl4.span.digits =
 .   setl4.break.digit = setl4.break.letter = setl4.any.letter =
 .   setl4.span.letters = setl4.span.spaces = setl4.break.space =
@@ -3273,9 +3244,9 @@ Out.end
 .      '+v:+v +va:+v +val:+v +valu:+v +value:+v -v:-v -va:-v -val:-v -valu:-v -value:-v '
 .      '+i:+i +in:+i +ind:+ +inde:i+i +index:+i -i:-i -in:-i -ind:- -inde:i-i -index:-i')
 
-*   SETL4 needs a stack
+*   Show.level is set non-zero when listing elements within a compound object.
 
-    show.stack = new('seq')
+    show.level = 0
 
 *   _setl4.config.library.texts_ is a set of the names of the available texts.
 
