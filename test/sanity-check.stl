@@ -151,6 +151,40 @@
     show(m,'-v')
     out()
 
+*   Test tuples
+    
+    out('showing empty tuple')
+    tup = new('tup')
+    show(tup)
+
+    out('showing  tuple with one element')
+    tup = new('tup')
+    push(tup,10)
+    show(tup)
+
+    out('showing  tuple with two elements')
+    tup = new('tup')
+    push(tup,10)
+    push(tup,20)
+    show(tup)
+    out()
+
+    out('showing sequence with four elements')
+    out('expect parentheses around values')
+    seq = new('seq')
+    push(seq,2,4,6,8)
+    show(seq)
+    out()
+
+    out('showing sequence with twelve elements')
+    seq = new('seq')
+    push(seq,2,4,6,8)
+    push(seq,10,12,14,16)
+    push(seq,18,20,22,24)
+    show(seq)
+    out()
+
+
     out("Here endeth the test.")
 
 end

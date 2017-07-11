@@ -2,6 +2,7 @@
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
+    &stlimit = 40000
 *   TODO
 
 *# SETL4 - An Implementation of SETL Written in SPITBOL
@@ -151,9 +152,11 @@
 *   in that iteration over a sequence returns the values of the sequence, not the
 *   instances of _entry_ that are returned when iterating over a map.
 
-*   Sets of kind 'string' consists of a map from integers to characters.
+*   A tuple is an sequence of elements. Tuples differ from sequences in that,
+*   when they are listed using the _show_ function, the values of the
+*   elements are enclosed in parenthesis and the indices are not shown.
 
-*   By convention, the kinds are writtten 'int', 'iter', 'map', 'seq', and 'set'.
+*   By convention, the kinds are writtten 'int', 'iter', 'map', 'seq', 'set', and 'tup'.
 
 
 *## Set Data Type
@@ -173,7 +176,7 @@
 *- _set.key_  SPITBOL table mapping set elements to index entries.
 
 *- _set.kind_
-*is the kind of the set, one of 'int', 'iter', 'map', 'seq', or 'set.'
+*is the kind of the set, one of 'int', 'iter', 'map', 'seq', 'set', or 'tuple'.
 *The kind is  specified when the set is created.
 *The default kind is 'set'.
 
@@ -562,6 +565,7 @@ add
     elem = integer(elem) +elem
     ident(set.kind(set),'map')                         :s(add.map)
     ident(set.kind(set),'seq')                         :s(add.seq)f(add.set)
+    ident(set.kind(set),'tup')                         :s(add.seq)f(add.set)
 
 add.map
 
@@ -1097,6 +1101,7 @@ equal.sets
     ident(set.kind(set),'map')                         :s(equal.map)
     ident(set.kind(set),'seq')                         :s(equal.seq)
     ident(set.kind(set),'set')                         :s(equal.set)
+    ident(set.kind(set),'tup')                         :s(equal.seq)
     error('equal mismatched kinds')
 
 
@@ -1199,6 +1204,7 @@ filter
     out('filter set.kind',set.kind(set))
     ident(set.kind(set),'map')                         :s(filter.map)
     ident(set.kind(set),'seq')                         :s(filter.seq)
+    ident(set.kind(set),'tup')                         :s(filter.tup)
     filter = new('set')
     loop(set)
 
@@ -1223,6 +1229,18 @@ filter.seq
     loop(set)
 
 filter.seq.loop
+
+    this = next(set)                                   :f(return)
+*   out('at filter.seq.loop')
+    out('filter this',this)
+    eval(expr) push(filter,this)                       :(filter.seq.loop)
+
+filter.tup
+
+    filter = new('tup')
+    loop(set)
+
+filter.tup.loop
 
     this = next(set)                                   :f(return)
 *   out('at filter.seq.loop')
@@ -1312,6 +1330,7 @@ get
     ident(set.kind(map),'map')                         :s(get.map)
     ident(set.kind(map),'seq')                         :s(get.map)
     ident(set.kind(map),'set')                         :s(get.set)
+    ident(set.kind(map),'tup')                         :s(get.set)
     error('get on unsupported kind of set              : ' set.kind(map))
 
 get.int
@@ -1403,8 +1422,8 @@ is.plain.end
 
     define('join(a,b,c)i')                             :(join.end)
 
-*   _Join_ joins strings by concatenating them, and sequences
-*   by returning a new sequence consisting of all the elements of
+*   _Join_ joins strings by concatenating them, and sequences or tuples
+*   by returning a new sequence or tuple consisting of all the elements of
 *   the first followed by all the elements of the second, and then
 *   by the elements of the third.
 
@@ -1414,7 +1433,7 @@ join
 
     ident(a)                                           :s(return)
     ident(datatype(a),'string')                        :s(join.string)
-    join = new('seq')
+    join = new(set.type(a))
     loop(a)
 
 join.a
@@ -1476,6 +1495,7 @@ loop
     ident(set.kind(set),'map')                         :s(loop.map)
     ident(set.kind(set),'seq')                         :s(loop.map)
     ident(set.kind(set),'set')                         :s(loop.set)
+    ident(set.kind(set),'tup')                         :s(loop.map)
     error('unknown kind of iterator, ' set.kind(set))
 
 loop.int
@@ -1573,6 +1593,7 @@ multiple.end
 *       'map'           map, followed by list of key/value pairs separated by colon
 *       'set'           set, followed by list of initial members
 *       'seq'           sequence, followed by list of initial values.
+*       'tup'           tuple, followed by list of initial values.
 
 *   The set kind may optionally be followed by a number sign (#) followed by an integer, to
 *   indiate an estimate of the number of elements in a set or map. Ihe number need not be
@@ -1593,6 +1614,7 @@ new
     begins('map',kind)                                 :s(new.kind)
     begins('seq',kind)                                 :s(new.kind)
     begins('set',kind)                                 :s(new.kind)
+    begins('tup',kind)                                 :s(new.kind)
     begins('string',kind)                              :s(new.kind)
     error('bad kind to new ' kind )
 
@@ -1682,8 +1704,9 @@ new.map.next
                                                        :(new.map.next)
 
 new.seq
+new.tup
 
-    new = set('seq',iterator(),table(n),table(n))
+    new = set(kind,iterator(),table(n),table(n))
     init span(' ') =
     ident(init)                                        :s(return)
     init = init ' '
@@ -1782,6 +1805,7 @@ next.iter
 
 next.map
 next.seq
+next.tup
 
     next = iter.next(iter) = iter.next(iter) + 1
     le(next,set.size(set))                             :f(freturn)
@@ -2051,26 +2075,48 @@ primes.loop
 
 primes.end
 
-    define('push(stack,value)')                        :(push.end)
+    define('push(stack,val1,val2,val3,val4,val5)') :(push.end)
 
-*   _Push_ adds a new value to a stack (implemented as a sequence). It
-*   returns the stack as its value.
+*   _Push_ adds new value(s) to a stack or tuple, returning the updated
+*   stack or tuple as its value.
 
 push
 
     push = stack
-    ident(stack) error('push() first argument is null.')
-    differ(datatype(stack),'set')
-.       error('push() first argument is not a set, but instance of ' datatype(stack))
-    ident(set.kind(stack),'map')                       :s(push.value)
-    ident(set.kind(stack),'seq')                       :s(push.value)
-    error('first argument to push() must be set or map, is ' datatype(stack))
+    ident(val1)                                         :s(return)
+    push.value(stack,val1)
+    ident(val2)                                         :s(return)
+    push.value(stack,val2)
+    ident(val3)                                         :s(return)
+    push.value(stack,val3)
+    ident(val4)                                         :s(return)
+    push.value(stack,val4)
+    ident(val5)                                         :s(return)
+    push.value(stack,val5)                              :(return)
+
+push.end
+
+    define('push.value(stack,value)')                   :(push.value.end)
+
+*   _Push.value_ adds _value_ to a stack or tuple, returning
+*   the updated stack or tuple as its value.
 
 push.value
 
+    push.value = stack
+    ident(stack) error('push() first argument is null.')
+    differ(datatype(stack),'set')
+.       error('push() first argument is not a set, but instance of ' datatype(stack))
+    ident(set.kind(stack),'map')                       :s(push.value.add)
+    ident(set.kind(stack),'seq')                       :s(push.value.add)
+    ident(set.kind(stack),'tup')                       :s(push.value.add)
+    error('first argument to push.value must be set or map, is ' datatype(stack))
+
+push.value.add
+
     put(stack,set.size(stack) + 1, value)              :(return)
 
-push.end
+push.value.end
 
     define('put(map,key,value)v')                      :(put.end)
 
@@ -2344,6 +2390,7 @@ show
     ident(kind,'map')                                  :s(show.map)
     ident(kind,'seq')                                  :s(show.seq)
     ident(kind,'set')                                  :s(show.set)
+    ident(kind,'tup')                                  :s(show.tup)
     error('show unknown set kind',kind,' quitting.')
 
 show.array
@@ -2406,10 +2453,15 @@ show.pair.notplain
 
 show.seq
 
-*   If the sequence has more than ten elements, list as map.
+*   If the sequence has fewer than ten elements, list as a tuple.
 
-    encloser = (le(set.size(v),10 ) '[]','{}')
-    gt(set.size(v),10)                                  :s(show.map)f(show.compound)
+    kind = lt(set.size(v),10) 'tup'
+    lt(set.size(v),10)                                  :s(show.tup)
+    encloser = '[]'                                     :(show.compound)
+
+show.tup
+
+    encloser = '()'                                     :(show.compound)
 
 show.compound
 
@@ -2421,22 +2473,18 @@ show.compound
 show.compound.next
 
     elem = next(v)                                      :f(show.compound.done)
-
     is.plain(elem)     show(plain(elem))                :s(show.compound.next)
-    ident(kind,'int') show(elem)                        :s(show.compount.next)
-    ident(kind,'iter') show(elem)                      :s(show.compount.next)
+    ident(kind,'int')  show(elem)                       :s(show.compound.next)
+    ident(kind,'iter') show(elem)                       :s(show.compound.next)
 
 *   show = ident(datatype(value(entry),'token'))
-*               show  show.token(v,,'TRUE')            :s(show.map.check)
+*               show  show.token(v,,'TRUE')             :s(show.map.check)
 
     ident(kind,'map')   show(elem)                      :s(show.compound.next)
-
-*   _Kind_ is 'seq' only if writing out sequence with ten or fewer elements,
-*   so just write the value.
-
-    ident(kind,'seq')   show(value(elem))              :s(show.compound.next)
-    ident(kind,'set')   show(elem)                     :s(show.compound.next)
-*   lt(limit = limit -1)                               :s(show.compound.done)
+    ident(kind,'seq')   show(elem)                      :s(show.compound.next)
+    ident(kind,'set')   show(elem)                      :s(show.compound.next)
+    ident(kind,'tup')   show(value(elem))               :s(show.compound.next)
+*   lt(limit = limit -1)                                :s(show.compound.done)
 
 show.compound.done
 
