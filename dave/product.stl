@@ -12,7 +12,7 @@
 *   _Product_ returns the Cartesian product of a sequence of strings or sets.
 
 *   Argument _strings_ if not null then _sets_ is a sequence of strings.
-*
+				 
 *   Compute the Cartesian product as follows. If the input is the empty set,
 *   return the empty set. Compute the product of a single set or of two
 *   sets directly. Otherwise compute the product recursively.
@@ -71,18 +71,8 @@ product.next.set
 
     next(set)                                           :f(product.next.p1)
     Out('product.next.set')
+    Out('dt set.this',datatype(set.this))
     show(set.this)
-
-    Out('p1.this')
-    show(p1.this)
-    Out('set.this')
-    show(set.this)
-    ident(strings)  add(product,join(p1.this,set.this))
-    differ(strings) add(product,join(p1.this,push(new('seq'),set.this)))
-                                                        :(product.next.set)
-product.recurse
-
-    product = product(slice(sets,1,set.size(sets) - 1),top(sets)) :(return)
 
 product.end
 

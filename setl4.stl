@@ -163,8 +163,8 @@
 
 *   A set is a collection unequall objects, and is represented in SETL4 by the datatype _set_:
 
-    data('set(set.kind,set.iter,set.index,set.key,set.kind,set.size,'
-.        'set.block,set.blocks,set.offset,set.str)')
+    data('set(set.kind,set.iter,set.index,set.key,set.size,'
+.   'set.block,set.blocks,set.offset,set.str)')
 
 *   where
 
