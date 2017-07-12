@@ -184,6 +184,19 @@
     show(seq)
     out()
 
+    out('Test slice')
+    seq = new('seq 2 4 6 8 10')
+    show(seq)
+    out("slice(seq,2,2)")
+    t = slice(seq,2,2)
+    show(t)
+    out("slice(seq,2)")
+    t = slice(seq,2)
+    show(t)
+    out("slice(seq,11)")
+    t = slice(seq,11)
+    show(t)
+    out()
 
     out("Here endeth the test.")
 

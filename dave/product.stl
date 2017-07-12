@@ -13,18 +13,10 @@
 
 *   Argument _strings_ if not null then _sets_ is a sequence of strings.
 *
-*   Compute the Cartesian product as follows.
-*   If the input is the empty set, return the empty set.
-*   If there is just one input, return a copy of it.
+*   Compute the Cartesian product as follows. If the input is the empty set,
+*   return the empty set. If there is just one input, return a copy of it.
+*   Otherwise compute the product recursively.
 
-*   Otherwise compute the product in steps, with the output
-*   from one step serving as input to the next. For each element
-*   in the first set, build a sequence consisting of the element
-*   and add it to the output set. For each element in the remaining sets,
-*   iterate the input set. Get the existing sequence of the element,
-*   add the element from the remaining set to the sequence, and continue.
-
-*   Return as the product the last output set computed.
 
 product
 
@@ -36,6 +28,22 @@ product
 *   The product of an empty set is the empty set.
 
     eq(set.size(sets))                                 :s(return)
+    gt(set.size(sets),1)                               :s(product.recurse)
+
+*   Here to compute the product of a single set.
+
+    ident(strings)  visit(set.add,"add(product, push(new('seq'),this))")
+    differ(strings) visit(set.add,"add(product, this)")
+                                                       :(return)
+
+product.recurse
+
+    product
+*HERE
+
+    odent(strings)  visit(set.add,"add(product, push(new('seq'),this))")
+    differ(strings) visit(set.add,"add(product, this)")
+    product = 
 
 *   The product of a single set is the set itself.
 
@@ -51,8 +59,6 @@ product
     set.add = value(set.add)
 
 
-    ident(strings)  visit(set.add,"add(product, push(new('seq'),this))")
-    differ(strings) visit(set.add,"add(product, this)")
 
 product.next.sets
 

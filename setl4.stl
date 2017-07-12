@@ -532,7 +532,7 @@
 *-  show(v)                     Shows value of _v_.
 *-  show.b(e)                   Shows value of _b_ as boolean.
 *-  show.lines(lines,number)    Shows a sequence of lines, with id if _number_ not null.
-*-  slice(str,first,last)       Same as SPITBOL _substr(str,first,last)_.
+*-  slice(str,first,last)       Like SPITBOL substr to work for sequences and tuples.
 *-  sorter(set,type)            Sorts a set, map or string according to _type_.
 *-  split.line(line)            Splits line of blank-separated words into sequence.
 *-  split.string(str)           Splits string into sequence of characters.
@@ -1604,9 +1604,13 @@ multiple.end
 
 new
 
+*   Assume kind is 'set' unless explicitly specified.
+
+    kind = 'set'
+
+    init span(' ') =
     ident(init)                                        :s(new.set)
     init = init ' '
-    init span(' ') =
     init break(' ') . kind span(' ') =
     kind = (gt,size(kind),3) substr(kind,1,3)
     begins('integers',kind)                            :s(new.kind)
@@ -1616,7 +1620,11 @@ new
     begins('set',kind)                                 :s(new.kind)
     begins('tup',kind)                                 :s(new.kind)
     begins('string',kind)                              :s(new.kind)
-    error('bad kind to new ' kind )
+
+*   If the kind is not given, then the kind is 'set' and _init_
+*   is not null, it gives the initial element(s) to add to the set.
+
+    kind = 'set'
 
 new.kind
 
@@ -2608,13 +2616,31 @@ show.lines.next
 
 show.lines.end
 
-    define('slice(str,first,last)')                    :(slice.end)
+    define('slice(v,start,n)')                         :(slice.end)
 
-*   _Slice_ returns a slice of a string. It does the same operation as _substr),
+*   _Slice_ returns a slice of a sequence, string or tuple.
+*   For a string _slice_ is equivant to SPITBOL's _substr_.
 
 slice
 
-    slice = substr(str,first,last)                     :(return)
+    slice = ident(datatype(v),'string') substr(v,start,n) :s(return)
+
+*   Here to compute slice of a string or tuple.
+
+    slice = new(set.kind(v))
+*   Out('slice kind',set.kind(v))
+    n = ident(n) set.size(v) - start + 1
+    lt(start,1)                                         :s(freturn)
+    gt(start + n - 1,set.size(v))                       :s(freturn)
+    start = start - 1
+
+slice.next
+
+*   Out('slice.next start',start)
+*   Out('pushing ',get(v,start = start + 1))
+
+    push(slice,get(v,start = start + 1))
+    gt(n = n - 1)                                       :s(slice.next)f(return)
 
 slice.end
 
