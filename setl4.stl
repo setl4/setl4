@@ -3060,15 +3060,21 @@ tolower
 
 tolower.end
 
-    define('top(stack)')                               :(top.end)
+    define('top(seq)')                                 :(top.end)
 
-*   _Top_ returns the top element of the stack, or fails if the stack is empty.
+*   _Top_ returns the last element of a sequence, or fails if the sequence is empty.
 
 top
 
-    differ(datatype(stack),'set') error('argument to top() is not a stack.')
-    eq(set.size(stack))                                :s(freturn)
-    top = get(stack,set.size(stack))                   :(return)
+    differ(datatype(seq),'set')  error('argument to top is not a set')
+    eq(set.size(seq))                                  :s(freturn)
+    ident(set.kind(seq),'seq')                         :s(top.get)
+    ident(set.kind(seq),'tup')                         :s(top.get)
+    error('argument to top() is not sequence or tuple.')
+
+top.get
+
+    top = get(seq,set.size(seq))                       :(return)
 
 top.end
 
