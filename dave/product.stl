@@ -7,7 +7,7 @@
 
     &stlimit = 25000
 
-    define('product(sets,strings)set.in,set.out,this,i,seq,set.i,dt,t'):(product.end)
+  define('product(sets,strings)prior,product,this,i,seq,set.i,dt,t'):(product.end)
 
 *   _Product_ returns the Cartesian product of a sequence of strings or sets.
 
@@ -29,9 +29,9 @@
 product
 
     out('enter product')
+    Out('strings',strings)
 
     product = new('set')
-    set.out = new('set')
 
 *   The product of an empty set is the empty set.
 
@@ -41,70 +41,65 @@ product
 
 *   Loop over the input sets
 
-    loop(sets,.sets.this)
+    loop(sets,.set.add)
 
-*   Initialize set.in from the first set.
+*   Initialize product from the first set.
 
+
+    product = new('set')
     next(sets)
-    set.out = copy(sets.this)
-    out('initial set.out')
-    show(set.out)
+    set.add = value(set.add)
 
-product.next
+
+    ident(strings)  visit(set.add,"add(product, push(new('seq'),this))")
+    differ(strings) visit(set.add,"add(product, this)")
+
+product.next.sets
+
+*   Get the next set in the input sequence, so we can extend every entry in
+*   the current state of _product_ by adding a new element in the output
+*   for each entry in the next set.
 
     next(sets)                                         :f(product.done)
-    set.in = set.out
-    set.out = product1(set.in,sets.this,strings)       :(product.next)
+    set.add = value(set.add)
 
-product.done
+*   Save the current state of the product in _prior_, which will be extended when
+*   iterating over the next set in the input sequence.
 
-    product = set.out                                  :(return)
+    prior = product
 
-product.end
+    loop(prior)
 
-    define('product1(in,set,strings)in.this,set.out,s,seq,set.this'):(product1.end)
+product.next.prior
 
-product1
+*   Get next set
 
-    Out('ENTER PRODUCT1')
-    Out('dt in',datatype(in))
-    show(in)
-    Out('dt set',datatype(set))
-    show(set)
+    next(sets)                                          :f(product.next.sets)
+    
+    set.add = value(set.add)
 
-    set.out = new('set')
+    product = new('set')
 
 *   Loop over input set.
 
-    loop(in,.in.this)
+    loop(prev,.prev.this)
 
-product1.set.next
+product.next.set
 
-    next(in)                                           :f(product1.done)
+    next(prev)                                           :f(product.next.prior)
 
-*   Here with new element in _set_. Generate a new element in _out_ using _in_ and this element.
+*   Here with new element in _in_.
 
-    loop(set,.set.this)
+    loop(set.add)
 
-product1.next
+product.next.set.add
 
-    next(set)                                          :f(product1.set.next)
+    next(set)                                          :f(product.set.next)
+    differ(strings) add(product,join(prev.this,convert(this,'string')))
+    ident(strings)  add(product,join(prev.this,this))
+                                                       :(product.sets.next)
 
-*HERE
-
-    Out('dt in.this',datatype(in.this))
-    Out('dt set.this',datatype(set.this))
-    output  = differ(strings) '[' join(in.this,set.this) ']'
-    differ(strings) add(set.out,join(in.this,convert(set.this,'string')))
-    ident(strings)  add(set.out,join(in.this,set.this))
-                                                       :(product1.next)
-
-product1.done
-
-    Out('EXIT PRODUCT1')
-    product1 = set.out                                 :(return)
-
-product1.end
+product.end
 
     define('test(sets,strings)')                               :(test.end)
 
@@ -124,53 +119,19 @@ test
                                                        :(return)
 test.end
 
+
     out('testing sequence of sets')
     s1 = new("set 10 20")
     seq = new("seq")
     push(seq,s1)
-    out('showing seq 1')
+    out('showing set 1')
     show(seq)
     s2 = new("set I V C")
-    out('showing seq 2')
+    out('showing  set')
     push(seq,s2)
     show(s2)
-    out('showing seq 2')
+    out('showing seq')
     show(seq)
+    p = product(seq)
     out('done')
 end
-    p = product(seq)
-    out('computed')
-    show(p)
-end
-    
-*   test(seq)
-    out("end test")
-
-end
-
-
-    out('start product test')
-    s1 = new("set a b")
-    s2 = new("set 1 2 3")
-    seq = new("seq")
-    push(seq,s1)
-    out('showing S1 FIRST')
-    show(seq)
-    push(seq,s2)
-    out('showing S2 SECOND')
-    show(seq)
-end
-    out('seq shown')
-    test(seq,"TRUE")
-    s12 = new('set 2 3 4 a d f c s d')
-    s12 = new('set 2 3 4 9 12 123 15  9999999 999999999 9999999999 7777777777 '
-.           '12 124 3235 343453 4566 75775 886  74554 22 666 788866  4234234 23234 233  27752  67752 ')
-    show(s12)
-    s13 = new('set a b c as df as gg ee ghgj ij zdq tgza wg zqsg ')
-    s13 = new('set 4 99 343')
-    show(s13)
-end
-*   s0 = new('seq 2 4 6 8')
-*   out('showing s0')
-*   setl4.show(s0)
-*   show(s0)

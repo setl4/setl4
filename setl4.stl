@@ -153,8 +153,8 @@
 *   instances of _entry_ that are returned when iterating over a map.
 
 *   A tuple is an sequence of elements. Tuples differ from sequences in that,
-*   when they are listed using the _show_ function, the values of the
-*   elements are enclosed in parenthesis and the indices are not shown.
+*   when they are listed using the _show_ function, the indices of the
+*   elements are are not listed if there are fewer than ten elements.
 
 *   By convention, the kinds are writtten 'int', 'iter', 'map', 'seq', 'set', and 'tup'.
 
@@ -1433,7 +1433,7 @@ join
 
     ident(a)                                           :s(return)
     ident(datatype(a),'string')                        :s(join.string)
-    join = new(set.type(a))
+    join = new(set.kind(a))
     loop(a)
 
 join.a
@@ -1490,7 +1490,7 @@ loop
 
     iter = iterator()
 
-	ident(set.kind(set),'iter')                           :s(loop.iter)
+	ident(set.kind(set),'iter')                        :s(loop.iter)
     ident(set.kind(set),'int')                         :s(loop.int)
     ident(set.kind(set),'map')                         :s(loop.map)
     ident(set.kind(set),'seq')                         :s(loop.map)
@@ -2461,7 +2461,7 @@ show.seq
 
 show.tup
 
-    encloser = '()'                                     :(show.compound)
+    encloser = '[]'                                     :(show.compound)
 
 show.compound
 
