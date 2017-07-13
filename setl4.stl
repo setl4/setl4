@@ -1488,6 +1488,7 @@ less.end
 
 loop
 
+    differ(datatype(set),'set') error('argument to loop must be set.')
     iter = iterator()
 
 	ident(set.kind(set),'iter')                        :s(loop.iter)
@@ -1583,7 +1584,7 @@ multiple
 
 multiple.end
 
-    define('new(init)kind,i,index,iter,len,n,key,seq,val,values,words)'):(new.end)
+    define('new(init,elem1,elem2)kind,i,index,iter,len,n,key,seq,val,values,words)'):(new.end)
 
 *   _New_ constructs a new set with initial values determined by string _init_.
 
@@ -1649,9 +1650,14 @@ new.int
 
 new.int.next
 
-    init break(' ') . key span(' ') =                  :f(return)
+    init break(' ') . key span(' ') =                  :f(new.init.elem)
     add(new,int(key))                                  :(new.int.next)
 
+net.int.elem
+
+    differ(elem1) add(new,elem1)
+    differ(elem2) add(new,elem2)                       :(return)
+    
 new.ite
 new.iter
 
@@ -1722,8 +1728,13 @@ new.tup
 new.seq.next
 
     init span(' ') =
-    init break(' ') . val ' ' =                        :f(return)
+    init break(' ') . val ' ' =                        :f(new.seq.elem)
     push(new,val)                                      :(new.seq.next)
+
+new.seq.elem
+
+    ident(elem1) add(new,elem1)
+    ident(elem2) add(new,elem2)                        :(return)
 
 new.set
 
@@ -1733,8 +1744,13 @@ new.set
 
 new.set.iter.next
 
-    init break(' ') . key span(' ') =                  :f(return)
+    init break(' ') . key span(' ') =                  :f(new.set.elem)
     add(new,key)                                       :(new.set.iter.next)
+
+new.set.elem
+
+    differ(elem1) add(new,elem1)
+    differ(elem2) add(new,elem2)
 
 new.set.done
 

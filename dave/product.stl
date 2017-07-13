@@ -7,7 +7,7 @@
 
     &stlimit = 250000
 
-  define('product(sets,strings)p1,p1.this,set,set.this'):(product.end)
+  define('product(sets,strings)pseq,p1,p1.this,seq1,seq2,set1,set2,set.this'):(product.end)
 
 *   _Product_ returns the Cartesian product of a sequence of strings or sets.
 
@@ -19,151 +19,59 @@
 
 product
 
-    product = new('set')
-    Out('ENTER PRODUCT')
-    Out('set.size(sets)',set.size(sets))
-    setl4.show(sets)
-*   show(sets)
+    Out('enter product')
+    Out('sets dt',datatype(sets))
+    show(sets)
     Out('strings',strings)
-
+    
     product = new('set')
 
 *   The product of an empty set is the empty set.
 
-    Out('set.size sets',set.size(sets))
     eq(set.size(sets))                                 :s(product.done)
-    gt(set.size(sets),1)                               :s(product.several)
+    gt(set.size(sets),1)                               :s(product.recurse)
 
 *   Here to compute the product of a single set.
 
-    set = get(sets,1)
-    loop(set)
+    set1 = get(sets,1)
 
-product.one.next
+    product = differ(strings) copy(set1)                 :s(return)
 
-    Out('START PRODUCT1')
-    next(set)                                          :f(product1.done)
-    ident(strings)   add(product,push(new('seq'),this))  
-    differ(strings)  add(product, this)                :(product.one.next)
+    loop(set1)
+
+product.next.one
+
+    next(set1)                                          :f(product1.done)
+    add(product,push(new('seq'),this))  
+                                                       :(product1.next.one)
 product1.done
-    Out('AT EXIT PRODUCT1')
-    setl4.show(product)
-    Out('EXIT PRODUCT1')
+    Out('product1 result')  
+    show(product)
  :(return)
-
-product.several
-
-    gt(set.size(sets),2)                               :s(product.recurse)
-
-*   Here to compute product of two sets.
-
-    Out('PRODUCT TWO SETS INPUT')
-    setl4.show(sets)
-*   show(sets)
-*   Out('get sets 1')
-*   show(get(sets,1))
-*   Out('get sets 2')
-*   show(get(sets,2))
-    out()
-*HERE*
-    out('showing sets again')
-    setl4.show(sets)
-*   show(sets)
-    p1 = product(get(sets,1),strings)
-    Out('p1')
-    setl4.show(p1)
-    show(p1)
-    Out('set 2')
-    set = get(sets,2)
-    setl4.show(set)
-*   show(set)
-
-    loop(p1,.p1.this)
-
-product.next.p1
-
-    next(p1)                                            :f(product.done)
-    Out('product.next.p1')
-*   show(p1.this)
-
-    loop(set,.set.this)
-
-product.next.set
-
-    next(set)                                           :f(product.next.p1)
-    Out('product.next.set')
-    Out('dt set.this',datatype(set.this))
-    setl4(set.this)
-*   show(set.this)
-    differ(strings) add(product,join(p1.this,set.this))
-    ident(strings) add(product,join(p1.this,push(new('seq'),set.this)))
-                                                        :(product.next.set)
-
-                                                        
-product.done
-*   Out('dt result',datatype(product))
-    Out('PRODUCT  RESULT')
-    setl4.show(product)
-*   show(product)
-    Out('EXIT PRODUCT')
-                                                       :(return)
 
 product.recurse
 
-    Out('product.recurse')
-    product = product(slice(sets,1,set.size(sets) - 1), top(sets))
-    Out('product.recursed')
-    setl4.show(product)
+    Out('recurse')
+    set2 = top(sets)
+*   Out('recurse')
+*   show(top(sets))
+*   Out('slice')
+    seq1 = new('seq')
+    set1 = slice(sets,1,set.size(sets) - 1)
+    push(seq1,set1)
+    push(seq1,push(new('seq'),top(sets)))
+    product = product(product(pseq,strings),set2)
     :(return)
                             
 product.end
 
-    define('test(sets,strings)')                               :(test.end)
 
-test
-
-    out()
-    out('enter test')
-    Out('show strings')
-    out('showing sets')
-    show(sets)
-    :(return)
-    p = product(sets,strings)
-    out('computed')
+    s1 = new('set x y')
+    s2 = new('set 1 2')
+    q = new('seq')
+    push(q,s1)
+    push(q,s2)
+    p = product(q,'TRUE')
     show(p)
-    out()
-    out()
-                                                       :(return)
-test.end
 
-
-    out('testing sequence of sets')
-    s1 = new("set a  b")
-    seq = new("seq")
-    push(seq,s1)
-    show(seq)
-    p = product(seq,'TRUE')
-    out('single product')
-    setl4.show(p)
-    show(p)
-    out('product of single set done')
-
-    out('showing set 1')
-    show(s1)
-    s2 = new('set x y')
-    out('showing set 2')
-    show(s2)
-    out()
-
-    s2 = new("set I V C")
-    out('SHOWING  S2')
-    setl4.show(s2)
-    out('SHOWING  SEQ')
-    push(seq,s2)
-    setl4.show(seq)
-    show(seq)
-    out('double product')
-    p = product(seq,'TRUE')
-    show(p)
-    out('done')
 end

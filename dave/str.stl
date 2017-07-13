@@ -1,0 +1,65 @@
+
+
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+-include "../setl4.stl"
+
+    &stlimit = 250000
+
+  define('product.str(seq,strings)n,pseq,p1,p1.this,seq1,seq2,set1,set2,set1.this,set2.this'):(product.str.end)
+
+*   _Product_ returns the Cartesian product.str of a sequence of strings or sets.
+
+*   Argument _strings_ if not null then _sets_ is a sequence of strings.
+				 
+*   Compute the Cartesian product.str as follows. If the input is the empty set,
+*   return the empty set. Compute the product.str of a single set or of two
+*   sets directly. Otherwise compute the product.str recursively.
+
+product.str
+
+    product.str = new('set')
+
+*   The product.str of an empty set is the empty set.
+
+    eq(set.size(seq))                                 :s(product.str.done)
+    product = eq(set.size(seq),1) copy(get(seq,1))    :s(return)
+    gt(set.size(seq),2)                               :s(product.recurse)
+
+*   Here to compute the product of two sets of strings
+
+    set1 = get(seq,1)
+    set2 = get(seq,2)
+
+    loop(set1,.set1.this)
+
+product.str.next.set1
+
+    next(set1)                                          :f(return)
+
+    loop(set2,.set2.this)
+
+product.str.next.set2
+
+    next(set2)                                     :f(product.str.next.set1)
+    add(product.str,set1.this set2.this)                         :(product.str.next.set2)
+
+product.recurse
+
+    set1 = product(slice(seq,1,set.size(seq) - 1))
+    seq1 = new('seq',set1,top(sets))
+    product = product(seq1)                         :(return)
+
+product.str.end
+
+
+    s1 = new('set x y')
+    s2 = new('set 1 2')
+    q = new('seq')
+    push(q,s1)
+    push(q,s2)
+    p = product.str(q,'TRUE')
+    show(p)
+
+end
