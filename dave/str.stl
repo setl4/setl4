@@ -2,12 +2,11 @@
 
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
-
 -include "../setl4.stl"
 
     &stlimit = 250000
 
-  define('product.str(seq,strings)n,pseq,p1,p1.this,seq1,seq2,set1,set2,set1.this,set2.this'):(product.str.end)
+    define('product.str(seq,strings)set1,set2,set1.this,set2.this,seq1'):(product.str.end)
 
 *   _Product_ returns the Cartesian product.str of a sequence of strings or sets.
 
@@ -19,47 +18,106 @@
 
 product.str
 
+*   Out('enter enter.str',strings)
+*   show(seq)
+*   out()
+
     product.str = new('set')
 
 *   The product.str of an empty set is the empty set.
 
-    eq(set.size(seq))                                 :s(product.str.done)
-    product = eq(set.size(seq),1) copy(get(seq,1))    :s(return)
+    eq(set.size(seq))                                 :s(return)
+
+
+*   Here to initialize from the first set. Make a copy if a
+*   set of strings; otherwise make a set containing a sequence
+*   of one element for each element in the first set.
+
+    product.str = differ(strings) copy(get(seq,1))
+    differ(strings) eq(set.size(seq),1)             :s(return)
+    differ(strings)                                 :s(product.str.init.done)
+
+*   Here if _strings_ is null, so build set of tuples.
+
+    loop(set1 = get(seq,1),.set1.this)
+
+product.str.init.next
+
+    next(set1)                                        :f(product.str.init.done)
+    add(product.str,push(new('seq'),set1.this))       :(product.str.init.next)
+
+product.str.init.done
+
+    ident(strings) eq(set.size(seq))                     :s(return)
     gt(set.size(seq),2)                               :s(product.recurse)
 
-*   Here to compute the product of two sets of strings
-
-    set1 = get(seq,1)
+    set1 = product.str
+    product.str = new('set')
     set2 = get(seq,2)
 
+product.str.two
+
+*   Merge here to compute the product of two sets.
+
+    product.str = new('set')
     loop(set1,.set1.this)
 
 product.str.next.set1
 
     next(set1)                                          :f(return)
 
+*   differ(strings) add(prouct.str,join(set1.this, set2)) :(product.str.next.set1)
+*   set2 = differ(strings) unite(get(seq,2))
     loop(set2,.set2.this)
 
 product.str.next.set2
 
-    next(set2)                                     :f(product.str.next.set1)
-    add(product.str,set1.this set2.this)                         :(product.str.next.set2)
+    next(set2)                                          :f(product.str.next.set1)
+
+*   Convert integer value to string, since when we previously entered
+*   a string with integer value into a set, the string was converted
+*   to an integer. Hence we need to undo that conversion here.
+
+    set2.this = integer(set2.this) convert(set2.this,'string')
+*HERE*
+    output = 'adding [' set1.this ' [' set2.this ']'
+
+    add(product.str,join(set1.this,set2.this))          :(product.str.next.set2)
 
 product.recurse
 
-    set1 = product(slice(seq,1,set.size(seq) - 1))
-    seq1 = new('seq',set1,top(sets))
-    product = product(seq1)                         :(return)
+
+*   Merge to compute product of two sets.
+
+    set1 = product.str(slice(seq,1,set.size(seq) - 1),strings)
+    set2 = top(seq)                                     :(product.str.two)
 
 product.str.end
 
+    define('test(seq,strings)')                                 :(test.end)
 
+test
+    out()
+    out('product() input')
+    show(seq)
+    test = product.str(seq,strings)
+    out('product() result')
+    show(test)                                          
+    show('end test')
+                                                :(return)
+test.end
+    
+
+    seq = new('seq')
     s1 = new('set x y')
-    s2 = new('set 1 2')
-    q = new('seq')
-    push(q,s1)
-    push(q,s2)
-    p = product.str(q,'TRUE')
-    show(p)
+    push(seq,s1)
+    test(seq,'TRUE')
 
+    s2 = new('set O R')
+    push(seq,s2)
+    test(seq,'TRUE')
+
+    s3 = new('set X L C')
+    push(seq,s3)
+    test(seq,'TRUE')
 end
