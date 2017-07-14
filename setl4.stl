@@ -1488,7 +1488,11 @@ less.end
 
 loop
 
-    differ(datatype(set),'set') error('argument to loop must be set.')
+    differ(datatype(set),'set') out('loop() unsupported argument type.')
+    differ(datatype(set),'set') show(set)
+    differ(datatype(set),'set') 
+.       error('loop() expects argument to be set, but given ' datatype(set))
+
     iter = iterator()
 
 	ident(set.kind(set),'iter')                        :s(loop.iter)
@@ -1754,7 +1758,7 @@ new.set.elem
 
 new.set.done
 
-    iter.next(new) =                                   :(return)
+                                                       :(return)
 
 new.end
 
@@ -3305,12 +3309,12 @@ setl4.size.end
     define('Out(text1,text2,text3)type1,type2')        :(Out.end)
 
 *   _Out_ is just another name for _out_. Use it for debugging, as
-*   will be the be easy to find calls to it, to delete them once they
-*   have served their purpose.
+*   will be the be easy to find calls to it, so can delete them
+*   once they have served their purpose.
 
 Out
 
-    out('O:' text1,text2,text3)                        :(return)
+    out(text1,text2,text3)                        :(return)
 
 Out.end
 

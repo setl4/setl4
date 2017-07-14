@@ -1,0 +1,39 @@
+    define('join(s1,s2,s3)i,this')                      :(join.end)
+
+*   _Join_ combines one of more sequences into a single sequence by
+*   joining all their elements together.
+
+join
+
+    join = new('seq')
+    ident(s1)                                           :s(return)
+    ident(datatype(s1),'string')                        :s(join.string)
+
+    differ(s1) sequence(s1)                             :f(join.error)
+    differ(s2) sequence(s2)                             :f(join.error)
+    differ(s3) sequence(s3)                             :f(join.error)
+
+    join = differ(s3) join(join(s1,2),s3)               :s(return
+
+    loop(s1)
+
+join.s1
+
+    push(join,next(s1))                                 :s(join.s1)
+    loop(s2)
+
+join.s2
+
+    push(join,next(s2))                                 :s(join.s2)
+
+join.string
+
+*   Here to join strings.
+
+    join = s1 (differ(s2) s2, '') (differ(s3) s3,'')    :(return)
+
+join.error
+
+    error('argument to join is not a sequence.')
+
+join.end
