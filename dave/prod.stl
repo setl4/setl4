@@ -1,0 +1,182 @@
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+-include "../setl4.stl"
+
+    &stlimit = 250000
+
+    define('product(seq,strings)partial,p1,t1,slice1,set1,set2,this1,this2,seq1'):(product.end)
+
+*   _Product_ returns the Cartesian product.set of a sequence of strings or sets.
+
+*   The product of an empty set is the empty set; the product
+*   of a single set is itself; the product of more than two sets
+*   is defined recursively; and we compute the product of
+*   set twos explicitly.
+
+*   Argument _strings_ if not null then _sets_ is a sequence of strings.
+
+product
+
+    differ(strings)                                         :s(product.str)
+
+*   Here to compute product of sets of non-strings
+				 
+product.set
+
+*   show(seq)
+*   out()
+
+    product = eq(set.size(seq)) new('set')      :s(return)
+    product = eq(set.size(seq),1) copy(get(seq,1)) :s(return)
+    lt(set.size(seq),3) :s(product.2)
+
+*   Compute the partial product of all the sets except the last one.
+
+    push(partial = new('seq'),product.set(slice(seq,1,set.size(seq) - 1),'TRUE'))
+
+*   Compute the product of the partial product and the last set.
+
+    push(partial,top(seq))
+    product.set = product.set(partial,'TRUE')              :(return)
+
+product.set.2
+
+*   Here to compute the product of two sets.
+
+    product.set = new('set')
+    loop(set1 = get(seq,1),.this1)
+
+product.set.next1
+
+    next(set1)                                          :f(return)
+*   out('next1',this1)
+    loop(set2 = get(seq,2),.this2)
+
+product.set.next2
+
+    next(set2)                                      :f(product.set.next1)
+*   out('next2',this2)
+*   out('adding',this1 this2)
+    add(product.set, this1 this2)                   :(product.set.next2)
+   
+product.str
+
+    product.str = eq(set.size(seq)) new('set')      :s(return)
+    product.str = eq(set.size(seq),1) copy(get(seq,1)) :s(return)
+    lt(set.size(seq),3) :s(product.2)
+
+*   Compute the partial product of all the sets except the last one.
+
+    push(partial = new('seq'),product.str(slice(seq,1,set.size(seq) - 1),'TRUE'))
+
+*   Compute the product of the partial product and the last set.
+
+    push(partial,top(seq))
+    product.str = product.str(partial,'TRUE')              :(return)
+
+product.str.2
+
+*   Here to compute the product of two sets of strings.
+
+    product.str = new('set')
+    loop(set1 = get(seq,1),.this1)
+
+product.str.next1
+
+    next(set1)                                          :f(return)
+    loop(set2 = get(seq,2),.this2)
+
+product.str.next2
+
+    next(set2)                                      :f(product.str.next1)
+    add(product.str, this1 this2)                   :(product.str.next2)
+   
+product.end
+
+    define('test(seq,strings)')                     :(test.end)
+
+test
+    out()
+    out('test input')
+*   out('strings',strings)
+*   show(seq)
+    test = product.str(seq,strings)
+    out('test output')
+    show(test)                                          
+    out('end test')
+    out()
+                                                :(return)
+test.end
+
+    out('testing product on strings')
+    seq = new('seq')
+    s1 = new('set x y')
+    push(seq,s1)
+    test(seq,'TRUE')
+
+    s2 = new('set O R')
+    push(seq,s2)
+    test(seq,'TRUE')
+
+    s3 = new('set X L C')
+    push(seq,s3)
+    test(seq,'TRUE')
+
+end
+    out('testing product of strings')
+    seq = new('seq')
+    s1 = new('set x y')
+    push(seq,s1)
+    test(seq)
+
+    s2 = new('set O R')
+    push(seq,s2)
+    test(seq)
+
+    s3 = new('set X L C')
+    push(seq,s3)
+    test(seq)
+
+    seq = new('seq')
+    s1 = new('set x y')
+    push(seq,s1)
+    test(seq,'TRUE')
+
+    s2 = new('set O R')
+    push(seq,s2)
+    test(seq,'TRUE')
+
+    s3 = new('set X L C')
+    push(seq,s3)
+    test(seq,'TRUE')
+
+end
+    
+    out('testing product on non-strings')
+    seq = new('seq')
+    s1 = new('set x y')
+    push(seq,s1)
+    test(seq)
+
+    s2 = new('set O R')
+    push(seq,s2)
+    test(seq)
+
+    s3 = new('set X L C')
+    push(seq,s3)
+    test(seq)
+
+    define('test(seq,strings)')                     :(test.end)
+
+test
+    out()
+    out('test input')
+*   out('strings',strings)
+*   show(seq)
+    test = product.str(seq,strings)
+    out('test output')
+    show(test)                                          
+    out('end test')
+    out()
+                                                :(return)
+test.end
