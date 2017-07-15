@@ -2,7 +2,7 @@
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
-    &stlimit = 40000
+*   &stlimit = 40000
 *   TODO
 
 *# SETL4 - An Implementation of SETL Written in SPITBOL
@@ -1277,8 +1277,6 @@ forall.end
 
 frequency
 
-    show(map)
-
     frequency = new('map')
     ident(datatype(map),'set')            :s(frequency.map)
 
@@ -1286,7 +1284,6 @@ frequency
 *   and merging with code to find distribution for a map.
 
     map = split.string(map)
-    show(map)
 
 frequency.map
     
@@ -1420,41 +1417,44 @@ is.plain
 
 is.plain.end
 
-    define('join(a,b,c)i')                             :(join.end)
+    define('join(s1,s2,s3)i,this')                      :(join.end)
 
-*   _Join_ joins strings by concatenating them, and sequences or tuples
-*   by returning a new sequence or tuple consisting of all the elements of
-*   the first followed by all the elements of the second, and then
-*   by the elements of the third.
-
-*   If called with three arguments, the result returned is the same as join(join(a,b),c)`
+*   _Join_ combines one of more sequences into a single sequence by
+*   joining all their elements together.
 
 join
 
-    ident(a)                                           :s(return)
-    ident(datatype(a),'string')                        :s(join.string)
-    join = new(set.kind(a))
-    loop(a)
+    join = differ(s1) differ(s2) differ(s3) join(join(s1,s2),s3)    :s(return)
 
-join.a
+    ident(datatype(s1),'string')                        :s(join.string)
+    join = copy(s1)
 
-    push(join,next(a))                                 :s(join.a)
-    loop(b)
+    ident(s2)                                           :s(return)
 
-join.b
+*   Test if second argument is sequence.
 
-    push(join,next(b))                                 :s(join.b)
-    loop(c)
+    ident(datatype(s2),'set') ident(set.kind(s2),'seq') :s(join.s2)
+    ident(datatype(s2),'set') ident(set.kind(s2),'tup') :s(join.s2)
 
-join.c
+*   Here if not sequence, so just add it to result and return.
 
-    push(join,next(c))                                 :s(join.c)f(return)
+    push(join,s2)                                       :(return)
+
+join.s2
+
+*   Here to join elements in the second argument to the result.
+
+    loop(s2)
+
+join.s2.next
+
+    push(join,next(s2))                                 :s(join.s2.next)f(return)
 
 join.string
 
 *   Here to join strings.
 
-    join = a (differ(b) b, '') (differ(c) c,'')        :(return)
+    join = s1 (differ(s2) s2, '') (differ(s3) s3,'')    :(return)
 
 join.end
 
@@ -2695,13 +2695,12 @@ slice.end
 
 sorter
 
-    ident(type) error('sorter null type.')
-    ident(type,'no')                                   :s(return)
-
 *   Use _sorter.string_ if input is a string.
 
     sorter = ident(datatype(set),'string') sorter.string(set):s(return)
 
+    ident(type) error('sorter null type.')
+    ident(type,'no')                                   :s(return)
     n = set.size(set)
     index.table = set.index(set)
 

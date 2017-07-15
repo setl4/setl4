@@ -6,148 +6,88 @@
 
     &stlimit = 250000
 
-    define('product.str(seq,strings)set1,set2,set1.this,set2.this,seq1'):(product.str.end)
+    define('product.str(seq,strings)partial,p1,t1,slice1,set1,set2,this1,this2,seq1'):(product.str.end)
 
 *   _Product_ returns the Cartesian product.str of a sequence of strings or sets.
 
+*   The product of an empty set is the empty set; the product
+*   of a single set is itself; the product of more than two sets
+*   is defined recursively; and we compute the product of
+*   set twos explicitly.
+
 *   Argument _strings_ if not null then _sets_ is a sequence of strings.
 				 
-*   Compute the Cartesian product.str as follows. If the input is the empty set,
-*   return the empty set. Compute the product.str of a single set or of two
-*   sets directly. Otherwise compute the product.str recursively.
-
 product.str
 
-    Out('ENTER PRODUCT.STR',strings)
-    show(seq)
-    out()
+*   out('ENTER PRODUCT.STR',strings)
+*   show(seq)
+*   out()
+
+    product.str = eq(set.size(seq)) new('set')      :s(return)
+    product.str = eq(set.size(seq),1) copy(get(seq,1)) :s(return)
+    lt(set.size(seq),3) :s(product.2)
+
+*   Compute the partial product of all the sets except the last one.
+
+    push(partial = new('seq'),product.str(slice(seq,1,set.size(seq) - 1),'TRUE'))
+
+*   Compute the product of the partial product and the last set.
+
+    push(partial,top(seq))
+    product.str = product.str(partial,'TRUE')              :(return)
+
+product.2
+
+*   Here to compute the product of two sets.
 
     product.str = new('set')
+    loop(set1 = get(seq,1),.this1)
 
-*   The product.str of an empty set is the empty set.
-
-    eq(set.size(seq))                                 :s(return)
-
-
-*   Here to initialize from the first set. Make a copy if a
-*   set of strings; otherwise make a set containing a sequence
-*   of one element for each element in the first set.
-
-    product.str = differ(strings) copy(get(seq,1))
-    differ(strings) eq(set.size(seq),1)             :s(return)
-    differ(strings)                                 :s(product.str.init.done)
-
-*   Here if _strings_ is null, so build set of tuples.
-
-    loop(set1 = get(seq,1),.set1.this)
-
-product.str.init.next
-
-    next(set1)                                        :f(product.str.init.done)
-    Out('product.str.init.next')
-    show(set1.this)
-    out()
-
-    add(product.str,push(new('seq'),set1.this))
-    Out('updated product.str')
-    show(product.str)
-       :(product.str.init.next)
-
-product.str.init.done
-
-    eq(set.size(seq),1)                             :s(return)
-    gt(set.size(seq),2)                               :s(product.recurse)
-    product.str = new('set')
-    set2 = get(seq,2)
-    Out('set2')
-    show(set2)
-    Out('set2 dt',datatype(s2))
-    setl4.show(s2)
-    show(set2)
-    out()
-
-
-product.str.two
-
-*   Merge here to compute the product of two sets.
-
-    out('computing product of two sets')
-    product.str = new('set')
-    loop(set1,.set1.this)
-
-product.str.next.set1
+product.str.next1
 
     next(set1)                                          :f(return)
+*   out('next1',this1)
+    loop(set2 = get(seq,2),.this2)
 
-*   differ(strings) add(prouct.str,join(set1.this, set2)) :(product.str.next.set1)
-*   set2 = differ(strings) unite(get(seq,2))
-    loop(set2,.set2.this)
+product.str.next2
 
-product.str.next.set2
-
-    next(set2)                                          :f(product.str.next.set1)
-
-*   Convert integer value to string, since when we previously entered
-*   a string with integer value into a set, the string was converted
-*   to an integer. Hence we need to undo that conversion here.
-
-    set2.this = integer(set2.this) convert(set2.this,'string')
-*HERE*
-    output = 'adding [' set1.this ' [' set2.this ']'
-
-    add(product.str,join(set1.this,set2.this))          :(product.str.next.set2)
-
-product.recurse
-
-
-*   Merge to compute product of two sets.
-
-    set1 = product.str(slice(seq,1,set.size(seq) - 1),strings)
-    set2 = top(seq)                                     :(product.str.two)
-
+    next(set2)                                      :f(product.str.next1)
+*   out('next2',this2)
+*   out('adding',this1 this2)
+    add(product.str, this1 this2)                   :(product.str.next2)
+   
 product.str.end
 
-    define('test(seq,strings)')                                 :(test.end)
+    define('test(seq,strings)')                     :(test.end)
 
 test
     out()
-    out('product() input')
-    show(seq)
+    out('test input')
+*   out('strings',strings)
+*   show(seq)
     test = product.str(seq,strings)
-    out('product() result')
+    out('test output')
     show(test)                                          
-    show('end test')
+    out('end test')
+    out()
                                                 :(return)
 test.end
-    
-    out('testing product on non-strings')
-    seq = new('seq')
-    s1 = new('set x y')
-    push(seq,s1)
-    test(seq)
-
-    s2 = new('set O R')
-    push(seq,s2)
-    test(seq)
-
-    s3 = new('set X L C')
-    push(seq,s3)
-    test(seq)
 
     out('testing product on strings')
     seq = new('seq')
     s1 = new('set x y')
     push(seq,s1)
-    test(seq)
+    test(seq,'TRUE')
 
     s2 = new('set O R')
     push(seq,s2)
-    test(seq)
+    test(seq,'TRUE')
 
     s3 = new('set X L C')
     push(seq,s3)
-    test(seq)
+    test(seq,'TRUE')
 
+end
     out('testing product of strings')
     seq = new('seq')
     s1 = new('set x y')
@@ -176,3 +116,18 @@ test.end
     test(seq,'TRUE')
 
 end
+    
+    out('testing product on non-strings')
+    seq = new('seq')
+    s1 = new('set x y')
+    push(seq,s1)
+    test(seq)
+
+    s2 = new('set O R')
+    push(seq,s2)
+    test(seq)
+
+    s3 = new('set X L C')
+    push(seq,s3)
+    test(seq)
+
