@@ -3,7 +3,7 @@
 *   Licensed under the MIT license.
 -include "../setl4.stl"
 
-    &stlimit = 250000
+    &stlimit = 200000
 
     define('product(seq,strings)partial,t1,slice1,set1,set2,this1,this2,tup,tmp,p1,p2'):(product.end)
 
@@ -22,17 +22,18 @@ product
 *   show(seq)
 *   out()
 
-    product = eq(set.size(seq)) new('set')             :s(return)
-    product = eq(set.size(seq),1) copy(get(seq,1))     :s(return)
+    product = new('set')
+    product = eq(set.size(seq))                        :s(return)
+    product = eq(set.size(seq),1) copy(seq)            :s(return)
 
-    differ(strings)                                    :s(product.str)
     eq(set.size(seq),2)                                :s(product.two)
 
 *   Here to compute the product of three or more sets. First,
 *   compute the partial product of all the sets except the last one,
 *   and then compute the product of that partial product and the last set.
 
-    push(partial = new('seq'),product(slice(seq,1,set.size(seq) - 1),strings))
+    Out('enter product three')
+    partial = product(slice(seq,1,set.size(seq) - 1),strings)
     push(partial,top(seq))
     product = product(partial,strings)                 :(return)
 
@@ -54,6 +55,9 @@ product.set.next1
 
     next(set1)                                         :f(return)
     this1 = differ(datatype(this1),'set')  push(new('seq'),this1)
+    Out('set.next1 this1')
+    show(this1)
+    Out('this1 shown')
     tup = copy(this1)
 *   Out('tup',set.kind(tup))
 *   show(tup)
@@ -76,12 +80,16 @@ product.set.next2
     Out('p1 shown')
 *HERE
     Out('COUNT',count = count + 1)
+    Out('adding p1 dt',datatype(p1))
+    show(p1)
     add(product,p1)
+    Out('result of add')
     show(product)
                                             :(product.set.next2)
 
 product.str
 
+    error('reached product.str')
     lt(set.size(seq),3)                                :s(product.str.two)
 
 *   Compute the partial product of all the sets except the last one.

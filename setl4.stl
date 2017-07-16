@@ -1,7 +1,6 @@
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
-*   &stlimit = 40000
 *   TODO
 
 *# SETL4 - An Implementation of SETL Written in SPITBOL
@@ -418,7 +417,7 @@
 
 *   _setl4.config.set.table.size_ is default size for the _index_ and _key_ tables of a set.
 
-    setl4.config.set.table.size = 1024
+    setl4.config.set.table.size = 32
 
 *   _setl4.config.int.table.size_ is size of index and key tables in set of kind 'int.'
 
@@ -580,13 +579,26 @@ add.map
 
 add.set
 
+    Out('testing membership')
+    show(elem)
     member(set,elem)                                   :s(return)
+    Out('elem was not a member')
 
 add.seq
 
+    Out('adding new member')
+    show(elem)
+    Out('set before add')
+    setl4.show(set)
+    show(set)
+    out()
     set.size(set) = set.size(set) + 1
     set.index(set)[set.size(set)] = elem
-    set.key(set)[elem] = elem                          :(return)
+    set.key(set)[elem] = elem                          
+    Out('set after  add')
+    setl4.show(set)
+    show(set)
+                                                    :(return)
 
 add.end
 
@@ -1424,35 +1436,16 @@ is.plain.end
 join
 
     join = differ(s1) differ(s2) differ(s3) join(join(s1,s2),s3)    :s(return)
-*    Out('join')
-*    show(s1)
-*    out('show2')
-*    show(s2)
-*    show(s3)
-*    out()
-    
-
     ident(datatype(s1),'string')                        :s(join.string)
-*   out('join non string')
     join = copy(s1)
 
     ident(s2)                                           :s(join.done)
 
 *   Test if second argument is sequence.
 
-*   Out('join dt s2',datatype(s2))
-    ident(datatype(s2),'set') Out('join s2 kind',set.kind(s2))
     ident(datatype(s2),'set') ident(set.kind(s2),'seq') :s(join.s2)
 
-*   Out('join not seq or tup')
 *   Here if not sequence, so just add it to result and return.
-
-*    Out('pushing')
-*    show(s2)
-*    show(join)
-*    push(join,s2)                                       
-*    Out('pushed')
-*    show(join)
 
             :(join.done)
 
@@ -2119,48 +2112,59 @@ primes.loop
 
 primes.end
 
-    define('push(stack,val1,val2,val3,val4,val5)') :(push.end)
+    define('push(seq,val1,val2,val3,val4,val5)')       :(push.end)
 
-*   _Push_ adds new value(s) to a stack or tuple, returning the updated
-*   stack or tuple as its value.
+*   _Push_ adds new value(s) to a seq or tuple, returning the updated
+*   seq or tuple as its value.
 
 push
 
-    push = stack
+    push = seq
+    Out('enter push kind seq',set.kind(seq))
+    show(seq)
+    Out('enter push value')
+    show(val1)
+    out()
+
     ident(val1)                                         :s(return)
-    push = push.value(stack,val1)
+    push.value(seq,val1)
     ident(val2)                                         :s(return)
-    push = push.value(stack,val2)
+    Out('push val2 not null')
+    push.value(seq,val2)
     ident(val3)                                         :s(return)
-    push = push.value(stack,val3)
+    push.value(seq,val3)
     ident(val4)                                         :s(return)
-    push = push.value(stack,val4)
+    push.value(seq,val4)
     ident(val5)                                         :s(return)
-    push = push.value(stack,val5)                              :(return)
+    push.value(seq,val5)                                
+                                                        :(return)
 
 push.end
 
-    define('push.value(stack,value)n')                   :(push.value.end)
+    define('push.value(seq,value)n')                   :(push.value.end)
 
-*   _Push.value_ adds _value_ to a stack or tuple, returning
-*   the updated stack or tuple as its value.
+*   _Push.value_ adds _value_ to a sequence.
 
 push.value
 
-    push.value = stack
-    ident(stack) error('push() first argument is null.')
-    differ(datatype(stack),'set')
-.       error('push() first argument is not a set, but instance of ' datatype(stack))
-    ident(set.kind(stack),'map')                       :s(push.value.add)
-    ident(set.kind(stack),'seq')                       :s(push.value.add)
-    error('first argument to push.value must be set or map, is ' datatype(stack))
+    Out('enter push.value seq kind',set.kind(seq))
+    show(seq)
+    out()
+    ident(seq) error('push() first argument is null.')
+    differ(datatype(seq),'set')
+.       error('push() first argument is not a set, but instance of ' datatype(seq))
+    ident(set.kind(seq),'seq')                       :s(push.value.add)
+    error('first argument to push.value must be sequence, but here is ' datatype(seq))
 
 push.value.add
 
-    set.size(stack) = set.size(stack) + 1
-    n = set.size(stack)
-    set.index(stack)[n] = n
-    set.key(stack)[n] = value                           :(return)
+    set.size(seq) = set.size(seq) + 1
+    n = set.size(seq)
+    set.index(seq)[n] = n
+    set.key(seq)[n] = value                           
+    Out('push.value returns')
+    show(seq)
+                                :(return)
 
 push.value.end
 
@@ -2460,12 +2464,10 @@ show.array.done
 show.entry
 
     is.plain(key(v)) is.plain(value(v))                :f(show.entry.notplain)
-*   Out('plain entry stack size',set.size(show.stack))
     show.out(plain(key(v)) char(58) plain(value(v)))   :s(show.finis)
 
 show.entry.notplain
 
-*   Out('notplain entry stack size',set.size(show.stack))
     show(key(v))
     show(char(58)) 
     show(value(v))
@@ -2666,16 +2668,12 @@ slice
 *   Here to compute slice of a string or tuple.
 
     slice = new(set.kind(v))
-*   Out('slice kind',set.kind(v))
     n = ident(n) set.size(v) - start + 1
     lt(start,1)                                         :s(freturn)
     gt(start + n - 1,set.size(v))                       :s(freturn)
     start = start - 1
 
 slice.next
-
-*   Out('slice.next start',start)
-*   Out('pushing ',get(v,start = start + 1))
 
     push(slice,get(v,start = start + 1))
     gt(n = n - 1)                                       :s(slice.next)f(return)
