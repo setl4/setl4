@@ -1,10 +1,11 @@
+
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 -include "../setl4.stl"
 
     &stlimit = 250000
 
-    define('product(seq,strings)partial,p1,t1,slice1,set1,set2,this1,this2,seq1'):(product.end)
+    define('product(seq,strings)partial,t1,slice1,set1,set2,this1,this2,tup,tmp,p1,p2'):(product.end)
 
 *   _Product_ returns the Cartesian product.set of a sequence of strings or sets.
 
@@ -17,60 +18,70 @@
 
 product
 
+    out('enter product',strings)
 *   show(seq)
 *   out()
 
-    product = eq(set.size(seq)) new('set')      :s(return)
-    differ(strings)                                         :s(product.str)
-    lt(set.size(seq),3) :s(product.set.2)
+    product = eq(set.size(seq)) new('set')             :s(return)
+    product = eq(set.size(seq),1) copy(get(seq,1))     :s(return)
 
-*   Compute the partial product of all the sets except the last one.
+    differ(strings)                                    :s(product.str)
+    eq(set.size(seq),2)                                :s(product.two)
 
-    push(partial = new('seq'),product(slice(seq,1,set.size(seq) - 1)))
+*   Here to compute the product of three or more sets. First,
+*   compute the partial product of all the sets except the last one,
+*   and then compute the product of that partial product and the last set.
 
-*   Compute the product of the partial product and the last set.
-
+    push(partial = new('seq'),product(slice(seq,1,set.size(seq) - 1),strings))
     push(partial,top(seq))
-    product = product(partial)                              :(return)
+    product = product(partial,strings)                 :(return)
 
-product.set.2
+product.two
 
 *   Here to compute the product of two sets.
-*   Add the first set to the output. For each element in the first
-*   set, create a sequence of length one containing the element.
-    loop(set1 = get(seq,1))
+*   Loop over the first set. If an element is a tuple, then we are extending a 
+*   partial product. Otherwise we are interating over the first set in a product
+*   and need to create a tuple from the element.
+*   Then loop over the second set. For each element in the second set, add a new
+*   element to the output that extends the tuples of the current element in the
+*   first set.
 
-product.set.2.init
-
-    next(set1)                                  :f(product.set.2.done)
-    add(product,push(new('seq'),this1))          :(product.set2.init)
-
-product.set2.init.done
-
-*   Loop over both sets, extending the tuples.
-
-    set1 = product
-    product = new('seq')
-    loop(set1)
+    differ(strings)                                    :s(product.str.two)
+    product = new('set')
+    loop(set1 = get(seq,1),.this1)
 
 product.set.next1
 
-    next(set1)                                          :f(return)
-*   out('next1',this1)
+    next(set1)                                         :f(return)
+    this1 = differ(datatype(this1),'set')  push(new('seq'),this1)
+    tup = copy(this1)
+*   Out('tup',set.kind(tup))
+*   show(tup)
+
     loop(set2 = get(seq,2),.this2)
 
 product.set.next2
 
-    next(set2)                                      :f(product.set.next1)
-*   out('next2',this2)
-*   out('adding',join(this1,this2))
-    add(product, join(this1,this2))                     :(product.set.next2)
-   
+    next(set2)                              :f(product.set.next1)
+    Out('set.next2')
+    Out('product size',set.size(product))
+    show(tup)
+    show(this2)
+    out()
+
+    p1 = copy(tup)
+    push(p1,this2)
+    Out('p1')
+    show(p1)
+    Out('p1 shown')
+*HERE
+    add(product,p1)
+    show(product)
+                                            :(product.set.next2)
+
 product.str
 
-    product = eq(set.size(seq)) new('set')      :s(return)
-    product = eq(set.size(seq),1) copy(get(seq,1)) :s(return)
-    lt(set.size(seq),3) :s(product.str.2)
+    lt(set.size(seq),3)                                :s(product.str.two)
 
 *   Compute the partial product of all the sets except the last one.
 
@@ -79,9 +90,9 @@ product.str
 *   Compute the product of the partial product and the last set.
 
     push(partial,top(seq))
-    product = product(partial,'TRUE')               :(return)
+    product = product(partial,'TRUE')                  :(return)
 
-product.str.2
+product.str.two
 
 *   Here to compute the product of two sets of strings.
 
@@ -90,46 +101,56 @@ product.str.2
 
 product.str.next1
 
-    next(set1)                                          :f(return)
+    next(set1)                                         :f(return)
     loop(set2 = get(seq,2),.this2)
 
 product.str.next2
 
-    next(set2)                                      :f(product.str.next1)
-    add(product, this1 this2)                       :(product.str.next2)
-   
+    next(set2)                                         :f(product.str.next1)
+    add(product, this1 this2)                          :(product.str.next2)
+
 product.end
 
-    define('test(seq,strings)')                     :(test.end)
+    define('test(seq,strings)')                        :(test.end)
 
 test
     out()
     out('test input')
-*   out('strings',strings)
-*   show(seq)
+    out('strings',strings)
+    show(seq)
     test = product(seq,strings)
     out('test output')
-    show(test)                                          
+    show(test)
     out('end test')
     out()
-                                                :(return)
+                                                       :(return)
 test.end
 
+*   s = new('seq 10')
+*   push(s,20)
+*   show(s)
+*end
+
+    out('START')
+    out('DAVE')
     out('testing product of non-strings')
+
     seq = new('seq')
     s1 = new('set x y')
     push(seq,s1)
     test(seq)
-
     s2 = new('set O R')
     push(seq,s2)
     test(seq)
+    out('FINIS')
+end
 
+end
     s3 = new('set X L C')
     push(seq,s3)
     test(seq)
-
 end
+tst.str
     out('testing product on strings')
     seq = new('seq')
     s1 = new('set x y')
@@ -144,4 +165,17 @@ end
     push(seq,s3)
     test(seq,'TRUE')
 
+end
+    out('start test')
+    s1 = new('seq')
+    out('showing empty seq')
+    out('Done')
+    show(s1)
+    push(s1,'x')
+    push(s1,'y')
+    show(s1)
+    show('more')
+    setl4.show(s1)
+    s2 = new('seq 20')
+*   show(s2)
 end

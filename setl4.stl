@@ -1,4 +1,4 @@
-
+d
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
@@ -572,16 +572,32 @@ add.map
     differ(datatype(elem),'entry') error("can only add 'entry' elements to a map.")
     put(set,key(elem),value(elem))                     :(return)
 
-add.seq
-
-    error("Use 'put' or 'push', but not 'add', to add elements to a sequence.")
-
 add.set
+
     member(set,elem)                                   :s(return)
 
+add.seq
+add.tup
+
+    ident(datatype(elem),'set') ident(set.kind(elem),'seq') Out('adding seq to set')
+    ident(datatype(elem),'set') ident(set.kind(elem),'seq') show(elem)
+    ident(datatype(elem),'set') ident(set.kind(elem),'tup') Out('adding tuple to set')
+    Out('add.seq')
+    Out('add set in')
+    show(set)
+    show(elem)
+    Out('add seq shown')
+
+    Out('add size in',set.size(set))
     set.size(set) = set.size(set) + 1
     set.index(set)[set.size(set)] = elem
-    set.key(set)[elem] = elem                          :(return)
+    set.key(set)[elem] = elem                          
+    
+    Out('add set out')
+    Out('add size out',set.size(set))
+    show(set)
+    Out('add set out shown')
+                                            :(return)
 
 add.end
 
@@ -1425,20 +1441,38 @@ is.plain.end
 join
 
     join = differ(s1) differ(s2) differ(s3) join(join(s1,s2),s3)    :s(return)
+*    Out('join')
+*    show(s1)
+*    out('show2')
+*    show(s2)
+*    show(s3)
+*    out()
+    
 
     ident(datatype(s1),'string')                        :s(join.string)
+*   out('join non string')
     join = copy(s1)
 
-    ident(s2)                                           :s(return)
+    ident(s2)                                           :s(join.done)
 
 *   Test if second argument is sequence.
 
+*   Out('join dt s2',datatype(s2))
+    ident(datatype(s2),'set') Out('join s2 kind',set.kind(s2))
     ident(datatype(s2),'set') ident(set.kind(s2),'seq') :s(join.s2)
     ident(datatype(s2),'set') ident(set.kind(s2),'tup') :s(join.s2)
 
+*   Out('join not seq or tup')
 *   Here if not sequence, so just add it to result and return.
 
-    push(join,s2)                                       :(return)
+*    Out('pushing')
+*    show(s2)
+*    show(join)
+*    push(join,s2)                                       
+*    Out('pushed')
+*    show(join)
+
+            :(join.done)
 
 join.s2
 
@@ -1454,7 +1488,13 @@ join.string
 
 *   Here to join strings.
 
-    join = s1 (differ(s2) s2, '') (differ(s3) s3,'')    :(return)
+    join = s1 (differ(s2) s2, '') (differ(s3) s3,'')    :(join.done)
+
+join.done
+*    out('exit join')
+*    show(join)
+*    out()
+ :(return)
 
 join.end
 
@@ -1536,6 +1576,10 @@ loop.end
 
 member
 
+*   Out('member dt set',datatype(set))
+*   Out('member set kind',set.kind(set))
+*   Out('member elem datatype',datatype(elem))
+
 *   Branch according to whether _set_ is set, map, or sequence.
 
     eq(set.size(set))                                  :s(freturn)
@@ -1544,7 +1588,7 @@ member
     ident(set.kind(set),'int')                         :s(member.int)
     ident(set.kind(set),'iter')                        :s(member.iter)
     ident(set.kind(set),'set')                         :s(member.set)
-    error('member                                      : unexpected kind ' kind )
+    error('requesting member for unsupported set kind, ' kind )
 
 member.int
 
@@ -1601,7 +1645,7 @@ multiple.end
 *       'tup'           tuple, followed by list of initial values.
 
 *   The set kind may optionally be followed by a number sign (#) followed by an integer, to
-*   indiate an estimate of the number of elements in a set or map. Ihe number need not be
+*   indicate an estimate of the number of elements in a set or map. The number need not be
 *   accurate. Values that are too high will cause the program to expend space to save some time;
 *   numbers that are too low will expend some time to save space.
 
@@ -1732,13 +1776,8 @@ new.tup
 new.seq.next
 
     init span(' ') =
-    init break(' ') . val ' ' =                        :f(new.seq.elem)
+    init break(' ') . val ' ' =                        :f(return)
     push(new,val)                                      :(new.seq.next)
-
-new.seq.elem
-
-    ident(elem1) add(new,elem1)
-    ident(elem2) add(new,elem2)                        :(return)
 
 new.set
 
@@ -2112,19 +2151,19 @@ push
 
     push = stack
     ident(val1)                                         :s(return)
-    push.value(stack,val1)
+    push = push.value(stack,val1)
     ident(val2)                                         :s(return)
-    push.value(stack,val2)
+    push = push.value(stack,val2)
     ident(val3)                                         :s(return)
-    push.value(stack,val3)
+    push = push.value(stack,val3)
     ident(val4)                                         :s(return)
-    push.value(stack,val4)
+    push = push.value(stack,val4)
     ident(val5)                                         :s(return)
-    push.value(stack,val5)                              :(return)
+    push = push.value(stack,val5)                              :(return)
 
 push.end
 
-    define('push.value(stack,value)')                   :(push.value.end)
+    define('push.value(stack,value)n')                   :(push.value.end)
 
 *   _Push.value_ adds _value_ to a stack or tuple, returning
 *   the updated stack or tuple as its value.
@@ -2142,7 +2181,10 @@ push.value
 
 push.value.add
 
-    put(stack,set.size(stack) + 1, value)              :(return)
+    set.size(stack) = set.size(stack) + 1
+    n = set.size(stack)
+    set.index(stack)[n] = n
+    set.key(stack)[n] = value                           :(return)
 
 push.value.end
 
