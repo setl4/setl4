@@ -1,4 +1,3 @@
-d
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
@@ -152,18 +151,14 @@ d
 *   in that iteration over a sequence returns the values of the sequence, not the
 *   instances of _entry_ that are returned when iterating over a map.
 
-*   A tuple is an sequence of elements. Tuples differ from sequences in that,
-*   when they are listed using the _show_ function, the indices of the
-*   elements are are not listed if there are fewer than ten elements.
-
-*   By convention, the kinds are writtten 'int', 'iter', 'map', 'seq', 'set', and 'tup'.
+*   By convention, the kinds are writtten 'int', 'iter', 'map', 'seq', and 'set'.
 
 
 *## Set Data Type
 
 *   A set is a collection unequall objects, and is represented in SETL4 by the datatype _set_:
 
-    data('set(set.kind,set.iter,set.index,set.key,set.size,'
+    data('set(set.kind,set.iter,set.index,set.key,set.size,set.encloser,'
 .   'set.block,set.blocks,set.offset,set.str)')
 
 *   where
@@ -183,6 +178,8 @@ d
 *- _set.size_ the current number of members.
 
 *- _set.str_           is used for sets of kind 'int'
+
+*- _set.encloser_      characters used to enclose value when showing this set
 
 
 *   The following fields are used only for sets of kind 'int':
@@ -368,6 +365,16 @@ d
 *-  _iter.step_     difference between values of an iteration
 
 *-  _iter.thisname_ name of iteration variable to be update to iteration value
+
+*## Showing Values
+
+*   Use the function _show()_ to display the value of a SETL4 or SPITBOL object
+
+*   Sets are listed with the values enclosed in '{}'.
+*   Sequences of ten or fewer elements are listed with the
+*   values enclosed in '()'. Sequences of more than ten elements
+*   are listed with the index and value enclosed in '[]').
+*   Pairs and entries are listed with the component values enclosed in '()'.
 
 *## Additional Operations Provided as an Artifact of the Implementation
 
@@ -565,7 +572,6 @@ add
     elem = integer(elem) +elem
     ident(set.kind(set),'map')                         :s(add.map)
     ident(set.kind(set),'seq')                         :s(add.seq)f(add.set)
-    ident(set.kind(set),'tup')                         :s(add.seq)f(add.set)
 
 add.map
 
@@ -577,27 +583,10 @@ add.set
     member(set,elem)                                   :s(return)
 
 add.seq
-add.tup
 
-    ident(datatype(elem),'set') ident(set.kind(elem),'seq') Out('adding seq to set')
-    ident(datatype(elem),'set') ident(set.kind(elem),'seq') show(elem)
-    ident(datatype(elem),'set') ident(set.kind(elem),'tup') Out('adding tuple to set')
-    Out('add.seq')
-    Out('add set in')
-    show(set)
-    show(elem)
-    Out('add seq shown')
-
-    Out('add size in',set.size(set))
     set.size(set) = set.size(set) + 1
     set.index(set)[set.size(set)] = elem
-    set.key(set)[elem] = elem                          
-    
-    Out('add set out')
-    Out('add size out',set.size(set))
-    show(set)
-    Out('add set out shown')
-                                            :(return)
+    set.key(set)[elem] = elem                          :(return)
 
 add.end
 
@@ -1075,16 +1064,16 @@ domain.end
 
 equal
 
-    ident(datatype(a),'set') ident(datatype(b),'set')  :s(equal.sets)
+    ident(datatype(a),datatype(b))                     :f(freturn)
+    ident(datatype(a),'entry')                         :s(equal.entry)
+    ident(datatype(a),'pair')                          :s(equal.pair)
+    ident(datatype(a),'set')                           :s(equal.sets)
     ident(a,b)                                         :s(return)f(freturn)
 
-equal.setl4
+equal.entry
 
-*   Here for equality test of two SETL4 objects.
-
-    ident(set.kind(a),set.kind(b))                     :f(freturn)
-    eq(set.size(a),set.size(b))                        :f(freturn)
-                                                       :($('equal.' set.kind(a)))
+    equal(key(a),key(b))                               :f(freturn)
+    equal(value(a),value(b))                           :f(freturn)s(return)
 
 equal.int
 
@@ -1096,34 +1085,42 @@ equal.map
 
 *   Two maps are equal if they have the same vaue at every element in the domain.
 
+    eq(set.size(a),set.size(b))                        :f(freturn)
     gt(i = i + 1, set.size(a))                         :s(equal.true)
     entry = set.index(a)[i]
     ident(value(entry),get(b,key(entry)))              :f(freturn)s(equal.map)
+
+equal.pair
+
+    equal(first(a),first(b))                           :f(freturn)
+    equal(second(a),second(b))                         :f(freturn)s(return)
 
 equal.seq
 
 *   Two sequences are equal if they have the same vaue at every element in the domain.
 
+    eq(set.size(a),set.size(b))                        :f(freturn)
     gt(i = i + 1, set.size(a))                         :s(equal.true)
     ident(set.seq(a)[i], set.seq(b)[i])                :s(equal.seq)f(freturn)
 
 equal.sets
 
 
-    lt(set.size(a),set.size(b))                        :s(freturn)
+    eq(set.size(a),set.size(b))                        :f(freturn)
     ident(set.kind(a),set.kind(b))                     :f(freturn)
     ident(set.kind(set),'int')                         :s(equal.int)
     ident(set.kind(set),'iter')                        :s(equal.iter)
     ident(set.kind(set),'map')                         :s(equal.map)
     ident(set.kind(set),'seq')                         :s(equal.seq)
     ident(set.kind(set),'set')                         :s(equal.set)
-    ident(set.kind(set),'tup')                         :s(equal.seq)
     error('equal mismatched kinds')
 
 
 equal.set
 
 *   Two sets are equal if and only if each is a subset of the other.
+
+    eq(set.size(a),set.size(b))                        :f(freturn)
     subset(a,b)                                        :f(freturn)
     subset(b,a)                                        :f(freturn)
                                                        :(return)
@@ -1220,7 +1217,6 @@ filter
     out('filter set.kind',set.kind(set))
     ident(set.kind(set),'map')                         :s(filter.map)
     ident(set.kind(set),'seq')                         :s(filter.seq)
-    ident(set.kind(set),'tup')                         :s(filter.tup)
     filter = new('set')
     loop(set)
 
@@ -1245,18 +1241,6 @@ filter.seq
     loop(set)
 
 filter.seq.loop
-
-    this = next(set)                                   :f(return)
-*   out('at filter.seq.loop')
-    out('filter this',this)
-    eval(expr) push(filter,this)                       :(filter.seq.loop)
-
-filter.tup
-
-    filter = new('tup')
-    loop(set)
-
-filter.tup.loop
 
     this = next(set)                                   :f(return)
 *   out('at filter.seq.loop')
@@ -1343,7 +1327,6 @@ get
     ident(set.kind(map),'map')                         :s(get.map)
     ident(set.kind(map),'seq')                         :s(get.map)
     ident(set.kind(map),'set')                         :s(get.set)
-    ident(set.kind(map),'tup')                         :s(get.set)
     error('get on unsupported kind of set              : ' set.kind(map))
 
 get.int
@@ -1460,7 +1443,6 @@ join
 *   Out('join dt s2',datatype(s2))
     ident(datatype(s2),'set') Out('join s2 kind',set.kind(s2))
     ident(datatype(s2),'set') ident(set.kind(s2),'seq') :s(join.s2)
-    ident(datatype(s2),'set') ident(set.kind(s2),'tup') :s(join.s2)
 
 *   Out('join not seq or tup')
 *   Here if not sequence, so just add it to result and return.
@@ -1540,7 +1522,6 @@ loop
     ident(set.kind(set),'map')                         :s(loop.map)
     ident(set.kind(set),'seq')                         :s(loop.map)
     ident(set.kind(set),'set')                         :s(loop.set)
-    ident(set.kind(set),'tup')                         :s(loop.map)
     error('unknown kind of iterator, ' set.kind(set))
 
 loop.int
@@ -1575,10 +1556,6 @@ loop.end
 *   _Member_ tests if _elem_ is member of _set_.
 
 member
-
-*   Out('member dt set',datatype(set))
-*   Out('member set kind',set.kind(set))
-*   Out('member elem datatype',datatype(elem))
 
 *   Branch according to whether _set_ is set, map, or sequence.
 
@@ -1642,7 +1619,6 @@ multiple.end
 *       'map'           map, followed by list of key/value pairs separated by colon
 *       'set'           set, followed by list of initial members
 *       'seq'           sequence, followed by list of initial values.
-*       'tup'           tuple, followed by list of initial values.
 
 *   The set kind may optionally be followed by a number sign (#) followed by an integer, to
 *   indicate an estimate of the number of elements in a set or map. The number need not be
@@ -1667,7 +1643,6 @@ new
     begins('map',kind)                                 :s(new.kind)
     begins('seq',kind)                                 :s(new.kind)
     begins('set',kind)                                 :s(new.kind)
-    begins('tup',kind)                                 :s(new.kind)
     begins('string',kind)                              :s(new.kind)
 
 *   If the kind is not given, then the kind is 'set' and _init_
@@ -1750,6 +1725,7 @@ new.iter.step
 new.map
 
     new = set('map',iterator(),table(n),table(n))
+    set.encloser(new) = '{}'
 
 *   If present, _init_ is a list consisting of a list of key/value pairs,
 
@@ -1766,9 +1742,9 @@ new.map.next
                                                        :(new.map.next)
 
 new.seq
-new.tup
 
     new = set(kind,iterator(),table(n),table(n))
+    set.encloser(new) = '()'
     init span(' ') =
     ident(init)                                        :s(return)
     init = init ' '
@@ -1783,6 +1759,7 @@ new.set
 
     new = set('set',iterator(),table(n),table(n))
     set.kind(new) = 'set'
+    set.encloser(new) = '{}'
     ident(init)                                        :s(return)
 
 new.set.iter.next
@@ -2176,7 +2153,6 @@ push.value
 .       error('push() first argument is not a set, but instance of ' datatype(stack))
     ident(set.kind(stack),'map')                       :s(push.value.add)
     ident(set.kind(stack),'seq')                       :s(push.value.add)
-    ident(set.kind(stack),'tup')                       :s(push.value.add)
     error('first argument to push.value must be set or map, is ' datatype(stack))
 
 push.value.add
@@ -2460,7 +2436,6 @@ show
     ident(kind,'map')                                  :s(show.map)
     ident(kind,'seq')                                  :s(show.seq)
     ident(kind,'set')                                  :s(show.set)
-    ident(kind,'tup')                                  :s(show.tup)
     error('show unknown set kind',kind,' quitting.')
 
 show.array
@@ -2508,7 +2483,7 @@ show.iter
 show.map
 show.set
 
-    encloser = '{}'                                    :(show.compound)
+                                                       :(show.compound)
 
 show.pair
 
@@ -2523,21 +2498,17 @@ show.pair.notplain
 
 show.seq
 
-*   If the sequence has fewer than ten elements, list as a tuple.
 
-    kind = lt(set.size(v),10) 'tup'
-    lt(set.size(v),10)                                  :s(show.tup)
-    encloser = '[]'                                     :(show.compound)
+*   If the sequence has more than ten elements, change the encloser to '{}'
 
-show.tup
-
-    encloser = '[]'                                     :(show.compound)
+    set.encloser(v) = (le(set.size(v),10) '()', '[]')
+                                                       :(show.compound)
 
 show.compound
 
     sorter(v,type)
     loop(v)
-    show.out(substr(encloser,1,1))
+    show.out(substr(set.encloser(v),1,1))
     show.level = show.level + 1
 
 show.compound.next
@@ -2551,15 +2522,20 @@ show.compound.next
 *               show  show.token(v,,'TRUE')             :s(show.map.check)
 
     ident(kind,'map')   show(elem)                      :s(show.compound.next)
-    ident(kind,'seq')   show(elem)                      :s(show.compound.next)
+
+*   If showing a sequence, show only the value of element if less
+*   than ten elements, otherwise show the element with the index.
+
+    ident(kind,'seq') ident(set.encloser(v),'[]')   show(elem)        :s(show.compound.next)
+    ident(kind,'seq') ident(set.encloser(v),'()')   show(value(elem)) :s(show.compound.next)
+
     ident(kind,'set')   show(elem)                      :s(show.compound.next)
-    ident(kind,'tup')   show(value(elem))               :s(show.compound.next)
 *   lt(limit = limit -1)                                :s(show.compound.done)
 
 show.compound.done
 
     show.level = show.level - 1
-    show.out(substr(encloser,2,1))
+    show.out(substr(set.encloser(v),2,1))
             :(show.finis)
 
 show.table
@@ -3130,7 +3106,6 @@ top
     differ(datatype(seq),'set')  error('argument to top is not a set')
     eq(set.size(seq))                                  :s(freturn)
     ident(set.kind(seq),'seq')                         :s(top.get)
-    ident(set.kind(seq),'tup')                         :s(top.get)
     error('argument to top() is not sequence or tuple.')
 
 top.get

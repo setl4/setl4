@@ -153,20 +153,20 @@
 
 *   Test sequences
     
-    out('showing empty tuple')
-    tup = new('seq')
-    show(tup)
+    out('showing empty sequence')
+    seq = new('seq')
+    show(seq)
 
-    out('showing  tuple with one element')
-    tup = new('seq')
-    push(tup,10)
-    show(tup)
+    out('showing sequence with one element')
+    seq = new('seq')
+    push(seq,10)
+    show(seq)
 
-    out('showing  tuple with two elements')
-    tup = new('seq')
-    push(tup,10)
-    push(tup,20)
-    show(tup)
+    out('showing sequence with two elements')
+    seq = new('seq')
+    push(seq,10)
+    push(seq,20)
+    show(seq)
     out()
 
     out('showing sequence with four elements')
@@ -177,6 +177,7 @@
     out()
 
     out('showing sequence with twelve elements')
+    out('expect brackets around values')
     seq = new('seq')
     push(seq,2,4,6,8)
     push(seq,10,12,14,16)
