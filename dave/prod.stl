@@ -75,6 +75,7 @@ product.set.next2
     show(p1)
     Out('p1 shown')
 *HERE
+    Out('COUNT',count = count + 1)
     add(product,p1)
     show(product)
                                             :(product.set.next2)

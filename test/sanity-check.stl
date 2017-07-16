@@ -151,19 +151,19 @@
     show(m,'-v')
     out()
 
-*   Test tuples
+*   Test sequences
     
     out('showing empty tuple')
-    tup = new('tup')
+    tup = new('seq')
     show(tup)
 
     out('showing  tuple with one element')
-    tup = new('tup')
+    tup = new('seq')
     push(tup,10)
     show(tup)
 
     out('showing  tuple with two elements')
-    tup = new('tup')
+    tup = new('seq')
     push(tup,10)
     push(tup,20)
     show(tup)
