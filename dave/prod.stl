@@ -1,7 +1,4 @@
 
-
-
-
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 -include "../setl4.stl"
@@ -30,15 +27,18 @@ product
     product = eq(set.size(seq))                         :s(return)
     product = eq(set.size(seq),1) copy(seq)             :s(return)
 
+    set1 = get(seq,1)
+    set2 = get(seq,2)
     eq(set.size(seq),2)                                 :s(product.two)
 
 *   Here to compute the product of three or more sets. First,
 *   compute the partial product of all the sets except the last one,
 *   and then compute the product of that partial product and the last set.
 
-    partial = product(slice(seq,1,set.size(seq) - 1),strings)
-    push(partial,top(seq))
-    product = product(partial,strings)                  :(return)
+    set1 = product(slice(seq,1,set.size(seq) - 1),strings)
+    set2 = top(seq)
+
+*   Merge below to compute final produce.
 
 product.two
 
@@ -50,59 +50,22 @@ product.two
 *   element to the output that extends the tuples of the current element in the
 *   first set.
 
-    differ(strings)                                     :s(product.str.two)
     product = new('set')
-    loop(set1 = get(seq,1),.this1)
+    loop(set1,.this1)
 
 product.set.next1
 
     next(set1)                                          :f(return)
-    this1 = differ(datatype(this1),'set')  push(new('seq'),this1)
+    this1 = ident(strings) differ(datatype(this1),'set')  push(new('seq'),this1)
 
-    loop(set2 = get(seq,2),.this2)
+    loop(set2,.this2)
 
 product.set.next2
 
     next(set2)                                          :f(product.set.next1)
     add(product,join(this1,this2))                      :s(product.set.next2)
 
-product.str.two
-
-*   Here to compute the product of two sets of strings.
-
-    product = new('set')
-    loop(set1 = get(seq,1),.this1)
-
-product.str.next1
-
-    next(set1)                                          :f(return)
-    loop(set2 = get(seq,2),.this2)
-
-product.str.next2
-
-    next(set2)                                          :f(product.str.next1)
-    product.add(product,this1 this2)
-    add(product, this1 this2)                           :(product.str.next2)
-
 product.end
-
-    define('product.add(p,elem)n')                      :(product.add.end)
-
-*   Add new element to set, assuming it is know the element cannot be a member of the set.
-
-product.add
-
-    Out('enter product.add')
-    Out('dt p',datatype(p))
-    show(p)
-    n = set.size(p) = set.size(p) + 1
-    set.index(p)[n] = elem
-    set.key(p)[elem] = elem
-    show(p)
-    Out('exit product.add')
-                                                        :(return)
-
-product.add.end
 
     define('test(seq,strings)')                         :(test.end)
 
@@ -122,19 +85,17 @@ test.end
 
 *tst.str
 
-    out('STAST')
     out('testing product of non-strings')
 
     seq = new('seq')
     s1 = new('set x y')
     push(seq,s1)
     test(seq)
-    out('SAK')
+
     s2 = new('set O R')
     push(seq,s2)
     test(seq)
     out('FINIS')
-end
     s3 = new('set X L C')
     push(seq,s3)
     test(seq)

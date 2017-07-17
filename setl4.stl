@@ -1426,7 +1426,12 @@ join
 
     join = differ(s1) differ(s2) differ(s3) join(join(s1,s2),s3)    :s(return)
     ident(datatype(s1),'string')                        :s(join.string)
-    join = copy(s1)
+    join = new('seq')
+    loop(s1)
+
+join.s1
+
+    push(join,next(s1))                                 :s(join.s1)
 
     ident(s2)                                           :s(join.done)
 
@@ -1436,7 +1441,7 @@ join
 
 *   Here if not sequence, so just add it to result and return.
 
-            :(join.done)
+    push(join,s2)                                       :(join.done)
 
 join.s2
 
