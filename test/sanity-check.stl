@@ -199,6 +199,48 @@
     show(t)
     out()
 
+    out('test set product strings null')
+
+    seq = new('seq')
+    s1 = new('set x y')
+    push(seq,s1)
+    show(seq)
+    show(product(seq))
+    out()
+
+    s2 = new('set O R')
+    push(seq,s2)
+    show(seq)
+    show(product(seq))
+    out()
+
+    s3 = new('set X L C')
+    push(seq,s3)
+    show(seq)
+    show(product(seq))
+    out()
+
+    out('test set product strings not null')
+    seq = new('seq')
+    s1 = new('set x y')
+    push(seq,s1)
+    show(seq)
+    show(product(seq),'TRUE')
+    out()
+
+    s2 = new('set O R')
+    push(seq,s2)
+    show(seq)
+    show(product(seq,'TRUE'))
+    out()
+
+    s3 = new('set X L C')
+    push(seq,s3)
+    show(seq)
+    show(product(seq,'TRUE'))
+    out()
+
+end
     out("Here endeth the test.")
 
 end

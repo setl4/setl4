@@ -122,27 +122,50 @@ no
 -v
 { 'million':1000000 'hundred':100 'ten':10 'eight':8 'two':2 'one':1 }
 
-showing empty tuple
-[ ]
-showing  tuple with one element
-[ 10 ]
-showing  tuple with two elements
-[ 10 20 ]
+showing empty sequence
+( )
+showing sequence with one element
+( 10 )
+showing sequence with two elements
+( 10 20 )
 
 showing sequence with four elements
 expect parentheses around values
-[ 2 4 6 8 ]
+( 2 4 6 8 )
 
 showing sequence with twelve elements
+expect brackets around values
 [ 1:2 2:4 3:6 4:8 5:10 6:12 7:14 8:16 9:18 10:20 11:22 12:24 ]
 
 Test slice
-[ 2 4 6 8 10 ]
+( 2 4 6 8 10 )
 slice(seq,2,2)
-[ 4 6 ]
+( 4 6 )
 slice(seq,2)
-[ 4 6 8 10 ]
+( 4 6 8 10 )
 slice(seq,11)
-[ ]
+( )
 
-Here endeth the test.
+test set product strings null
+( { 'x' 'y' } )
+( { 'x' 'y' } )
+
+( { 'x' 'y' } { 'O' 'R' } )
+{ ( 'x' 'O' ) ( 'x' 'R' ) ( 'y' 'O' ) ( 'y' 'R' ) }
+
+( { 'x' 'y' } { 'O' 'R' } { 'C' 'L' 'X' } )
+{ ( 'x' 'O' 'C' ) ( 'x' 'O' 'L' ) ( 'x' 'O' 'X' ) ( 'x' 'R' 'C' ) ( 'x' 'R'
+'L' ) ( 'x' 'R' 'X' ) ( 'y' 'O' 'C' ) ( 'y' 'O' 'L' ) ( 'y' 'O' 'X' ) ( 'y'
+'R' 'C' ) ( 'y' 'R' 'L' ) ( 'y' 'R' 'X' ) }
+
+test set product strings not null
+( { 'x' 'y' } )
+( { 'x' 'y' } )
+
+( { 'x' 'y' } { 'O' 'R' } )
+{ 'xO' 'xR' 'yO' 'yR' }
+
+( { 'x' 'y' } { 'O' 'R' } { 'C' 'L' 'X' } )
+{ 'xOC' 'xOL' 'xOX' 'xRC' 'xRL' 'xRX' 'yOC' 'yOL' 'yOX' 'yRC' 'yRL' 'yRX'
+}
+

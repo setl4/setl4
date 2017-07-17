@@ -1,3 +1,4 @@
+
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
@@ -517,6 +518,7 @@
 *-  plain(v)                    Returns string representing a plain type, per is.plain().
 *-  powerset(set)               Return the powerset of _set_, the set of all the subsets of _set_.
 *-  prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_.
+*-  product(seq)                Returns (Cartesian) product of a sequence of sets.
 *-  member(elem,set)            Tests if _elem_ is a member of _set_.
 *-  new(str)                    Returns a new set specified by _str_.
 *-  next(set)                   Returns next element in iteration defined by prevous _loop_, fails if no more elements.
@@ -560,7 +562,7 @@
 
 *   SETL4 Function Definitions
 
-    define('add(set,elem)ara,i,n,str')                 :(add.end)
+    define('add(set,elem)ara,i,n,str')                  :(add.end)
 
 *   _Add_ adds an element to a set if it not already a member.
 *   If the set has kind _map_ and _elem_ has the data type _entry_
@@ -570,28 +572,28 @@ add
 
     differ(datatype(set),'set') error('attempt to add to non-set ' datatype(set))
     elem = integer(elem) +elem
-    ident(set.kind(set),'map')                         :s(add.map)
-    ident(set.kind(set),'seq')                         :s(add.seq)f(add.set)
+    ident(set.kind(set),'map')                          :s(add.map)
+    ident(set.kind(set),'seq')                          :s(add.seq)f(add.set)
 
 add.map
 
     differ(datatype(elem),'entry') error("can only add 'entry' elements to a map.")
-    put(set,key(elem),value(elem))                     :(return)
+    put(set,key(elem),value(elem))                      :(return)
 
 add.set
 
-    member(set,elem)                                   :s(return)
+    member(set,elem)                                    :s(return)
 
 add.seq
 
     set.size(set) = set.size(set) + 1
     set.index(set)[set.size(set)] = elem
-    set.key(set)[elem] = elem                          
-                                                    :(return)
+    set.key(set)[elem] = elem
+                                                        :(return)
 
 add.end
 
-    define('and(a,b)')                                 :(and.end)
+    define('and(a,b)')                                  :(and.end)
 
 *   _And_ tests if both operand are true (not null), only
 *   evaluating the second argument when necessary.
@@ -600,27 +602,27 @@ and
 
 *   See if both operands are integers.
 
-    and = integer(a) eq(a)                             :s(freturn)
-    and = integer(a) integer(b) ne(a * b)              :s(return)f(freturn)
+    and = integer(a) eq(a)                              :s(freturn)
+    and = integer(a) integer(b) ne(a * b)               :s(return)f(freturn)
 
 *   Here where at least one operand for 'and' is not integer, so
 *   use ident/differ to evaluate.
 
-    and = differ(a) differ(b)                          :s(return)f(freturn)
+    and = differ(a) differ(b)                           :s(return)f(freturn)
 
 and.end
 
-    define('append(str,w,ch)')                         :(append.end)
+    define('append(str,w,ch)')                          :(append.end)
 
 *   _Appends appends _ch_, or ' ' if _ch_ is null, to _str_ and then appends _w_.
 
 append
 
-    append = str (ident(str) w, (ident(ch) ' ' , ch) w):(return)
+    append = str (ident(str) w, (ident(ch) ' ' , ch) w) :(return)
 
 append.end
 
-    define('arbitrary(set)iter,r')                     :(arbitrary.end)
+    define('arbitrary(set)iter,r')                      :(arbitrary.end)
 
 *   _Arbtrary_ returns an arbitrary (randomly selected) element of a set, or
 *   if the argument is an integer, then _arbitrary_ returns a random
@@ -628,11 +630,11 @@ append.end
 
 arbitrary
 
-    arbitrary = integer(set) random(+set)              :s(return)
+    arbitrary = integer(set) random(+set)               :s(return)
     r = random(set.size(set))
-    ident(set.kind(set),'iter')                        :s(arbitrary.iter)
+    ident(set.kind(set),'iter')                         :s(arbitrary.iter)
     arbitrary = set.key(set)[set.index(set)[r]]
-                                                       :(return)
+                                                        :(return)
 
 arbitrary.iter
 
@@ -641,13 +643,13 @@ arbitrary.iter
 
 arbitrary.end
 
-    define('ascii(line)c,n,name,nul,num,pos')          :(ascii.end)
+    define('ascii(line)c,n,name,nul,num,pos')           :(ascii.end)
 
 *   _Ascii_ returns the text of its argument string with every ascii character identified.
 
 ascii
 
-    differ(ascii.initialized)                          :s(ascii.initialized)
+    differ(ascii.initialized)                           :s(ascii.initialized)
 
 *   Here to initialize the needed maps.
 
@@ -663,42 +665,42 @@ ascii.next
 *   Add space after previous character if result not null.
 
     ascii = differ(ascii) ascii ' '
-    c = substr(line,1,1)                               :f(ascii.done)
-    ident(c,nul)                                       :s(ascii.null)
-    line any('0123456789')                             :s(ascii.integer)
-    line any(&lcase &ucase)                            :s(ascii.letter)
-    line ' '                                           :s(ascii.space)
+    c = substr(line,1,1)                                :f(ascii.done)
+    ident(c,nul)                                        :s(ascii.null)
+    line any('0123456789')                              :s(ascii.integer)
+    line any(&lcase &ucase)                             :s(ascii.letter)
+    line ' '                                            :s(ascii.space)
 
 *   Check for control character (code <=26)
 
-    &alphabet break(c) . pos                           :f(ascii.other)
+    &alphabet break(c) . pos                            :f(ascii.other)
     pos = size(pos)
-    gt(pos,26)                                         :s(ascii.other)
+    gt(pos,26)                                          :s(ascii.other)
 *TODO here fix g. usage
     ascii = ascii g.ascii.name[c] '(^'
                substr('ABCDEFGHIJKLMNOPQRSTUVWXYZ',pos,1) ')'
-    line len(1) =                                      :(ascii.next)
+    line len(1) =                                       :(ascii.next)
 
 ascii.integer
 
     line span('0123456789') . text =
-    ascii = ascii  text                                :(ascii.next)
+    ascii = ascii  text                                 :(ascii.next)
 
 asciiletter
 
     line span(&lcase &ucase) . text =
-    ascii = ascii  text                                :(ascii.next)
+    ascii = ascii  text                                 :(ascii.next)
 
 ascii.null
 
-    ascii = ascii 'NUL'                                :(ascii.next)
+    ascii = ascii 'NUL'                                 :(ascii.next)
 
 ascii.other
 
 *   Here if none of the other cases apply, so just list the ascii name.
 
     ascii = ascii ascii.name[c]
-    line = substr(line,2)                              :(ascii.next)
+    line = substr(line,2)                               :(ascii.next)
 
 ascii.space
 
@@ -707,14 +709,14 @@ ascii.space
     ascii =  ascii 'SPC'
     ascii = gt(size(text),1) ascii 'SPC*' size(text)
     ascii = ascii
-                                                       :(ascii.next)
+                                                        :(ascii.next)
 ascii.done
 
-    ascii = trim(ascii)                                :(return)
+    ascii = trim(ascii)                                 :(return)
 
 ascii.end
 
-    define('ascii.init(init)entry,name,value')         :(ascii.init.end)
+    define('ascii.init(init)entry,name,value')          :(ascii.init.end)
 
 *   _Ascii.init_ Initialize maps for use by _ascii_.
 *   Since space (ascii 32) prints as space, use the name SPC for 32.
@@ -723,22 +725,22 @@ ascii.init
 
 
     ascii.init = new('map '
-.      '0:NUL 16:DLE 32:SPC 48:0 64:@ 80:P  96:` 112   :p '
-.      '1:SOH 17:DC1 33:!   49:1 65:A 81:Q  97:a 113   :q '
-.      '2:STX 18:DC2 34:"   50:2 66:B 82:R  98:b 114   :r '
-.      '3:ETX 19:DC3 35:#   51:3 67:C 83:S  99:c 115   :s '
-.      '4:EOT 20 DC4 36:$   52:4 68:D 84:T 100:d 116   :t '
-.      '5:ENQ 21:NAK 37:%   53:5 69:E 85:U 101:e 117   :u '
-.      '6:ACK 22:SYN 38:&   54:6 70:F 86:V 102:f 118   :v '
-.      "7:BEL 23:ETB 39:'   55:7 71:G 87:W 103:g 119   :w "
-.      '8:BS  24:CAN 40:(   56:8 72:H 88:X 104:h 120   :x '
-.      '9:HT  25:EM  41:)   57:9 73:I 89:Y 105:i 121   :y '
-.      '10:LF 26:SUB 42:*   58:  74:J 90:Z 106:j 122   :z '
-.      '11:VT 27:ESC 43:+   59:; 75:K 91:[ 107:k 123   :{ '
-.      '12:FF 28:FS  44:,   60:< 76:L 92:\ 108:l 124   :| '
-.      '13:CR 29:GS  45:-   61:= 77:M 93:] 109:m 125   :} '
-.      '14:SO 30:RS  46:.   62:> 78:N 94:^ 110:n 126   :~ '
-.      '15:SI 31:US  47:/   63:? 79:O 95:_ 111:o 127   :DEL ')
+.      '0:NUL 16:DLE 32:SPC 48:0 64:@ 80:P  96:` 112    :p '
+.      '1:SOH 17:DC1 33:!   49:1 65:A 81:Q  97:a 113    :q '
+.      '2:STX 18:DC2 34:"   50:2 66:B 82:R  98:b 114    :r '
+.      '3:ETX 19:DC3 35:#   51:3 67:C 83:S  99:c 115    :s '
+.      '4:EOT 20 DC4 36:$   52:4 68:D 84:T 100:d 116    :t '
+.      '5:ENQ 21:NAK 37:%   53:5 69:E 85:U 101:e 117    :u '
+.      '6:ACK 22:SYN 38:&   54:6 70:F 86:V 102:f 118    :v '
+.      "7:BEL 23:ETB 39:'   55:7 71:G 87:W 103:g 119    :w "
+.      '8:BS  24:CAN 40:(   56:8 72:H 88:X 104:h 120    :x '
+.      '9:HT  25:EM  41:)   57:9 73:I 89:Y 105:i 121    :y '
+.      '10:LF 26:SUB 42:*   58:  74:J 90:Z 106:j 122    :z '
+.      '11:VT 27:ESC 43:+   59:; 75:K 91:[ 107:k 123    :{ '
+.      '12:FF 28:FS  44:,   60:< 76:L 92:\ 108:l 124    :| '
+.      '13:CR 29:GS  45:-   61:= 77:M 93:] 109:m 125    :} '
+.      '14:SO 30:RS  46:.   62:> 78:N 94:^ 110:n 126    :~ '
+.      '15:SI 31:US  47:/   63:? 79:O 95:_ 111:o 127    :DEL ')
 
     ascii.name = new('map #128')
     ascii.value = new('map #128')
@@ -746,10 +748,10 @@ ascii.init
 
 ascii.init.next
 
-    entry = setl4.l.next(ascii.init)                   :(ascii.init.finis)
+    entry = setl4.l.next(ascii.init)                    :(ascii.init.finis)
 *   Correct entry for 0 to be NUL, the NUL character
     ascii.name[substr(&alphabet,+v + 1,1)] = name
-    ascii.value[name] = +value                         :(ascii.init.next)
+    ascii.value[name] = +value                          :(ascii.init.next)
     ascii.name[] = 'NUL'
     ascii.value['NUL'] = 0
     ascii.name[' '] = 'SPC'
@@ -760,46 +762,46 @@ ascii.init.next
 
 ascii.init.end
 
-    define('assert(expr)')                             :(assert.end)
+    define('assert(expr)')                              :(assert.end)
 
 *   _Assert_ tests that its argument expression is non null, ending execution otherwise.
 
 assert
 
-    true(expr)                                         :s(return)
+    true(expr)                                          :s(return)
     error('assertion failed, quitting')
 
 assert.end
 
-    define('assert.type(obj,typ)')                     :(assert.type.end)
+    define('assert.type(obj,typ)')                      :(assert.type.end)
 
 *   _Assert.type_ tests that _obj_ has datatype _typ_, and ends execution if not.
 
 assert.type
 
-    assert(ident(datatype(obj),typ))                   :s(return)
+    assert(ident(datatype(obj),typ))                    :s(return)
     error('assertion on datatype failed ' typ )
 
 
 assert.type.end
 
-    define('begins(str,init)')                         :(begins.end)
+    define('begins(str,init)')                          :(begins.end)
 
 *   _Begin_ tests if string _str_ begins with string _init_.
 *   It returns _str_ on success, fails otherwise.
 
 begins
 
-    ident(str)                                         :s(freturn)
-    ident(init)                                        :s(freturn)
+    ident(str)                                          :s(freturn)
+    ident(init)                                         :s(freturn)
     begins = str
-    ident(str,init)                                    :s(return)
-    gt(size(init),size(str))                           :s(freturn)
-    ident(substr(str,1,size(init)),init)               :s(return)f(freturn)
+    ident(str,init)                                     :s(return)
+    gt(size(init),size(str))                            :s(freturn)
+    ident(substr(str,1,size(init)),init)                :s(return)f(freturn)
 
 begins.end
 
-    define('binary(n)')                                :(binary.end)
+    define('binary(n)')                                 :(binary.end)
 
 *   _Binary_returns a string with the value of _n_ as a binary number.
 
@@ -811,23 +813,23 @@ binary.next
 
     n = n / 2
 
-    binary = eq(n)   '0'                               :s(return)
-    binary = eq(n,1) '1'                               :s(return)
+    binary = eq(n)   '0'                                :s(return)
+    binary = eq(n,1) '1'                                :s(return)
     binary = even(n) binary(n / 2) '0'
     binary = odd(n)  binary(n / 2) '1'
-                                                       :(return)
+                                                        :(return)
 
-                                                       :(binary.next)
+                                                        :(binary.next)
 
 binary.done
 
 *   binary = ident(binary) '0'                          :s(return)
 *   binary = gt(size(binary),1) substr(binary,2)
-                                                       :(return)
+                                                        :(return)
 
 binary.end
 
-	define('checkout(filename)file,fullname,line,word')   :(checkout.end)
+	define('checkout(filename)file,fullname,line,word')    :(checkout.end)
 
 *	_Checkout_ checks out (retrieves)  a file from the library as a sequence of lines
 *   or a set of words. _Checkout_ lists the available files if _filename_ is null.
@@ -839,11 +841,11 @@ binary.end
 
 checkout
 
-    differ(filename)                                   :s(checkout.check)
+    differ(filename)                                    :s(checkout.check)
 
 checkout.list
 
-    out('available texts in the checkout               :')
+    out('available texts in the checkout                :')
 	out('dictionary')
 	out('genesis')
 	out('hamlet')
@@ -852,46 +854,46 @@ checkout.list
 	out('romeo-and-juliet')
 	out('shakespeare')
 	out('sonnets')
-                                                       :(return)
+                                                        :(return)
 
 checkout.check
 
 *   See if _filename_ matches one of the available texts.
 
 
-	filename = begins('dictionary',filename)              :s(checkout.open)
-	filename = begins('enable1',filename)                 :s(checkout.open)
-	filename = begins('genesis',filename)                 :s(checkout.open)
-	filename = begins('hamlet',filename)                  :s(checkout.open)
-	filename = begins('new-testament',filename)           :s(checkout.open)
-	filename = begins('old-testament',filename)           :s(checkout.open)
-	filename = begins('romeo-and-juliet',filename)        :s(checkout.open)
-	filename = begins('shakespeare',filename)             :s(checkout.open)
-	filename = begins('sonnets',filename)                 :s(checkout.open)
+	filename = begins('dictionary',filename)               :s(checkout.open)
+	filename = begins('enable1',filename)                  :s(checkout.open)
+	filename = begins('genesis',filename)                  :s(checkout.open)
+	filename = begins('hamlet',filename)                   :s(checkout.open)
+	filename = begins('new-testament',filename)            :s(checkout.open)
+	filename = begins('old-testament',filename)            :s(checkout.open)
+	filename = begins('romeo-and-juliet',filename)         :s(checkout.open)
+	filename = begins('shakespeare',filename)              :s(checkout.open)
+	filename = begins('sonnets',filename)                  :s(checkout.open)
 
     out('sorry, that text is not available.')
-    out('here is a list of the available texts')       :(checkout.list)
+    out('here is a list of the available texts')        :(checkout.list)
 
 checkout.open
 
 	fullname = '../library/' filename '.txt'
-	input(.file,3,fullname)                               :s(checkout.opened)
-	error('unable to open file ',filename)                :(freturn)
+	input(.file,3,fullname)                                :s(checkout.opened)
+	error('unable to open file ',filename)                 :(freturn)
 
 checkout.opened
 
 *   Dictionary requires special handling.
 
-    ident(filename,'dictionary')                       :s(checkout.dictionary)
+    ident(filename,'dictionary')                        :s(checkout.dictionary)
     checkout = set('seq',iterator(),table(2000),table(2000))
 
 checkout.next
 
-	line = file                                           :f(checkout.finis)
+	line = file                                            :f(checkout.finis)
     lines = lines + 1
-    ident(line)                                        :s(checkout.next)
-    line '*'                                           :s(checkout.next)
-    push(checkout,line)                                :(checkout.next)
+    ident(line)                                         :s(checkout.next)
+    line '*'                                            :s(checkout.next)
+    push(checkout,line)                                 :(checkout.next)
 
 checkout.dictionary
 
@@ -903,21 +905,21 @@ checkout.dictionary.add
 
 checkout.dictionary.next
 
-    word = file                                        :f(checkout.finis)
-    ident(substr(word,size(word),1),'S')               :f(checkout.dictionary.add)
+    word = file                                         :f(checkout.finis)
+    ident(substr(word,size(word),1),'S')                :f(checkout.dictionary.add)
 
 *   Here if plural. Add plural form and them merge to add singular form.
 
     word = substr(word,1, size(word) - 1)
-    add(checkout, word 's')                            :(checkout.dictionary.add)
+    add(checkout, word 's')                             :(checkout.dictionary.add)
 
 checkout.finis
 
-	endfile(3)                                            :(return)
+	endfile(3)                                             :(return)
 
 checkout.end
 
-    define('compare(a,b)')                             :(compare.end)
+    define('compare(a,b)')                              :(compare.end)
 
 *   _Compare_ compares two integers or strings, returning -1 if the _a_ is
 *   less than _b_ , 0 if both have the seq.eq value, and +1 if the _a_ is greater than _b_.
@@ -928,13 +930,13 @@ compare
     b = integer(b) +b
 *   out('compare ' datatype(a) ' ' datatype(b))
     differ(datatype(a),datatype(b)) error("compare argument types differ " datatype(a) " " datatype(b))
-    ident(datatype(a),'string')                        :s(compare.strings)
+    ident(datatype(a),'string')                         :s(compare.strings)
 
 *   Here to numerically compare integers.
 
-    compare = lt(a,b) -1                               :s(return)
-    compare = eq(a,b) 0                                :s(return)
-    compare = 1                                        :(return)
+    compare = lt(a,b) -1                                :s(return)
+    compare = eq(a,b) 0                                 :s(return)
+    compare = 1                                         :(return)
 
 compare.strings
 
@@ -943,11 +945,11 @@ compare.strings
     compare = leq(a,b) 0
     compare = lgt(a,b) 1
 *   out('compare ' show(a) ' ' show(b) ' ' compare)
-                                                       :(return)
+                                                        :(return)
 
 compare.end
 
-    define('compose(a,b)ara,entry,i')                  :(compose.end)
+    define('compose(a,b)ara,entry,i')                   :(compose.end)
 
 *   _Compose_ returns the composition of two maps or tables.
 *   Given maps _a_ and _b_ such that _range(a)_ is a subset of _domain(b)_,
@@ -957,59 +959,59 @@ compare.end
 
 compose
 
-    ident(datatype(a),'table')                         :s(compose.table)
+    ident(datatype(a),'table')                          :s(compose.table)
 
 *   Here to compose two maps.
 
     n = set.size(a)
-    compose = eq(n) new('map')                         :s(return)
+    compose = eq(n) new('map')                          :s(return)
     compose = new('map #' n)
     set.size(compose) = n
     loop(a)
 
 compose.map.next
 
-    entry  = next(a)                                   :f(return)
-    put(compose,key,get(b,value(entry)))               :(compose.map.next)
+    entry  = next(a)                                    :f(return)
+    put(compose,key,get(b,value(entry)))                :(compose.map.next)
 
 compose.table
 
-    ara = convert(a,'array')                           :f(show.table.error)
+    ara = convert(a,'array')                            :f(show.table.error)
     prototype(ara) break(',') . n
     compose = table(n)
     i = 0
 
 compose.table.next
 
-    le(i = i + 1,n)                                    :f(return)
-    compose[i] = b[a[i]]                               :(compose.table.next)
+    le(i = i + 1,n)                                     :f(return)
+    compose[i] = b[a[i]]                                :(compose.table.next)
 
 compose.end
 
-    define('datename()s')                              :(datename.end)
+    define('datename()s')                               :(datename.end)
 
 *   _Datename_ converts the current date in a form with no spaces,
 *   just dashes, that is suitable for use as part of a file name.
 
 datename
 
-    datename = replace(date(),'                        :/','---')
+    datename = replace(date(),'                         :/','---')
     datename = substr(datename,12,8) '-' substr(datename,1,10)
-                                                       :(return)
+                                                        :(return)
 datename.end
 
-    define('defined(map,key)entry')                    :(defined.end)
+    define('defined(map,key)entry')                     :(defined.end)
 
 *   _Defined_ tests if the map _map_ has an entry for _key_.
 
 defined
     key = integer(key) +key
     defined = set.key(map)[key]
-    differ(defined)                                    :s(return)f(freturn)
+    differ(defined)                                     :s(return)f(freturn)
 
 defined.end
 
-    define('difference(a,b)this')                      :(difference.end)
+    define('difference(a,b)this')                       :(difference.end)
 
 *   _Difference_ returns the set defined by the set of elements of _a_ that are not in _b_.
 
@@ -1020,13 +1022,13 @@ difference
 
 diference.next
 
-    this = next(a)                                     :f(return)
-    member(b,this)                                     :s(difference.next)
-    add(difference,this)                               :(difference.next)
+    this = next(a)                                      :f(return)
+    member(b,this)                                      :s(difference.next)
+    add(difference,this)                                :(difference.next)
 
 difference.end
 
-    define('digits()str,ch')                           :(digits.end)
+    define('digits()str,ch')                            :(digits.end)
 
 *   _Digits_ returns the string consisting of the digits 0 .. 9 separated by a space.
 
@@ -1037,12 +1039,12 @@ digits
 
 digits.next
 
-    str len(1) . ch =                                  :f(return)
-    digits = append(digits,ch)                         :(digits.next)
+    str len(1) . ch =                                   :f(return)
+    digits = append(digits,ch)                          :(digits.next)
 
 digits.end
 
-    define('domain(map)elem)')                         :(domain.end)
+    define('domain(map)elem)')                          :(domain.end)
 
 *   _Domain_ returns the domain of map, which is the set of the keys in _map_.
 
@@ -1053,67 +1055,67 @@ domain
 
 domain.next
 
-    entry = next(map)                                  :f(return)
-    differ(entry) add(domain,key(entry))               :(domain.next)
+    entry = next(map)                                   :f(return)
+    differ(entry) add(domain,key(entry))                :(domain.next)
 
 domain.end
 
-    define('equal(a,b)entry,i,key,value')              :(equal.end)
+    define('equal(a,b)entry,i,key,value')               :(equal.end)
 
 *   _Equals_ tests if two objects are equal. Use DIFFER unless both are sets, in
 *   which case use equality tests specified below.
 
 equal
 
-    ident(datatype(a),datatype(b))                     :f(freturn)
-    ident(datatype(a),'entry')                         :s(equal.entry)
-    ident(datatype(a),'pair')                          :s(equal.pair)
-    ident(datatype(a),'set')                           :s(equal.sets)
-    ident(a,b)                                         :s(return)f(freturn)
+    ident(datatype(a),datatype(b))                      :f(freturn)
+    ident(datatype(a),'entry')                          :s(equal.entry)
+    ident(datatype(a),'pair')                           :s(equal.pair)
+    ident(datatype(a),'set')                            :s(equal.sets)
+    ident(a,b)                                          :s(return)f(freturn)
 
 equal.entry
 
-    equal(key(a),key(b))                               :f(freturn)
-    equal(value(a),value(b))                           :f(freturn)s(return)
+    equal(key(a),key(b))                                :f(freturn)
+    equal(value(a),value(b))                            :f(freturn)s(return)
 
 equal.int
 
-    eq(iter.start(a),iter.start(b))                    :f(freturn)
-    eq(iter.finis(a),iter.finis(b))                    :f(freturn)
-    eq(iter.step(a),iter.step(b))                      :f(freturn)s(return)
+    eq(iter.start(a),iter.start(b))                     :f(freturn)
+    eq(iter.finis(a),iter.finis(b))                     :f(freturn)
+    eq(iter.step(a),iter.step(b))                       :f(freturn)s(return)
 
 equal.map
 
 *   Two maps are equal if they have the same vaue at every element in the domain.
 
-    eq(set.size(a),set.size(b))                        :f(freturn)
-    gt(i = i + 1, set.size(a))                         :s(equal.true)
+    eq(set.size(a),set.size(b))                         :f(freturn)
+    gt(i = i + 1, set.size(a))                          :s(equal.true)
     entry = set.index(a)[i]
-    ident(value(entry),get(b,key(entry)))              :f(freturn)s(equal.map)
+    ident(value(entry),get(b,key(entry)))               :f(freturn)s(equal.map)
 
 equal.pair
 
-    equal(first(a),first(b))                           :f(freturn)
-    equal(second(a),second(b))                         :f(freturn)s(return)
+    equal(first(a),first(b))                            :f(freturn)
+    equal(second(a),second(b))                          :f(freturn)s(return)
 
 equal.seq
 
 *   Two sequences are equal if they have the same vaue at every element in the domain.
 
-    eq(set.size(a),set.size(b))                        :f(freturn)
-    gt(i = i + 1, set.size(a))                         :s(equal.true)
-    ident(set.seq(a)[i], set.seq(b)[i])                :s(equal.seq)f(freturn)
+    eq(set.size(a),set.size(b))                         :f(freturn)
+    gt(i = i + 1, set.size(a))                          :s(equal.true)
+    ident(set.seq(a)[i], set.seq(b)[i])                 :s(equal.seq)f(freturn)
 
 equal.sets
 
 
-    eq(set.size(a),set.size(b))                        :f(freturn)
-    ident(set.kind(a),set.kind(b))                     :f(freturn)
-    ident(set.kind(set),'int')                         :s(equal.int)
-    ident(set.kind(set),'iter')                        :s(equal.iter)
-    ident(set.kind(set),'map')                         :s(equal.map)
-    ident(set.kind(set),'seq')                         :s(equal.seq)
-    ident(set.kind(set),'set')                         :s(equal.set)
+    eq(set.size(a),set.size(b))                         :f(freturn)
+    ident(set.kind(a),set.kind(b))                      :f(freturn)
+    ident(set.kind(set),'int')                          :s(equal.int)
+    ident(set.kind(set),'iter')                         :s(equal.iter)
+    ident(set.kind(set),'map')                          :s(equal.map)
+    ident(set.kind(set),'seq')                          :s(equal.seq)
+    ident(set.kind(set),'set')                          :s(equal.set)
     error('equal mismatched kinds')
 
 
@@ -1121,25 +1123,25 @@ equal.set
 
 *   Two sets are equal if and only if each is a subset of the other.
 
-    eq(set.size(a),set.size(b))                        :f(freturn)
-    subset(a,b)                                        :f(freturn)
-    subset(b,a)                                        :f(freturn)
-                                                       :(return)
-    equal = and(subset(a,b),subset(b,a))               :f(freturn)s(return)
+    eq(set.size(a),set.size(b))                         :f(freturn)
+    subset(a,b)                                         :f(freturn)
+    subset(b,a)                                         :f(freturn)
+                                                        :(return)
+    equal = and(subset(a,b),subset(b,a))                :f(freturn)s(return)
 
 equal.end
 
-    define('even(n)')                                  :(even.end)
+    define('even(n)')                                   :(even.end)
 
 *   _Even_ tests if its argument is even.
 
 even
 
-    eq(remdr(n,2))                                     :s(return)f(freturn)
+    eq(remdr(n,2))                                      :s(return)f(freturn)
 
 even.end
 
-    define('error(str)')                               :(error.end)
+    define('error(str)')                                :(error.end)
 
 *   _Error_ writes out its argument string and ends execution.
 
@@ -1152,11 +1154,11 @@ error
 *   Clear variables that need not appear in &dump output
 
     setl4.clear()
-    out('Fatal error: ' str)                           :(end)
+    out('Fatal error: ' str)                            :(end)
 
 error.end
 
-    define('exists(set,expr)this,e')                   :(exists.end)
+    define('exists(set,expr)this,e')                    :(exists.end)
 
 *   _Exists_ tests if there is an element in _set such that _expr_ is true.
 
@@ -1166,38 +1168,38 @@ exists
 
 exists.loop
 
-    this = next(set)                                   :f(freturn)
-    exists = eval(expr)                                :f(exists.loop)s(return)
+    this = next(set)                                    :f(freturn)
+    exists = eval(expr)                                 :f(exists.loop)s(return)
 
 exists.done
 
-    output = 'exists loop ended, failing'              :(freturn)
+    output = 'exists loop ended, failing'               :(freturn)
 
 exists.end
 
-    define('factorial(n)')                             :(factorial.end)
+    define('factorial(n)')                              :(factorial.end)
 
 *   _Factorial_ computes the value of the factorial function of its argument.
 
 factorial
 
-    factorial = (eq(n,1) 1, n * factorial(n -1))       :(return)
+    factorial = (eq(n,1) 1, n * factorial(n -1))        :(return)
 
 factorial.end
 
-    define('false(e)')                                 :(false.end)
+    define('false(e)')                                  :(false.end)
 
 *   _False_ tests if its argument is false (null).
 
 false
 
     e = integer(e) +e
-    false = integer(e)  eq(e)                          :s(freturn)
-    false = ident(e)                                   :s(return)f(freturn)
+    false = integer(e)  eq(e)                           :s(freturn)
+    false = ident(e)                                    :s(return)f(freturn)
 
 false.end
 
-    define('filter(set,expr)e,this')                   :(filter.end)
+    define('filter(set,expr)e,this')                    :(filter.end)
 
 *   According to Paul Halmos, in his book "Naive Set Theory,"
 *   a major principle of set theory, often referred to by its
@@ -1216,15 +1218,15 @@ false.end
 filter
 
     out('filter set.kind',set.kind(set))
-    ident(set.kind(set),'map')                         :s(filter.map)
-    ident(set.kind(set),'seq')                         :s(filter.seq)
+    ident(set.kind(set),'map')                          :s(filter.map)
+    ident(set.kind(set),'seq')                          :s(filter.seq)
     filter = new('set')
     loop(set)
 
 filter.set.next
 
-    this = next(set)                                   :f(return)
-    eval(expr) add(filter,this)                        :(filter.set.next)
+    this = next(set)                                    :f(return)
+    eval(expr) add(filter,this)                         :(filter.set.next)
 
 filter.map
 
@@ -1233,8 +1235,8 @@ filter.map
 
 filter.map.loop
 
-    this = next(set)                                   :f(return)
-    eval(expr) push(filter,value(this))                :(filter.map.loop)
+    this = next(set)                                    :f(return)
+    eval(expr) push(filter,value(this))                 :(filter.map.loop)
 
 filter.seq
 
@@ -1243,14 +1245,14 @@ filter.seq
 
 filter.seq.loop
 
-    this = next(set)                                   :f(return)
+    this = next(set)                                    :f(return)
 *   out('at filter.seq.loop')
     out('filter this',this)
-    eval(expr) push(filter,this)                       :(filter.seq.loop)
+    eval(expr) push(filter,this)                        :(filter.seq.loop)
 
 filter.end
 
-    define('forall(set,expr)e')                        :(forall.end)
+    define('forall(set,expr)e')                         :(forall.end)
 
 *   _Forall_ tests if _expr_ is true for all elements of _set_.
 
@@ -1260,13 +1262,13 @@ forall
 
 forall.loop
 
-    next(set)                                          :f(return)
-    e = eval(expr)                                     :f(freturn)s(forall.loop)
+    next(set)                                           :f(return)
+    e = eval(expr)                                      :f(freturn)s(forall.loop)
 
 forall.end
 
 
-    define('frequency(map)this')            :(frequency.end)
+    define('frequency(map)this')                        :(frequency.end)
 
 *   _Frequency_ returns a frequency distribution for a map,
 *   sequence  or string. The frequency distribution of a string
@@ -1279,7 +1281,7 @@ forall.end
 frequency
 
     frequency = new('map')
-    ident(datatype(map),'set')            :s(frequency.map)
+    ident(datatype(map),'set')                          :s(frequency.map)
 
 *   Compute distribution for string by converting string to sequence
 *   and merging with code to find distribution for a map.
@@ -1287,20 +1289,20 @@ frequency
     map = split.string(map)
 
 frequency.map
-    
+
 *   Here to compute frequency distribution of a map.
 
     loop(map)
 
 frequency.next
 
-    this = value(next(map))                 :f(return)
+    this = value(next(map))                             :f(return)
     this = integer(this) +this
-    put(frequency,this,get(frequency,this) + 1) :(frequency.next)
+    put(frequency,this,get(frequency,this) + 1)         :(frequency.next)
 
 frequency.end
 
-    define('from(set,elem)this')                       :(from.end)
+    define('from(set,elem)this')                        :(from.end)
 
 *   _From_ removes an (existing) element from a set.
 
@@ -1311,12 +1313,12 @@ from
 
 from.next
 
-    this = next(set)                                   :f(return)
-    differ(this,elem) add(from,this)                   :(from.next)
+    this = next(set)                                    :f(return)
+    differ(this,elem) add(from,this)                    :(from.next)
 
 from.end
 
-    define('get(map,key)val,entry')                    :(get.end)
+    define('get(map,key)val,entry')                     :(get.end)
 
 *   _Get_ gets the value of the key _key_ in the map _map_, or gets
 *   element _key_ in a set, failing if no such element.
@@ -1324,11 +1326,11 @@ from.end
 get
 
     key = integer(key) +key
-    ident(set.kind(map),'int')                         :s(get.int)
-    ident(set.kind(map),'map')                         :s(get.map)
-    ident(set.kind(map),'seq')                         :s(get.map)
-    ident(set.kind(map),'set')                         :s(get.set)
-    error('get on unsupported kind of set              : ' set.kind(map))
+    ident(set.kind(map),'int')                          :s(get.int)
+    ident(set.kind(map),'map')                          :s(get.map)
+    ident(set.kind(map),'seq')                          :s(get.map)
+    ident(set.kind(map),'set')                          :s(get.set)
+    error('get on unsupported kind of set               : ' set.kind(map))
 
 get.int
 
@@ -1336,18 +1338,18 @@ get.int
 
 get.map
 
-    get = set.key(map)[key]                            :(return)
+    get = set.key(map)[key]                             :(return)
 
 get.set
 
-    ident(set.kind(map),'iter')                        :s(get.int)
+    ident(set.kind(map),'iter')                         :s(get.int)
     get = set.index(map)[key]
-    ident(get)                                         :s(freturn)f(freturn)
-    get = set.key(map)[entry]                          :(return)
+    ident(get)                                          :s(freturn)f(freturn)
+    get = set.key(map)[entry]                           :(return)
 
 get.end
 
-    define('int(n)')                                   :(int.end)
+    define('int(n)')                                    :(int.end)
 
 *   _Int_ Returns _n_ if _n_ is an integer, or returns _n_ converted to an
 *   integer if _n_ is real, or returns the value of a string written in exponential
@@ -1355,18 +1357,18 @@ get.end
 
 int
 
-    int = integer(n) n                                 :s(return)
+    int = integer(n) n                                  :s(return)
     int = ident(datatype(n),'real') convert(n,'integer'):s(return)
     int = n
-    n break('e')                                       :f(return)
+    n break('e')                                        :f(return)
     n break('e') . int 'e' =
     int = int * +('1' dupl('0',n))
     int = +int
-                                                       :(return)
+                                                        :(return)
 
 int.end
 
-    define('integers(n)')                              :(integers.end)
+    define('integers(n)')                               :(integers.end)
 
 *   _Integers_ returns the set containing the integers 1 .. _n_
 
@@ -1376,11 +1378,11 @@ integers
 
 integers.next
 
-    le(i = i + 1,n) add(integers,i)                    :s(integers.next)f(return)
+    le(i = i + 1,n) add(integers,i)                     :s(integers.next)f(return)
 
 integers.end
 
-    define('intersection(a,b)this')                    :(intersection.end)
+    define('intersection(a,b)this')                     :(intersection.end)
 
 *   _Intersection_ returns the intersection of its argument sets.
 
@@ -1388,7 +1390,7 @@ intersection
 
 *   Make _a_ the smaller
 
-    le(set.size(a),set.size(b))                        :s(intersection.next)
+    le(set.size(a),set.size(b))                         :s(intersection.next)
     a = b
     b = intersection
     intersection = new()
@@ -1396,14 +1398,14 @@ intersection
 
 intersection.next
 
-    this = next(a)                                     :f(return)
-    member(b,this) add(intersection,this)              :(intersection.next)
+    this = next(a)                                      :f(return)
+    member(b,this) add(intersection,this)               :(intersection.next)
 
 intersection.end
 
     define('is.plain(v)')                               :(is.plain.end)
 
-*   Tests if _v_  has a plain type. 
+*   Tests if _v_  has a plain type.
 *   The plain types are 'integer', 'name', 'real', and 'string'.
 
 is.plain
@@ -1424,14 +1426,14 @@ is.plain.end
 
 join
 
-    join = differ(s1) differ(s2) differ(s3) join(join(s1,s2),s3)    :s(return)
+    join = differ(s1) differ(s2) differ(s3) join(join(s1,s2),s3):s(return)
     ident(datatype(s1),'string')                        :s(join.string)
     join = new('seq')
     loop(s1)
 
 join.s1
 
-    push(join,next(s1))                                 :s(join.s1)
+    push(join,value(next(s1)))                          :s(join.s1)
 
     ident(s2)                                           :s(join.done)
 
@@ -1451,7 +1453,7 @@ join.s2
 
 join.s2.next
 
-    push(join,next(s2))                                 :s(join.s2.next)f(return)
+    push(join,value(next(s2)))                          :s(join.s2.next)f(return)
 
 join.string
 
@@ -1463,29 +1465,29 @@ join.done
 *    out('exit join')
 *    show(join)
 *    out()
- :(return)
+                                                        :(return)
 
 join.end
 
-    define('less(str,sub)before,after')                :(less.end)
+    define('less(str,sub)before,after')                 :(less.end)
 
 *   _Less_ removes the first instance of each character in _sub_ from _str_,
 *   where _sub_ is a substr of _str_.
 
 less
 
-    ident(str)                                         :s(return)
+    ident(str)                                          :s(return)
     less = str
 
 less.ch
-    sub len(1) . ch =                                  :f(return)
+    sub len(1) . ch =                                   :f(return)
     less break(ch) . before  ch rem . after
-    less = before after                                :(less.ch)
+    less = before after                                 :(less.ch)
 
 less.end
 
 
-    define('loop(set,thisname)iter')                   :(loop.end)
+    define('loop(set,thisname)iter')                    :(loop.end)
 
 *   _Loop_ creates or updates the iterator of _set_ so that,
 *   on first call to _next()_,  _iter.next_  will be
@@ -1499,16 +1501,16 @@ loop
 
     differ(datatype(set),'set') out('loop() unsupported argument type.')
     differ(datatype(set),'set') show(set)
-    differ(datatype(set),'set') 
+    differ(datatype(set),'set')
 .       error('loop() expects argument to be set, but given ' datatype(set))
 
     iter = iterator()
 
-	ident(set.kind(set),'iter')                        :s(loop.iter)
-    ident(set.kind(set),'int')                         :s(loop.int)
-    ident(set.kind(set),'map')                         :s(loop.map)
-    ident(set.kind(set),'seq')                         :s(loop.map)
-    ident(set.kind(set),'set')                         :s(loop.set)
+	ident(set.kind(set),'iter')                            :s(loop.iter)
+    ident(set.kind(set),'int')                          :s(loop.int)
+    ident(set.kind(set),'map')                          :s(loop.map)
+    ident(set.kind(set),'seq')                          :s(loop.map)
+    ident(set.kind(set),'set')                          :s(loop.set)
     error('unknown kind of iterator, ' set.kind(set))
 
 loop.int
@@ -1523,7 +1525,7 @@ loop.iter
     differ(set.kind(set),'iter') error("loop.iter requires kind 'iter'")
     iter.next(iter) = gt(iter.step(iter)) iter.start(iter) - iter.step(iter)
     iter.next(iter) = lt(iter.step(iter)) iter.start(iter) - iter.step(iter)
-                                                       :(loop.finis)
+                                                        :(loop.finis)
 
 loop.map
 loop.seq
@@ -1534,7 +1536,7 @@ loop.finis
     thisname = ident(thisname) .this
     thisname = ident(datatype(thisname),'string') .thisname
     iter.thisname(iter) = thisname
-    set.iter(set) = iter                               :(return)
+    set.iter(set) = iter                                :(return)
 
 loop.end
 
@@ -1546,12 +1548,12 @@ member
 
 *   Branch according to whether _set_ is set, map, or sequence.
 
-    eq(set.size(set))                                  :s(freturn)
+    eq(set.size(set))                                   :s(freturn)
     elem = integer(elem) +elem
-    ident(datatype(elem),'entry')                      :s(member.map)
-    ident(set.kind(set),'int')                         :s(member.int)
-    ident(set.kind(set),'iter')                        :s(member.iter)
-    ident(set.kind(set),'set')                         :s(member.set)
+    ident(datatype(elem),'entry')                       :s(member.map)
+    ident(set.kind(set),'int')                          :s(member.int)
+    ident(set.kind(set),'iter')                         :s(member.iter)
+    ident(set.kind(set),'set')                          :s(member.set)
     error('requesting member for unsupported set kind, ' kind )
 
 member.int
@@ -1564,35 +1566,35 @@ member.int
     block = elem / setl4.config.int
     this = +(remdr(elem,setl4.config.int) + 1)
     value = set.key(set)[block]
-    ident(value)                                       :s(freturn)
-    ident(substr(value,this,1),'+')                    :s(return)f(freturn)
+    ident(value)                                        :s(freturn)
+    ident(substr(value,this,1),'+')                     :s(return)f(freturn)
 
 member.iter
 
-    integer(elem)                                      :f(freturn)
+    integer(elem)                                       :f(freturn)
     iter = set.iter(set)
-    lt(iter.step(iter)) lt(elem,iter.finis(iter))      :s(freturn)
+    lt(iter.step(iter)) lt(elem,iter.finis(iter))       :s(freturn)
     gt(iter.step(iter)) eq(remdr(elem - iter.start(iter),iter.step(iter))):s(return)
     lt(iter.step(iter)) eq(remdr(iter.start(iter) - elem,iter.step(iter))):s(return)
-                                                       :(freturn)
+                                                        :(freturn)
 
 member.map
 
-    differ(set.key(set)[key(elem)])                    :s(return)f(freturn)
+    differ(set.key(set)[key(elem)])                     :s(return)f(freturn)
 
 member.set
 
-    differ(set.key(set)[elem])                         :s(return)f(freturn)
+    differ(set.key(set)[elem])                          :s(return)f(freturn)
 
 member.end
 
-    define('multiple(n,m)')                            :(multiple.end)
+    define('multiple(n,m)')                             :(multiple.end)
 
 *   _Multiple_ Tests if _n_ is a multiple of _m_.
 
 multiple
 
-    multiple = eq(remdr(n,m))                          :s(return)f(freturn)
+    multiple = eq(remdr(n,m))                           :s(return)f(freturn)
 
 multiple.end
 
@@ -1621,16 +1623,16 @@ new
     kind = 'set'
 
     init span(' ') =
-    ident(init)                                        :s(new.set)
+    ident(init)                                         :s(new.set)
     init = init ' '
     init break(' ') . kind span(' ') =
     kind = (gt,size(kind),3) substr(kind,1,3)
-    begins('integers',kind)                            :s(new.kind)
-    begins('iterator',kind)                            :s(new.kind)
-    begins('map',kind)                                 :s(new.kind)
-    begins('seq',kind)                                 :s(new.kind)
-    begins('set',kind)                                 :s(new.kind)
-    begins('string',kind)                              :s(new.kind)
+    begins('integers',kind)                             :s(new.kind)
+    begins('iterator',kind)                             :s(new.kind)
+    begins('map',kind)                                  :s(new.kind)
+    begins('seq',kind)                                  :s(new.kind)
+    begins('set',kind)                                  :s(new.kind)
+    begins('string',kind)                               :s(new.kind)
 
 *   If the kind is not given, then the kind is 'set' and _init_
 *   is not null, it gives the initial element(s) to add to the set.
@@ -1643,14 +1645,14 @@ new.kind
     n = 0
     init span(' ') =
     n = setl4.config.table.int.table.size
-    init '# ' span('0123456789') . n =                 :s(new.sized)
+    init '# ' span('0123456789') . n =                  :s(new.sized)
     init '#' span('0123456789') . n =
 
 new.sized
 
 *   Branch on kind to finish initialization of new set.
 
-                                                       :($('new.' kind))
+                                                        :($('new.' kind))
 new.int
 
     new = set('set',iterator(),table(n),table(n))
@@ -1660,14 +1662,14 @@ new.int
 
 new.int.next
 
-    init break(' ') . key span(' ') =                  :f(new.init.elem)
-    add(new,int(key))                                  :(new.int.next)
+    init break(' ') . key span(' ') =                   :f(new.init.elem)
+    add(new,int(key))                                   :(new.int.next)
 
 net.int.elem
 
     differ(elem1) add(new,elem1)
-    differ(elem2) add(new,elem2)                       :(return)
-    
+    differ(elem2) add(new,elem2)                        :(return)
+
 new.ite
 new.iter
 
@@ -1678,21 +1680,21 @@ new.iter
 *   Ignore extra arguments to iterator constructor.
 
     set.size(seq) = gt(set.size(seq),3)
-    eq(set.size(seq),1)                                :s(new.iter.1)
-    eq(set.size(seq),2)                                :s(new.iter.2)
-    eq(set.size(seq),3)                                :s(new.iter.3)
+    eq(set.size(seq),1)                                 :s(new.iter.1)
+    eq(set.size(seq),2)                                 :s(new.iter.2)
+    eq(set.size(seq),3)                                 :s(new.iter.3)
 
 new.iter.1
 
     iter.start(iter) =  1
     iter.finis(iter) = get(seq,1)
-    iter.step(iter) = 1                                :(new.iter.step)
+    iter.step(iter) = 1                                 :(new.iter.step)
 
 new.iter.2
 
     iter.start(iter) =  get(seq,1)
     iter.finis(iter) = get(seq,2)
-    iter.step(iter) = 1                                :(new.iter.step)
+    iter.step(iter) = 1                                 :(new.iter.step)
 
 new.iter.3
 
@@ -1720,39 +1722,39 @@ new.map
 
     init = init ' '
     init span(' ') =
-    ident(init)                                        :s(return)
+    ident(init)                                         :s(return)
 
 new.map.next
 
     init break(char(58)) . key char(58) break(' ') . val span(' ') =:f(return)
     put(new,key,val)
-                                                       :(new.map.next)
+                                                        :(new.map.next)
 
 new.seq
 
     new = set(kind,iterator(),table(n),table(n))
     set.encloser(new) = '()'
     init span(' ') =
-    ident(init)                                        :s(return)
+    ident(init)                                         :s(return)
     init = init ' '
 
 new.seq.next
 
     init span(' ') =
-    init break(' ') . val ' ' =                        :f(return)
-    push(new,val)                                      :(new.seq.next)
+    init break(' ') . val ' ' =                         :f(return)
+    push(new,val)                                       :(new.seq.next)
 
 new.set
 
     new = set('set',iterator(),table(n),table(n))
     set.kind(new) = 'set'
     set.encloser(new) = '{}'
-    ident(init)                                        :s(return)
+    ident(init)                                         :s(return)
 
 new.set.iter.next
 
-    init break(' ') . key span(' ') =                  :f(new.set.elem)
-    add(new,key)                                       :(new.set.iter.next)
+    init break(' ') . key span(' ') =                   :f(new.set.elem)
+    add(new,key)                                        :(new.set.iter.next)
 
 new.set.elem
 
@@ -1761,11 +1763,11 @@ new.set.elem
 
 new.set.done
 
-                                                       :(return)
+                                                        :(return)
 
 new.end
 
-    define('new.stack()')                              :(new.stack.end)
+    define('new.stack()')                               :(new.stack.end)
 
 *   _New.stack_ returns a new stack.
 
@@ -1774,11 +1776,11 @@ new.stack
 *   Don't allocate stack table when creating stack. Do that
 *   when first add value to stack.
 
-    new.stack = stack(,0)                              :(return)
+    new.stack = stack(,0)                               :(return)
 
 new.stack.end
 
-    define('next(set)iter,key,next,str,thisname,value'):(next.end)
+    define('next(set)iter,key,next,str,thisname,value') :(next.end)
 
 *   _Next_ advances an iteration or fails if no more elements remain.
 
@@ -1786,7 +1788,7 @@ next
 
 *   Branch on kind to find next iteration value.
 
-    iter = set.iter(set)                               :($('next.' set.kind(set)))
+    iter = set.iter(set)                                :($('next.' set.kind(set)))
 
 next.int
 
@@ -1799,7 +1801,7 @@ next.int
 
 *   Branch to get first block if _set.str_ is null.
 
-    ident(set.str(set))                                :s(next.int.block)
+    ident(set.str(set))                                 :s(next.int.block)
 
 next.int.test
 
@@ -1810,10 +1812,10 @@ next.int.block
 *   Here to advance to next block, ending iteration if no more remain.
 
     set.block(set) = set.block(set) + 1
-    gt(set.block(set),set.blocks(set))                 :s(freturn)
+    gt(set.block(set),set.blocks(set))                  :s(freturn)
     set.str(set) = set.key(set)[set.index(set)[set.block(set)]]
     str = set.str(set)
-    str break('+') . key                               :f(next.int.block)
+    str break('+') . key                                :f(next.int.block)
 
 *   Here when member found. Clear the membership character and return.
 
@@ -1830,18 +1832,18 @@ next.iter
 *   Here to find next element in iterator.
 
     next = iter.next(iter) = iter.next(iter) + iter.step(iter)
-    gt(iter.step(iter)) gt(next,iter.finis(iter))      :s(freturn)
-    lt(iter.step(iter)) lt(next,iter.finis(iter))      :s(freturn)
-                                                       :(next.finis)
+    gt(iter.step(iter)) gt(next,iter.finis(iter))       :s(freturn)
+    lt(iter.step(iter)) lt(next,iter.finis(iter))       :s(freturn)
+                                                        :(next.finis)
 
 next.map
 next.seq
 next.tup
 
     next = iter.next(iter) = iter.next(iter) + 1
-    le(next,set.size(set))                             :f(freturn)
+    le(next,set.size(set))                              :f(freturn)
     key = set.index(set)[next]
-    next = entry(key,set.key(set)[key])                :(next.finis)
+    next = entry(key,set.key(set)[key])                 :(next.finis)
 
 *next.seq
 *
@@ -1853,67 +1855,67 @@ next.tup
 next.set
 
     next = iter.next(iter) = +iter.next(iter) + 1
-    le(next,set.size(set))                             :f(freturn)
-    next = set.index(set)[next]                        :(next.finis)
+    le(next,set.size(set))                              :f(freturn)
+    next = set.index(set)[next]                         :(next.finis)
 
 next.finis
 
 *   Here to update _thisname_  to the next iteration value.
 
     thisname = iter.thisname(iter)
-    $(thisname) = next                                 :(return)
+    $(thisname) = next                                  :(return)
 
 next.end
 
-    define('not(expr)')                                :(not.end)
+    define('not(expr)')                                 :(not.end)
 
 *   _Not_ returns the negation of a boolean expression.
 
 not
 
-    not = integer(expr) (eq(expr) 1, '')               :s(return)f(freturn)
-    not = ident(expr) 1                                :s(return)f(freturn)
+    not = integer(expr) (eq(expr) 1, '')                :s(return)f(freturn)
+    not = ident(expr) 1                                 :s(return)f(freturn)
 
 not.end
 
-    define('number(n)')                                :(number.end)
+    define('number(n)')                                 :(number.end)
 
 *   Test if _n_ is a string with integer value or integer, returning its
 *   value if so, or failing otherwise.
 
 number
 
-    number = integer(n) +n                             :s(return)f(freturn)
+    number = integer(n) +n                              :s(return)f(freturn)
 
 number.end
 
-    define('odd(n)')                                   :(odd.end)
+    define('odd(n)')                                    :(odd.end)
 
 *   _Odd_ tests if its argument is odd.
 
 odd
 
-    odd = ne(remdr(n,2))                               :s(return)f(freturn)
+    odd = ne(remdr(n,2))                                :s(return)f(freturn)
 
 odd.end
 
-    define('or(a,b)')                                  :(or.end)
+    define('or(a,b)')                                   :(or.end)
 
 *   _Or_ tests if either operand is true, fails otherwise, only evaluating
 *   its second argument if necessary
 
 or
-    or = integer(a) ne(a)                              :s(return)
-    or = integer(b) ne(b)                              :s(return)
+    or = integer(a) ne(a)                               :s(return)
+    or = integer(b) ne(b)                               :s(return)
 
 *   Here if operands not both integers, so use ident/differ.
 
-    or = differ(a)                                     :s(return)
-    or = differ(b)                                     :s(return)f(freturn)
+    or = differ(a)                                      :s(return)
+    or = differ(b)                                      :s(return)f(freturn)
 
 or.end
 
-    define('out(text1,text2,text3)type1,type2')        :(out.end)
+    define('out(text1,text2,text3)type1,type2')         :(out.end)
 
 *   _Out_ writes a line to standard output  conisting of _text1_,
 *   then _text2_ enclosed in brackets if _text2_ is not null, followed
@@ -1922,21 +1924,21 @@ or.end
 out
 
     text2 = is.plain(text2) plain(text2)
-    output  = text1 (differ(text2) '[' text2 ']', '') (differ(text3) text3,'') :(return)
+    output  = text1 (differ(text2) '[' text2 ']', '') (differ(text3) text3,''):(return)
 
 out.end
 
-    define('out.dt(v)')                                :(out.dt.end)
+    define('out.dt(v)')                                 :(out.dt.end)
 
 *   Show datatype of _v_
 
 out.dt
 
-    out('Datatype ' v,eval('datatype(' v ')'))         :(return)
+    out('Datatype ' v,eval('datatype(' v ')'))          :(return)
 
 out.dt.end
 
-    define('pack(seq)i')                               :(pack.end)
+    define('pack(seq)i')                                :(pack.end)
 
 *   _Pack_ packs a sequence of strings into a single string.
 
@@ -1946,11 +1948,11 @@ pack
 
 pack.next
 
-    pack = pack value(next(seq))                       :s(pack.next)f(return)
+    pack = pack value(next(seq))                        :s(pack.next)f(return)
 
 pack.end
 
-    define('plain(v)')                  :(plain.end)
+    define('plain(v)')                                  :(plain.end)
 
 *   Tests if _v_ is a plain type, where the plain types are _entry_, _integer_,
 *   _pair_, _real_, and _string_. If _v_ is plain, then _plain_ returns its
@@ -1970,7 +1972,7 @@ plain
 
 plain.string
 
-*   String in plain form if starts with quote chacter. 
+*   String in plain form if starts with quote chacter.
 
     plain '"'                                           :s(return)
     plain "'"                                           :s(return)
@@ -1988,20 +1990,20 @@ plain.double
 
 plain.end
 
-    define('pop(stack)')                               :(pop.end)
+    define('pop(stack)')                                :(pop.end)
 
 *   _Pop_ removes (pops) the top item from stack, or fails if the stack is empty.
 
 pop
 
     pop = stack
-    eq(set.size(stack))                                :s(freturn)
+    eq(set.size(stack))                                 :s(freturn)
     pop = set.key(stack)[set.index(stack)[set.size(stack)]]
-    set.size(stack) = set.size(stack) - 1              :(return)
+    set.size(stack) = set.size(stack) - 1               :(return)
 
 pop.end
 
-    define('powerset(set)b,i,j,n,N,s,this')            :(powerset.end)
+    define('powerset(set)b,i,j,n,N,s,this')             :(powerset.end)
 
 *   Return the powerset of _set_, defined as the set of all subsets of a set.
 
@@ -2013,7 +2015,7 @@ powerset
 *   The powerset of the empty set is the empty set.
 
     n = set.size(set)
-    eq(n)                                              :s(return)
+    eq(n)                                               :s(return)
 
 *   Compute _N_ = 2 to the powerset _n_.
 
@@ -2022,8 +2024,8 @@ powerset
 
 powerset.N
 
-    le(i = i + 1,n)                                    :f(powerset.N.done)
-    N = N * 2                                          :(powerset.N)
+    le(i = i + 1,n)                                     :f(powerset.N.done)
+    N = N * 2                                           :(powerset.N)
 
 powerset.N.done
 
@@ -2041,24 +2043,24 @@ powerset.N.done
 
 powerset.next.i
 
-    lt(i = i + 1,N)                                    :f(return)
+    lt(i = i + 1,N)                                     :f(return)
     b = binary(i,n)
     this = new('set')
     j = size(b) + 1
 
 powerset.next.j
 
-    gt(j = j - 1)                                      :f(powerset.j.done)
+    gt(j = j - 1)                                       :f(powerset.j.done)
     s = substr(b,j,1)
     ident(s,'1') add(this,set.index(set)[j])
-                                                       :(powerset.next.j)
+                                                        :(powerset.next.j)
 
 powerset.j.done
 
-    add(powerset,this)                                 :(powerset.next.i)
+    add(powerset,this)                                  :(powerset.next.i)
 
 powerset.end
-    define('prefix(str,pre)word')                      :(prefix.end)
+    define('prefix(str,pre)word')                       :(prefix.end)
 
 *   _Prefix_ takes a list of space-separated words _str_ and prefixes each
 *   with the str _pre_.
@@ -2069,26 +2071,26 @@ prefix
 
 prefix.1
 
-    str break(' ') . word span(' ')  =                 :f(return)
+    str break(' ') . word span(' ')  =                  :f(return)
     add1(.prefixcount)
-    prefix = append(prefix, pre word,'A')              :(prefix.1)
+    prefix = append(prefix, pre word,'A')               :(prefix.1)
 
 prefix.end
 
-    define('prime(n)')                                 :(prime.end)
+    define('prime(n)')                                  :(prime.end)
 
 *   _Prime_ tests if _n_ is a prime integer.
 
 prime
 
     n = integer(n) +n
-    eq(n,2)                                            :s(return)
-    even(n)                                            :s(freturn)
+    eq(n,2)                                             :s(return)
+    even(n)                                             :s(freturn)
     exists(new('iter 3 ' square.root(n) ' 2'), 'multiple(n,this)'):s(freturn)f(return)
 
 prime.end
 
-    define('primes(n)this')                            :(primes.end)
+    define('primes(n)this')                             :(primes.end)
 
 *   _Primes_ returns the set of primes less than _n_.
 
@@ -2101,12 +2103,68 @@ primes
 
 primes.loop
 
-    this = next(set)                                   :f(return)
-    prime(this) push(primes,this)                      :(primes.loop)
+    this = next(set)                                    :f(return)
+    prime(this) push(primes,this)                       :(primes.loop)
 
 primes.end
 
-    define('push(seq,val1,val2,val3,val4,val5)') :(push.end)
+    define('product(seq,strings)partial,t1,slice1,set1,set2,this1,this2,tup,tmp,p1,p2'):(product.end)
+
+*   _Product_ returns the Cartesian product.set of a sequence of strings or sets.
+
+*   The product of an empty set is the empty set; the product
+*   of a single set is itself; the product of more than two sets
+*   is defined recursively; and the product of two sets is computed
+*   element by element.
+
+*   If argument _strings_ is not null then _sets_ is a sequence of strings.
+
+product
+
+    product = new('set')
+    product = eq(set.size(seq))                         :s(return)
+    product = eq(set.size(seq),1) copy(seq)             :s(return)
+
+    set1 = get(seq,1)
+    set2 = get(seq,2)
+    eq(set.size(seq),2)                                 :s(product.two)
+
+*   Here to compute the product of three or more sets. First,
+*   compute the partial product of all the sets except the last one,
+*   and then compute the product of that partial product and the last set.
+
+    set1 = product(slice(seq,1,set.size(seq) - 1),strings)
+    set2 = top(seq)
+
+product.two
+
+*   Here to compute the product of two sets.
+
+*   Loop over the first set. If an element is a tuple, then we are extending a
+*   partial product. Otherwise we are interating over the first set in a product
+*   and need to create a tuple from the element.
+
+*   Then loop over the second set. For each element in the second set, add a new
+*   element to the output that extends the tuples of the current element in the
+*   first set.
+
+    product = new('set')
+    loop(set1,.this1)
+
+product.set.next1
+
+    next(set1)                                          :f(return)
+    this1 = ident(strings) differ(datatype(this1),'set')  push(new('seq'),this1)
+
+    loop(set2,.this2)
+
+product.set.next2
+
+    next(set2)                                          :f(product.set.next1)
+    add(product,join(this1,this2))                      :s(product.set.next2)
+
+product.end
+    define('push(seq,val1,val2,val3,val4,val5)')        :(push.end)
 
 *   _Push_ adds new value(s) to a seq or tuple, returning the updated
 *   seq or tuple as its value.
@@ -2127,7 +2185,7 @@ push
 
 push.end
 
-    define('push.value(seq,value)n')                   :(push.value.end)
+    define('push.value(seq,value)n')                    :(push.value.end)
 
 *   _Push.value_ adds _value_ to a seq or tuple, returning
 *   the updated seq or tuple as its value.
@@ -2146,11 +2204,11 @@ push.value.add
     set.size(seq) = set.size(seq) + 1
     n = set.size(seq)
     set.index(seq)[n] = n
-    set.key(seq)[n] = value                           :(return)
+    set.key(seq)[n] = value                             :(return)
 
 push.value.end
 
-    define('put(map,key,value)v')                      :(put.end)
+    define('put(map,key,value)v')                       :(put.end)
 
 *   _Put_ sets the value of the entry for key _key_ in map _map_ to be _val_,
 
@@ -2158,7 +2216,7 @@ put
 
     key = integer(key) +key
     value = integer(value) +value
-    differ(set.key(map)[key])                          :s(put.value)
+    differ(set.key(map)[key])                           :s(put.value)
 
 *   Here to create new entry in map, and then merge to set new value.
 
@@ -2167,7 +2225,7 @@ put
 
 put.value
 
-    set.key(map)[key] = value                          :(return)
+    set.key(map)[key] = value                           :(return)
 
 put.end
 
@@ -2181,9 +2239,9 @@ put.end
 
 quicksort
 
-    quicksort = le(set.size(seq),1) seq                :s(return)
+    quicksort = le(set.size(seq),1) seq                 :s(return)
     pivot = arbitrary(seq)
-    number(pivot)                                      :f(quicksort.strings)
+    number(pivot)                                       :f(quicksort.strings)
 
 *   Here to sort sequence of integers.
 
@@ -2200,7 +2258,7 @@ quicksort
 
 quicksort.end
 
-	define('random(n)')                                   :(random.end)
+	define('random(n)')                                    :(random.end)
 
 *	Return integer uniformly distributed in 1,2,...,n.
 *	If n=0 returns real uniformly distributed in the interval [0,1].
@@ -2217,37 +2275,37 @@ random
 *   Make sure random of integer never returns zero.
 
     random = integer(random) eq(random) 1
-                                                       :(return)
+                                                        :(return)
 random.end
 
-	define('random.seed()s,c')                            :(random.seed.end)
+	define('random.seed()s,c')                             :(random.seed.end)
 
 *	Compute seed for random number generator from date and time.
 
 random.seed
-    differ(setl4.random.initialized)                   :s(return)
+    differ(setl4.random.initialized)                    :s(return)
     setl4.random.initialized = 'TRUE'
 	setl4.random.value =
 	s = date()
-	s = replace(s,'/                                      :-','123')
+	s = replace(s,'/                                       :-','123')
 
 *	Get all the digits in s.
 
 random.seed.loop
 
-	s len(1) . c =                                        :f(random.seed.done)
-	ident(c,' ')                                          :s(random.seed.loop)
-	setl4.random.value = setl4.random.value c             :(random.seed.loop)
+	s len(1) . c =                                         :f(random.seed.done)
+	ident(c,' ')                                           :s(random.seed.loop)
+	setl4.random.value = setl4.random.value c              :(random.seed.loop)
 
 random.seed.done
 
 *	Reverse the seed so digits depending on time come first.
 
 	setl4.random.value = +reverse(setl4.random.value)
-                                                       :(return)
+                                                        :(return)
 random.seed.end
 
-    define('range(map)elem)')                          :(range.end)
+    define('range(map)elem)')                           :(range.end)
 
 *   _Range_ returns the range of map, which is the set of the values in _map_.
 
@@ -2258,12 +2316,12 @@ range
 
 range.next
 
-    entry = next(map)                                  :f(return)
-    add(range,value(key(entry)))                       :(range.next)
+    entry = next(map)                                   :f(return)
+    add(range,value(key(entry)))                        :(range.next)
 
 range.end
 
-    define('reader(filename,undent)line')              :(reader.end)
+    define('reader(filename,undent)line')               :(reader.end)
 
 *   _Reader_ returns a sequence of the lines in the file specified by _filename_.
 *   Lines are read from standard input if _filename_ is null.
@@ -2273,9 +2331,9 @@ reader
 
     line  = input
     out('first',line)
-    ident(filename)                                    :s(reader.read)
-    input(.file,setl4.config.channel.1,filename)       :s(reader.opened)
-    out('unable to open reader file ' filename '.')    :(freturn)
+    ident(filename)                                     :s(reader.read)
+    input(.file,setl4.config.channel.1,filename)        :s(reader.opened)
+    out('unable to open reader file ' filename '.')     :(freturn)
 
 reader.read
 
@@ -2283,26 +2341,26 @@ reader.read
 
 reader.next
 
-    line = (ident(filename) input, file)               :f(reader.eof)
+    line = (ident(filename) input, file)                :f(reader.eof)
     out(line)
-    ident(line)                                        :s(reader.next)
-    line '*'                                           :s(reader.next)
-    ident(undent)                                      :s(reader.add)
+    ident(line)                                         :s(reader.next)
+    line '*'                                            :s(reader.next)
+    ident(undent)                                       :s(reader.add)
     line span(' ') =
 
 reader.add
 
-    push(reader,line)                                  :(reader.next)
+    push(reader,line)                                   :(reader.next)
 
 reader.eof
 
 *   Here at end of file; close temporary file if one was needed.
 
-    differ(filename) endfile(setl4.config.channel.1)   :(return)
+    differ(filename) endfile(setl4.config.channel.1)    :(return)
 
 reader.end
 
-    define('reader.str(str,delim)line')                :(reader.str.end)
+    define('reader.str(str,delim)line')                 :(reader.str.end)
 
 *   _Reader.str_ returns a sequence of the lines in _str_, where
 *   the character _delim_ is used to indicate end of line.
@@ -2315,12 +2373,12 @@ reader.str
 
 reader.str.next
 
-    str break(delim) . line delim =                    :f(return)
-    push(reader.str,line)                              :(reader.str.next)
+    str break(delim) . line delim =                     :f(return)
+    push(reader.str,line)                               :(reader.str.next)
 
 reader.str.end
 
-    define('remove(set,elem)i,iter,this')              :(remove.end)
+    define('remove(set,elem)i,iter,this')               :(remove.end)
 
 *   _Remove_ removes the element _elem_  from the set _set_. _Remove_
 *   does nothing if _elem_ is not a member of the set.
@@ -2332,12 +2390,12 @@ reader.str.end
 
 remove
 
-    eq(set.size(set))                                  :s(freturn)
-    ident(elem)                                        :s(remove.last)
+    eq(set.size(set))                                   :s(freturn)
+    ident(elem)                                         :s(remove.last)
     remove = elem
-    ident(set.kind(set),'int')                         :s(remove.int)
-    ident(set.kind(set),'map')                         :s(remove.map)
-    ident(set.kind(set),'set')                         :s(remove.set)
+    ident(set.kind(set),'int')                          :s(remove.int)
+    ident(set.kind(set),'map')                          :s(remove.map)
+    ident(set.kind(set),'set')                          :s(remove.set)
     error('remove not defined for set of kind ' set.kind(set))
 
 remove.int
@@ -2347,12 +2405,12 @@ remove.int
 remove.last
 
     remove = set.index(set)[set.size(set)]
-    set.size(set) = set.size(set) - 1                  :(return)
+    set.size(set) = set.size(set) - 1                   :(return)
 
 remove.map
 remove.set
 
-    ident(set.key(set)[elem])                          :s(return)
+    ident(set.key(set)[elem])                           :s(return)
 
 *   Find the entry with key _elem_, assuming it's more likely
 *   to be a newer addition than one of the older elements.
@@ -2362,8 +2420,8 @@ remove.set
 
 remove.find
 
-    gt(i = i - 1)                                      :f(remove.error)
-    ident(set.index(set)[i],elem)                      :f(remove.find)
+    gt(i = i - 1)                                       :f(remove.error)
+    ident(set.index(set)[i],elem)                       :f(remove.find)
 
 *   Delete _elem_ from the key table, then move the entries
 *   in the index table following this one down one position.
@@ -2372,13 +2430,13 @@ remove.find
 
     set.key(set)[elem] =
     set.size(set) = set.size(set) - 1
-    eq(set.size(set))                                  :s(return)
+    eq(set.size(set))                                   :s(return)
 
 remove.next
 
-    eq(i,set.size(set))                                :s(return)
+    eq(i,set.size(set))                                 :s(return)
     set.index(set)[i] = set.index(set)[i + 1]
-    i = i + 1                                          :(remove.next)
+    i = i + 1                                           :(remove.next)
 
 remove.error
 
@@ -2417,68 +2475,68 @@ show
 
     type = ident(type) '+k'
     kind = set.kind(v)
-    ident(kind,'int')                                  :s(show.int)
-    ident(kind,'iter')                                 :s(show.iter)
-    ident(kind,'map')                                  :s(show.map)
-    ident(kind,'seq')                                  :s(show.seq)
-    ident(kind,'set')                                  :s(show.set)
+    ident(kind,'int')                                   :s(show.int)
+    ident(kind,'iter')                                  :s(show.iter)
+    ident(kind,'map')                                   :s(show.map)
+    ident(kind,'seq')                                   :s(show.seq)
+    ident(kind,'set')                                   :s(show.set)
     error('show unknown set kind',kind,' quitting.')
 
 show.array
 
     proto = prototype(ara)
-    proto break(',')                                   :s(show.array.2)
+    proto break(',')                                    :s(show.array.2)
 
 *   Here for one dimensional array.
 
 show.array.1
-    first = ara[add1(.i)]                              :f(show.array.done)
-    show.out(lpad(i,3) tab first)                      :(show.array.1)
+    first = ara[add1(.i)]                               :f(show.array.done)
+    show.out(lpad(i,3) tab first)                       :(show.array.1)
 
 show.array.2
-    first = ara[add1(.i),1]                            :f(show.array.done)
+    first = ara[add1(.i),1]                             :f(show.array.done)
     show.out(lpad(i,3) tab show(first,type) tab show(ara[i,2],type)):(show.array.2)
 
 show.array.done
 
-                                                       :(show.finis)
+                                                        :(show.finis)
 
 show.entry
 
-    is.plain(key(v)) is.plain(value(v))                :f(show.entry.notplain)
-    show.out(plain(key(v)) char(58) plain(value(v)))   :s(show.finis)
+    is.plain(key(v)) is.plain(value(v))                 :f(show.entry.notplain)
+    show.out(plain(key(v)) char(58) plain(value(v)))    :s(show.finis)
 
 show.entry.notplain
 
     show(key(v))
-    show(char(58)) 
+    show(char(58))
     show(value(v))
-                                                       :(show.finis)
+                                                        :(show.finis)
 show.iterator
 
     show.out('{iterator')
     ne(+iter.start(v))  show.out(' start ='  iter.start(v))
     ne(+iter.finis(v))  show.out(' finis ='  iter.finis(v))
     ne(+iter.step(v))   show.out(' step  ='  iter.step(v))
-    show.out('} ')                                     :(show.finis)
+    show.out('} ')                                      :(show.finis)
 
 show.int
 show.iter
 show.map
 show.set
 
-                                                       :(show.compound)
+                                                        :(show.compound)
 
 show.pair
 
-    is.plain(first(v)) is.plain(second(v))             :f(show.pair.notplain)
-    show.out('(' plain(first(v)) ',' plain(second(v)) ')') :(show.finis)
+    is.plain(first(v)) is.plain(second(v))              :f(show.pair.notplain)
+    show.out('(' plain(first(v)) ',' plain(second(v)) ')'):(show.finis)
 
 show.pair.notplain
 
     show.out(first(v))
     show.out(char(58))
-    show(second(v))                                    :(show.finis)
+    show(second(v))                                     :(show.finis)
 
 show.seq
 
@@ -2486,7 +2544,7 @@ show.seq
 *   If the sequence has more than ten elements, change the encloser to '{}'
 
     set.encloser(v) = (le(set.size(v),10) '()', '[]')
-                                                       :(show.compound)
+                                                        :(show.compound)
 
 show.compound
 
@@ -2510,8 +2568,8 @@ show.compound.next
 *   If showing a sequence, show only the value of element if less
 *   than ten elements, otherwise show the element with the index.
 
-    ident(kind,'seq') ident(set.encloser(v),'[]')   show(elem)        :s(show.compound.next)
-    ident(kind,'seq') ident(set.encloser(v),'()')   show(value(elem)) :s(show.compound.next)
+    ident(kind,'seq') ident(set.encloser(v),'[]')   show(elem):s(show.compound.next)
+    ident(kind,'seq') ident(set.encloser(v),'()')   show(value(elem)):s(show.compound.next)
 
     ident(kind,'set')   show(elem)                      :s(show.compound.next)
 *   lt(limit = limit -1)                                :s(show.compound.done)
@@ -2520,14 +2578,14 @@ show.compound.done
 
     show.level = show.level - 1
     show.out(substr(set.encloser(v),2,1))
-            :(show.finis)
+                                                        :(show.finis)
 
 show.table
 
     show.out('[')
-    ara = convert(v,'array')                           :f(show.table.error)
+    ara = convert(v,'array')                            :f(show.table.error)
     i = 0
-    prototype(ara) break(',') . n                      :(show.table.next)
+    prototype(ara) break(',') . n                       :(show.table.next)
 
 show.table.error
 
@@ -2535,8 +2593,8 @@ show.table.error
 
 show.table.next
 
-    le(i = i + 1,n)                                    :f(show.table.done)
-    show(ara[i,1])                                     :(show.table.next)
+    le(i = i + 1,n)                                     :f(show.table.done)
+    show(ara[i,1])                                      :(show.table.next)
 
 show.table.done
 
@@ -2548,13 +2606,13 @@ show.finis
 
 show.end
 
-    define('show.done()')                              :(show.done.end)
+    define('show.done()')                               :(show.done.end)
 
 *   Write out _show.line_ unless in midst of showing compound object.
 
 show.done
 
-    le(size(show.line),72)                             :s(show.done.finis)
+    le(size(show.line),72)                              :s(show.done.finis)
 
 *   Here to write out long line.
 
@@ -2563,19 +2621,19 @@ show.done
 
 show.done.finis
 
-    gt(show.level)                                     :s(return)
+    gt(show.level)                                      :s(return)
     differ(show.line) out(show.line)
-    show.line =                                        :(return)
+    show.line =                                         :(return)
 
 show.done.end
 
-    define('show.out(str)')                            :(show.out.end)
+    define('show.out(str)')                             :(show.out.end)
 
 *   Append _str_ to _show.line_.
 
 show.out
 
-    str = integer(str) +str                            :s(show.out.show)
+    str = integer(str) +str                             :s(show.out.show)
     differ(datatype(str),'string')
 .       error('show.out expects argument to be string, but got ' datatype(str))
 
@@ -2583,32 +2641,32 @@ show.out.show
 
     show.line = show.line (differ(show.line) ' ', '') str
 *   show.line = show.line  str
-    le(size(show.line),72)                             :s(return)
+    le(size(show.line),72)                              :s(return)
     out(show.line)
-    show.line =                                        :(return)
+    show.line =                                         :(return)
 
 show.out.end
 
-    define('show.b(e)')                                :(show.b.end)
+    define('show.b(e)')                                 :(show.b.end)
 
 *   _Show.b_ shows the value if its argument as a boolean value: TRUE or FALSE
 
 show.b
 
-    integer(e) out((ne(e) 'TRUE', 'FALSE'))            :s(return)
-    out((differ(e) 'TRUE', 'FALSE'))                   :(return)
+    integer(e) out((ne(e) 'TRUE', 'FALSE'))             :s(return)
+    out((differ(e) 'TRUE', 'FALSE'))                    :(return)
 
 show.b.end
 
-    define('show.eval(expr)e')                         :(show.eval.end)
+    define('show.eval(expr)e')                          :(show.eval.end)
 
 *   _Show.eval_ evaluates its argument and returns 'success' if
 *   the evaluation succeeded, or 'failure' if not.
 
 show.eval
 
-    eval(expr)                                         :s(show.eval.success)
-    show.eval = 'failure'                              :(show.eval.finis)
+    eval(expr)                                          :s(show.eval.success)
+    show.eval = 'failure'                               :(show.eval.finis)
 
 show.eval.success
 
@@ -2616,11 +2674,11 @@ show.eval.success
 
 show.eval.finis
 
-    out('eval ' expr ' ' show.eval)                    :(return)
+    out('eval ' expr ' ' show.eval)                     :(return)
 
 show.eval.end
 
-    define('show.lines(lines,number)i,line')           :(show.lines.end)
+    define('show.lines(lines,number)i,line')            :(show.lines.end)
 
 *   Show a sequence of lines, including the line number if _number_ not null.
 
@@ -2630,22 +2688,22 @@ show.lines
 
 show.lines.next
 
-    line = next(lines)                                 :f(return)
+    line = next(lines)                                  :f(return)
     i = i + 1
     gt(i,100) error('i too big')
-    ident(number)    out(line)                         :s(show.lines.next)
-    differ(number)   out(lpad(i,4) '  ' line)          :(show.lines.next)
+    ident(number)    out(line)                          :s(show.lines.next)
+    differ(number)   out(lpad(i,4) '  ' line)           :(show.lines.next)
 
 show.lines.end
 
-    define('slice(v,start,n)')                         :(slice.end)
+    define('slice(v,start,n)')                          :(slice.end)
 
 *   _Slice_ returns a slice of a sequence, string or tuple.
 *   For a string _slice_ is equivant to SPITBOL's _substr_.
 
 slice
 
-    slice = ident(datatype(v),'string') substr(v,start,n) :s(return)
+    slice = ident(datatype(v),'string') substr(v,start,n):s(return)
 
 *   Here to compute slice of a string or tuple.
 
@@ -2698,7 +2756,7 @@ sorter
     sorter = ident(datatype(set),'string') sorter.string(set):s(return)
 
     ident(type) error('sorter null type.')
-    ident(type,'no')                                   :s(return)
+    ident(type,'no')                                    :s(return)
     n = set.size(set)
     index.table = set.index(set)
 
@@ -2715,23 +2773,23 @@ sorter
 
 *   Nothing to do if set is empty or only has one element.
 
-    le(n,1)                                            :s(return)
+    le(n,1)                                             :s(return)
     differ(datatype(set),'set') error('sorter bad datatype ' datatype(set))
     ident(type) error('sorter null type')
 
-    ident(type,'+v')                                   :s(sorter.value)
-    ident(type,'-v')                                   :s(sorter.value)
+    ident(type,'+v')                                    :s(sorter.value)
+    ident(type,'-v')                                    :s(sorter.value)
 
     tbl = sorter.set(set,type)
     differ(datatype(tbl),'table') error('sorter result not table')
-                                                       :(sorter.finis)
+                                                        :(sorter.finis)
     i = 0
 
 sorter.index.next
 
     error('why did we reach here')
-    le(i = i + 1,n)                                    :f(sorter.finis)
-    tbl[i] = set.index(set)[ara[i,1]]                  :(sorter.index.next)
+    le(i = i + 1,n)                                     :f(sorter.finis)
+    tbl[i] = set.index(set)[ara[i,1]]                   :(sorter.index.next)
 
 sorter.value
 
@@ -2749,47 +2807,47 @@ sorter.value
 
 sorter.value.next
 
-    le(i = i + 1,n)                                    :f(sorter.finis)
-    tbl[i] = value.table[i]                            :(sorter.value.next)
+    le(i = i + 1,n)                                     :f(sorter.finis)
+    tbl[i] = value.table[i]                             :(sorter.value.next)
 
 sorter.finis
 
-    set.index(set) = tbl                               :(return)
+    set.index(set) = tbl                                :(return)
 
 sorter.end
 
-    define('sorter.set(set,type)ara,i,index')          :(sorter.set.end)
+    define('sorter.set(set,type)ara,i,index')           :(sorter.set.end)
 
 *   _Setl4.table.sorter_ returns an index table derived from the
 *   index table of _set_ that reflects the ordering given by _type_.
 
 sorter.set
 
-    le(set.size(set),1)                                :s(return)
-    ara = ident(type,'+i')    sort( set.index(set), 1) :s(sorter.set.1)
-    ara = ident(type,'-i')    rsort(set.index(set), 1) :s(sorter.set.1)
-    ara = ident(type,'+k')    sort( set.index(set), 2) :s(sorter.set.1)
-    ara = ident(type,'-k')    rsort(set.index(set), 2) :s(sorter.set.1)
+    le(set.size(set),1)                                 :s(return)
+    ara = ident(type,'+i')    sort( set.index(set), 1)  :s(sorter.set.1)
+    ara = ident(type,'-i')    rsort(set.index(set), 1)  :s(sorter.set.1)
+    ara = ident(type,'+k')    sort( set.index(set), 2)  :s(sorter.set.1)
+    ara = ident(type,'-k')    rsort(set.index(set), 2)  :s(sorter.set.1)
 
-    error('sorter.set unsupported key type             : ' type)
+    error('sorter.set unsupported key type              : ' type)
 
 sorter.set.1
 
     differ(datatype(ara),'array')
-.               error('sorter.set sort result not array:' datatype(ara))
+.               error('sorter.set sort result not array :' datatype(ara))
 
     sorter.set = table(n)
     index = 0
 
 sorter.set.set.next
 
-    le(i = i + 1,n)                                    :f(return)
+    le(i = i + 1,n)                                     :f(return)
     index = ara[i,1]
-    sorter.set[i] = set.index(set)[index]              :(sorter.set.set.next)
+    sorter.set[i] = set.index(set)[index]               :(sorter.set.set.next)
 
 sorter.set.end
 
-    define('sorter.string(str)ara,c,i,tbl')            :(sorter.string.end)
+    define('sorter.string(str)ara,c,i,tbl')             :(sorter.string.end)
 
 *   _Sorter_sorts a string into a string with all the characters
 *   in lexical (alphabetic) order.
@@ -2800,8 +2858,8 @@ sorter.string
 
 sorter.string.tbl
 
-    c = substr(str,i = i + 1,1)                        :f(sorter.string.sort)
-    tbl[i] = c                                         :(sorter.string.tbl)
+    c = substr(str,i = i + 1,1)                         :f(sorter.string.sort)
+    tbl[i] = c                                          :(sorter.string.tbl)
 
 sorter.string.sort
 
@@ -2812,25 +2870,25 @@ sorter.string.sort
 
 sorter.string.next
 
-    c = ara[i = i + 1,2]                               :f(return)
-    sorter.string = sorter.string c                    :(sorter.string.next)
+    c = ara[i = i + 1,2]                                :f(return)
+    sorter.string = sorter.string c                     :(sorter.string.next)
 
 sorter.string.end
 
-    define('sorter.table(set,type,tbl)ara,i,index')    :(sorter.table.end)
+    define('sorter.table(set,type,tbl)ara,i,index')     :(sorter.table.end)
 
 *   _Setl4.table.sorter_ returns an index table derived from the
 *   index table of _set_ that reflects the ordering given by _type_.
 
 sorter.table
 
-    le(set.size(set),1)                                :s(return)
+    le(set.size(set),1)                                 :s(return)
 
-    ara = ident(type,'+i')    sort(tbl,1)              :s(sorter.table.1)
-    ara = ident(type,'-i')    rsort(tbl,1)             :s(sorter.table.1)
-    ara = ident(type,'+k')    sort(tbl,2)              :s(sorter.table.1)
-    ara = ident(type,'-k')    rsort(tbl,2)             :s(sorter.table.1)
-    error('sorter.table unexpected type                :' type)
+    ara = ident(type,'+i')    sort(tbl,1)               :s(sorter.table.1)
+    ara = ident(type,'-i')    rsort(tbl,1)              :s(sorter.table.1)
+    ara = ident(type,'+k')    sort(tbl,2)               :s(sorter.table.1)
+    ara = ident(type,'-k')    rsort(tbl,2)              :s(sorter.table.1)
+    error('sorter.table unexpected type                 :' type)
 
 sorter.table.1
 
@@ -2839,17 +2897,17 @@ sorter.table.1
 
 sorter.table.table.next
 
-    le(i = i + 1,set.size(set))                        :f(return)
-    index = ara[i,1]                                   :f(sorter.table.error)
+    le(i = i + 1,set.size(set))                         :f(return)
+    index = ara[i,1]                                    :f(sorter.table.error)
     sorter.table[i] = index.table[index]
-                                                       :(sorter.table.table.next)
+                                                        :(sorter.table.table.next)
 sorter.table.error
 
     error('sorter.table error, array out of bounds reference.')
 
 sorter.table.end
 
-    define('split.line(line)word')                     :(split.line.end)
+    define('split.line(line)word')                      :(split.line.end)
 
 *   _Split.lines_ splits a line into a sequence of words, where words are separated by one of more spaces.
 
@@ -2857,19 +2915,19 @@ split.line
 
     split.line = new('seq')
     line span(' ') =
-    ident(line)                                        :s(return)
+    ident(line)                                         :s(return)
     line = line ' '
 
 split.line.next
 
 *   Here to split line into a sequence of its words.
 
-    line break(' ') . word span(' ') =                 :f(return)
-    push(split.line, word)                             :(split.line.next)
+    line break(' ') . word span(' ') =                  :f(return)
+    push(split.line, word)                              :(split.line.next)
 
 split.line.end
 
-    define('split.string(str)c')                       :(split.string.end)
+    define('split.string(str)c')                        :(split.string.end)
 
 *   _Split.str_ returns a sequence of the characters in _str_.
 
@@ -2877,61 +2935,61 @@ split.string
 
     split.string = new('seq')
     str span(' ') =
-    ident(str)                                         :s(return)
+    ident(str)                                          :s(return)
 
 split.string.next
 
 *   Here to split.stringing into a sequence of its characters.
 
-    str len(1) . c =                                   :f(return)
-    put(split.string,i = i + 1, c)                     :(split.string.next)
+    str len(1) . c =                                    :f(return)
+    put(split.string,i = i + 1, c)                      :(split.string.next)
 
 split.string.end
 
-    define('square.root(n)')                           :(square.root.end)
+    define('square.root(n)')                            :(square.root.end)
 
 *   _Square.root_ returns the square root of its argument, rounded up.
 
 square.root
 
-    square.root = int(sqrt(n)) + 1                     :(return)
+    square.root = int(sqrt(n)) + 1                      :(return)
 
 square.root.end
 
-    define('subset(a,b)elem')                          :(subset.end)
+    define('subset(a,b)elem')                           :(subset.end)
 
 *   _Subset_ tests if its second argument is a subset of the first.
 
 subset
 
-    gt(set.size(b),set.size(a))                        :s(freturn)
+    gt(set.size(b),set.size(a))                         :s(freturn)
     loop(b)
 
 subset.next
 
-    elem = next(b)                                     :f(return)
-    member(a,elem)                                     :s(subset.next)f(freturn)
+    elem = next(b)                                      :f(return)
+    member(a,elem)                                      :s(subset.next)f(freturn)
 
 subset.end
 
-    define('this(set)')                                :(this.end)
+    define('this(set)')                                 :(this.end)
 
 *   _This_ returns the value determined in the most recent call to next.
 
 this
 
-    this = iter.thisname(set)                          :(return)
+    this = iter.thisname(set)                           :(return)
 
 this.end
 
-    define('thousands(s)n')                            :(thousands.end)
+    define('thousands(s)n')                             :(thousands.end)
 
 *   _Thousands_ formats its argument by inserting comma's every three digits from right.
 
 thousands
 
     n = size(s)
-    thousands = le(n,3) s                              :s(return)
+    thousands = le(n,3) s                               :s(return)
     thousands = thousands(substr(s,1,n - 3)) ',' substr(s, n - 2, 3):(return)
 
 thousands.end
@@ -2985,7 +3043,7 @@ thousands.end
 *   emphasis to a token by underlining it, or enclosing it in '_' to generate
 *   markdown format, and so forth.
 
-    define('tokens(line)type,pos,text,lineno')         :(tokens.end)
+    define('tokens(line)type,pos,text,lineno')          :(tokens.end)
 
 *   _Tokens_ scans a line _line_ and returns a table of the tokens in the line.
 *   The table has keys from 1..n, where _n_ is the number of tokens found.
@@ -2997,22 +3055,22 @@ thousands.end
 tokens
 
     tokens = new('seq')
-    line '*'                                           :f(tokens.next)
+    line '*'                                            :f(tokens.next)
     type = 'c'
     text = line
-    line =                                             :(tokens.new)
+    line =                                              :(tokens.new)
 
 tokens.next
 
-    line ' '                                           :s(tokens.space)
-    line any('0123456789')                             :s(tokens.integer)
-    line any('(<[{')                                   :s(tokens.left)
-    line any('.;,?!')                                  :s(tokens.punctuation)
-    line '"'                                           :s(tokens.quote)
-    line any('~@#$%^&*_-+=')                           :s(tokens.other)
-    line any(')>]}')                                   :s(tokens.right)
-    line char(9)                                       :s(tokens.tab)
-    line any(&lcase &ucase)                            :s(tokens.word)
+    line ' '                                            :s(tokens.space)
+    line any('0123456789')                              :s(tokens.integer)
+    line any('(<[{')                                    :s(tokens.left)
+    line any('.;,?!')                                   :s(tokens.punctuation)
+    line '"'                                            :s(tokens.quote)
+    line any('~@#$%^&*_-+=')                            :s(tokens.other)
+    line any(')>]}')                                    :s(tokens.right)
+    line char(9)                                        :s(tokens.tab)
+    line any(&lcase &ucase)                             :s(tokens.word)
 
 *   Here for unprintable
     error('unprintable?? fix in tokens')
@@ -3020,91 +3078,91 @@ tokens.next
 tokens.integer
 
     type = 'i'
-    line span('0123456789') . text =                   :(tokens.new)
+    line span('0123456789') . text =                    :(tokens.new)
 
 tokens.punctuation
 
-    type = 'p'                                         :(tokens.character)
+    type = 'p'                                          :(tokens.character)
 
 tokens.other
 
-    type = 'o'                                         :(tokens.character)
+    type = 'o'                                          :(tokens.character)
 
 tokens.quote
 
     type = 'q'
     line '"' break('"') . text '"' =
-    text = '"' text '"'                                :(token.new)
+    text = '"' text '"'                                 :(token.new)
 
 tokens.right
 
-    type = 'r'                                         :(tokens.character)
+    type = 'r'                                          :(tokens.character)
 
 tokens.space
 
     type = 's'
-    line span(' ')  . text =                           :(tokens.new)
+    line span(' ')  . text =                            :(tokens.new)
 
 tokens.tab
 
-    type = 't'                                         :(tokens.character)
+    type = 't'                                          :(tokens.character)
 
 tokens.word
 
 *TODO*
     type = 'w'
-    line span(&ucase &lcase "_" "'") . text =          :(tokens.new)
+    line span(&ucase &lcase "_" "'") . text =           :(tokens.new)
 
 tokens.character
 
 *   Here if token is single character.
 
-    line len(1) . text                                 :(tokens.new)
+    line len(1) . text                                  :(tokens.new)
 
 tokens.new
 
-    setl4.add(tokens,token(lineno,pos,type,text))      :(tokens.next)
+    setl4.add(tokens,token(lineno,pos,type,text))       :(tokens.next)
 
 tokens.end
 
-    define('tolower(s)')                               :(tolower.end)
+    define('tolower(s)')                                :(tolower.end)
 
 *   _Lower.case_ converts argument to tolower.
 
 tolower
 
-    tolower = replace(s,&ucase,&lcase)                 :(return)
+    tolower = replace(s,&ucase,&lcase)                  :(return)
 
 tolower.end
 
-    define('top(seq)')                                 :(top.end)
+    define('top(seq)')                                  :(top.end)
 
 *   _Top_ returns the last element of a sequence, or fails if the sequence is empty.
 
 top
 
     differ(datatype(seq),'set')  error('argument to top is not a set')
-    eq(set.size(seq))                                  :s(freturn)
-    ident(set.kind(seq),'seq')                         :s(top.get)
+    eq(set.size(seq))                                   :s(freturn)
+    ident(set.kind(seq),'seq')                          :s(top.get)
     error('argument to top() is not sequence or tuple.')
 
 top.get
 
-    top = get(seq,set.size(seq))                       :(return)
+    top = get(seq,set.size(seq))                        :(return)
 
 top.end
 
-    define('toupper(s)')                               :(toupper.end)
+    define('toupper(s)')                                :(toupper.end)
 
 *   _Upper.case_ converts its argument to toupper.
 
 toupper
 
-    toupper = replace(s,&lcase,&ucase)                 :(return)
+    toupper = replace(s,&lcase,&ucase)                  :(return)
 
 toupper.end
 
-    define('traceoff()')                               :(traceoff.end)
+    define('traceoff()')                                :(traceoff.end)
 
 *   _Traceoff_ ends tracing.
 
@@ -3115,7 +3173,7 @@ traceoff
 
 traceoff.end
 
-    define('traceon()')                                :(traceon.end)
+    define('traceon()')                                 :(traceon.end)
 
 *   _Traceon_ begins tracing.
 
@@ -3124,22 +3182,22 @@ traceon
     out('start TRACING')
 *   &ftrace = &trace = 1500000
     g.scoring = g.tracing = 1
-                                                       :(return)
+                                                        :(return)
 traceon.end
 
-    define('true(e)')                                  :(true.end)
+    define('true(e)')                                   :(true.end)
 
 *   _True_ Tests if its operand is true
 
 true
 
     e = integer(e) +e
-    integer(e) ne(e)                                   :s(return)
-    differ(e)                                          :s(return)f(freturn)
+    integer(e) ne(e)                                    :s(return)
+    differ(e)                                           :s(return)f(freturn)
 
 true.end
 
-    define('union(a,b)elem')                           :(union.end)
+    define('union(a,b)elem')                            :(union.end)
 
 *   _Union_ returns the union of sets _a_ and _b_.
 
@@ -3147,7 +3205,7 @@ union
 
 *   Arrange so set _a_ is the larger
 
-    ge(set.size(a),set.size(b))                        :s(union.a)
+    ge(set.size(a),set.size(b))                         :s(union.a)
     union = a
     a = b
     b = union
@@ -3161,12 +3219,12 @@ union.a
 
 union.b
 
-    elem = next(b)                                     :f(return)
-    add(union,elem)                                    :(union.b)
+    elem = next(b)                                      :f(return)
+    add(union,elem)                                     :(union.b)
 
 union.end
 
-    define('visit(set,expr)this')                      :(visit.end)
+    define('visit(set,expr)this')                       :(visit.end)
 
 *   _Visit_ loops over _set and calls _eval_ with argument
 *   _expr_  for each of member of the set.
@@ -3177,12 +3235,12 @@ visit
 
 visit.next
 
-    this = next(set)                                   :f(return)
-    eval(expr)                                         :(visit.next)
+    this = next(set)                                    :f(return)
+    eval(expr)                                          :(visit.next)
 
 visit.end
 
-    define('words(line,w)word')                        :(words.end)
+    define('words(line,w)word')                         :(words.end)
 
 *   _Words_ returns a sequence of the words in _line_, where _w_
 *   is a string that defines the allowed characters in a word.
@@ -3193,19 +3251,19 @@ words
 
 words.next
 
-    line span(w) . word =                              :s(words.add)
+    line span(w) . word =                               :s(words.add)
 
 *   No word begins at this character, so move on to the next one.
 
-    line len(1) =                                      :f(return)s(words.next)
+    line len(1) =                                       :f(return)s(words.next)
 
 words.add
 
-    push(words, word)                                  :(words.next)
+    push(words, word)                                   :(words.next)
 
 words.end
 
-    define('writer(lines)')                            :(writer.end)
+    define('writer(lines)')                             :(writer.end)
 
 *   _Writer_ writes the lines in the sequence _lines_ to standard output.
 
@@ -3215,7 +3273,7 @@ writer
 
 writer.next
 
-    output = next(lines)                               :f(return)s(writer.next)
+    output = next(lines)                                :f(return)s(writer.next)
 
 writer.end
 
@@ -3228,7 +3286,7 @@ writer.end
 *   directly at your own peril.
 
 
-    define('setl4.clear()')                            :(setl4.clear.end)
+    define('setl4.clear()')                             :(setl4.clear.end)
 
 *   _Setl4.clear) clearis the values of setl4 global variables. This reduces amount of &dump output.
 
@@ -3240,26 +3298,26 @@ setl4.clear
 .   setl4.break.digit = setl4.break.letter = setl4.any.letter =
 .   setl4.span.letters = setl4.span.spaces = setl4.break.space =
 .   setl4.any.word = setl4.span.word = setl.sorter.map = sorter.types =
-                                                       :(return)
+                                                        :(return)
 setl4.clear.end
 
-    define('setl4.show(set)iter')                      :(setl4.show.end)
+    define('setl4.show(set)iter')                       :(setl4.show.end)
 
 *   Setl4.show_ shows  the fields of an instance of _set_ or _iterator_.
 
 setl4.show
 
-    ident(datatype(set),'iterator')                    :s(setl4.show.iter)
-    ident(datatype(set),'set')                         :s(setl4.show.set)
-                                                       :(return)
+    ident(datatype(set),'iterator')                     :s(setl4.show.iter)
+    ident(datatype(set),'set')                          :s(setl4.show.set)
+                                                        :(return)
 
 setl4.show.iter
 
     setl4.show =  out('(iterator '
-.            (ne(iter.start(set)) ' start              :'     +iter.start(set), '')
-.            (ne(iter.finis(set)) ' finis              :'     +iter.finis(set),'')
-.            (ne(iter.step(set))  ' step               :'      +iter.step(set),'') ')' )
-                                                       :(return)
+.            (ne(iter.start(set)) ' start               :'     +iter.start(set), '')
+.            (ne(iter.finis(set)) ' finis               :'     +iter.finis(set),'')
+.            (ne(iter.step(set))  ' step                :'      +iter.step(set),'') ')' )
+                                                        :(return)
 
 setl4.show.map
 setl4.show.seq
@@ -3285,10 +3343,10 @@ setl4.show.set
 .           error(' set.index is not table')
     differ(set.key(set)) differ(datatype(set.key(set)),'table')
 .           error('set.key is not table')
-                                                       :(return)
+                                                        :(return)
 setl4.show.end
 
-    define('setl4.size(set)')                          :(setl4.size.end)
+    define('setl4.size(set)')                           :(setl4.size.end)
 
 *   Setl4.set.size_ returns the  size of operand.
 
@@ -3298,11 +3356,11 @@ setl4.size
 *   setl4.show(set)
     setl4.size = ident(datatype(set),'string') size(set):s(return)
     setl4.size = differ(iter.step(set)) (iter.finis(set) - iter.start(set) / iter.step(set)) + 1:s(return)
-    setl4.size = set.size(set)                         :(return)
+    setl4.size = set.size(set)                          :(return)
 
 setl4.size.end
 
-    define('Out(text1,text2,text3)type1,type2')        :(Out.end)
+    define('Out(text1,text2,text3)type1,type2')         :(Out.end)
 
 *   _Out_ is just another name for _out_. Use it for debugging, as
 *   will be the be easy to find calls to it, so can delete them
@@ -3310,7 +3368,7 @@ setl4.size.end
 
 Out
 
-    out(text1,text2,text3)                        :(return)
+    out(text1,text2,text3)                              :(return)
 
 Out.end
 
