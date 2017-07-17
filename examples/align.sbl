@@ -6,7 +6,7 @@
 *   Program to align the goto fields in a program.
 
     &anchor = &trim = 1
-    margin = 55
+    margin = 56
 
 copy
 

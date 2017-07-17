@@ -1,6 +1,7 @@
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
+*   &stlimit = 40000
 *   TODO
 
 *# SETL4 - An Implementation of SETL Written in SPITBOL
@@ -417,7 +418,7 @@
 
 *   _setl4.config.set.table.size_ is default size for the _index_ and _key_ tables of a set.
 
-    setl4.config.set.table.size = 32
+    setl4.config.set.table.size = 1024
 
 *   _setl4.config.int.table.size_ is size of index and key tables in set of kind 'int.'
 
@@ -579,25 +580,13 @@ add.map
 
 add.set
 
-    Out('testing membership')
-    show(elem)
     member(set,elem)                                   :s(return)
-    Out('elem was not a member')
 
 add.seq
 
-    Out('adding new member')
-    show(elem)
-    Out('set before add')
-    setl4.show(set)
-    show(set)
-    out()
     set.size(set) = set.size(set) + 1
     set.index(set)[set.size(set)] = elem
     set.key(set)[elem] = elem                          
-    Out('set after  add')
-    setl4.show(set)
-    show(set)
                                                     :(return)
 
 add.end
@@ -2112,7 +2101,7 @@ primes.loop
 
 primes.end
 
-    define('push(seq,val1,val2,val3,val4,val5)')       :(push.end)
+    define('push(seq,val1,val2,val3,val4,val5)') :(push.end)
 
 *   _Push_ adds new value(s) to a seq or tuple, returning the updated
 *   seq or tuple as its value.
@@ -2120,51 +2109,39 @@ primes.end
 push
 
     push = seq
-    Out('enter push kind seq',set.kind(seq))
-    show(seq)
-    Out('enter push value')
-    show(val1)
-    out()
-
     ident(val1)                                         :s(return)
     push.value(seq,val1)
     ident(val2)                                         :s(return)
-    Out('push val2 not null')
     push.value(seq,val2)
     ident(val3)                                         :s(return)
     push.value(seq,val3)
     ident(val4)                                         :s(return)
     push.value(seq,val4)
     ident(val5)                                         :s(return)
-    push.value(seq,val5)                                
-                                                        :(return)
+    push.value(seq,val5)                                :(return)
 
 push.end
 
     define('push.value(seq,value)n')                   :(push.value.end)
 
-*   _Push.value_ adds _value_ to a sequence.
+*   _Push.value_ adds _value_ to a seq or tuple, returning
+*   the updated seq or tuple as its value.
 
 push.value
 
-    Out('enter push.value seq kind',set.kind(seq))
-    show(seq)
-    out()
     ident(seq) error('push() first argument is null.')
     differ(datatype(seq),'set')
 .       error('push() first argument is not a set, but instance of ' datatype(seq))
-    ident(set.kind(seq),'seq')                       :s(push.value.add)
-    error('first argument to push.value must be sequence, but here is ' datatype(seq))
+    ident(set.kind(seq),'map')                          :s(push.value.add)
+    ident(set.kind(seq),'seq')                          :s(push.value.add)
+    error('first argument to push.value must be set or map, is ' datatype(seq))
 
 push.value.add
 
     set.size(seq) = set.size(seq) + 1
     n = set.size(seq)
     set.index(seq)[n] = n
-    set.key(seq)[n] = value                           
-    Out('push.value returns')
-    show(seq)
-                                :(return)
+    set.key(seq)[n] = value                           :(return)
 
 push.value.end
 
