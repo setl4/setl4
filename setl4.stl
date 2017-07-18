@@ -1506,7 +1506,7 @@ loop
 
     iter = iterator()
 
-	ident(set.kind(set),'iter')                            :s(loop.iter)
+	ident(set.kind(set),'iter')                         :s(loop.iter)
     ident(set.kind(set),'int')                          :s(loop.int)
     ident(set.kind(set),'map')                          :s(loop.map)
     ident(set.kind(set),'seq')                          :s(loop.map)
@@ -1522,10 +1522,11 @@ loop.iter
 *   When iterating over a set of kind 'iter', use the iterator
 *   created when the set was created.
 
-    differ(set.kind(set),'iter') error("loop.iter requires kind 'iter'")
+    iter = set.iter(set)                                :(loop.finis)
     iter.next(iter) = gt(iter.step(iter)) iter.start(iter) - iter.step(iter)
     iter.next(iter) = lt(iter.step(iter)) iter.start(iter) - iter.step(iter)
                                                         :(loop.finis)
+
 
 loop.map
 loop.seq
@@ -1673,7 +1674,9 @@ net.int.elem
 new.ite
 new.iter
 
+    new = set('iter')
     iter = iterator()
+    set.iter(new) = iter
     iter.step(iter) = 1
     seq = new('seq ' init)
 
@@ -1686,7 +1689,7 @@ new.iter
 
 new.iter.1
 
-    iter.start(iter) =  1
+    iter.start(iter) = 1
     iter.finis(iter) = get(seq,1)
     iter.step(iter) = 1                                 :(new.iter.step)
 
@@ -1706,10 +1709,10 @@ new.iter.step
 
 *   Make sure step negative if first argument to iter is greater than the second.
 
-    lt(iter.step) out('new -step',iter.step(iter))
-    iter.step(iter) = gt(iter.start(iter),iter.finis(iter))  gt(iter.step(iter)) - iter.step(iter)
-    new = set('iter',iter)
+    lt(iter.step(iter)) out('new -step',iter.step(iter))
+    iter.step(iter) = gt(iter.start(iter),iter.finis(iter))  gt(iter.step(iter)) -iter.step(iter)
     set.size(new) = ((iter.finis(iter) - iter.start(iter)) / iter.step(iter)) + 1
+                                                        :(return)
 
 new.map
 
@@ -1831,6 +1834,7 @@ next.iter
 
 *   Here to find next element in iterator.
 
+    eq(iter.step(iter)) error('iterator with step zero')
     next = iter.next(iter) = iter.next(iter) + iter.step(iter)
     gt(iter.step(iter)) gt(next,iter.finis(iter))       :s(freturn)
     lt(iter.step(iter)) lt(next,iter.finis(iter))       :s(freturn)
@@ -2512,19 +2516,30 @@ show.entry.notplain
     show(char(58))
     show(value(v))
                                                         :(show.finis)
-show.iterator
+show.iter
 
-    show.out('{iterator')
-    ne(+iter.start(v))  show.out(' start ='  iter.start(v))
-    ne(+iter.finis(v))  show.out(' finis ='  iter.finis(v))
-    ne(+iter.step(v))   show.out(' step  ='  iter.step(v))
+*   The iterator is the only meaningful part of a set of type iter.
+ 
+    v = set.iter(v)
+    show.out('{ iter')
+    ne(+iter.start(v))  show.out(' start='  iter.start(v))
+    ne(+iter.finis(v))  show.out(' finis='  iter.finis(v))
+    ne(+iter.step(v))   show.out(' step='   iter.step(v))
+    ne(+iter.next(v))   show.out(' next='   iter.next(v))
     show.out('} ')                                      :(show.finis)
 
+show.iterator
+
+    show.out('( iterator')
+    ne(+iter.start(v))  show.out(' start='  iter.start(v))
+    ne(+iter.finis(v))  show.out(' finis='  iter.finis(v))
+    ne(+iter.step(v))   show.out(' step='   iter.step(v))
+    ne(+iter.next(v))   show.out(' next='   iter.next(v))
+    show.out(') ')                                      :(show.finis)
+
 show.int
-show.iter
 show.map
 show.set
-
                                                         :(show.compound)
 
 show.pair
@@ -2751,6 +2766,18 @@ slice.end
 
 sorter
 
+    
+    &dump  = 3
+    differ(datatype(set),'set') error('sorter - unsupported input type ' datatype(set) )
+    
+*   Here to detect cases for which sort has no meaning, in which case
+*   return immediately. This includes the case 'int' which, though possible
+*   to sort as desired, requires a complicated algorithm that has yet to be
+*   thought through.
+
+    ident(datatype(set),'set') ident(set.kind(set),'int'):s(return)
+    ident(datatype(set),'set') ident(set.kind(set),'iter'):s(return)
+
 *   Use _sorter.string_ if input is a string.
 
     sorter = ident(datatype(set),'string') sorter.string(set):s(return)
@@ -2760,16 +2787,7 @@ sorter
     n = set.size(set)
     index.table = set.index(set)
 
-*   Here to detect cases for which sort has no meaning, in which case
-*   return immediately. This includes the case 'int' which, though possible
-*   to sort as desired, requires a complicated algorithm that has yet to be
-*   thought through.
-
     type = get(sorter.types,type)
-
-    differ(datatype(set),'set') error('sorter - unsupported input type ' datatype(set) )
-    ident(datatype(set),'set') ident(set.kind(set),'int'):s(return)
-    ident(datatype(set),'set') ident(set.kind(set),'iter'):s(return)
 
 *   Nothing to do if set is empty or only has one element.
 
