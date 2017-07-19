@@ -1425,10 +1425,14 @@ is.plain.end
 
     define('join(s1,s2,s3)i,this')                      :(join.end)
 
-*   _Join_ combines one of more sequences into a single sequence by
-*   joining all their elements together.
+*   _Join_ combines one of more sequences (strings) into a single sequence
+*   (string) by joining all their elements together.
 
 join
+
+    s1 = differ(s1) ident(datatype(s1),'integer') convert(s1,'string')
+    s2 = differ(s2) ident(datatype(s2),'integer') convert(s2,'string')
+    s3 = differ(s3) ident(datatype(s3),'integer') convert(s3,'string')
 
     join = differ(s1) differ(s2) differ(s3) join(join(s1,s2),s3):s(return)
     ident(datatype(s1),'string')                        :s(join.string)
@@ -3291,6 +3295,7 @@ visit.end
 words
 
     words = new('seq #' size(line))
+    w = ident(w) ' '
 
 words.next
 

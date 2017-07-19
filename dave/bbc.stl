@@ -1,8 +1,9 @@
 -include  "../setl4.stl"
-    &stlimit = 1000000
 
-    
+    &stlimit = 100000000
+
     define('list(set)elem,this')                  :(list.end)
+
 
 *   List elements of set, one per line
 
@@ -46,12 +47,35 @@ Value.eval
 
 Value.end
 
+    define('expand(line)ch')                            :(expand.end)
+
+*   Expand one value in product set.
+
+expand
+
+    line len(1) . ch =                              :f(return)
+    expand = ident(ch,'+') expand ' + '             :s(expand)
+    expand = ident(ch,'-') expand ' - '             :s(expand)
+    ident(ch,'.')                                   :s(expand)
+    expand = expand ch                              :(expand)
+
+expand.ch
+
+*   Here if digit
+
+    expand = expand ch                                  :(expand)
+
+expand.end
+
     define('main()seq,ops,prod')                         :(main.end)
 
 main
 
     seq = new('seq')
-    ops = new('set + - .')
+    ops = new('set')
+    add(ops,'+')
+    add(ops,'-')
+    add(ops,'.')
 *   add(ops,' ')
     show(ops)
     iter = new('iter 1 8')
@@ -69,17 +93,31 @@ main.init.done
     Out('computing product.')
     prod = product(seq,'TRUE')
     Out('dt prod',datatype(prod))
-    Out('showing product')
+    Out('showing PROD')
     show(prod)
+
+    xprod = new('set')
     loop(prod)
 
-main.product.next
+main.x.next
 
-    e = next(prod)                               :f(main.product.done)
-    show(e)                                         :(main.product.next)
+    this = next(prod)                              :f(main.x.done)
+    add(xprod,expand(this))                          :(main.x.next)
+main.x.done
+    Out('XPROD')
+    show(xprod)
+    yprod = filter(xprod,"eq(eval(this),100)")
+    out("strings with value 100")
+    visit(yprod,"show(this)") 
 
-main.product.done
+*   Map each solution string to number of words in it.
 
+    omap = new('map')
+*   visit(yprod,"put(omap,this,set.size(words(this)))")
+    visit(yprod,"put(omap,this,words(this))")
+    show(omap)
+
+    
                                                     :(return)
 
 main.end
@@ -87,16 +125,3 @@ main.end
     main()
 
 end
-*   that yield the value 100.
-
-*   out('p.done')
-*   ne(set.size(P),set.size(Q))                     :s(p.loop)
-
-**  Filter P, keeping only elements with value 100.
-
-*   out('before evaluation')
-*   show(Q)
-*   R = filter(Q,"eq(Value(this),100)")
-*   out('after evaluation')
-*   show(R)
-
