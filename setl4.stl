@@ -570,8 +570,14 @@
 
 add
 
+*   Test if adding blank and if so, do not convert to integer.
+*   Otherwise convert string with integer value to integer.
+
+    ident(elem,' ') out('adding blank')
+    elem = differ(elem,' ') integer(elem) +elem
+
     differ(datatype(set),'set') error('attempt to add to non-set ' datatype(set))
-    elem = integer(elem) +elem
+
     ident(set.kind(set),'map')                          :s(add.map)
     ident(set.kind(set),'seq')                          :s(add.seq)f(add.set)
 
@@ -1524,7 +1530,7 @@ loop.iter
 
     iter = set.iter(set)                                :(loop.finis)
     iter.next(iter) = gt(iter.step(iter)) iter.start(iter) - iter.step(iter)
-    iter.next(iter) = lt(iter.step(iter)) iter.start(iter) - iter.step(iter)
+    iter.next(iter) = lt(iter.step(iter)) iter.start(iter) + iter.step(iter)
                                                         :(loop.finis)
 
 
@@ -1550,7 +1556,11 @@ member
 *   Branch according to whether _set_ is set, map, or sequence.
 
     eq(set.size(set))                                   :s(freturn)
-    elem = integer(elem) +elem
+
+*   Do not convert single space to integer.
+
+    ident(elem,' ') Out('testing blank for membership.')
+    elem = differ(elem,' ') integer(elem) +elem
     ident(datatype(elem),'entry')                       :s(member.map)
     ident(set.kind(set),'int')                          :s(member.int)
     ident(set.kind(set),'iter')                         :s(member.iter)
@@ -1676,6 +1686,7 @@ new.iter
 
     new = set('iter')
     iter = iterator()
+    iter.thisname = .this
     set.iter(new) = iter
     iter.step(iter) = 1
     seq = new('seq ' init)
@@ -1691,26 +1702,26 @@ new.iter.1
 
     iter.start(iter) = 1
     iter.finis(iter) = get(seq,1)
-    iter.step(iter) = 1                                 :(new.iter.step)
+    iter.step(iter) =  1                                 :(new.iter.step)
 
 new.iter.2
 
-    iter.start(iter) =  get(seq,1)
+    iter.start(iter) = get(seq,1)
     iter.finis(iter) = get(seq,2)
-    iter.step(iter) = 1                                 :(new.iter.step)
+    iter.step(iter) =  1                                 :(new.iter.step)
 
 new.iter.3
 
-    iter.start(iter) =  get(seq,1)
+    iter.start(iter) = get(seq,1)
     iter.finis(iter) = get(seq,2)
-    iter.step(iter) = get(seq,3)
+    iter.step(iter)  = get(seq,3)
 
 new.iter.step
 
 *   Make sure step negative if first argument to iter is greater than the second.
 
     lt(iter.step(iter)) out('new -step',iter.step(iter))
-    iter.step(iter) = gt(iter.start(iter),iter.finis(iter))  gt(iter.step(iter)) -iter.step(iter)
+    iter.step(iter) = gt(iter.start(iter),iter.finis(iter))  gt(iter.step(iter)) - iter.step(iter)
     set.size(new) = ((iter.finis(iter) - iter.start(iter)) / iter.step(iter)) + 1
                                                         :(return)
 
@@ -1867,6 +1878,7 @@ next.finis
 *   Here to update _thisname_  to the next iteration value.
 
     thisname = iter.thisname(iter)
+    thisname = ident(datatype(thisname),'string') .this
     $(thisname) = next                                  :(return)
 
 next.end
@@ -2208,6 +2220,7 @@ push.value.add
     set.size(seq) = set.size(seq) + 1
     n = set.size(seq)
     set.index(seq)[n] = n
+    value = differ(value,' ') integer(value) +value
     set.key(seq)[n] = value                             :(return)
 
 push.value.end
@@ -2513,12 +2526,13 @@ show.entry
 show.entry.notplain
 
     show(key(v))
-    show(char(58))
+    show.char(char(58))
     show(value(v))
                                                         :(show.finis)
 show.iter
 
-*   The iterator is the only meaningful part of a set of type iter.
+*   The iterator is the only meaningful part of a set of type iter
+*   so reset _v_ to the iterator and show that.
  
     v = set.iter(v)
     show.out('{ iter')
@@ -2563,6 +2577,7 @@ show.seq
 
 show.compound
 
+*   Out('show.compound')
     sorter(v,type)
     loop(v)
     show.out(substr(set.encloser(v),1,1))
@@ -2593,6 +2608,7 @@ show.compound.done
 
     show.level = show.level - 1
     show.out(substr(set.encloser(v),2,1))
+*   Out('show.compound.done')
                                                         :(show.finis)
 
 show.table
@@ -2617,9 +2633,22 @@ show.table.done
 
 show.finis
 
-    show.done()                                         :(return)
+*   Out('show.enter.finis')
+    show.done()                                         
+*   Out('show.finis')
+                                                        :(return)
 
 show.end
+
+    define('show.char(ch)')                             :(show.char.end)
+
+*   Show single character, not enclosed in blanks.
+
+show.char
+
+    show.line = show.line ch                            :(return)
+
+show.char.end
 
     define('show.done()')                               :(show.done.end)
 
@@ -2648,7 +2677,9 @@ show.done.end
 
 show.out
 
-    str = integer(str) +str                             :s(show.out.show)
+*   Do not show string with single blank as integer.
+    ident(str,' ') out('showing blank')
+    str = differ(str,' ') integer(str) +str                             :s(show.out.show)
     differ(datatype(str),'string')
 .       error('show.out expects argument to be string, but got ' datatype(str))
 
@@ -3304,7 +3335,8 @@ writer.end
 
     define('setl4.clear()')                             :(setl4.clear.end)
 
-*   _Setl4.clear) clearis the values of setl4 global variables. This reduces amount of &dump output.
+*   _Setl4.clear) clears the values of setl4 global variables,
+*    in order to reduces amount of &dump output.
 
 setl4.clear
 
@@ -3462,7 +3494,6 @@ Out.end
 **   opsyn('@','filter',     2)
 **   opsyn('~','member',     2)
 *
-* &dump = 3
 **   SETL4 unary operators:
 *
 **   opsyn('=','this',       1)

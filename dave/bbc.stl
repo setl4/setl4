@@ -1,0 +1,102 @@
+-include  "../setl4.stl"
+    &stlimit = 1000000
+
+    
+    define('list(set)elem,this')                  :(list.end)
+
+*   List elements of set, one per line
+
+list
+
+    out = '{'
+    loop(set)
+
+list.next
+
+    this = next(set)                                :f(return)
+    out('  ',this)                                  :(list.next)
+
+list.end
+
+    define('Value(str)tmp')                         :(Value.end)
+
+*   Evaluate argument _str_ after replacing instance of 'a=b' with 'ab'
+
+Value
+
+*   March through _str_,putting spaces around binary operators, and doing concatenation as needed.
+*   First, expand str so that '+' and '-' have space before and after operator symbol, and do 
+*   concatenation implied by '.'.
+
+
+Value.next
+
+    str len(1) . ch =                               :f(Value.eval)
+    tmp = ident(ch,'+') first ' + '               :s(Value.next)
+    tmp = ident(ch,'-') first ' - '               :s(Value.next)
+    ident(ch,'=')                                   :s(Value.next)
+    tmp = first ch                                :(Value.next)
+
+Value.eval
+
+    out('Value.in',tmp)
+    Value = eval(tmp)                               
+    out('Value.out',Value)
+                                                   :(return)
+
+Value.end
+
+    define('main()seq,ops,prod')                         :(main.end)
+
+main
+
+    seq = new('seq')
+    ops = new('set + - .')
+*   add(ops,' ')
+    show(ops)
+    iter = new('iter 1 8')
+
+main.next.init
+
+    this = next(iter)                               :f(main.init.done)
+    push(seq,new('set ' this))
+    push(seq,ops)                                   :(main.next.init)
+
+main.init.done
+
+    push(seq,new('set 9'))
+    show(seq)
+    Out('computing product.')
+    prod = product(seq,'TRUE')
+    Out('dt prod',datatype(prod))
+    Out('showing product')
+    show(prod)
+    loop(prod)
+
+main.product.next
+
+    e = next(prod)                               :f(main.product.done)
+    show(e)                                         :(main.product.next)
+
+main.product.done
+
+                                                    :(return)
+
+main.end
+
+    main()
+
+end
+*   that yield the value 100.
+
+*   out('p.done')
+*   ne(set.size(P),set.size(Q))                     :s(p.loop)
+
+**  Filter P, keeping only elements with value 100.
+
+*   out('before evaluation')
+*   show(Q)
+*   R = filter(Q,"eq(Value(this),100)")
+*   out('after evaluation')
+*   show(R)
+
