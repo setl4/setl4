@@ -240,7 +240,6 @@
     show(product(seq,'TRUE'))
     out()
 
-end
     out("Here endeth the test.")
 
 end

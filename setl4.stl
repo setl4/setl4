@@ -2,7 +2,6 @@
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
-*   &stlimit = 40000
 *   TODO
 
 *# SETL4 - An Implementation of SETL Written in SPITBOL
@@ -1966,11 +1965,13 @@ pack.next
 
 pack.end
 
-    define('plain(v)')                                  :(plain.end)
+    define('plain(v,q)')                                :(plain.end)
 
 *   Tests if _v_ is a plain type, where the plain types are _entry_, _integer_,
 *   _pair_, _real_, and _string_. If _v_ is plain, then _plain_ returns its
 *   value as a string. Otherwise, _v_ is returned as the value.
+
+*   The value of a string is enclosed in quotes unless _q_ is not null.
 
 plain
 
@@ -1986,7 +1987,14 @@ plain
 
 plain.string
 
-*   String in plain form if starts with quote chacter.
+*   Return string with no enclosing quotes if _q_ is not null.
+
+    ident(q)                                            :s(plain.quote)
+    plain = v                                           :(return)
+
+plain.quote
+
+*   Here to enclose string in quote characters.
 
     plain '"'                                           :s(return)
     plain "'"                                           :s(return)
@@ -2459,7 +2467,7 @@ remove.error
 
 remove.end
 
-    define('show(v,type,limit)ara,i,kind,elem,entry,key,line,hdr,n,this,str,value'):(show.end)
+    define('show(v,type,q)ara,i,kind,elem,entry,key,line,hdr,n,this,str,value'):(show.end)
 
 *   _Show_ displays the value of its first argument in a form that is hopefully both
 *   readable and pleasing to the eye.
@@ -2468,19 +2476,16 @@ remove.end
 *   Otherwise sets and maps are increased in ascending value of members (set)
 *   or keys (map).
 
-*   If _limit_ is not null, at most _limit_ elements of compount object _v_ are listed.
+*   If _q_ is not null, strings are not shown with enclosing quotes;
+*   by default they are shown with enclosing quotes.
 
 show
-
-
-*   limit = differ(limit) +limit
-    ident(v)                                            :s(return)
 
 *   Show nothing by writing out nothing.
 
     ident(v)                                            :s(return)
 
-    is.plain(v)  show.out(plain(v))                     :s(show.finis)
+    is.plain(v)  show.out(plain(v,q))                   :s(show.finis)
 
     ident(datatype(v),'array')                          :s(show.array)
     ident(datatype(v),'entry')                          :s(show.entry)
@@ -2519,7 +2524,7 @@ show.array.done
 show.entry
 
     is.plain(key(v)) is.plain(value(v))                 :f(show.entry.notplain)
-    show.out(plain(key(v)) char(58) plain(value(v)))    :s(show.finis)
+    show.out(plain(key(v),q) char(58) plain(value(v),q)):s(show.finis)
 
 show.entry.notplain
 
@@ -2531,7 +2536,7 @@ show.iter
 
 *   The iterator is the only meaningful part of a set of type iter
 *   so reset _v_ to the iterator and show that.
- 
+
     v = set.iter(v)
     show.out('{ iter')
     ne(+iter.start(v))  show.out(' start='  iter.start(v))
@@ -2557,7 +2562,7 @@ show.set
 show.pair
 
     is.plain(first(v)) is.plain(second(v))              :f(show.pair.notplain)
-    show.out('(' plain(first(v)) ',' plain(second(v)) ')'):(show.finis)
+    show.out('(' plain(first(v),q) ',' plain(second(v),q) ')'):(show.finis)
 
 show.pair.notplain
 
@@ -2583,23 +2588,22 @@ show.compound
 show.compound.next
 
     elem = next(v)                                      :f(show.compound.done)
-    is.plain(elem)     show(plain(elem))                :s(show.compound.next)
-    ident(kind,'int')  show(elem)                       :s(show.compound.next)
-    ident(kind,'iter') show(elem)                       :s(show.compound.next)
+    is.plain(elem)     show(plain(elem,q),,q)           :s(show.compound.next)
+    ident(kind,'int')  show(elem,,q)                    :s(show.compound.next)
+    ident(kind,'iter') show(elem,,q)                    :s(show.compound.next)
 
 *   show = ident(datatype(value(entry),'token'))
 *               show  show.token(v,,'TRUE')             :s(show.map.check)
 
-    ident(kind,'map')   show(elem)                      :s(show.compound.next)
+    ident(kind,'map')   show(elem,,q)                   :s(show.compound.next)
 
 *   If showing a sequence, show only the value of element if less
 *   than ten elements, otherwise show the element with the index.
 
-    ident(kind,'seq') ident(set.encloser(v),'[]')   show(elem):s(show.compound.next)
-    ident(kind,'seq') ident(set.encloser(v),'()')   show(value(elem)):s(show.compound.next)
+    ident(kind,'seq') ident(set.encloser(v),'[]')   show(elem,,q):s(show.compound.next)
+    ident(kind,'seq') ident(set.encloser(v),'()')   show(value(elem),,q):s(show.compound.next)
 
-    ident(kind,'set')   show(elem)                      :s(show.compound.next)
-*   lt(limit = limit -1)                                :s(show.compound.done)
+    ident(kind,'set')   show(elem,,q)                   :s(show.compound.next)
 
 show.compound.done
 
@@ -2621,7 +2625,7 @@ show.table.error
 show.table.next
 
     le(i = i + 1,n)                                     :f(show.table.done)
-    show(ara[i,1])                                      :(show.table.next)
+    show(ara[i,1],,q)                                   :(show.table.next)
 
 show.table.done
 
@@ -2629,7 +2633,7 @@ show.table.done
 
 show.finis
 
-    show.done()                                         
+    show.done()
                                                         :(return)
 
 show.end
@@ -2671,8 +2675,6 @@ show.done.end
 
 show.out
 
-*   Do not show string with single blank as integer.
-    ident(str,' ') out('showing blank')
     str = differ(str,' ') integer(str) +str                             :s(show.out.show)
     differ(datatype(str),'string')
 .       error('show.out expects argument to be string, but got ' datatype(str))
