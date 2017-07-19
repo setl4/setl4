@@ -508,8 +508,10 @@
 *-  is.plain(s)                 Tests if _s_ is plain type: integer, name, real, or string.
 *-  join(a,b)                   Joins two strings into a single string by concatenating them.
 *-  less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
+*-  longest(set)                Returns the longest string in a set.
 *-  loop(set,this)              Set up iteration over _set_ using _next_. _this_ names variable updated during iteration.
 *-  tolower(s)                  Returns _s_ with upper case letters replaced by lower case equivalent.
+*-  minimum(set)                Returns the shortest string in a set.
 *-  multiple(n,m)               Tests if _n_ is a multiple of _m_.
 *-  odd(n)                      Tests if _n_ is odd.
 *-  out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null.
@@ -538,6 +540,7 @@
 *-  remove(set,elem)            Removes arbitary element from set, or most recent entry from map.
 *-  set.size(set)               Returns number of elements in set _set_.
 *-  show(v)                     Shows value of _v_.
+*-  show.plain(v)               Same as _show()_, but strings are not enclosd in quotes.
 *-  show.b(e)                   Shows value of _b_ as boolean.
 *-  show.lines(lines,number)    Shows a sequence of lines, with id if _number_ not null.
 *-  slice(str,first,last)       Like SPITBOL substr to work for sequences and tuples.
@@ -1493,6 +1496,22 @@ less.ch
 
 less.end
 
+    define('longest(set)this')                          :(longest.end)
+
+*   Return longest string in set.
+
+longest
+
+    loop(set)
+
+longest.next
+
+    next(set)                                           :f(return)
+    le(size(this),size(longest))                        :s(longest.next)
+    longest = this
+                                                        :(longest.next)
+
+longest.end
 
     define('loop(set,thisname)iter')                    :(loop.end)
 
@@ -2470,6 +2489,24 @@ remove.error
 
 remove.end
 
+    define('shortest(set)this')                         :(shortest.end)
+
+*   Return shortest string in set.
+
+shortest
+
+    loop(set)
+
+shortest.next
+
+    next(set)                                           :f(return)
+    shortest = ident(shortest) this
+    ge(size(this),size(shortest))                       :s(shortest.next)
+    shortest = this
+                                                        :(shortest.next)
+
+shortest.end
+
     define('show(v,type,q)ara,i,kind,elem,entry,key,line,hdr,n,this,str,value'):(show.end)
 
 *   _Show_ displays the value of its first argument in a form that is hopefully both
@@ -2741,16 +2778,16 @@ show.lines.next
 
 show.lines.end
 
-    define('show.str(v)')                               :(show.str.end)
+    define('show.plain(v)')                              :(show.plain.end)
 
-*   _Show.str_ yields same results as _show_ except that strings
+*   _Show.plain_ yields same results as _show_ except that strings
 *   are not enclosed in quotes.
 
-show.str
+show.plain
 
     show(v,,'NOQUOTE')                                  :(return)
 
-show.str.end
+show.plain.end
 
     define('slice(v,start,n)')                          :(slice.end)
 

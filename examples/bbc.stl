@@ -1,119 +1,106 @@
+
 -include  "../setl4.stl"
-    &stlimit = 100000
 
-    
-    define('list(set)elem,this')                  :(list.end)
 
-*   List elements of set, one per line
+*   This SETL4 program solves a puzzle that can be found at;
+*   http://www.bbc.co.uk/programmes/article/5wkxjTtqTvq8Cyrrjxtk7tc/puzzle-for-today.
 
-list
+*   In brief, consider all strings consisting of the digits 1 .. 9 such that
+*   each of first eight is followed by '+', '-' or '.', with '.' implying
+*   the digits before and after the dot are to be joined. For example,
+*       1+2.3-4+56-7-89
+*   yields
+*       1 + 23 - 4 + 56 -7 -89
 
-    out = '{'
+*   The puzzle is to find, among all the combinations that evaluate to 100,
+*   that combination with the fewest operators ('+' or '-').
+
+*   This program solves the puzzle as follows:
+*   1) Find all the combinations by forming a Cartesian product;
+*   2) xxpand each combination to a form that can be evaluated
+*      to yield an integer value;
+*   3) retain only the combinations that have 100 as their value; and
+*   4) finding the shortest such combination.
+
+    define('expand(set)this,str')                       :(expand.end)
+
+*   Loop over set, converting each element into SPITBOL string
+*   suitable for evaluation.
+
+expand
+
+    expand = new('set')
     loop(set)
 
-list.next
+expand.next
 
-    this = next(set)                                :f(return)
-    out('  ',this)                                  :(list.next)
+    next(set)                                           :f(return)
+    add(expand,expand.str(this))                        :(expand.next)
 
-list.end
+expand.end
 
-    define('Value(str)tmp')                         :(Value.end)
+    define('expand.str(line)ch')                        :(expand.str.end)
 
-*   Evaluate argument _str_ after replacing instance of 'a=b' with 'ab'
+*   Convert the argument to a SPITBOL string that can be
+*   evaluated to get its numeric value.
 
-Value
+expand.str
 
-*   March through _str_,putting spaces around binary operators, and doing concatenation as needed.
-*   First, expand str so that '+' and '-' have space before and after operator symbol, and do 
-*   concatenation implied by '.'.
+*   Put space before and after operator to meet SPITBOL expression syntax.
+*   Join digits before and after instance of '.' Append digits to output.
 
+    line len(1) . ch =                                  :f(return)
+    expand.str = ident(ch,'+') expand.str ' + '         :s(expand.str)
+    expand.str = ident(ch,'-') expand.str ' - '         :s(expand.str)
+    ident(ch,'.')                                       :s(expand.str)
+    expand.str = expand.str ch                          :(expand.str)
 
-Value.next
+expand.str.ch
 
-    str len(1) . ch =                               :f(Value.eval)
-    tmp = ident(ch,'+') first ' + '               :s(Value.next)
-    tmp = ident(ch,'-') first ' - '               :s(Value.next)
-    ident(ch,'=')                                   :s(Value.next)
-    tmp = first ch                                :(Value.next)
+*   Here if digit. Append it to output.
 
-Value.eval
+    expand.str = expand.str ch                          :(expand.str)
 
-    out('Value.in',tmp)
-    Value = eval(tmp)                               
-    out('Value.out',Value)
-                                                   :(return)
+expand.str.end
 
-Value.end
-
-    define('main()P,Q,this')                        :(main.end)
-
-*   Need to generate all strings of form 1x2x3x4x5x6x7x8x9
-*   where x may be '+', '-', or '=' (concatendate).
+    define('main()seq,ops,prod')                        :(main.end)
 
 main
 
-*   Iteratively build set of possibilites P, begining with the set 
+    seq = new('seq')
+    ops = new('set')
+    add(ops,'+')
+    add(ops,'-')
+    add(ops,'.')
+    iter = new('iter 1 8')
 
-*   Q = new('set 1+2x3x4x5x6x7x8x9  1-2x3x4x5x6x7x8x9 1=2x3x4x5x6x7x8x9') 
-    Q = new('set 1+2x3x  1-2x3x 1=2x3x') 
+main.next.init
 
-*   Then, iterate over the set by finding the first instance of 'x', quitting
-*   if no instances of 'x' are found.
+    this = next(iter)                                   :f(main.init.done)
+    push(seq,new('set ' this))
+    push(seq,ops)                                       :(main.next.init)
 
+main.init.done
 
-p.loop
+    push(seq,new('set 9'))
 
-*   Set P to Q and repeat until more instances of 'x' remain, which
-*   will occur when P and Q have the same size.
+    s.100 = filter(expand(p = product(seq,'TRUE')),"eq(eval(this),100)")
 
-    out('showing Q')
-    list(Q)
-    P = copy(Q)
-    loop(P)
-    Q = new('set')
+    output = 'Number of possible combninations is 3**8 = ' set.size(p)
+    out()
+    out("Combinations with value 100:")
+    out()
+    visit(s.100,"show.plain(this)")
+    out()
 
-p.next
+    solution = shortest(s.100)
 
-    this = next(P)                                  :f(p.done)
-    out('next P')
-    out('this',this)
-    this break('x')                                 :s(q.add)
-
-*   Here if no instance of 'x', so just add element to Q.
-
-    out('no x')
-    add(Q,this)                                     :(p.next)
-
-q.add
-
-*   Here if instance of x'. Add three elements to Q, 
-*   one with x='+', one with x='-', and one with x='='.
-
-    out('have x')
-    this = first 'X' second
-    add(Q,replace(this,'X','+')) 
-    add(Q,replace(this,'X','-')) 
-    add(Q,replace(this,'X','=')) 
-                                                    :(p.next)
-
-p.done
-
-    out('p.done')
-    ne(set.size(P),set.size(Q))                     :s(p.loop)
-
-*   Filter P, keeping only elements with value 100.
-
-    out('before evaluation')
-    show(Q)
-    R = filter(Q,"eq(Value(this),100)")
-    out('after evaluation')
-    show(R)
+    out('Here is the combination with fewest operators:')
+    out()
+    show.plain(shortest(s.100))                         :(return)
 
 main.end
 
     main()
 
 end
-*   that yield the value 100.
-
