@@ -3,7 +3,7 @@
 *   Licensed under the MIT license.
 
 *   &stlimit = 40000
-*   TODO
+*   TODO: Fix bug in words (use bbc.stl for test)
 
 *# SETL4 - An Implementation of SETL Written in SPITBOL
 
@@ -1427,10 +1427,14 @@ is.plain.end
 
     define('join(s1,s2,s3)i,this')                      :(join.end)
 
-*   _Join_ combines one of more sequences into a single sequence by
-*   joining all their elements together.
+*   _Join_ combines one of more sequences (strings) into a single sequence
+*   (string) by joining all their elements together.
 
 join
+
+    s1 = differ(s1) ident(datatype(s1),'integer') convert(s1,'string')
+    s2 = differ(s2) ident(datatype(s2),'integer') convert(s2,'string')
+    s3 = differ(s3) ident(datatype(s3),'integer') convert(s3,'string')
 
     join = differ(s1) differ(s2) differ(s3) join(join(s1,s2),s3):s(return)
     ident(datatype(s1),'string')                        :s(join.string)
@@ -2470,7 +2474,7 @@ remove.end
 *   Otherwise sets and maps are increased in ascending value of members (set)
 *   or keys (map).
 
-*   If _limit_ is not null, at most _limit_ elements of compount object _v_ are listed.
+*   If _limit_ is not null, at most _limit_ elements of compound object _v_ are listed.
 
 show
 
@@ -3295,6 +3299,7 @@ visit.end
 words
 
     words = new('seq #' size(line))
+    w = ident(w) ' '
 
 words.next
 
