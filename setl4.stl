@@ -573,8 +573,7 @@ add
 *   Test if adding blank and if so, do not convert to integer.
 *   Otherwise convert string with integer value to integer.
 
-    ident(elem,' ') out('adding blank')
-    elem = differ(elem,' ') integer(elem) +elem
+    elem = integer(elem) +elem
 
     differ(datatype(set),'set') error('attempt to add to non-set ' datatype(set))
 
@@ -1559,7 +1558,6 @@ member
 
 *   Do not convert single space to integer.
 
-    ident(elem,' ') Out('testing blank for membership.')
     elem = differ(elem,' ') integer(elem) +elem
     ident(datatype(elem),'entry')                       :s(member.map)
     ident(set.kind(set),'int')                          :s(member.int)
@@ -2577,7 +2575,6 @@ show.seq
 
 show.compound
 
-*   Out('show.compound')
     sorter(v,type)
     loop(v)
     show.out(substr(set.encloser(v),1,1))
@@ -2608,7 +2605,6 @@ show.compound.done
 
     show.level = show.level - 1
     show.out(substr(set.encloser(v),2,1))
-*   Out('show.compound.done')
                                                         :(show.finis)
 
 show.table
@@ -2633,9 +2629,7 @@ show.table.done
 
 show.finis
 
-*   Out('show.enter.finis')
     show.done()                                         
-*   Out('show.finis')
                                                         :(return)
 
 show.end
