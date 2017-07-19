@@ -2807,8 +2807,6 @@ slice.end
 
 sorter
 
-    differ(datatype(set),'set') error('sorter - unsupported input type ' datatype(set) )
-    
 *   Here to detect cases for which sort has no meaning, in which case
 *   return immediately. This includes the case 'int' which, though possible
 *   to sort as desired, requires a complicated algorithm that has yet to be
