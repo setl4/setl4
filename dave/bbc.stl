@@ -2,54 +2,11 @@
 
     &stlimit = 100000000
 
-    define('list(set)elem,this')                  :(list.end)
-
-
-*   List elements of set, one per line
-
-list
-
-    out = '{'
-    loop(set)
-
-list.next
-
-    this = next(set)                                :f(return)
-    out('  ',this)                                  :(list.next)
-
-list.end
-
-    define('Value(str)tmp')                         :(Value.end)
-
-*   Evaluate argument _str_ after replacing instance of 'a=b' with 'ab'
-
-Value
-
-*   March through _str_,putting spaces around binary operators, and doing concatenation as needed.
-*   First, expand str so that '+' and '-' have space before and after operator symbol, and do 
-*   concatenation implied by '.'.
-
-
-Value.next
-
-    str len(1) . ch =                               :f(Value.eval)
-    tmp = ident(ch,'+') first ' + '               :s(Value.next)
-    tmp = ident(ch,'-') first ' - '               :s(Value.next)
-    ident(ch,'=')                                   :s(Value.next)
-    tmp = first ch                                :(Value.next)
-
-Value.eval
-
-    out('Value.in',tmp)
-    Value = eval(tmp)                               
-    out('Value.out',Value)
-                                                   :(return)
-
-Value.end
 
     define('expand(line)ch')                            :(expand.end)
 
-*   Expand one value in product set.
+*   Expand an element in the product to a string that can
+*   be evaluated to get its numeric value.
 
 expand
 
@@ -76,8 +33,6 @@ main
     add(ops,'+')
     add(ops,'-')
     add(ops,'.')
-*   add(ops,' ')
-    show(ops)
     iter = new('iter 1 8')
 
 main.next.init
@@ -89,12 +44,12 @@ main.next.init
 main.init.done
 
     push(seq,new('set 9'))
-    show(seq)
-    Out('computing product.')
+
+*   Compute the Cartesian product to yield all possible combinations.
+
     prod = product(seq,'TRUE')
-    Out('dt prod',datatype(prod))
-    Out('showing PROD')
-    show(prod)
+
+*   Convert each element in the product to a string that can be evaluated.
 
     xprod = new('set')
     loop(prod)
@@ -103,21 +58,34 @@ main.x.next
 
     this = next(prod)                              :f(main.x.done)
     add(xprod,expand(this))                          :(main.x.next)
-main.x.done
-    Out('XPROD')
-    show(xprod)
-    yprod = filter(xprod,"eq(eval(this),100)")
-    out("strings with value 100")
-    visit(yprod,"show(this)") 
 
-*   Map each solution string to number of words in it.
+main.x.done
+    yprod = filter(xprod,"eq(eval(this),100)")
+    
+    out("combinations with value 100")
+    out()
+    visit(yprod,"show.str(this)") 
+    out()
+
+*   Map each solution string to the number of words in it.
 
     omap = new('map')
-*   visit(yprod,"put(omap,this,set.size(words(this)))")
-    visit(yprod,"put(omap,this,words(this))")
-    show(omap)
 
-    
+    loop(yprod)
+
+main.yprod.next
+
+    this = next(yprod)                          :f(main.yprod.done)
+    put(omap,this,set.size(words(this,'123456789+-')))
+                                                :(main.yprod.next)
+main.yprod.done
+
+    sorter(omap,'+v')
+    loop(omap)
+    this = next(omap)
+    out('solution: the combination with fewest operators')
+    out()
+    show.str(key(this))
                                                     :(return)
 
 main.end

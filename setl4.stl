@@ -1221,7 +1221,6 @@ false.end
 
 filter
 
-    out('filter set.kind',set.kind(set))
     ident(set.kind(set),'map')                          :s(filter.map)
     ident(set.kind(set),'seq')                          :s(filter.seq)
     filter = new('set')
@@ -2742,6 +2741,17 @@ show.lines.next
 
 show.lines.end
 
+    define('show.str(v)')                               :(show.str.end)
+
+*   _Show.str_ yields same results as _show_ except that strings
+*   are not enclosed in quotes.
+
+show.str
+
+    show(v,,'NOQUOTE')                                  :(return)
+
+show.str.end
+
     define('slice(v,start,n)')                          :(slice.end)
 
 *   _Slice_ returns a slice of a sequence, string or tuple.
@@ -3287,19 +3297,20 @@ visit.next
 
 visit.end
 
-    define('words(line,w)word')                         :(words.end)
+    define('words(line,w)pat,word')                     :(words.end)
 
 *   _Words_ returns a sequence of the words in _line_, where _w_
 *   is a string that defines the allowed characters in a word.
 
 words
 
-    words = new('seq #' size(line))
-    w = ident(w) ' '
+    words = new('seq')
+    w = ident(w) &ucase &lcase
+    pat = span(w)
 
 words.next
 
-    line span(w) . word =                               :s(words.add)
+    line pat . word =                                   :s(words.add)
 
 *   No word begins at this character, so move on to the next one.
 

@@ -31,21 +31,21 @@ eval forall(set,'ne(this,6)') success
 
 Test iter
 
-{ }
-{iterator } 
+{ iter  start=1  finis=10  step=2 } 
+( iterator  start=1  finis=10  step=2 ) 
 
 expect success
-eval eq(set.size(iter),5) failure
+eval eq(set.size(iter),5) success
 
-{ }
+{ iter  start=1  finis=10  step=2 } 
 expect success
-eval member(iter,5) failure
+eval member(iter,5) success
 
 expect failure
 eval member(iter,6) failure
 
-{ }
-{iterator } 
+{ iter  start=25  finis=5  step=-5 } 
+( iterator  start=25  finis=5  step=-5 ) 
 
 
 Test Map
@@ -147,25 +147,24 @@ slice(seq,11)
 ( )
 
 test set product strings null
-( { 'x' 'y' } )
-( { 'x' 'y' } )
+( { x y } )
+( { x y } )
 
-( { 'x' 'y' } { 'O' 'R' } )
-{ ( 'x' 'O' ) ( 'x' 'R' ) ( 'y' 'O' ) ( 'y' 'R' ) }
+( { x y } { O R } )
+{ ( x O ) ( x R ) ( y O ) ( y R ) }
 
-( { 'x' 'y' } { 'O' 'R' } { 'C' 'L' 'X' } )
-{ ( 'x' 'O' 'C' ) ( 'x' 'O' 'L' ) ( 'x' 'O' 'X' ) ( 'x' 'R' 'C' ) ( 'x' 'R'
-'L' ) ( 'x' 'R' 'X' ) ( 'y' 'O' 'C' ) ( 'y' 'O' 'L' ) ( 'y' 'O' 'X' ) ( 'y'
-'R' 'C' ) ( 'y' 'R' 'L' ) ( 'y' 'R' 'X' ) }
+( { x y } { O R } { C L X } )
+{ ( x O C ) ( x O L ) ( x O X ) ( x R C ) ( x R L ) ( x R X ) ( y O C ) (
+y O L ) ( y O X ) ( y R C ) ( y R L ) ( y R X ) }
 
 test set product strings not null
+( { x y } )
 ( { 'x' 'y' } )
-( { 'x' 'y' } )
 
-( { 'x' 'y' } { 'O' 'R' } )
-{ 'xO' 'xR' 'yO' 'yR' }
+( { x y } { O R } )
+{ xO xR yO yR }
 
-( { 'x' 'y' } { 'O' 'R' } { 'C' 'L' 'X' } )
-{ 'xOC' 'xOL' 'xOX' 'xRC' 'xRL' 'xRX' 'yOC' 'yOL' 'yOX' 'yRC' 'yRL' 'yRX'
-}
+( { x y } { O R } { C L X } )
+{ xOC xOL xOX xRC xRL xRX yOC yOL yOX yRC yRL yRX }
 
+Here endeth the test.
