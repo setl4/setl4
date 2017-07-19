@@ -1,0 +1,37 @@
+
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+-include "../setl4.stl"
+
+
+    dict = checkout('dictionary')
+
+*   Find all words containing 'p', 'a', 'u', and 'l'.
+
+    words.paul = new('set')
+    loop(dict)
+
+dict.next
+
+    word = next(dict)                   :f(dict.done)
+    word break('p')                     :f(dict.next)
+    word break('p') . w1 'p' rem . rest = w1 'P' rest
+   
+    word break('a')                     :f(dict.next)
+    word break('a') . w1 'a' rem . rest = w1 'A' rest
+    word break('u')                     :f(dict.next)
+    word break('u') . w1 'u' rem . rest = w1 'U' rest
+    word break('l')                     :f(dict.next)
+    word break('l') . w1 'l' rem . rest = w1 'L' rest
+    add(words.paul,word)                :(dict.next)
+
+dict.done
+
+    out('# paul words',set.size(words.paul))
+*   show(words.paul)
+    visit(words.paul,"show(this)")
+
+end
+
+

@@ -1,0 +1,24 @@
+
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+-include "../setl4.stl"
+
+
+    dict = checkout('dictionary')
+
+
+    words.paul = new('set')
+    loop(dict)
+
+dict.next
+    this = next(dict)       :f(dict.done)
+    ident(this,reverse(this)) :f(dict.next)
+    add(words.paul, this)   :(dict.next)
+
+dict.done
+
+    visit(words.paul,"show.str(this)")
+
+
+end

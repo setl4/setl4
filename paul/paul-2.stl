@@ -1,0 +1,30 @@
+
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+-include "../setl4.stl"
+
+
+    dict = checkout('dictionary')
+
+*   Find all words containing 'p', 'a', 'u', and 'l'.
+
+    words.paul = new('set')
+    loop(dict)
+
+dict.next
+
+    word = next(dict)                   :f(dict.done)
+    f = frequency(word)
+    gt(get(f,'p')) gt(get(f,'a')) gt(get(f,'u')) gt(get(f,'l')) :f(dict.next)
+    add(words.paul,word)                :(dict.next)
+
+dict.done
+
+    out('# paul words',set.size(words.paul))
+*   show(words.paul)
+    visit(words.paul,"show(this)")
+
+end
+
+

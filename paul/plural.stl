@@ -1,0 +1,38 @@
+
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+-include "../setl4.stl"
+
+    dict = checkout('dictionary')
+    plurals = 0
+    loop(dict)
+
+loop.nxt
+
+    this = next(dict)                   :f(loop.done)
+    ident(substr(this,size(this),1),'s') :f(loop.nxt)
+    s = substr(this,1,size(this) - 1)
+    member(dict,s)                      :f(loop.nxt)
+    plurals = plurals + 1               :(loop.nxt)
+
+loop.done
+
+    out('plurals',plurals)
+
+end
+    plurals = 0
+    loop(dict)
+
+loop2.nxt
+
+    this = next(dict)                   :f(loop2.done)
+    member(dict, this 's')              :f(loop2.nxt)
+    plurals = plurals + 1               :(loop2.nxt)
+
+loop2.done
+
+    out('plurals',plurals)
+
+end
+    
