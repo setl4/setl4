@@ -8,7 +8,7 @@
 *   In brief, consider all strings consisting of the digits 1 .. 9 such that
 *   each of first eight is followed by '+', '-' or '.', with '.' implying
 *   the digits before and after the dot are to be joined. For example,
-*       1+2.3-4+56-7-89
+*       1+2.3-4+5.6-7-8.9
 *   yields
 *       1 + 23 - 4 + 56 -7 -89
 
@@ -17,7 +17,7 @@
 
 *   This program solves the puzzle as follows:
 *   1) Find all the combinations by forming a Cartesian product;
-*   2) xxpand each combination to a form that can be evaluated
+*   2) expand each combination to a form that can be evaluated
 *      to yield an integer value;
 *   3) retain only the combinations that have 100 as their value; and
 *   4) finding the shortest such combination.

@@ -1,8 +1,5 @@
-
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
-
-*   TODO
 
 *# SETL4 - An Implementation of SETL Written in SPITBOL
 
@@ -11,7 +8,7 @@
 
 *   SNOBOL is a general purpose programming language with special emphasis
 *   on processing strings and text that was developed at Bell Labs in the
-*   1960's by a team led by Ralph Griswold. The final version was called SNOBOL4.
+*   1960's by a team led by Ralph Griswold. The final version was called SPITBOL4.
 
 *   Macro SPITBOL, or SPITBOL, is a very efficient implementation of SNOBOL4.
 *   Created by Robert B. K. Dewar and Ken Belcher in 1969, SPITBOL/360
@@ -43,18 +40,18 @@
 *   declarations, and 21,000 lines of code.  Every line of code has a comment.
 *   The executable for x86 Linux is less than 150 kilobytes.
 
-*   SPITBOL was implemented for many machines and operating systems by
+*   SPITBOL was implemented for several machines and operating systems by
 *   a small team that included Steve Duff, Mark Emmer, Bob Goldberg, and Dave Shields:
 *   ICL 1900, Univac, CDC 6600, IBM PC, Apple Macintosh, SUN Solaris Sparc,
 *   Microsoft (DOS/NT/Windows), Intel x86_64 (Unix/Linux), and x86_64 Apple iOS.
 *   Special credit is due Mark Emmer, who led the project from the mid 1980's
-*   to 2009. Dave Shields has maintained SPITBOL since then.
+*   to 2009, when Dave Shields became the maintainer of SPITBOL.
 
-*   SETL4 requires a modified version of standard SPITBOL called BOL4.
-*   BOL4 differs from standard SPITBOL as follows:
+*   SETL4 requires a modified version of standard SPITBOL called SPITBOL4.
+*   SPITBOL4 differs from standard SPITBOL as follows:
 *
 *-  There is no automatic case folding. In standard SPITBOL the names 'x' and 'X' are the same;
-*   they are different in BOL4.
+*   they are different in SPITBOL4.
 *-  The default case is lower case.
 *-  The function _set()_ has been renamed to _zet_, so that _set_ can be used as an identifier.
 *-  The default value of _&anchor_ is 1. The default value of _&trim_ is 1.
@@ -163,21 +160,19 @@
 
 *   where
 
-*- _set.index_         SPITBOL table used to map the integer id assigned each element to the value of the element.
-*It is needed to support iteration.
-
-*- _set.iter_ iterator for controlling iteration over the set.
-
-*- _set.key_  SPITBOL table mapping set elements to index entries.
-
 *- _set.kind_
 *is the kind of the set, one of 'int', 'iter', 'map', 'seq', 'set', or 'tuple'.
 *The kind is  specified when the set is created.
 *The default kind is 'set'.
 
-*- _set.size_ the current number of members.
+*- _set.iter_ iterator for controlling iteration over the set.
 
-*- _set.str_           is used for sets of kind 'int'
+*- _set.index_         SPITBOL table used to map the integer id assigned each element to the value of the element.
+*It is needed to support iteration.
+
+*- _set.key_  SPITBOL table mapping set elements to index entries.
+
+*- _set.size_ the current number of members.
 
 *- _set.encloser_      characters used to enclose value when showing this set
 
@@ -190,14 +185,13 @@
 
 *- _set.offset_        offset within block corresponding to a given integer
 
-* _set.str_           used to update the current block's membersip string
+* _set.str_            is used to update the current block's membersip string
+*                      for sets of kind 'init'
 
 
-*   New elements in the set are assigned an integer id.
-*   The table _set.index_ maps the id to a key;
-*   it is used to iterate over the set.
-*   The table _set.key_ maps a key to its associated value;
-*   it is used to retrieve element values.
+*   New elements in the set are assigned an integer id. The table _set.index_
+*   maps the id to a key; it is used to iterate over the set. The table
+*   _set.key_ maps a key to its associated value; it is used to retrieve element values.
 
 *## Sets of integers
 
@@ -250,11 +244,12 @@
 
 *   Though you can use _entry to give a key and its associated value, the
 *   preferred convention is separate a key and its value with a colon.
-*   allows you to write "key:value," so that
+*   allows you to write "key:value," 
 *```
 *       new('map' one:1 two:2 three:3')
 
 *```
+
 *   instead of
 
 *```
@@ -290,7 +285,7 @@
 *## Loops, Iterators
 
 *   Loops in SPITBOL have the form of a test followed by the loop body,
-*   with the body with a branch back to the test.
+*   with the body ending with a branch back to the test.
 
 *  For example, here is a loop that prints the first one hundred integers:
 
@@ -383,7 +378,7 @@
 *   For example, it is possible to retrieve elements using the function _get_.
 *   _Get(s,i)_ retrieves the i-th element in the set.
 
-*   The function _sorter can be used to determine the order in which the elements
+*   The function _sorter_ can be used to determine the order in which the elements
 *   of a set are accessed during an iteration, or to 'sort' the tables implementing
 *   the set. For example, _sorter(s,'+v')_ sorts a map in increasing order of the
 *   values of the map. _sorter(s,'-v')_ sorts the values in descendng order, and
@@ -482,7 +477,7 @@
 *-  ascii(line)                 Returns the text of line with every ascii character identified
 *-  assert(expr)                Tests that _expr_ is true, ends execution otherwise.
 *-  assert.type(obj,type)       Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise.
-*-  begins(str,sub)             Tests if string _key_ begins with string _sub_.
+*-  begins(str,sub)             Tests if string _str_ begins with string _sub_.
 *-  binary(n)                   Returns string with value of _n_ in binary number.
 *-  checkout(filename)          Returns ('checks out') set or map defined by a text file from the libary
 *-  compare(a,b)                Compares two integers or strings, returning -1 (less), 0 (equal), or +1 (greater).
@@ -610,6 +605,7 @@ and
 *   See if both operands are integers.
 
     and = integer(a) eq(a)                              :s(freturn)
+    and = integer(b) eq(b)                              :s(freturn)
     and = integer(a) integer(b) ne(a * b)               :s(return)f(freturn)
 
 *   Here where at least one operand for 'and' is not integer, so
@@ -656,12 +652,12 @@ arbitrary.end
 
 ascii
 
-    differ(ascii.initialized)                           :s(ascii.initialized)
+    differ(setl4.ascii.initialized)                     :s(ascii.initialized)
 
 *   Here to initialize the needed maps.
 
     ascii.init()
-    ascii.initialized = 1
+    setl4.ascii.initialized = 1
 
 ascii.initialized
 
@@ -683,7 +679,6 @@ ascii.next
     &alphabet break(c) . pos                            :f(ascii.other)
     pos = size(pos)
     gt(pos,26)                                          :s(ascii.other)
-*TODO here fix g. usage
     ascii = ascii g.ascii.name[c] '(^'
                substr('ABCDEFGHIJKLMNOPQRSTUVWXYZ',pos,1) ')'
     line len(1) =                                       :(ascii.next)
@@ -838,7 +833,7 @@ binary.end
 
 	define('checkout(filename)file,fullname,line,word')    :(checkout.end)
 
-*	_Checkout_ checks out (retrieves)  a file from the library as a sequence of lines
+*	_Checkout_ checks out (retrieves) a file from the library as a sequence of lines
 *   or a set of words. _Checkout_ lists the available files if _filename_ is null.
 
 *   Dictionary has one word per line, with toupper 'S' at end denoting
@@ -878,8 +873,8 @@ checkout.check
 	filename = begins('shakespeare',filename)              :s(checkout.open)
 	filename = begins('sonnets',filename)                  :s(checkout.open)
 
-    out('sorry, that text is not available.')
-    out('here is a list of the available texts')        :(checkout.list)
+    out('Sorry, that text is not available.')
+    out('Here is a list of the available texts:')        :(checkout.list)
 
 checkout.open
 
@@ -935,7 +930,6 @@ compare
 
     a = integer(a) +a
     b = integer(b) +b
-*   out('compare ' datatype(a) ' ' datatype(b))
     differ(datatype(a),datatype(b)) error("compare argument types differ " datatype(a) " " datatype(b))
     ident(datatype(a),'string')                         :s(compare.strings)
 
@@ -1020,7 +1014,9 @@ defined.end
 
     define('difference(a,b)this')                       :(difference.end)
 
-*   _Difference_ returns the set defined by the set of elements of _a_ that are not in _b_.
+*   _Difference_ returns the set difference of two sets, which is
+*   defined as the set of elements of the first set that are not
+*   also elements of the second set.
 
 difference
 
@@ -1144,6 +1140,7 @@ equal.end
 
 even
 
+    integer(n)                                          :f(freturn)
     eq(remdr(n,2))                                      :s(return)f(freturn)
 
 even.end
@@ -1190,6 +1187,7 @@ exists.end
 
 factorial
 
+    integer(n)                                          :f(freturn)
     factorial = (eq(n,1) 1, n * factorial(n -1))        :(return)
 
 factorial.end
@@ -1220,7 +1218,8 @@ false.end
 *   _A_ by _S_. This can also be read as
 *           "the subset of _A_ such that _S_ is true"
 
-*   Returns the subset of set, map or sequence _set_ for which _expr_ is true.
+*   _Filter_ returns the subset of a set, map or sequence _set_
+*    for which the given expresion is true.
 
 filter
 
@@ -1252,8 +1251,6 @@ filter.seq
 filter.seq.loop
 
     this = next(set)                                    :f(return)
-*   out('at filter.seq.loop')
-    out('filter this',this)
     eval(expr) push(filter,this)                        :(filter.seq.loop)
 
 filter.end
@@ -1310,7 +1307,8 @@ frequency.end
 
     define('from(set,elem)this')                        :(from.end)
 
-*   _From_ removes an (existing) element from a set.
+*   _From_ removes an element from a set, or returns a copy
+*   of the set if the given element is not a member of the set.
 
 from
 
@@ -1445,7 +1443,7 @@ join.s1
 
     push(join,value(next(s1)))                          :s(join.s1)
 
-    ident(s2)                                           :s(join.done)
+    ident(s2)                                           :s(return)
 
 *   Test if second argument is sequence.
 
@@ -1453,7 +1451,7 @@ join.s1
 
 *   Here if not sequence, so just add it to result and return.
 
-    push(join,s2)                                       :(join.done)
+    push(join,s2)                                       :(return)
 
 join.s2
 
@@ -1469,13 +1467,7 @@ join.string
 
 *   Here to join strings.
 
-    join = s1 (differ(s2) s2, '') (differ(s3) s3,'')    :(join.done)
-
-join.done
-*    out('exit join')
-*    show(join)
-*    out()
-                                                        :(return)
+    join = s1 (differ(s2) s2, '') (differ(s3) s3,'')    :(return)
 
 join.end
 
@@ -1516,7 +1508,7 @@ longest.end
     define('loop(set,thisname)iter')                    :(loop.end)
 
 *   _Loop_ creates or updates the iterator of _set_ so that,
-*   on first call to _next()_,  _iter.next_  will be
+*   on the call to _next()_,  _iter.next_  will be
 *   advanced to select the first element in the iteration.
 
 *   If _thisname_ is not null, then _thisname_ is set to 'this'.
@@ -1750,7 +1742,6 @@ new.map
     set.encloser(new) = '{}'
 
 *   If present, _init_ is a list consisting of a list of key/value pairs,
-
 *   with a colon (:) separating the key and value.
 
     init = init ' '
@@ -1930,6 +1921,7 @@ number.end
 
 odd
 
+    integer(n)                                          :f(freturn)
     odd = ne(remdr(n,2))                                :s(return)f(freturn)
 
 odd.end
@@ -2106,8 +2098,8 @@ powerset.j.done
 powerset.end
     define('prefix(str,pre)word')                       :(prefix.end)
 
-*   _Prefix_ takes a list of space-separated words _str_ and prefixes each
-*   with the str _pre_.
+*   _Prefix_ takes a list of the words in _str_, separated by spaces,
+*   and prefixes each with the str _pre_.
 
 prefix
 
@@ -2140,6 +2132,9 @@ prime.end
 
 primes
 
+    primes = new('seq')
+    primes = integer(n)                                 :f(return)
+    primes = lt(n,3) new('set 2')                      :s(return)
     primes = filter(new('iter 2 ' (n - 1)),'prime(this)'):(return)
     primes = new('seq 2')
     iter = new('iter 2 ' (n - 1))
@@ -2214,7 +2209,7 @@ product.end
 *   seq or tuple as its value.
 
 push
-
+    seq = ident(seq) new('seq')
     push = seq
     ident(val1)                                         :s(return)
     push.value(seq,val1)
