@@ -1,0 +1,65 @@
+* This is first cut at implementing more efficient test for membership
+*   in the dictionary. Problem is that is use this approach then
+*   need to extend next() to iterate over the multiple tables used, so
+*   we are putting this on the shelf for now.
+
+	define('lookup(word)')                                 :(lookup.end)
+
+*	Test if a word is in the dictionary.
+
+lookup
+
+*   Read in the dictionary if this is first use of it.
+
+    ident(setl4.dictionary) setl4.dictionary.init()
+
+    le(size(w),15)                                         :f(freturn)
+*   Convert word to lower case since dictionary words are all lower case.
+
+	word = lcase(word)
+	differ(setl4.dictionary[size(word)][word])             :f(freturn)s(return)
+
+lookup.end
+
+	setl4.dictionary = array(15)
+
+	define('lookup.init()dict,n,s,this,w')                 :(lookup.init.end)
+
+*	Initialize the global dictionary setl4.dictionary.
+
+lookup.init
+
+*	Set hash table sizes according to number of words of given length.
+
+	s  =	'1 100 1000 4000 9000 15000 23000 28000 25000 20000 '
+.		'15000 11000 8000 5000 3000 '
+
+lookup.init.tbl
+
+	gt(i = i + 1,15)                                       :s(lookup.init.tbl)
+	s break(' ') . n ' ' =
+	setl4.dictionary[i] = table(+n)                        :(lookup.init.tbl)
+
+lookup.init.tbl
+
+    dict = checkout('dictionary")
+    loop(dict)
+	n = 0
+
+lookup.init.next
+
+    w = next(dict)                                         :f(return)
+	gt(size(w),15)                                         :s(lookup.init.next)
+
+*	Process plural words, indicated by 'S' at end.
+
+	differ(substr(w,size(w),1),'S')                        :s(lookup.init.add)
+	w = substr(w,1,size(w) - 1)
+	setl4.dictionary[size(w)][w] = +1
+	setl4.dictionary[size(w) + 1][w 's'] = +1              :(lookup.init.next)
+
+lookup.init.add
+
+	setl4.dictionary[size(w)][w] = +1                      :(lookup.init.next)
+
+lookup.init.end
