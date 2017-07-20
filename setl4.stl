@@ -2345,13 +2345,13 @@ random.seed.done
                                                         :(return)
 random.seed.end
 
-    define('range(map)elem)')                           :(range.end)
+    define('range(map)elem,entry)')                     :(range.end)
 
 *   _Range_ returns the range of map, which is the set of the values in _map_.
 
 range
 
-    range = new()
+    range = new('set')
     loop(map)
 
 range.next
@@ -2366,6 +2366,7 @@ range.end
 *   _Reader_ returns a sequence of the lines in the file specified by _filename_.
 *   Lines are read from standard input if _filename_ is null.
 *   If _undent_ is not null, leading spaces in lines are eliminated.
+*   _Reader_ ignores (skips over) lines that start with '*'.
 
 reader
 
@@ -2420,13 +2421,15 @@ reader.str.end
 
     define('remove(set,elem)i,iter,this')               :(remove.end)
 
-*   _Remove_ removes the element _elem_  from the set _set_. _Remove_
+*   _Remove_ removes the element _elem_  from the set _set_, or
 *   does nothing if _elem_ is not a member of the set.
+*   Note that _remove_ differs from _from_ in that modifies the set
+*   in place, while _from_ returns a new set with an element removed.
 
 *   If _elem_ is new, remove the most recently added element of a set or map.
 *   If _set_ is a set, then remove _elem_ from _set_ if it is a member.
 *   If _set_ is a map, remove the entry with key _value_.
-*   Return the element removed.
+*   _Remove_ returns the element removed.
 
 remove
 
@@ -3274,7 +3277,7 @@ traceon.end
 
     define('true(e)')                                   :(true.end)
 
-*   _True_ Tests if its operand is true
+*   _True_ Tests if its operand is true (not null).
 
 true
 
@@ -3331,6 +3334,8 @@ visit.end
 
 *   _Words_ returns a sequence of the words in _line_, where _w_
 *   is a string that defines the allowed characters in a word.
+*   If _w_ is null, the a word consists of consecutive upper or
+*   lower case letters.
 
 words
 
