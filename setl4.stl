@@ -444,11 +444,32 @@
 
 *## SETL4  Operator Symbols
 
-*   SETL4 supports the following operators:
+*   SETL4 provides the following operator symbols:
 *
-*   `#s`        returns the size of a string or set
-*   `s @ e`     is equivalent to `filter(s,e)
-*   `=s`        returns the value of the iteration variable (usually 'this') of a loop.
+*   _#s_        returns the size of a string or set _s_
+*   _x ~ s_     tests if _x_ is member of set _s_
+*   _s @ e_     is equivalent to _filter(s,e)
+*   _=s_        returns the value of the iteration variable (usually 'this') of a loop.
+
+*   For example, _member(x,s)_ can be written _x ~ s_, _set.size(x)_ can be written
+*   _#s_, and _filter(s,e)_ can be written _s @ e_.
+
+*   Need to define _setl4.size_ before use of opsyn to allow use of '#'
+*   as unary operator to return size of set or string.
+
+    define('setl4.size(set)')                           :(setl4.size.end)
+
+*   Setl4.set.size_ returns the  size of operand.
+
+setl4.size
+
+    setl4.size = ident(datatype(set),'string') size(set):s(return)
+*   setl4.size = differ(iter.step(set)) (iter.finis(set) - iter.start(set) / iter.step(set)) + 1:s(return)
+    setl4.size = set.size(set)                          :(return)
+
+setl4.size.end
+
+    opsyn('#','setl4.size', 1)
 
 *## Sample data
 
@@ -519,7 +540,7 @@
 *-  powerset(set)               Return the powerset of _set_, the set of all the subsets of _set_.
 *-  prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_.
 *-  product(seq)                Returns (Cartesian) product of a sequence of sets.
-*-  member(elem,set)            Tests if _elem_ is a member of _set_.
+*-  member(set,elem)            Tests if _elem_ is a member of _set_.
 *-  new(str)                    Returns a new set specified by _str_.
 *-  next(set)                   Returns next element in iteration defined by prevous _loop_, fails if no more elements.
 *-  not(expr)                   Tests if operand is false.
@@ -537,7 +558,7 @@
 *-  reader(filename,expr)       Returns sequence of lines in file _filename_, using _expr_ (if given).
 *-  reader(str,delim)           Like _reader(filename..)_ but reads lines from a string with lines.
 *-  remove(set,elem)            Removes arbitary element from set, or most recent entry from map.
-*-  set.size(set)               Returns number of elements in set _set_.
+*-  #set               Returns number of elements in set _set_.
 *-  show(v)                     Shows value of _v_.
 *-  show.plain(v)               Same as _show()_, but strings are not enclosd in quotes.
 *-  show.b(e)                   Shows value of _b_ as boolean.
@@ -588,12 +609,12 @@ add.map
 
 add.set
 
-    member(set,elem)                                    :s(return)
+    member(elem,set)                                    :s(return)
 
 add.seq
 
-    set.size(set) = set.size(set) + 1
-    set.index(set)[set.size(set)] = elem
+    set.size(set) = #set + 1
+    set.index(set)[#set] = elem
     set.key(set)[elem] = elem
                                                         :(return)
 
@@ -638,7 +659,7 @@ append.end
 arbitrary
 
     arbitrary = integer(set) random(+set)               :s(return)
-    r = random(set.size(set))
+    r = random(#set)
     ident(set.kind(set),'iter')                         :s(arbitrary.iter)
     arbitrary = set.key(set)[set.index(set)[r]]
                                                         :(return)
@@ -968,7 +989,7 @@ compose
 
 *   Here to compose two maps.
 
-    n = set.size(a)
+    n = #a
     compose = eq(n) new('map')                          :s(return)
     compose = new('map #' n)
     set.size(compose) = n
@@ -1030,7 +1051,7 @@ difference
 diference.next
 
     this = next(a)                                      :f(return)
-    member(b,this)                                      :s(difference.next)
+    member(this,b)                                      :s(difference.next)
     add(difference,this)                                :(difference.next)
 
 difference.end
@@ -1095,8 +1116,8 @@ equal.map
 
 *   Two maps are equal if they have the same vaue at every element in the domain.
 
-    eq(set.size(a),set.size(b))                         :f(freturn)
-    gt(i = i + 1, set.size(a))                          :s(equal.true)
+    eq(#a,#b)                                           :f(freturn)
+    gt(i = i + 1, #a)                                   :s(equal.true)
     entry = set.index(a)[i]
     ident(value(entry),get(b,key(entry)))               :f(freturn)s(equal.map)
 
@@ -1108,15 +1129,15 @@ equal.pair
 equal.seq
 
 *   Two sequences are equal if they have the same vaue at every element in the domain.
-
-    eq(set.size(a),set.size(b))                         :f(freturn)
-    gt(i = i + 1, set.size(a))                          :s(equal.true)
+    
+    eq(#a,#b)                                           :f(freturn)
+    gt(i = i + 1, #a)                                   :s(equal.true)
     ident(set.seq(a)[i], set.seq(b)[i])                 :s(equal.seq)f(freturn)
 
 equal.sets
 
 
-    eq(set.size(a),set.size(b))                         :f(freturn)
+    eq(#a,#b)                                           :f(freturn)
     ident(set.kind(a),set.kind(b))                      :f(freturn)
     ident(set.kind(set),'int')                          :s(equal.int)
     ident(set.kind(set),'iter')                         :s(equal.iter)
@@ -1130,7 +1151,7 @@ equal.set
 
 *   Two sets are equal if and only if each is a subset of the other.
 
-    eq(set.size(a),set.size(b))                         :f(freturn)
+    eq(#a,#b)                                           :f(freturn)
     subset(a,b)                                         :f(freturn)
     subset(b,a)                                         :f(freturn)
                                                         :(return)
@@ -1398,7 +1419,7 @@ intersection
 
 *   Make _a_ the smaller
 
-    le(set.size(a),set.size(b))                         :s(intersection.next)
+    le(#a,#b)                                           :s(intersection.next)
     a = b
     b = intersection
     intersection = new()
@@ -1407,7 +1428,7 @@ intersection
 intersection.next
 
     this = next(a)                                      :f(return)
-    member(b,this) add(intersection,this)               :(intersection.next)
+    member(this,b) add(intersection,this)               :(intersection.next)
 
 intersection.end
 
@@ -1563,7 +1584,7 @@ loop.finis
 
 loop.end
 
-    define('member(set,elem)kind,entry,i,iter,key,this,value,block)'):(member.end)
+    define('member(elem,set)kind,entry,i,iter,key,this,value,block)'):(member.end)
 
 *   _Member_ tests if _elem_ is member of _set_.
 
@@ -1571,7 +1592,7 @@ member
 
 *   Branch according to whether _set_ is set, map, or sequence.
 
-    eq(set.size(set))                                   :s(freturn)
+    eq(#set)                                   :s(freturn)
 
 *   Do not convert single space to integer.
 
@@ -1708,10 +1729,10 @@ new.iter
 
 *   Ignore extra arguments to iterator constructor.
 
-    set.size(seq) = gt(set.size(seq),3)
-    eq(set.size(seq),1)                                 :s(new.iter.1)
-    eq(set.size(seq),2)                                 :s(new.iter.2)
-    eq(set.size(seq),3)                                 :s(new.iter.3)
+    set.size(seq) = gt(#seq,3)
+    eq(#seq,1)                                 :s(new.iter.1)
+    eq(#seq,2)                                 :s(new.iter.2)
+    eq(#seq,3)                                 :s(new.iter.3)
 
 new.iter.1
 
@@ -1870,21 +1891,21 @@ next.seq
 next.tup
 
     next = iter.next(iter) = iter.next(iter) + 1
-    le(next,set.size(set))                              :f(freturn)
+    le(next,#set)                              :f(freturn)
     key = set.index(set)[next]
     next = entry(key,set.key(set)[key])                 :(next.finis)
 
 *next.seq
 *
 *    next = iter.next(iter) = iter.next(iter) + 1
-*    le(next,set.size(set))                             :f(freturn)
+*    le(next,#set)                             :f(freturn)
 *    key = set.index(set)[next]
 *    next = set.key(set)[next]                          :(next.finis)
 *
 next.set
 
     next = iter.next(iter) = +iter.next(iter) + 1
-    le(next,set.size(set))                              :f(freturn)
+    le(next,#set)                              :f(freturn)
     next = set.index(set)[next]                         :(next.finis)
 
 next.finis
@@ -2037,9 +2058,9 @@ plain.end
 pop
 
     pop = stack
-    eq(set.size(stack))                                 :s(freturn)
-    pop = set.key(stack)[set.index(stack)[set.size(stack)]]
-    set.size(stack) = set.size(stack) - 1               :(return)
+    eq(#stack)                                          :s(freturn)
+    pop = set.key(stack)[set.index(stack)[#stack]]
+    set.size(stack) = #stack - 1                        :(return)
 
 pop.end
 
@@ -2054,7 +2075,7 @@ powerset
 *   Let _n_ be the size of _set_.
 *   The powerset of the empty set is the empty set.
 
-    n = set.size(set)
+    n = #set
     eq(n)                                               :s(return)
 
 *   Compute _N_ = 2 to the powerset _n_.
@@ -2165,18 +2186,18 @@ primes.end
 product
 
     product = new('set')
-    product = eq(set.size(seq))                         :s(return)
-    product = eq(set.size(seq),1) copy(seq)             :s(return)
+    product = eq(#seq)                         :s(return)
+    product = eq(#seq,1) copy(seq)             :s(return)
 
     set1 = get(seq,1)
     set2 = get(seq,2)
-    eq(set.size(seq),2)                                 :s(product.two)
+    eq(#seq,2)                                 :s(product.two)
 
 *   Here to compute the product of three or more sets. First,
 *   compute the partial product of all the sets except the last one,
 *   and then compute the product of that partial product and the last set.
 
-    set1 = product(slice(seq,1,set.size(seq) - 1),strings)
+    set1 = product(slice(seq,1,#seq - 1),strings)
     set2 = top(seq)
 
 product.two
@@ -2244,8 +2265,8 @@ push.value
 
 push.value.add
 
-    set.size(seq) = set.size(seq) + 1
-    n = set.size(seq)
+    set.size(seq) = #seq + 1
+    n = #seq
     set.index(seq)[n] = n
     value = differ(value,' ') integer(value) +value
     set.key(seq)[n] = value                             :(return)
@@ -2264,8 +2285,8 @@ put
 
 *   Here to create new entry in map, and then merge to set new value.
 
-    set.size(map) = set.size(map) + 1
-    set.index(map)[set.size(map)] = key
+    set.size(map) = #map + 1
+    set.index(map)[#map] = key
 
 put.value
 
@@ -2283,7 +2304,7 @@ put.end
 
 quicksort
 
-    quicksort = le(set.size(seq),1) seq                 :s(return)
+    quicksort = le(#seq,1) seq                 :s(return)
     pivot = arbitrary(seq)
     number(pivot)                                       :f(quicksort.strings)
 
@@ -2437,7 +2458,7 @@ reader.str.end
 
 remove
 
-    eq(set.size(set))                                   :s(freturn)
+    eq(#set)                                   :s(freturn)
     ident(elem)                                         :s(remove.last)
     remove = elem
     ident(set.kind(set),'int')                          :s(remove.int)
@@ -2451,8 +2472,8 @@ remove.int
 
 remove.last
 
-    remove = set.index(set)[set.size(set)]
-    set.size(set) = set.size(set) - 1                   :(return)
+    remove = set.index(set)[#set]
+    #set = #set - 1                   :(return)
 
 remove.map
 remove.set
@@ -2462,8 +2483,8 @@ remove.set
 *   Find the entry with key _elem_, assuming it's more likely
 *   to be a newer addition than one of the older elements.
 
-    iter = new('iter ' set.size(set) ' 1')
-    i = set.size(set) + 1
+    iter = new('iter ' #set ' 1')
+    i = #set + 1
 
 remove.find
 
@@ -2476,12 +2497,12 @@ remove.find
 *   if the element was the last in the index table.
 
     set.key(set)[elem] =
-    set.size(set) = set.size(set) - 1
-    eq(set.size(set))                                   :s(return)
+    #set = #set - 1
+    eq(#set)                                   :s(return)
 
 remove.next
 
-    eq(i,set.size(set))                                 :s(return)
+    eq(i,#set)                                 :s(return)
     set.index(set)[i] = set.index(set)[i + 1]
     i = i + 1                                           :(remove.next)
 
@@ -2617,7 +2638,7 @@ show.seq
 
 *   If the sequence has more than ten elements, change the encloser to '{}'
 
-    set.encloser(v) = (le(set.size(v),10) '()', '[]')
+    set.encloser(v) = (le(#v,10) '()', '[]')
                                                         :(show.compound)
 
 show.compound
@@ -2803,9 +2824,9 @@ slice
 *   Here to compute slice of a string or tuple.
 
     slice = new(set.kind(v))
-    n = ident(n) set.size(v) - start + 1
+    n = ident(n) #v - start + 1
     lt(start,1)                                         :s(freturn)
-    gt(start + n - 1,set.size(v))                       :s(freturn)
+    gt(start + n - 1,#v)                               :s(freturn)
     start = start - 1
 
 slice.next
@@ -2860,7 +2881,7 @@ sorter
 
     ident(type) error('sorter null type.')
     ident(type,'no')                                    :s(return)
-    n = set.size(set)
+    n = #set
     index.table = set.index(set)
 
     type = get(sorter.types,type)
@@ -2917,7 +2938,7 @@ sorter.end
 
 sorter.set
 
-    le(set.size(set),1)                                 :s(return)
+    le(#set,1)                                 :s(return)
     ara = ident(type,'+i')    sort( set.index(set), 1)  :s(sorter.set.1)
     ara = ident(type,'-i')    rsort(set.index(set), 1)  :s(sorter.set.1)
     ara = ident(type,'+k')    sort( set.index(set), 2)  :s(sorter.set.1)
@@ -2976,7 +2997,7 @@ sorter.string.end
 
 sorter.table
 
-    le(set.size(set),1)                                 :s(return)
+    le(#set,1)                                 :s(return)
 
     ara = ident(type,'+i')    sort(tbl,1)               :s(sorter.table.1)
     ara = ident(type,'-i')    rsort(tbl,1)              :s(sorter.table.1)
@@ -2991,7 +3012,7 @@ sorter.table.1
 
 sorter.table.table.next
 
-    le(i = i + 1,set.size(set))                         :f(return)
+    le(i = i + 1,#set)                         :f(return)
     index = ara[i,1]                                    :f(sorter.table.error)
     sorter.table[i] = index.table[index]
                                                         :(sorter.table.table.next)
@@ -3056,13 +3077,13 @@ square.root.end
 
 subset
 
-    gt(set.size(b),set.size(a))                         :s(freturn)
+    gt(#a,#b)                                           :s(freturn)
     loop(b)
 
 subset.next
 
     elem = next(b)                                      :f(return)
-    member(a,elem)                                      :s(subset.next)f(freturn)
+    member(elem,a)                                      :s(subset.next)f(freturn)
 
 subset.end
 
@@ -3236,13 +3257,13 @@ tolower.end
 top
 
     differ(datatype(seq),'set')  error('argument to top is not a set')
-    eq(set.size(seq))                                   :s(freturn)
+    eq(#seq)                                   :s(freturn)
     ident(set.kind(seq),'seq')                          :s(top.get)
     error('argument to top() is not sequence or tuple.')
 
 top.get
 
-    top = get(seq,set.size(seq))                        :(return)
+    top = get(seq,#seq)                        :(return)
 
 top.end
 
@@ -3299,7 +3320,7 @@ union
 
 *   Arrange so set _a_ is the larger
 
-    ge(set.size(a),set.size(b))                         :s(union.a)
+    ge(#a,#b)                                           :s(union.a)
     union = a
     a = b
     b = union
@@ -3425,7 +3446,7 @@ setl4.show.set
     iter = set.iter(set)
                                         out('{')
                                         out('  kind',     plain(set.kind(set)))
-    ne(set.size(set))                   out('  size',     set.size(set))
+    ne(#set)                   out('  size',     #set)
 
     differ(set.index(set)) differ(set.key(set))
 .                                       out('  has index and key tables')
@@ -3444,19 +3465,6 @@ setl4.show.set
 .           error('set.key is not table')
                                                         :(return)
 setl4.show.end
-
-    define('setl4.size(set)')                           :(setl4.size.end)
-
-*   Setl4.set.size_ returns the  size of operand.
-
-setl4.size
-    Out('setl4.size dt',datatype(set))
-
-    setl4.size = ident(datatype(set),'string') size(set):s(return)
-*   setl4.size = differ(iter.step(set)) (iter.finis(set) - iter.start(set) / iter.step(set)) + 1:s(return)
-    setl4.size = set.size(set)                          :(return)
-
-setl4.size.end
 
     define('Out(text1,text2,text3)type1,type2')         :(Out.end)
 
@@ -3524,9 +3532,9 @@ setl4.op
 
 
 
-    opsyn('#','setl4.size', 1)
     opsyn('=','this',       1)
     opsyn('@','filter',     2)
+    opsyn('~','member',     2)
 
 *   Here endeth the SETL4 code.
 *   May you fare well using it.

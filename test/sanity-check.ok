@@ -10,8 +10,8 @@ eval equal(set,setu) success
 
 test membership- expect success/failure
 
-eval member(set,5) success
-eval member(set,6) failure
+eval 5 ~ set success
+eval member(6,set) failure
 
 Test exists/forall with element in set - expect success/failure
 
@@ -35,14 +35,14 @@ Test iter
 ( iterator  start=1  finis=10  step=2 ) 
 
 expect success
-eval eq(set.size(iter),5) success
+eval eq(#iter,5) success
 
 { iter  start=1  finis=10  step=2 } 
 expect success
-eval member(iter,5) success
+eval 5 ~ iter success
 
 expect failure
-eval member(iter,6) failure
+eval member(6,iter) failure
 
 { iter  start=25  finis=5  step=-5 } 
 ( iterator  start=25  finis=5  step=-5 ) 
