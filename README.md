@@ -1,7 +1,6 @@
 
 # SETL4 - A New Implementation of SETL
 
-
  # SETL4 - An Implementation of SETL Written in SPITBOL
 
 
@@ -339,12 +338,6 @@
     map in a standard order. For example, if _s_ is a set with the elements
     'a', 'b' and 'c', then _show(s)_ yields `set 'a' 'b' 'c' }`, not
     `set 'b' 'c' 'a' }`.
- ## Show
-
-    The function _show_ writes out the value of a SETL4 object in a readable
-    form. Objects are shown in the order defined by the function _sorter.
-
-
  ## SETL4  Operator Symbols
 
     SETL4 provides the following operator symbols:
@@ -467,4 +460,60 @@
  -  visit(set,expr)             Visits each element of set _set_ and evaluates _expr_ for that element.
  -  words(line,w)               Returns sequence of words (defined by _w_) in _line_.
  -  writer(lines)               Writes sequence _lines_ to standard output.
+
+##  Installing SETL4
+Here are the instructions on how to install Linux on a Chromebook, tested on the
+Chromebook I use:   ACER Chromebook 14  CB3-431.
+
+Use Google to search for 'crouton' and go there. This is the 'crouton' program for
+installing Linux alongside the standard Chrome OS. This requires installng the
+crouton extension, downloading the crouton program, and then installing your
+desired Linux variant.
+
+I use lxde, as disk space on Chromebook is limited, and lxde has small footprint.
+
+```
+  sudo sh ~/Downloads/crouton -t xiwi,lxde
+
+```
+
+This will run for a while and them seem to stop. However, if you look
+closely, you will find that Crouton is waiting for you to enter a username.
+(This is not immediately obvious, as the question is displayed in dark
+colors against an even darker background.)
+
+You should install the the following useful programs:
+
+```
+  meld - visual file comparator
+  okular - reader for PDF files
+  git - to clone the SETL4 system from github.
+
+Going forwrd, access Linux as follows:
+
+From Chrome OS, type 
+```
+        ctrl-alt-t
+```
+to open shell
+
+Type
+```
+    sudo startlxde
+```
+to start lxde
+
+You can now switch between lxde and Chrome OS using
+```
+    ctrl-alt-tab-back
+```
+or
+```
+    ctrl-alt-tab-forward
+```
+
+where 'back' is the back arrown key, the second from left on top row, and
+'forward' is the forward rrow key, the third from left on the top row.
+
+Good luck. Away you go ...
 

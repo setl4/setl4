@@ -160,16 +160,15 @@
 
 *   where
 
-*- _set.kind_
-    is the kind of the set: 'integer', 'iterator', 'map', 'sequence', or 'set'.
-*   The kinds are abbreviated below as:'int', 'iter', 'map', 'seq', or 'set'.
-*   The kind is  specified when the set is created. The default kind is 'set'.
+*- _set.kind_          is the kind of the set: 'integer', 'iterator', 'map', 'sequence', or 'set'.
+*                      The kind is specified when the set is created. The default kind is 'set'.
+*                      The kinds are abbreviated below as:'int', 'iter', 'map', 'seq', or 'set'.
 
 *- _set.iter_ iterator for controlling iteration over the set.
 
 *- _set.index_         SPITBOL table used to map the integer id assigned
 *                      each element to the value of the element.
-*It is needed to support iteration.
+*                       It is needed to support iteration.
 
 *- _set.key_  SPITBOL table mapping set elements to index entries.
 
@@ -437,12 +436,6 @@
 
 *       token(lineno,ndx,type,text) is a lexeme, or lexical token.
 
-*## Show
-
-*   The function _show_ writes out the value of a SETL4 object in a readable
-*   form. Objects are shown in the order defined by the function _sorter.
-
-
 *## SETL4  Operator Symbols
 
 *   SETL4 provides the following operator symbols:
@@ -668,11 +661,11 @@ arbitrary
 arbitrary.iter
 
     iter = set.iter(set)
-arbitrary = iter.starbitraryitrary(iter) + (r - 1) * iter.step(iter):(return)
+    arbitrary = iter.starbitraryitrary(iter) + (r - 1) * iter.step(iter):(return)
 
-                                                                      arbitrary.end
+arbitrary.end
 
-                                                                      define('ascii(line)c,n,name,nul,num,pos')           :(ascii.end)
+    define('ascii(line)c,n,name,nul,num,pos')           :(ascii.end)
 
 *   _Ascii_ returns the text of its argument string with every ascii character identified.
 
