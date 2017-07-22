@@ -2,479 +2,469 @@
 # SETL4 - A New Implementation of SETL
 
 
-SETL4 is an implementation of SETL (SET Language) written in SPITBOL.
+ # SETL4 - An Implementation of SETL Written in SPITBOL
 
-It can be viewed as an extension of SPITBOL that adds set-theoretic datatypes,
-functions, and operators; and also as an implementation of SETL that includes 
-the datatypes, functions, and operators of SPITBOL. 
 
-Either way, SETL4 provides raw power and speed for non-numeric computation.
+ ## What is SPITBOL?
 
-## Installation and Usage
+    SNOBOL is a general purpose programming language with special emphasis
+    on processing strings and text that was developed at Bell Labs in the
+    1960's by a team led by Ralph Griswold. The final version was called SPITBOL4.
 
-To install SETL, first visit http://github.com/setl4. Download the zip file or,
-if you are familiar with git, clone the repository:
+    Macro SPITBOL, or SPITBOL, is a very efficient implementation of SNOBOL4.
+    Created by Robert B. K. Dewar and Ken Belcher in 1969, SPITBOL/360
+    was written in IBM/360 assembly language, in a style Dewar termed
+    "aggressive assembly." That is, using every trick in the book to write
+    the fastest, most compact, code possible.
+ 
+    For example, SNOBOL4 requires maintaining a count of the number of
+    statements executed and the ability to stop execution when a specified
+    number of statements have been executed.  SPITBOL/360 does this by
+    computing an unnormalized floating point constant such that successive
+    increments of it result in floating point overflow when the limit is reached.
 
-```
-    git clone http://github.com/setl4
-```
+    Dewar and Belcher also wrote Realia COBOL, a COBOL compiler for Intel/x86
+    written in COBOL. It produced very efficient code, better code than,
+    for example, that produced by IBM's product COBOL compiler.
 
-Copy the file `bin/setl4` to a directory on your $PATH.
+    Dewar ported SPITBOL/360 to several machines. Dewar joined the faculty
+    of the Courant Institute of Mathematical Sciences (CIMS) of New York
+    University (NYU) as a Professor in the early 1970's. In 1973,
+    while working with Anthony P. "Tony" McCann of Leeds University,
+    Dewar created Minimal, a portable assembly language. Dewar and
+    McCann then rewrote SPITBOL in Minimal, resulting in Macro SPITBOL,
+    or SPITBOL. The implementation has proved very stable, with only
+    minor changes in the last several decades.
 
-To use SETL4, first enter
+    Macro SPITBOL is remarkably small. The code consists of about 28,000
+    lines: 2000 lines of comments defining Minimal, 5000 lines of constant/data
+    declarations, and 21,000 lines of code.  Every line of code has a comment.
+    The executable for x86 Linux is less than 150 kilobytes.
 
-```
-setl4
-```
+    SPITBOL was implemented for several machines and operating systems by
+    a small team that included Steve Duff, Mark Emmer, Bob Goldberg, and Dave Shields:
+    ICL 1900, Univac, CDC 6600, IBM PC, Apple Macintosh, SUN Solaris Sparc,
+    Microsoft (DOS/NT/Windows), Intel x86_64 (Unix/Linux), and x86_64 Apple iOS.
+    Special credit is due Mark Emmer, who led the project from the mid 1980's
+    to 2009, when Dave Shields became the maintainer of SPITBOL.
 
-You should see a list of the options. Then enter the program `try.stl`:
-```
-    -include "setl4.stl"
-    s = new('set hello world')
-    show(s)
-    end
-```
+    SETL4 requires a modified version of standard SPITBOL called SPITBOL4.
+    SPITBOL4 differs from standard SPITBOL as follows:
+ 
+ -  There is no automatic case folding. In standard SPITBOL the names 'x' and 'X' are the same;
+    they are different in SPITBOL4.
+ -  The default case is lower case.
+ -  The function _set()_ has been renamed to _zet_, so that _set_ can be used as an identifier.
+ -  The default value of _&anchor_ is 1. The default value of _&trim_ is 1.
 
-If that works, then you are on you way to having fun using SETL4 to write
-more interesting programs.
+    The file `bin/setl4' provided as part of the distribution is the executable for _spitbol4_.
 
-Directory `setl4/tests` contains test programs, including the program
-`sanity-check.stl` that is used to test changes to the system. It also
-provides examples of several basic constructs and operations.
+ ## What is SETL?
 
-Directory `setl4/examples` contains various demonstration program.
-Those written in SPITBOL have a name ending in 'sbl'. One goal of the
-project is to translate these programs to SETL4
+    SETL (SET Language)  is  a programming language with  finite sets as
+    the fundamental data type. It was created by Jacob T. "Jack" Schwartz
+    of the Courant Institute of Mathematical Sciences (CIMS) of New York
+    University (NYU).
 
+    Jack founded the SETL project in 1970. It was later funded by two
+    five-year grants from the Office of Naval Research.
 
-## What is SETL?
+    SETL was used to write NYU Ada/Ed, the first validated Ada compiler.
+    Devloped on the DEC Vax 11/780, Ada/Ed was ported to the IBM PC (DOS)
+    by a team led by Dave Shields.
 
-SETL (SET Language)  is  a programming language with finite sets as 
-the fundamental data type. It was created by Jacob T. "Jack" Schwartz 
-of the Courant Institute of Mathematical Sciences (CIMS) of New York 
-University (NYU).
 
-Jack founded the SETL project in 1970. It was later funded by two 
-five-year grants from the Office of Naval Research.
+ ## Why the name SETL4?
 
-SETL was used to write NYU Ada/Ed, the first validated Ada compiler.
-Devloped on the DEC Vax 11/780, Ada/Ed was ported to the IBM PC (DOS)
-by a team led by Dave Shields.
+    The SETL Project produced three implementations of SETL. The first was
+    written by Dave Shields in BALM, a language developed by Prof. Malcom
+    Harrison of CIMS, the second by Henry S. "Hank" Warren in PL/I while on
+    leave from IBM, and the third by Robert B. K. Dewar and Art Grand in LITTLE,
+    a low-level implementation language developed at CIMS.
 
-## Why are sets so important?
+    SETL4 is the fourth implementation of SETL produced during the course of
+    the SETL Project.  Dave Shields wrote the first implementation. This was
+    followed by two more implementations. This is the fourth implementation
+    written by a member of the SETL project,  hence the name SETL4.
 
-One of the great discoveries in mathematics in the twentieth century was the
-realization that ALL of mathematics can be expressed using sets. There is no branch of
-mathematics that does not use sets in some way.
 
-For a good introduction to set theory, see the book "Naive Set Theory" by Paul Halmos, a
-great mathematician as well as one of the best expository writers about mathematics. The book in
-PDF format can be found at http://elienasrallah.com/dl/Halmos%20Naive%20%set%theory.pdf
+ ## Brief Introduction to SETL4
 
-## Why are sets useful in programming?
+    SETL4 extends SPITBOL by adding the datatype _set_ to represent finite sets.
 
-Programming is a form of applied mathematics, as well as a field of engineering. Good programs
-not only find a solution but they do so using as little time and space as possible.
+    A set is a collection of distinct elements: for example,  _{a,b,c}_ is a set,
+    as is _{a,b,c,a}_; however, _{a,b,c,a}_ has only three elements, and is
+    equal to _{a,b,c}_.
 
+    For example, the folowing SETL4 expression determines if the integer _P_ is prime:
 
-Every program requires a specification of what is desired, whether written down,
-or as just a vision in the programmer's mind.
+            !exists(|'int 2 P' @ 'multiple(P,this)')
 
-Since creating programs is a branch of mathematics, the ideal specification should be
-mathematical, and, since all of mathematics use set theory in some way, the specification
-is best be written using set-theoretic data structures and operations.
+    where _multiple(a,b)_ is true if and only if _a_ is a multiple of _b_.
 
-(Note, as an aside, that if it is not possible to write a specification for a program
-based on set theory, then the resulting program only has meaning in an alternate 
-universe where mathematics does not apply.)
+ ## Sets in SETL4
 
-For example, consider how to write a program that finds all the primes less 
-than a given integer _n_.
+    SETL4 provides several kinds of sets.
 
-A number _n_ is prime if its only factors are one and the number itself. This is the same
-as saying there is no number greater than one and less than _n_ that divides _n_.
+    Sets of kind 'set' are a collection of distinct members.
 
-This can be expressed in SETL4 as
+    Sets of kind 'map' consist of a series or ordered pairs,
+    called entries. The first element of an entry is the key,
+    and the second is the value.  No two entries in the map can
+    have the same key but different values.
 
-```
-    exists(new('iter 2 ' n - 1),'multiple(n,this)') :s(freturn)f(return)
-```
-
-Here is the code for the function prime in SETL4, which makes use of the observations
-that even numbers, except for two, are not prime, and only need to check for multiples
-for integers no greater than the square root of _n_
-
-```
-    define('prime(n)iter,this')                 :(prime.end)
-
-*   Tests if _n_ is a prime integer.
-
-prime
-
-    n = integer(n) +n
-    eq(n,2)                                     :s(return)
-    even(n)                                     :s(freturn)
-
-    exists(new('iter 3 ' square.root(n) ' 2'), 'multiple(n,this)') :s(freturn)f(return)
-
-prime.end
-```
-
-Here is the code for exists():
-
-```
-    define('exists(set,expr)this,e')                :(exists.end)
-
-*   Tests if there is an element in _set_ such that _expr_ is true.
-
-exists
-
-    loop(set)
-
-exists.loop
-
-    this = next(set)                                :f(freturn)
-    exists = eval(expr)                             :f(exists.loop)s(return)
-
-
-exists.end
-
-```
-
-This is why SETL4 can be viewed as an executable specification language. If you
-specify a problem using set theory, then you can use SETL4 to execute that
-specification to get the result; in other programming languages you need to
-translate the specification into a different form, using arrays to represent
-a set, using loop statements to loop over sets, and so forth.
-
-
-## What is SPITBOL?
-
-SNOBOL is a general programming language with special emphasis on processing 
-strings and text that was  developed at Bell Labs in the 1960's by a team 
-led by Ralph Griswold. Their final version was called SNOBOL4.
-
-Macro SPITBOL, or SPITBOL, is a very efficient implemenation of SNOBOL4.
-Created by Robert B. K. Dewar and Ken Belcher in 1969, SPITBOL/360 
-was written in IBM/360 assembly language, in what Dewar called
-"aggressive assembly."
-
-For example, SNOBOL4 requires maintaining a count of the number of 
-statements executed and the ability to stop execution when a specified 
-number of statements have been executed.  SPITBOL/360 does this by
-computing an unnormalized floating point constant such that successive 
-increments result in floating point overflow when the limit is reached.
-
-Dewar and Belcher also wrote Realia COBOL, a COBOL compiler for Intel/x86 
-written in COBOL. It produced very efficient code, better
-code than, for example, that produced by IBM's product COBOL compiler.
-
-Dewar ported SPITBOL/360 to several machines. Dewar joined the CIMS faculty
-as a Professor in the early 1970's. In 1973, while working
-with Anthony P. "Tony" McCann of Leeds University, he developed
-Minimal, a portable assembly language. Dewar and McCann then rewrote
-SPITBOL in Minimal, producing Macro SPITBOL, or SPITBOL. 
-The implementation has proved very stable, with few changes in
-several decades.
-
-Macro SPITBOL is remarkably small. The code consists of about 28,000
-lines: 2000 lines of comments defining Minimal, 5000 lines of constant/data 
-declarations, and 21,000 lines of code.  Every line has a comment.
-The executable for x86 Linux is 144 kilobytes.
-
-SPITBOL was implemented for many machines and operating systems by
-a small team that included Steve Duff, Mark Emmer, Bob Goldberg, and Dave Shields:
-ICL 1900, Univac, CDC 6600, IBM PC, Apple Macintosh, SUN Solaris Sparc, 
-Microsoft (DOS/NT/Windows), Intel x86_64 (Unix/Linux), and x86_64 Apple iOS.  
-Special credit is due Mark Emmer, who led the project from the mid 1980's
-to 2009. Dave Shieldsl has maintained SPITBOL since then.
-
-
-## Why the name SETL4?
-
-The SETL Project produced three implementations of SETL. The first was
-written by Dave Shields in BALM, a language developed by Prof. Malcom 
-Harrison of CIMS, the second by Henry S. "Hank" Warren in PL/I while on 
-leave from IBM, and the third by Robert B. K. Dewar and Art Grand in LITTLE,
-a low-level implementation language developed at CIMS.
-
-SETL4 is the fourth implementation of SETL produced by a member 
-(Dave Shields) of the NYU SETL project, hence the name SETL4.
-
-## Sets in SETL4
-
-SETL4 provides several kinds of sets.
-
-Sets of kind 'set' are a collection of distinct members.
-
-Sets of kind 'map' consist of a series or ordered pairs,
-called entries. The first element of an enter is the key,
-the second is the value.  No two entries in the map can 
-have the same key but different values.
-
-Sets of kind 'iterator' consist of positive integers of the form
-
-```
+    Sets of kind 'iterator' consist of  integers of the form
+ ```
     low, low + step, ... high
-```
+ ```
 
-For example `'iterator 5 25 5'` is the set {5 10 15 20 25}.
-Iterators support efficient iteration, and suppor only the
-operations of iteration and membership.
+    or
 
-Sets of kind 'integer' define a map on the positive integers.
-The members usually, but not necessarily consist of a sequence
-of integers with no gaps; for example 'sequence 5' is a map defined
-on 1, 2, ... 5.
+ ```
+    high, high - step ... low
+ ```
 
-Sets of kind 'sequence' ('seq') are a map defined on a set of positive integers
-that usually, but not necessarily, consists of a consecutive sequence of integers.
+    If only _low_ is specified, then the iteator is interpreted as 'iterator 1 low'.
+    For example, 'iterator 100' is the set 1, 2, ... 100.
+    and 'iterator 5 25 5' is the set {5 10 15 20 25}; where
+    iteration over the iterator will go in order 5, 10 ... 25.
+    'iterator 25 5 -5' is the same set; but iteration will
+    go in the order 25,20 ... 5.
+ 
+    If _high_ is less than _low_, then a negative step is undersood,
+    even if it is given as a positive value. For example, both
+    `iter 25 5 -5` and `iter 25 5 5' go in order "25, 20 ... 1"
 
-Sets of kind 'string' consists of a map from integers to characters.
+    Iterators support efficient iteration, but they provide only
+    the operations of iteration and membership; you cannot
+    add or remove an element from an iterator.
 
-By convention, the kinds are writtten 'int', 'iter', 'map', and 'set'.
+    Sets of kind 'integer' are intended or sets of integers
+    containing many elements. See below for more details.
 
-## Additonal SETL4 Data Types
+    A sequence is a map defined on a set of consecutive positive integers.
+    For example 'sequence 5' is a map defined on 1, 2, ... 5.
 
-SETL4 provides the following data types in addtion to _set_: 
+    Sequences are represented in the same way as a map. They differ from a map only
+    in that iteration over a sequence returns the values of the sequence, not the
+    instances of _entry_ that are returned when iterating over a map.
 
-_entry_   _line_   _token_
-
-where 
-
--   `entry(key,value)`            is an entry in a map;
--   `line(mark,text)`             is a line of text and an associated mark (tag); and
--   `token(lineno,ndx,type,text)` is a lexeme, or lexical token.
-
-
-### SETL4 Global variables
-
-
-```
-setl4.ascii.name = 
-setl4.ascii.value =  
-setl4.random_var =
-```
-
-### Useful Patterns
-
-```
-setl4.any.digit         =   any('0123456789')
-setl4.span.digits       =   span('0123456789')
-setl4.break.digit       =   break('0123456789')
-
-setl4.break.letter      =   break(&lcase &ucase)
-setl4.any.letter        =   any(&lcase &ucase)
-setl4.span.letters      =   span(&lcase &ucase)
-setl4.span.spaces       =   span(' ' char(9))
-setl4.break.space       =   break(' ' char(9))
-
-setl4.any.word          =   any(&lcase &ucase '0123456789')
-setl4.span.word         =   span(&lcase &ucase '0123456789')
-
-```
+    By convention, the kinds are writtten 'int', 'iter', 'map', 'seq', and 'set'.
 
 
-## Set Data Type
--------------
+ ## Sets of integers
 
-A set is defined by the following datatype:
+    SETL4 sets of kind _integers' provide an efficient implementation of a set with
+    many non-negative integers, such as  a set with more than a million integers.
+ 
+    The set is represented by a table of strings, each with  _setl4.config.int_ characters,
+    so that the first block represents the integers `0 .. _setl4_config.int_ -1 and so forth.
+    Addition to  the set is done by setting the appropriate character in a block to '+'.
+    New blocks are allocated only when necesary.
 
-  `data('set(set.index,set.key,set.kind,set.size,set.next,set.low,set.high,set.max,set.step,set.text,set.seq,set.this)')`
+    The SPITBOL function BREAK is used to find the next element
+    in the set when iterating over the set.
 
-where
+ ## Ordered Pairs
 
--   _set.index_         a SPITBOL table used to map the integer
-id assigned each element to the value of the element.
-It is used to support fast iteration.
+    In set theory, sets are not ordered. The set _{a,b}_ is the same as (equal to)
+    the set _{b,a}_.
 
--   _set.key_           a SPITBOL table mapping set elements to index entries.
+    Although sets are not ordered, sets can be used to define an ordered pair:
 
--   _set.kind_          is the kind of the set, one of 'set', 'map', 'int, 'seq'.
-The kind is  specified when the set is created. The default value is 'set'.
+    data('pair(first,second)')
 
--   _set.size_          the current number of members.
-
--   _set.next_           is iteration index when iterating over set
-when iterating over a 
-
--   _set.low_           lower bound of _int_ 
-
--   _set.high_          upper bound of _int_ 
-
--   _set.step_         number of values between members of set of kind _int_.
-
--   _set.text_          is the text of the set of kind _str_
-
--   _set.this_          the last value returned by the _next_ primitive
-
--   _set.max_           maximum number of elements. This applies to sets of kind 'integers'.
-
-## Sets of integers
-
-SETL4 sets of kind 'integers' provide an efficient implementation of a set of 
-integers, in the form of a string such that an integer _i_ is in the set only
-if the i-th character of the string is '+'. The string is represented by a 
-table in blocks of 100 characters, so that the first block represents the integers 
-1 .. 100, and so forth. New chunks are allocated only when necesary.  The SPITBOL 
-function BREAK is used to find the next element in the set when iterating over the set.
-
-## Maps
-
-In mathematics, a map defined on a finite set is a set of 
-ordered pairs, or entries,  that define a relation between the 
-first element of an entry, its _key_, and the second element 
-of the entry, the value of the map for _key_.
-
-    `data('entry(key,value)')`
-
-The SPITBOL datatype TABLE provides the machinery to implement maps.
-SPITBOL provides no way to determine the number of entries in a table
-other than converting the map to an array. This is the only way in 
-SPITBOL to iterate over a SPITBOL table.
-
-For this reason, maps are implemented using two tables: _index_ and _key_.
-Each new entry added to a map is given an integer id, starting with one.  
-The field _index_ maps the id's to the associated pairs.
-The entries in _index_ allow efficient iteration over the  
-
-The table _key_ maps keys in the map to the corresponding entry in the map.
-The entries in _key_ permit efficient retrieval of the map's value for a given key.
-
-SETL4 also provides the datatype _stack_ that implements a stack, providing
-the functions _push_ and _pop_. Stacks are created by the function _new.stack_.
-
-    `data('stack(stack.stack,stack.top)')`
+    by defining _pair(a,b)_ to be
+ 
+        _{a,{a,b}}_
+ 
+    It is easy to prove that, given this definition, _pair(a,b)_ is equal
+    to _pair(c,d)_ if and only if _a_ is equal to _c_ and _b_ is equal to _d_.
 
 
-Additional operations provided as an artifact of the implementation
--------------------------------------------------------------------
+ ## Maps
 
-The use of the tables _set.index_ and _set.key_ to implement a set makes it
-possible to provide some operations not available in in standard set theory. 
-For example, it is possible to retrieve elements using the function _get_. 
-_Get(s,i)_ retrieves the i-th element in the set.
+    A map defined on a finite set is a set of ordered pairs,
+    or entries, that define a relation between the first element of an entry,
+    its _key_, and the second element of the entry, the value of the map for _key_.
 
-The function _rank_ can be used to determine the order in which the elements 
-of a set are accessed during an iteration, or to 'sort' the tables implementing
-the set. For example, _rank(s,'+v') sorts a map in increasing order of the
-values of the map. _rank(s,'-v') sorts the values in descendng order, and
-so forth. For example, here is the code to find the ten members with 
-the largest values in a map:
+    data('entry(key,value)')
 
-```
-        rank(map,'-v')
+    A set of ordered pairs is a map if and only if there do not exist two entries
+    _entry(a,b)_ and _entry(c,d)_ such that _a_ is equal to _c_ and _b_ is not equal to _d_.
+    For example, the map defined by the set _{[one,1],[2,two],[one,1]}_ is valid, but
+    one cannot define a map based on the set _{[one,1],[2,two],[one,3]}_.
+
+    However, SETL4 does allow the use of a set of pairs that would not
+    be allowed in stanard set theory to define a map. If two of more pairs
+    have the same first value, the the last such pair encountered defines the
+    value to be used. For exampe, the set _{entry(one,1),entry(2,two),entry(one,3)}_ produces
+    the same map as _{entry(one,3),entry(2,two)}_.
+
+    Though you can use _entry to give a key and its associated value, the
+    preferred convention is separate a key and its value with a colon.
+    allows you to write "key:value," 
+ ```
+        new('map' one:1 two:2 three:3')
+
+ ```
+
+    instead of
+
+ ```
+        new('map' entry('one',1) ' ' entry('two',2) ' ' entry('three',3) )
+ ```
+
+    Though in set theory, maps are defined in terms of sets, in the SETL4
+    implementation, sets are represented are maps, by mapping each element
+    to itself. For example, the set _{a,b,c}_ is kept as the map: {a:a,b:b,c:c}.
+
+    SETL4 supports adding entries to a set of kind _map_ by using the
+    key and value in the entry to define the value of the map for _key(entry)_
+    to be _value(entry)_.
+
+    The SPITBOL datatype TABLE provides the machinery to implement maps.
+    SPITBOL provides no way to determine the number of entries in a table
+    other than converting the map to an array. This is the only way in
+    SPITBOL to iterate over a SPITBOL table.
+
+    For this reason, maps are implemented using two tables: _index_ and _key_.
+    Each new entry added to a map is given an integer id, starting with one.
+    The field _index_ maps the id's to the associated pairs.
+    The entries in _index_ allow efficient iteration over the
+ 
+    The table _key_ maps keys in the map to the corresponding entry in the map.
+    The entries in _key_ permit efficient retrieval of the map's value for a given key.
+
+    SETL4 supports stacks by implementing them as a sequence. The fuction
+    _push()_ pushes a value on to the stack; the function _pop_ removes the
+    top value.
+
+
+ ## Loops, Iterators
+
+    Loops in SPITBOL have the form of a test followed by the loop body,
+    with the body ending with a branch back to the test.
+
+   For example, here is a loop that prints the first one hundred integers:
+
+ ```
+ test
+        i = i + 1
+        le(i,100)                       :f(done)
+        output = i                      :(test)
+ done
+ ```
+
+    This can also be written as:
+
+ ```
+ test
+        output = le(i = i + 1,100) i    :s(test)
+ ```
+
+    Loops in SETL4 are constructed using the _loop_ and _next_ statements.
+
+    A loop has the form:
+
+ ```
+        loop(set,thisname)
+ 
+    set.next
+        var = next(set)     :f(set.done)
+        out(this)           :(set.next)
+    set.done
+ ```
+
+    The first operand specifies of _loop_ gives the set or range of values
+    of the iteration.  The optional second argument names a variable that is
+    updated as part of successful call to _next_.  The name _this_ is used
+    if the second argument is not given. The _loop_ statement above can be
+    written as _loop(set)_ or also _loop(set,.this)_ or _loop(set,'this').
+ 
+    Loops can have a specific variable associated with a loop.
+
+ ```
+        loop(set,.this.s)
+        ...
+    set.next
+        next(set)           :f(set.done)
+        out(this.s)         :(set.next)
+    set.done
+ ```
+
+    The _loop_ statement creates an instance of _iterator_ to control the
+    iteration. The _next_ statement advances the iteration by producing the
+    next element or failing if no more elements remain.
+
+    See the functions _prime_ and _primes_ defined below to see _loop_
+    and _next_ in action. See also the code for _exists_ and _forall_.
+
+ ## Showing Values
+
+    Use the function _show()_ to display the value of a SETL4 or SPITBOL object
+
+    Sets are listed with the values enclosed in '{}'.
+    Sequences of ten or fewer elements are listed with the
+    values enclosed in '()'. Sequences of more than ten elements
+    are listed with the index and value enclosed in '[]').
+    Pairs and entries are listed with the component values enclosed in '()'.
+
+ ## Additional Operations Provided as an Artifact of the Implementation
+
+    The use of the tables _set.index_ and _set.key_ to implement a set makes it
+    possible to provide some operations not available in in standard set theory.
+    For example, it is possible to retrieve elements using the function _get_.
+    _Get(s,i)_ retrieves the i-th element in the set.
+
+    The function _sorter_ can be used to determine the order in which the elements
+    of a set are accessed during an iteration, or to 'sort' the tables implementing
+    the set. For example, _sorter(s,'+v')_ sorts a map in increasing order of the
+    values of the map. _sorter(s,'-v')_ sorts the values in descendng order, and
+    so forth. For example, here is the code to find the ten members with
+    the largest values in a map:
+
+ ```
+        sorter(map,'-v')
         largest = new('set')
         iter = new('iter 1 10')
-        loop(iter)
-    
+        loop(set)
+ 
     largest.add
-    
-        add(largest,next(iter))               :s(largest.add)
-```
+ 
+        add(largest,next(set))               :s(largest.add)
+ ```
 
- _Rank_ is used by the _show_ function to display the values of a set or
-map in a standard order. For example, if _s_ is a set with the elements
-'a', 'b' and 'c', however the order in which they were added, then _show(s)_
-produces `{ set 'a' 'b' 'c' }`, not `{set 'b' 'c' 'a' }`.
+    _Sorter_ is used by the _show_ function to display the values of a set or
+    map in a standard order. For example, if _s_ is a set with the elements
+    'a', 'b' and 'c', then _show(s)_ yields `set 'a' 'b' 'c' }`, not
+    `set 'b' 'c' 'a' }`.
+ ## Show
 
-## SETL4 Functions
-
-
-*   SETL4 Functions
-*   ---------------
-*
--  `add(set,elem)`                  Adds element to set, or the members of _elem_ if _elem_ is a set.
--  `and(a,b)`                       And: test if both operands are true
--  `arb(n)`                         Returns arbitary (randomly chosen) integer in 1 .. _n_
--  `arb(set)`                       Returns arbitary (randomly chosen) element of _set_
--  `assert(expr)`                   Tests that _expr_ is true, ends execution otherwise
--  `assert.type(obj,type)`          Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise
--  `at(set,expr)`                   Evaluates _expr_ for for current iterate of _set_
--  `begins(str,sub)`                Tests if string _key_ begins with string _sub_
--  `compose(a,b)`                   Returns composition of two maps or tables.
--  `defined(map,key)`               Tests if a map is defined for a specified key
--  `difference(a,b)`                Returns set of members of set _a_ not in the set _b_
--  `domain(map)`                    Returns set of elements in the domain of a map
--  `equal(a,b)`                     Tests if two SETL4 objects are equal
--  `exists(set,expr)`               Tests if an expression is true for at least one element in a set
--  `from(set,elem)`                 Returns set consisting of the members of a set except a specified member
--  `get(map,key)`                   Gets the value of map _map_ for _key_ for a map
--  `get(set,i)`                     Gets the i-th element in a set, or fails if no such element
--  `false(e)`                       tests if argument is false
--  `forall(set,expr)`               Tests if an expression is true for every element of a set
--  `filter(set,expr)`               Filter:; returns subset of _set_ for which _expr_ is true
--  `int(s)`                         Returns integer defined by _s_
--  `integers(n)`                    Returns set of integers 1 ... n
--  `intersection(a,b)`              Returns set of elements common to two sets
--  `join(a,b)`                      Joins two strings into a single string by concatenating them
--  `loop(set)`                      Set up iteration over _set_ using _next_
--  `mark(line)`                     Annotates, or marks, a line
--  `member(elem,set)`               Tests set membership
--  `new(str)`                       Returns new set specified by _st_
--  `next(set)`                      Returns next element in iteration defined by prevous _loop_, fails if no more elements
--  `not(expr)`                      Not: tests if operand is false
--  `or(a,b)`                        Or: tests if either operand is true
--  `push(stack,value)`              Push value onto a stack
--  `pop(stack)`                     Pop the top of a stack
--  `put(map,key,val)`               Defines the value of a map key
--  `random(n)`                      Returns random element
--  `random.seed()`                  Sets random number seed to initialize _random_
--  `range(map)`                     Returns set of elements in the range of a map
--  `rank(set)`                      Returns the rank, or normal form, of a set or string.
-*   remove(set,elem)                Remove arbitary element from set, or most recent entry from map.
--  `subset(a,b)`                    Tests if the second set is a subset of the first set
--  `union(a,b)`                     Returns set consisting of all the members in two sets
--  `set.size(set)`                  Returns number of elements in set _set_
--  `traceoff()`                     Turns off tracing
--  `show(v,nested)`                 Show value of _v_, with _nested_ set non-zero when listing member of set
--  `show.b(e)`                      Show value of _b_ as boolean
--  `show.line(line)`                Show string _line_ with spaces replaced by '.'
--  `show.lines(lines,title)`        Show non-empty lines in array of lines, with title 'title'
--  `show.q(str)`                    Show string enclosed in appropriate quote character (" or ') 
--  `traceon()`                      Turns on tracing
--  `this(set)`                      Returns current iteration value for _set_
--  `true(e)`                        Tests if operand is true
--  `visit(set,expr)`                Visits each element of set _set_ and evaluates _expr_ for that element
--  `words(str)`                     Returns sequence of words, separated by spaces, in a string,
-
-## Utility Functions
+    The function _show_ writes out the value of a SETL4 object in a readable
+    form. Objects are shown in the order defined by the function _sorter.
 
 
-*   Utility Functions
-*   ---------------
+ ## SETL4  Operator Symbols
 
-*   In addition to set-theoretic functions SETL4 provides 
-*   the following utility functions.
+    SETL4 provides the following operator symbols:
+ 
+    _#s_        returns the size of a string or set _s_
+    _x ~ s_     tests if _x_ is member of set _s_
+    _s @ e_     is equivalent to _filter(s,e)
+    _=s_        returns the value of the iteration variable (usually 'this') of a loop.
 
--  `append(str,w,ch)`           Appends _ch_ (or space if _ch_ is null) to _str_, then appends _w_
--  `ascii(line)`                Returns the text of line with every ascii character identified
-*  `checkout(filename)`         Returns set or map defined by a file in the libary
--  `datename(date)`             Returns string based on current time suitable for use as filename
--  `digits()`                   Returns list of digits: '0 1 2 .. 9'
--  `even(n)`                    Tests if _n_ is even
--  `factorial(n)`               Returns n!  = n * (n -1) * ... * 1
--  `letters()`                  Returns list of letters : 'a b c ... z A B ... Z''
--  `less(str,sub)`              Removes the first instance of each character in _sub_ from _str_,
--  `lletters()`                 Returns list of lower case letters : 'a b c ... z'
--  `lower(s)`                   Returns _s_ with upper case letters replaced by lower case equivalent
--                               then _text3_ if _text3_ is not null.
--  `multiple(n,m)`              Tests if _n_ is a multiple of _m_
--  `number(n)`                  Returns _n_ as one or two words if possible, else returns _n_
--  `odd(n)`                     Tests if _n_ is odd
--  `out(text1,text2,text3)`     Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null,
--  `prefix(str,pre)`            Takes a list of space-separated words in _str_ and prefixes each
--  `prime(n)`                   Tests if _n_ is prime
--  `primes(n)`                  Returns set of primes less than _n_
--  `                            with the string _pre_
--  `reader(filename,expr)`      Returns sequence of lines in file _filename_, using _expr_ (if given)
--                               to filter out lines to be ignored.
--  `reader(str,delim)`          Like _reader(filename..)_ but reads lines from a string with lines
--  `slice(str,first,last)`      Same as SPITBOL _substr(str,first,last)_
--  `square.root(n)`             Returns integer square root on _n_
--  `thousands(s)
--  `                                separated by delimiter _delim_
--  `tokens(line)`               Returns sequence of the tokens in _line_
--  `uletters()`                 Returns list of upper case letters : 'A B C ... Z''
--  `upper(s)`                   Returns _s_ with lower case letters replaced by upper case equivalent
--  `writer(lines)`              Writes sequence _lines_ to standard output.
+    For example, _member(x,s)_ can be written _x ~ s_, _set.size(x)_ can be written
+    _#s_, and _filter(s,e)_ can be written _s @ e_.
+
+ ## Sample data
+
+    Programs need data. Since SPITBOL is designed to analyze and manipulate text, SETL4 provides
+    a library consisting of several works chosen from the world's greatest literature, including
+    the works of William Shakespeare, a dictionary, and the text of the King James version
+    of the Bible. Except for the dictionary, all texts were obtained using Project Gutenberg.
+
+    As an extension of SPITBOL, SETL4 brings the raw power and speed of SPITBOL to the task
+    of working with text. Additional functions are provided, including a lexical scanner, or
+    tokenizer, to assist in performing deep, detailed analysis of textual structure.
+
+    Several of these functions have as their purpose the translation of text into sets, maps,
+    and sequences. For example, the tokenizer returns a sequence consisting of the tokens
+    in a line of text.
+
+    In order to be able to use the program ./examples/align.stl to align the
+    goto fields in the source, use the variable _char(58)_ where
+    the colon character enclosed in quotes would normally be used.
+
+ ## SETL4 Functions
+
+    SETL4 provides the following functions:
+ 
+ -  add(set,elem)               Adds element to set.
+ -  and(a,b)                    Tests if both operands are true.
+ -  append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then _w_
+ -  arbitrary(n)                Returns arbitary (randomly chosen) integer in 1 .. _n_.
+ -  arbitrary(set)              Returns arbitary (randomly chosen) element of _set_.
+ -  ascii(line)                 Returns the text of line with every ascii character identified
+ -  assert(expr)                Tests that _expr_ is true, ends execution otherwise.
+ -  assert.type(obj,type)       Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise.
+ -  begins(str,sub)             Tests if string _str_ begins with string _sub_.
+ -  binary(n)                   Returns string with value of _n_ in binary number.
+ -  checkout(filename)          Returns ('checks out') set or map defined by a text file from the libary
+ -  compare(a,b)                Compares two integers or strings, returning -1 (less), 0 (equal), or +1 (greater).
+ -  compose(a,b)                Returns composition of two maps or tables.
+ -  datename(date)              Returns string based on current time suitable for use as filename.
+ -  defined(map,key)            Tests if a map is defined for a specified key.
+ -  difference(a,b)             Returns set of members of set _a_ not in the set _b_.
+ -  domain(map)                 Returns set of elements in the domain of a map.
+ -  equal(a,b)                  Tests if two SETL4 objects are equal.
+ -  even(n)                     Tests if _n_ is even.
+ -  exists(set,expr)            Tests if an expression is true for at least one element in a set.
+ -  factorial(n)                Returns n!  = n * (n -1) * ... * 1.
+ -  frequency(s)                Returns frequency of values in sequence, map or string _s_.
+ -  from(set,elem)              Returns set consisting of the members of a set except a specified member.
+ -  get(map,key)                Gets the value of map _map_ for _key_ for a map.
+ -  get(set,i)                  Gets the i-th element in a set, or fails if no such element.
+ -  false(e)                    Tests if argument is false.
+ -  filter(set,expr)            Returns set of elements in _set_ for which _expr_ is true.
+ -  forall(set,expr)            Tests if an expression is true for every element of a set.
+ -  integers(n)                 Returns set of integers 1 ... n.
+ -  intersection(a,b)           Returns set of elements common to two sets.
+ -  is.plain(s)                 Tests if _s_ is plain type: integer, name, real, or string.
+ -  join(a,b)                   Joins two strings into a single string by concatenating them.
+ -  less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
+ -  longest(set)                Returns the longest string in a set.
+ -  loop(set,this)              Set up iteration over _set_ using _next_. _this_ names variable updated during iteration.
+ -  tolower(s)                  Returns _s_ with upper case letters replaced by lower case equivalent.
+ -  minimum(set)                Returns the shortest string in a set.
+ -  multiple(n,m)               Tests if _n_ is a multiple of _m_.
+ -  odd(n)                      Tests if _n_ is odd.
+ -  out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null.
+ -  pack(seq)                   Packs sequence of strings into single string.
+ -  plain(v)                    Returns string representing a plain type, per is.plain().
+ -  powerset(set)               Return the powerset of _set_, the set of all the subsets of _set_.
+ -  prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_.
+ -  product(seq)                Returns (Cartesian) product of a sequence of sets.
+ -  member(set,elem)            Tests if _elem_ is a member of _set_.
+ -  new(str)                    Returns a new set specified by _str_.
+ -  next(set)                   Returns next element in iteration defined by prevous _loop_, fails if no more elements.
+ -  not(expr)                   Tests if operand is false.
+ -  number(s)                   Returns integer defined by _s_.
+ -  or(a,b)                     Tests if either operand is true.
+ -  push(stack,value)           Push value onto a stack.
+ -  pop(stack)                  Pop the top of a stack and return its value.
+ -  prime(n)                    Tests if _n_ is prime.
+ -  primes(n)                   Returns set of primes less than _n_.
+ -  put(map,key,val)            Defines the value of a map key.
+ -  quicksort(seq)              Use Hoare's quicksort algorithm to sort a sequence.
+ -  random(n)                   Returns random integer if _n_ is integer, elsel random element of set or map.
+ -  random.seed()               Sets random number seed to initialize _random_.
+ -  range(map)                  Returns set of elements in the range of a map.
+ -  reader(filename,expr)       Returns sequence of lines in file _filename_, using _expr_ (if given).
+ -  reader(str,delim)           Like _reader(filename..)_ but reads lines from a string with lines.
+ -  remove(set,elem)            Removes arbitary element from set, or most recent entry from map.
+ -  #set               Returns number of elements in set _set_.
+ -  show(v)                     Shows value of _v_.
+ -  show.plain(v)               Same as _show()_, but strings are not enclosd in quotes.
+ -  show.b(e)                   Shows value of _b_ as boolean.
+ -  show.lines(lines,number)    Shows a sequence of lines, with id if _number_ not null.
+ -  slice(str,first,last)       Like SPITBOL substr to work for sequences and tuples.
+ -  sorter(set,type)            Sorts a set, map or string according to _type_.
+ -  split.line(line)            Splits line of blank-separated words into sequence.
+ -  split.string(str)           Splits string into sequence of characters.
+ -  square.root(n)              Returns integer square root on _n_
+ -  subset(a,b)                 Tests if the set _b_  is a subset of set _a_
+ -  this(set)                   Returns current iteration value for _set_.
+ -  thousands(s)                Returns _s_ with a comma every three spaces from the right.
+ -  top(s)                      Returns top element of sequence viewed as stack.
+ -  traceon()                   Turns on tracing.
+ -  traceoff()                  Turns off tracing
+ -  tokens(line)                Returns sequence of the tokens in _line_.
+ -  true(e)                     Tests if operand is true.
+ -  union(a,b)                  Returns set consisting of all the members in two sets.
+ -  unpack(str)                 Unpacks string into sequence of its characters.
+ -  toupper(s)                  Returns _s_ with upper case letters replaced by lower case equivalent.
+ -  visit(set,expr)             Visits each element of set _set_ and evaluates _expr_ for that element.
+ -  words(line,w)               Returns sequence of words (defined by _w_) in _line_.
+ -  writer(lines)               Writes sequence _lines_ to standard output.
+

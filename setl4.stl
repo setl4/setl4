@@ -153,7 +153,7 @@
 
 *## Set Data Type
 
-*   A set is a collection unequall objects, and is represented in SETL4 by the datatype _set_:
+*   A set is a collection unequal objects, and is represented in SETL4 by the datatype _set_:
 
     data('set(set.kind,set.iter,set.index,set.key,set.size,set.encloser,'
 .   'set.block,set.blocks,set.offset,set.str)')
@@ -161,18 +161,19 @@
 *   where
 
 *- _set.kind_
-*is the kind of the set, one of 'int', 'iter', 'map', 'seq', 'set', or 'tuple'.
-*The kind is  specified when the set is created.
-*The default kind is 'set'.
+    is the kind of the set: 'integer', 'iterator', 'map', 'sequence', or 'set'.
+*   The kinds are abbreviated below as:'int', 'iter', 'map', 'seq', or 'set'.
+*   The kind is  specified when the set is created. The default kind is 'set'.
 
 *- _set.iter_ iterator for controlling iteration over the set.
 
-*- _set.index_         SPITBOL table used to map the integer id assigned each element to the value of the element.
+*- _set.index_         SPITBOL table used to map the integer id assigned
+*                      each element to the value of the element.
 *It is needed to support iteration.
 
 *- _set.key_  SPITBOL table mapping set elements to index entries.
 
-*- _set.size_ the current number of members.
+*- _set.size_          the current number of members.
 
 *- _set.encloser_      characters used to enclose value when showing this set
 
@@ -667,11 +668,11 @@ arbitrary
 arbitrary.iter
 
     iter = set.iter(set)
-    arbitrary = iter.starbitraryitrary(iter) + (r - 1) * iter.step(iter):(return)
+arbitrary = iter.starbitraryitrary(iter) + (r - 1) * iter.step(iter):(return)
 
-arbitrary.end
+                                                                      arbitrary.end
 
-    define('ascii(line)c,n,name,nul,num,pos')           :(ascii.end)
+                                                                      define('ascii(line)c,n,name,nul,num,pos')           :(ascii.end)
 
 *   _Ascii_ returns the text of its argument string with every ascii character identified.
 
@@ -704,7 +705,7 @@ ascii.next
     &alphabet break(c) . pos                            :f(ascii.other)
     pos = size(pos)
     gt(pos,26)                                          :s(ascii.other)
-    ascii = ascii g.ascii.name[c] '(^'
+    ascii = ascii setl4.ascii.name[c] '(^'
                substr('ABCDEFGHIJKLMNOPQRSTUVWXYZ',pos,1) ')'
     line len(1) =                                       :(ascii.next)
 
@@ -713,7 +714,7 @@ ascii.integer
     line span('0123456789') . text =
     ascii = ascii  text                                 :(ascii.next)
 
-asciiletter
+ascii.letter
 
     line span(&lcase &ucase) . text =
     ascii = ascii  text                                 :(ascii.next)
@@ -726,7 +727,7 @@ ascii.other
 
 *   Here if none of the other cases apply, so just list the ascii name.
 
-    ascii = ascii ascii.name[c]
+    ascii = ascii setl4.ascii.name[c]
     line = substr(line,2)                               :(ascii.next)
 
 ascii.space
@@ -769,23 +770,23 @@ ascii.init
 .      '14:SO 30:RS  46:.   62:> 78:N 94:^ 110:n 126    :~ '
 .      '15:SI 31:US  47:/   63:? 79:O 95:_ 111:o 127    :DEL ')
 
-    ascii.name = new('map #128')
-    ascii.value = new('map #128')
+    setl4.ascii.name = new('map #128')
+    setl4.ascii.value = new('map #128')
     loop(ascii.init)
 
 ascii.init.next
 
     entry = setl4.l.next(ascii.init)                    :(ascii.init.finis)
 *   Correct entry for 0 to be NUL, the NUL character
-    ascii.name[substr(&alphabet,+v + 1,1)] = name
-    ascii.value[name] = +value                          :(ascii.init.next)
-    ascii.name[] = 'NUL'
-    ascii.value['NUL'] = 0
-    ascii.name[' '] = 'SPC'
-    ascii.value['SPC'] = 32
-    ascii.value['SPC'] = 32
-    ascii.name[char(58)] = char(58)
-    ascii.value[char(58)] = 58
+    setl4.ascii.name[substr(&alphabet,+v + 1,1)] = name
+    setl4.ascii.value[name] = +value                          :(ascii.init.next)
+    setl4.ascii.name[] = 'NUL'
+    setl4.ascii.value['NUL'] = 0
+    setl4.ascii.name[' '] = 'SPC'
+    setl4.ascii.value['SPC'] = 32
+    setl4.ascii.value['SPC'] = 32
+    setl4.ascii.name[char(58)] = char(58)
+    setl4.ascii.value[char(58)] = 58
 
 ascii.init.end
 
@@ -1045,7 +1046,7 @@ defined.end
 
 difference
 
-    difference = new()
+    difference = new('set')
     loop(a)
 
 diference.next
@@ -1062,7 +1063,7 @@ difference.end
 
 domain
 
-    domain = new()
+    domain = new('set')
     loop(map)
 
 domain.next
@@ -1149,6 +1150,8 @@ equal.end
 
 even
 
+*HERE*
+    
     integer(n)                                          :f(freturn)
     eq(remdr(n,2))                                      :s(return)f(freturn)
 
@@ -1321,7 +1324,7 @@ frequency.end
 
 from
 
-    from = new()
+    from = new('set')
     loop(set)
 
 from.next
@@ -1406,7 +1409,7 @@ intersection
     le(#a,#b)                                           :s(intersection.next)
     a = b
     b = intersection
-    intersection = new()
+    intersection = new('set')
     loop(a)
 
 intersection.next
