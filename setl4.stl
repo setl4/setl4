@@ -510,7 +510,6 @@ setl4.size.end
 *-  datename(date)              Returns string based on current time suitable for use as filename.
 *-  defined(map,key)            Tests if a map is defined for a specified key.
 *-  difference(a,b)             Returns set of members of set _a_ not in the set _b_.
-*-  digits()                    Returns list of digits: '0 1 2 .. 9'.
 *-  domain(map)                 Returns set of elements in the domain of a map.
 *-  equal(a,b)                  Tests if two SETL4 objects are equal.
 *-  even(n)                     Tests if _n_ is even.
@@ -577,6 +576,7 @@ setl4.size.end
 *-  tokens(line)                Returns sequence of the tokens in _line_.
 *-  true(e)                     Tests if operand is true.
 *-  union(a,b)                  Returns set consisting of all the members in two sets.
+*-  unpack(str)                 Unpacks string into sequence of its characters.
 *-  toupper(s)                  Returns _s_ with upper case letters replaced by lower case equivalent.
 *-  visit(set,expr)             Visits each element of set _set_ and evaluates _expr_ for that element.
 *-  words(line,w)               Returns sequence of words (defined by _w_) in _line_.
@@ -1055,22 +1055,6 @@ diference.next
     add(difference,this)                                :(difference.next)
 
 difference.end
-
-    define('digits()str,ch')                            :(digits.end)
-
-*   _Digits_ returns the string consisting of the digits 0 .. 9 separated by a space.
-
-digits
-
-    digits =
-    str = '0123456789'
-
-digits.next
-
-    str len(1) . ch =                                   :f(return)
-    digits = append(digits,ch)                          :(digits.next)
-
-digits.end
 
     define('domain(map)elem)')                          :(domain.end)
 
@@ -3338,6 +3322,36 @@ union.b
     add(union,elem)                                     :(union.b)
 
 union.end
+
+    define('unite(seq)this')                            :(unite.end)
+
+*   Unites a sequence of characters into a single string.
+
+unite
+
+    loop(seq)
+
+unite.next
+
+    this = next(seq)                                    :f(return)
+    unite = unite this                                  :(unite.next)
+
+unite.end
+
+    define('unpack(str)seq,ch')                         :(unpack.end)
+
+*   Unpack string _str_ into sequence of its characters.
+
+unpack
+
+    unpack = new('seq')
+
+unpack.next
+
+    str len(1) . ch =                                   :f(return)
+    push(unpack, ch)                                    :(unpack.next)
+
+unpack.end
 
     define('visit(set,expr)this')                       :(visit.end)
 
