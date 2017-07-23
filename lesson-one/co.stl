@@ -1,0 +1,10 @@
+
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+-include "../setl4.stl"
+
+
+ d = checkout('dictionary')
+ output = set.size(d)
+end

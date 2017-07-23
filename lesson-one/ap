@@ -1,0 +1,14 @@
+
+
+
+macro spitbol version 15.01
+x86-64  Sun Jul 23 07:52:00 2017
+
+
+
+                                                                                                                page 1
+
+        -include "../setl4.stl"
+                 !
+co.stl(5,10) : error 285 -- include file cannot be opened
+

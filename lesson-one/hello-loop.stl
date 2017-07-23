@@ -1,0 +1,4 @@
+    i = 0
+loop    
+    output = le(i = i + 1, 160000) "Hello World" :s(loop)
+end

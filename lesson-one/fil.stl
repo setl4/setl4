@@ -1,0 +1,16 @@
+
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+-include "../setl4.stl"
+
+    dict = checkout('dictionary')
+
+    plurals = filter(dict,"member(join(this,'s'),dict)",50000)
+    output = "Number of plural words " set.size(plurals)
+
+    palindromes = filter(dict,"ident(this,reverse(this))")
+    output = "Number of palindromes " set.size(palindromes)
+    show(palindromes)
+
+end

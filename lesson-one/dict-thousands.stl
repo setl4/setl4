@@ -1,0 +1,26 @@
+
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+-include "../setl4.stl"
+
+
+    dict = checkout('dictionary')
+
+    loop(dict)
+
+dict.next
+
+    this = next(dict)                   :f(dict.done)
+
+    words = words + 1
+    chars = chars + size(this)
+
+                                        :(dict.next)
+
+dict.done
+
+    output = 'Number of words in dictionary ' thousands(words)
+    output = 'Number of characters in dictionary ' thousands(chars)
+
+end
