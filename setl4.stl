@@ -414,6 +414,7 @@
 *   _setl4.config.set.table.size_ is default size for the _index_ and _key_ tables of a set.
 
     setl4.config.set.table.size = 1024
+    setl4.config.set.table.size = 32000
 
 *   _setl4.config.int.table.size_ is size of index and key tables in set of kind 'int.'
 
@@ -514,7 +515,7 @@ setl4.size.end
 *-  get(map,key)                Gets the value of map _map_ for _key_ for a map.
 *-  get(set,i)                  Gets the i-th element in a set, or fails if no such element.
 *-  false(e)                    Tests if argument is false.
-*-  filter(set,expr)            Returns set of elements in _set_ for which _expr_ is true.
+*-  filter(set,expr,n)          Returns set of elements in _set_ for which _expr_ is true.
 *-  forall(set,expr)            Tests if an expression is true for every element of a set.
 *-  integers(n)                 Returns set of integers 1 ... n.
 *-  intersection(a,b)           Returns set of elements common to two sets.
@@ -1209,7 +1210,7 @@ false
 
 false.end
 
-    define('filter(set,expr)e,this')                    :(filter.end)
+    define('filter(set,expr,n)e,this')                    :(filter.end)
 
 *   According to Paul Halmos, in his book "Naive Set Theory,"
 *   a major principle of set theory, often referred to by its
@@ -1226,11 +1227,19 @@ false.end
 *   _Filter_ returns the subset of a set, map or sequence _set_
 *    for which the given expresion is true.
 
+*   _filter(s,e)_ can also be written using the operator symbol '@':
+```
+        s @ e
+```
+*   that is, "the elements in _s_ at which _e_ is true.
+
+*   If _n_ is not null, it gives an estimate of the size of the result.
+
 filter
 
     ident(set.kind(set),'map')                          :s(filter.map)
     ident(set.kind(set),'seq')                          :s(filter.seq)
-    filter = new('set')
+    filter = new('set' (eq(n) '', ' #' n))
     loop(set)
 
 filter.set.next
