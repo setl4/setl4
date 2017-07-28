@@ -1228,9 +1228,9 @@ false.end
 *    for which the given expresion is true.
 
 *   _filter(s,e)_ can also be written using the operator symbol '@':
-```
+*```
         s @ e
-```
+*```
 *   that is, "the elements in _s_ at which _e_ is true.
 
 *   If _n_ is not null, it gives an estimate of the size of the result.
