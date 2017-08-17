@@ -1,0 +1,60 @@
+* Copyright 2017, David Shields
+
+*	Compute various assessments of code structure and size.
+
+	&anchor = &trim = 1
+
+	tab = char(9)
+
+	define('report(text,count)')		:(report.end)
+
+*	Report an assessment result.
+
+report
+
+	output = lpad(text,16) ' ' lpad(count,6) :(return)
+
+report.end
+
+next
+
+	line = input				:f(scanned)
+	lines.total = lines.total + 1
+	line = replace(line,tab,' ')
+
+despace
+
+	line breakx(' ') '  ' = ' '		:s(despace)
+	differ(line)				:s(notempty)
+	lines.blank = lines.blank + 1		:(next)
+
+notempty
+
+	chars.total = chars.total + size(line)
+
+	line '*'				:f(text)
+
+*	Here if comment
+
+	lines.comment = lines.comment + 1	
+	chars.comment = 
+.		chars.comment + size(line)	:(next)
+
+text
+
+	lines.code = lines.code + 1
+	chars.code = chars.code + size(line)	:(next)
+
+scanned
+
+	report('blank lines'		, lines.blank)
+	report('comment lines'		, lines.comment)
+	report('code lines'		, lines.code)
+	report('total lines'		, lines.total)
+	report('comment chars'		, chars.comment)
+	report('code chars'		, chars.code)
+	report('total chars'		, chars.total)
+
+	:(end) 
+
+end
