@@ -1,0 +1,56 @@
+9
+*	Copyright 2017, David Shields
+
+*	This program is licensed under the two-clause BSD License. 
+*	See file LICENSE for details.
+
+*	Convert the roman numerals from 1-154 (the numbers of 
+*	Shakeseare's sonnets) to conventional form.
+
+*	Return number of characters used for roman numeral
+*	for N in range 1..10
+
+	len[1] = len[5] = len[10] = 1
+	len[2] = len[4] = len[6] = len[9] = 2
+	len[3] = len[7] = 3
+	len(8] = 4
+
+*	Digit gives value of roman number in range 1..10
+
+	digit = table()
+	digit['I']   =	1; digit['II'] =   2; digit['III'] = 3; 
+	digit['IV']  =	4; digit['V']  =   5; digit['VI']  = 6; 
+	digit['VII'] =	7; digit['VIII'] = 8; digit['IX']  = 9; 
+	digit['X']   = 10; 
+
+	define('val(s)')				:(val.end)
+
+*	Return the value of the first digit in a roman numeral
+
+val
+	s = reverse(s)
+
+val.1
+	s 'IIIV'					:s((val.8)
+	s 'III'						:s((val.3)
+	s 'IIV'						:s((val.7)
+	s 'IV'						:s((val.4)
+	s 'VI'						:s((val.6)
+	s 'XI'						:s((val.9)
+	s 'II'						:s((val.2)
+	s 'I'						:s((val.1)
+	s 'V'						:s((val.5)
+	s 'X'						:s((val.10)
+val.1	val = 1						:(return)
+val.2	val = 2						:(return)
+val.3	val = 3						:(return)
+val.4	val = 4						:(return)
+val.5	val = 5						:(return)
+val.6	val = 6						:(return)
+val.7	val = 7						:(return)
+val.8	val = 8						:(return)
+val.9	val = 9						:(return) 
+val.10	val = 10						:(return) 
+
+val.end
+
