@@ -1,0 +1,41 @@
+-include "../setl4.stl"
+
+    target = 'opts'
+    anagrams = new('set ' target)
+    t.seq = split.string(target)
+    
+    t.chars = new('set ' )
+    loop(t.seq)
+target.next
+	add(t.chars, next(target))    :s(target.next)
+
+*    d = checkout('dictionary')
+    d = new('set opts tops dave paul sammy bueti opoos')
+    out('number of words',#d)
+
+  
+    loop(d,.w)
+
+word.next
+
+    w = next(d)               :f(word.done)
+    out('d',w)
+*   make your tests here
+*   see if lengths are the same
+	eq(#w, #target)		:f(word.next)	
+	w.seq = split.string(w)
+	w.chars = new('set ')
+	loop(w.seq)
+w.next
+	add(w.chars, next(w))   :s(w.next)
+	
+	equal(w.chars, t.chars) :f(word.next)
+
+    add(anagrams, w)                :(word.next)
+
+word.done
+
+    out('target is',target)
+    show(anagrams)
+
+end

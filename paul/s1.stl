@@ -1,0 +1,14 @@
+*   Copyright 2017, Paul Bueti
+*   Licensed under the MIT license.
+
+-include "../setl4.stl"
+
+
+ t1 = 'opts'
+ t1.s = sorter(t1)
+   t2 = 'stop'
+    t2.s = sorter(t2)
+ show(t1.s)
+ show(t2.s)
+end
+ 

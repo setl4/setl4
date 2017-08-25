@@ -1,0 +1,9 @@
+-include '../setl4.stl'
+
+	target = 'opts'
+
+	s = split.string(target)
+
+	show(s)
+
+end
