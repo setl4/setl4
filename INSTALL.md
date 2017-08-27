@@ -3,7 +3,10 @@
 Install SETL4 by visiting http://github.com/setl4/setl4 and cloning the repository
 or downloading the zip file.
 
-Once you have installed the files in the directory SETL4, copy the file `bin/setl4`
+Set the environment variable SETL4PATH to reference the directory containing the
+SETL4 files.
+
+Once you have installed the files in the directory, copy the file `bin/setl4`
 to a directory on your PATH, usually `$HOME/bin`. You can then use the command
 ```
 $ setl4 prog.stl

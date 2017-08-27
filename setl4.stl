@@ -898,7 +898,7 @@ checkout.check
 
 checkout.open
 
-	fullname = '../library/' filename '.txt'
+	fullname = setl4.path '/library/' filename '.txt'
 	input(.file,3,fullname)                                :s(checkout.opened)
 	error('unable to open file ',filename)                 :(freturn)
 
@@ -3500,6 +3500,10 @@ Out.end
 
 *## SETL4 Global variables
 
+*   setl4.path is the home directory for setl4. It is specified by the environment
+*   variable SETL4PATH.
+
+    setl4.path = 
     setl4.ascii.initialized =
     setl4.ascii.name =
     setl4.ascii.value =
@@ -3558,5 +3562,23 @@ setl4.op
 *   Here endeth the SETL4 code.
 *   May you fare well using it.
 
+
+    define('setl4.init()home')                          :(setl4.init.end)
+
+*   Initialize setl4 system.
+*   A value for SETL4PATH is required in order for 'checkout' to locate the
+*   library files.
+
+setl4.init
+
+*   Get value of SETL4PATH from environment, ending if it is not set.
+
+    setl4.path = host(4,"SETL4PATH")
+    ident(setl4.path) error("SETL4PATH not defined.")
+                                                        :(return)
+
+setl4.init.end
+
+    setl4.init()
 
 
