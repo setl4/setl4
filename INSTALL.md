@@ -9,7 +9,7 @@ SETL4 files.
 Every SETL4 program must begin with the statement
 
 ```
--include "setl4"
+-copy "setl4"
 ```
 
 and end with the statement
