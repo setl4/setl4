@@ -6,6 +6,25 @@ or downloading the zip file.
 Set the environment variable SETL4PATH to reference the directory containing the
 SETL4 files.
 
+Every SETL4 program must begin with the statement
+
+```
+-include "setl4"
+```
+
+and end with the statement
+
+```
+end
+```
+For example,
+
+```
+-include "setl4"
+    show("hello world")
+end
+```
+
 Once you have installed the files in the directory, copy the file `bin/setl4`
 to a directory on your PATH, usually `$HOME/bin`. You can then use the command
 ```
