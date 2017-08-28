@@ -1,5 +1,5 @@
 
--include  "../setl4.stl"
+-include  "setl4"
 
 
 *   This SETL4 program solves a puzzle that can be found at;

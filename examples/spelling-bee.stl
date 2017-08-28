@@ -1,7 +1,7 @@
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
--include "../setl4.stl"
+-include "setl4"
 
 *   Program to solve the "Spellng Bee" puzzle published each week
 *   in the Sunday New York Times.

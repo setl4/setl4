@@ -1,4 +1,4 @@
--include "setl4.sbl"
+-include "setl4"
 
 * Sieve of Eratosthenes
 

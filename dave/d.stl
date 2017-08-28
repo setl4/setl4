@@ -1,0 +1,11 @@
+
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+-include "setl4"
+
+ d = checkout('dict')
+ out('size d',#d)
+    exit(-3)
+end
+

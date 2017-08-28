@@ -1,5 +1,5 @@
 
--include "../setl4.stl"
+-include "setl4"
 
 *   Stress test SETL4 by building string of one million characters five at a time
 

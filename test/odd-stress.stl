@@ -1,5 +1,5 @@
 
--include "../setl4.stl"
+-include "setl4"
 
 *   Stress test SETL4 by building the set of odd integers less than one million.
 

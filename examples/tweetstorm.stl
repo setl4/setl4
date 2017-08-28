@@ -1,7 +1,7 @@
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
--include "../setl4.stl"
+-include "setl4"
 
 *   Generate a tweetstorm from the text provided in standard input,
 *   with tweets separated by one or more blank lines.

@@ -1,4 +1,4 @@
--include "../setl4.stl"
+-include "setl4"
 
     out('Test set')
     out()
