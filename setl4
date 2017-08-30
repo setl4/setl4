@@ -524,8 +524,6 @@ setl4.size.end
 *-  less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
 *-  longest(set)                Returns the longest string in a set.
 *-  loop(set,this)              Set up iteration over _set_ using _next_. _this_ names variable updated during iteration.
-*-  tolower(s)                  Returns _s_ with upper case letters replaced by lower case equivalent.
-*-  minimum(set)                Returns the shortest string in a set.
 *-  multiple(n,m)               Tests if _n_ is a multiple of _m_.
 *-  odd(n)                      Tests if _n_ is odd.
 *-  out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null.
@@ -540,23 +538,24 @@ setl4.size.end
 *-  not(expr)                   Tests if operand is false.
 *-  number(s)                   Returns integer defined by _s_.
 *-  or(a,b)                     Tests if either operand is true.
-*-  push(stack,value)           Push value onto a stack.
 *-  pop(stack)                  Pop the top of a stack and return its value.
 *-  prime(n)                    Tests if _n_ is prime.
 *-  primes(n)                   Returns set of primes less than _n_.
+*-  push(stack,value)           Push value onto a stack.
 *-  put(map,key,val)            Defines the value of a map key.
 *-  quicksort(seq)              Use Hoare's quicksort algorithm to sort a sequence.
 *-  random(n)                   Returns random integer if _n_ is integer, elsel random element of set or map.
 *-  random.seed()               Sets random number seed to initialize _random_.
 *-  range(map)                  Returns set of elements in the range of a map.
 *-  reader(filename,expr)       Returns sequence of lines in file _filename_, using _expr_ (if given).
-*-  reader(str,delim)           Like _reader(filename..)_ but reads lines from a string with lines.
+*-  reader.str(str,delim)       Like _reader(filename..)_ but reads lines from a string with lines.
 *-  remove(set,elem)            Removes arbitary element from set, or most recent entry from map.
-*-  #set               Returns number of elements in set _set_.
-*-  show(v)                     Shows value of _v_.
-*-  show.plain(v)               Same as _show()_, but strings are not enclosd in quotes.
-*-  show.b(e)                   Shows value of _b_ as boolean.
+*-  set.size(set)               Returns number of elements in set _set_.
+*-  #set                        Same as _set.size(set)_
+*-  show(v)                     Show value of _v_.
+*-  show.boolean(e)             Shows value of _b_ as boolean.
 *-  show.lines(lines,number)    Shows a sequence of lines, with id if _number_ not null.
+*-  show.plain(v)               Same as _show()_, but strings are not enclosd in quotes.
 *-  slice(str,first,last)       Like SPITBOL substr to work for sequences and tuples.
 *-  sorter(set,type)            Sorts a set, map or string according to _type_.
 *-  split.line(line)            Splits line of blank-separated words into sequence.
@@ -566,6 +565,7 @@ setl4.size.end
 *-  this(set)                   Returns current iteration value for _set_.
 *-  thousands(s)                Returns _s_ with a comma every three spaces from the right.
 *-  top(s)                      Returns top element of sequence viewed as stack.
+*-  tolower(s)                  Returns _s_ with upper case letters replaced by lower case equivalent.
 *-  traceon()                   Turns on tracing.
 *-  traceoff()                  Turns off tracing
 *-  tokens(line)                Returns sequence of the tokens in _line_.
@@ -672,10 +672,9 @@ arbitrary.end
 
 ascii
 
+*   Check if this is first call, in which case initialize the needed maps.
+
     differ(setl4.ascii.initialized)                     :s(ascii.initialized)
-
-*   Here to initialize the needed maps.
-
     ascii.init()
     setl4.ascii.initialized = 1
 
@@ -1138,19 +1137,6 @@ equal.set
 
 equal.end
 
-    define('even(n)')                                   :(even.end)
-
-*   _Even_ tests if its argument is even.
-
-even
-
-*HERE*
-    
-    integer(n)                                          :f(freturn)
-    eq(remdr(n,2))                                      :s(return)f(freturn)
-
-even.end
-
     define('error(str)')                                :(error.end)
 
 *   _Error_ writes out its argument string and ends execution.
@@ -1167,6 +1153,19 @@ error
     out('Fatal error: ' str)                            :(end)
 
 error.end
+
+    define('even(n)')                                   :(even.end)
+
+*   _Even_ tests if its argument is even.
+
+even
+
+*HERE*
+    
+    integer(n)                                          :f(freturn)
+    eq(remdr(n,2))                                      :s(return)f(freturn)
+
+even.end
 
     define('exists(set,expr)this,e')                    :(exists.end)
 
@@ -2741,16 +2740,16 @@ show.out.show
 
 show.out.end
 
-    define('show.b(e)')                                 :(show.b.end)
+    define('show.boolean(e)')                           :(show.boolean.end)
 
 *   _Show.b_ shows the value if its argument as a boolean value: TRUE or FALSE
 
-show.b
+show.boolean
 
     integer(e) out((ne(e) 'TRUE', 'FALSE'))             :s(return)
     out((differ(e) 'TRUE', 'FALSE'))                    :(return)
 
-show.b.end
+show.boolean.end
 
     define('show.eval(expr)e')                          :(show.eval.end)
 
