@@ -2,10 +2,21 @@
 *   Copyright 2017, David Shields
 *   Licensed under the MIT license.
 
--include "setl4"
+-copy "setl4"
 
- d = checkout('dict')
- out('size d',#d)
-    exit(-3)
+    d = checkout('dict')
+    out('size d',#d)
+    loop(d,.w)
+
+d.next
+
+    next(d)             :f(d.done)
+
+*   loop body
+                        :(d.next)
+
+d.done
+
+*   report results
 end
 
