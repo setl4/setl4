@@ -12,8 +12,25 @@
 d.next
 
     next(d)             :f(d.done)
+    vowels = 0
+    consonants = 0
 
 *   loop body
+
+w.next
+
+    w len(1) . c  =     :f(w.done)
+
+* Process c
+
+    c any('aeiou')      :f(no.vowel)
+    consonants = consonants + 1 :(w.next)
+no.vowel
+    vowels = vowels + 1     
+                        :(w.next)
+
+w.done
+    lt(vowels.consonants)           :s(d.next)
 
     add(result,w)
                         :(d.next)
