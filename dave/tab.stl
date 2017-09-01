@@ -1,4 +1,3 @@
-
 *	Copyright 2017, David Shields
 *	Licensed under the MIT license.
 
@@ -6,6 +5,7 @@
 
 	&anchor = &trim = 1
 	margin = 56
+        tab = char(9)
 
 copy
 
@@ -15,7 +15,12 @@ copy
 
 loop
 
-	line = input                                           :f(end)
+	line = input                                    :f(end)
+        line '.   ' = '.       '                        :s(scan)
+        line '*   ' = '*       '                        :s(scan)
+        line '    ' = '        '                        :s(scan)
+
+scan
 
 *	Copy blank and comment lines as it.
 

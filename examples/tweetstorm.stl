@@ -1,57 +1,58 @@
-*   Copyright 2017, David Shields
-*   Licensed under the MIT license.
+
+*       Copyright 2017, David Shields
+*       Licensed under the MIT license.
 
 -include "setl4"
 
-*   Generate a tweetstorm from the text provided in standard input,
-*   with tweets separated by one or more blank lines.
+*       Generate a tweetstorm from the text provided in standard input,
+*       with tweets separated by one or more blank lines.
 
-    &anchor = &trim = 1
-    lines = reader()
-    loop(lines)
+        &anchor = &trim = 1
+        lines = reader()
+        loop(lines)
 
 tweet.in
 
-    line = next(lines)                                  :f(tweet.end)
-    ident(tweet) ident(line)                            :s(tweet.in)
-    tweet = ident(tweet) differ(line) line              :s(tweet.in)
-    differ(tweet) ident(line) push(tweets,line)
-    tweet = differ(tweet) ident(line)                   :s(tweet.in)
-    tweet = differ(tweet) differ(line) tweet '~' line   :(tweet.in)
+        line = next(lines)                              :f(tweet.end)
+        ident(tweet) ident(line)                        :s(tweet.in)
+        tweet = ident(tweet) differ(line) line          :s(tweet.in)
+        differ(tweet) ident(line) push(tweets,line)
+        tweet = differ(tweet) ident(line)               :s(tweet.in)
+        tweet = differ(tweet) differ(line) tweet '~' line:(tweet.in)
 
 tweet.end
 
-    differ(tweet) push(tweets,tweet)
-    tweet =
-    n = set.size(tweets)
-    this = n + 1
+        differ(tweet) push(tweets,tweet)
+        tweet =
+        n = set.size(tweets)
+        this = n + 1
 
 tweet.next
 
-    tweet = pop(tweets)                 :f(end)
-    seq = reader.str(tweet,'~')
-    put(seq,1,(this = this - 1) '/' n ' ' get(seq,1))
-    output = gt(size(tweet),140) 'tweet too long : ' size(tweet)
-    loop(seq)
+        tweet = pop(tweets)                             :f(end)
+        seq = reader.str(tweet,'~')
+        put(seq,1,(this = this - 1) '/' n ' ' get(seq,1))
+        output = gt(size(tweet),140) 'tweet too long    : ' size(tweet)
+        loop(seq)
 
 tweet.out
 
-    output = next(seq)                  :s(tweet.out)f(tweet.next)
+        output = next(seq)                              :s(tweet.out)f(tweet.next)
 
 reader.error
 
-    error('error reading tweetstorm') 
-    
+        error('error reading tweetstorm')
+
 end
 
 tweet.end
 
-    push(tweets,tweet)            
-    tweet =                             :(next)
+        push(tweets,tweet)
+        tweet =                                         :(next)
 
 
 
-    ident(line) ident(tweet)            :s(next)
-    ident(line) differ(tweet)       :s(tweet.end)
+        ident(line) ident(tweet)                        :s(next)
+        ident(line) differ(tweet)                       :s(tweet.end)
 
 end

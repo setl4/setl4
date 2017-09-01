@@ -1,26 +1,26 @@
-
-*   Copyright 2017, David Shields
-*   Licensed under the MIT license.
+*       Copyright 2017, David Shields
+*       Licensed under the MIT license.
 
 -copy "setl4"
 
-    d = checkout('dict')
-    result = new('set')
-    out('size d',#d)
-    loop(d,.w)
+        d = checkout('dict')
+        result = new('set')
+        out('size d',#d)
+        loop(d,.w)
 
 d.next
 
-    next(d)             :f(d.done)
+        next(d)                                         :f(d.done)
 
-*   loop body
+*       loop body
 
-    add(result,w)
-                        :(d.next)
+        add(result,w)
+                                                        :(d.next)
 
 d.done
 
-*   report results
-    show(result)
+*       report results
+
+        show(result)
 end
 

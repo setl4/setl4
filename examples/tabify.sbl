@@ -1,0 +1,20 @@
+*   Copyright 2017, David Shields
+*   Licensed under the MIT license.
+
+*       Expand files with indentation level of four (using spaces) to use initial tab.
+
+        tab = char(9)                                   :(loop)
+
+copy
+
+        output = line
+
+loop
+
+        line = input                                    :f(end)
+        line '.   ' = '.' tab                           :s(copy)
+        line '*   ' = '*' tab                           :s(copy)
+        line '    ' = tab                               :s(copy)
+                                                        :(copy)
+end
+

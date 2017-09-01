@@ -1,54 +1,55 @@
 
-*   Copyright 2017, David Shields
-*   Licensed under the MIT license.
+
+*       Copyright 2017, David Shields
+*       Licensed under the MIT license.
 
 -include "setl4"
 
-*   &dump = 3
+*       &dump = 3
 
-    puzzle = host(0)
-    puzzle span(' ') = 
-    puzzle '-u'                                     :s(have.puzzle)
-    error('Usage: setl4 wb1.stl -ustring  to enter puzzle')
+        puzzle = host(0)
+        puzzle span(' ') =
+        puzzle '-u'                                     :s(have.puzzle)
+        error('Usage                                    : setl4 wb1.stl -ustring  to enter puzzle')
 
 have.puzzle
 
-    puzzle = "stop"
-    out('solving puzzle ' puzzle)
-    puzzle = sorter(puzzle)
+        puzzle = "stop"
+        out('solving puzzle ' puzzle)
+        puzzle = sorter(puzzle)
 
-*   Find words with same signature as the puzzle.
+*       Find words with same signature as the puzzle.
 
-    dictionary = checkout('dictionary')
-    loop(dictionary)
-    solutions = new('set')
+        dictionary = checkout('dictionary')
+        loop(dictionary)
+        solutions = new('set')
 
 trim.dictionary
 
-    this = next(dictionary)                     :f(trim.dict.done)
-    ident(datatype(this),'integer') error('oops - integer in dictionary')
-    ident(sorter(this),puzzle)                  :f(trim.dictionary)
-    add(solutions,this)                         :(trim.dictionary)
-    
-    ne(size(this),size(puzzle))                     :s(trim.dictionary)
-    this trim.pat                                   :f(trim.dictionary)
-    ident(sorter(this),puzzle)                      :f(trim.dictionary)
-    add(solutions,this)                             :(trim.dictionary)
+        this = next(dictionary)                         :f(trim.dict.done)
+        ident(datatype(this),'integer') error('oops - integer in dictionary')
+        ident(sorter(this),puzzle)                      :f(trim.dictionary)
+        add(solutions,this)                             :(trim.dictionary)
+
+        ne(size(this),size(puzzle))                     :s(trim.dictionary)
+        this trim.pat                                   :f(trim.dictionary)
+        ident(sorter(this),puzzle)                      :f(trim.dictionary)
+        add(solutions,this)                             :(trim.dictionary)
 
 trim.dictionary.done
 
-    eq(set.size(solutions)) out('Sorry, there isno solution') :s(done)
-    out('Here are the possible solutions')
-    out()
-    loop(solutions)
+        eq(set.size(solutions)) out('Sorry, there isno solution'):s(done)
+        out('Here are the possible solutions')
+        out()
+        loop(solutions)
 
 solutions.next
 
-    out(next(solutions))                            :s(solutions.next)
+        out(next(solutions))                            :s(solutions.next)
 
 done
 
-    out()
-    out('Thanks for playing.')
+        out()
+        out('Thanks for playing.')
 
 end
