@@ -3060,19 +3060,20 @@ square.root
 
 square.root.end
 
-        define('subset(a,b)elem')                       :(subset.end)
+        define('subset(a,b)this')                       :(subset.end)
 
 *       _Subset_ tests if its second argument is a subset of the first.
+*       _b_ cannot be a subset if it has more members than _a_.
 
 subset
 
-        gt(#a,#b)                                       :s(freturn)
+        gt(#b,#a)                                       :s(freturn)
         loop(b)
 
 subset.next
 
-        elem = next(b)                                  :f(return)
-        member(elem,a)                                  :s(subset.next)f(freturn)
+        this = next(b)                                  :f(return)
+        member(this,a)                                  :s(subset.next)f(freturn)
 
 subset.end
 
@@ -3301,30 +3302,30 @@ true
 
 true.end
 
-        define('union(a,b)elem')                        :(union.end)
+        define('union(a,b)this')                        :(union.end)
 
 *       _Union_ returns the union of sets _a_ and _b_.
 
 union
 
-*       Arrange so set _a_ is the larger
-
-        ge(#a,#b)                                       :s(union.a)
-        union = a
-        a = b
-        b = union
-
 union.a
 
-*       Make copy of _a_ to start things off.
+        union = new('set ' (#a + #b))
+        loop(a)
 
-        union = copy(a)
-        loop(b)
+union.a.next
+
+        this = next(a)                                  :f(union.b)
+        add(union,this)                                 :(union.a.next)
 
 union.b
 
-        elem = next(b)                                  :f(return)
-        add(union,elem)                                 :(union.b)
+        loop(b)
+
+union.b.next
+
+        this = next(b)                                  :f(return)
+        add(union,this)                                 :(union.b.next)
 
 union.end
 
