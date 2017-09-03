@@ -5,28 +5,28 @@ Test set
 { 5 10 15 20 25 30 }
 
 test set equality - expect success
-eval equal(set,setu) success
+eval equal(set,setu) true
 
 
 test membership- expect success/failure
 
-eval 5 ~ set success
-eval member(6,set) failure
+eval 5 ~ set true
+eval member(6,set) false
 
 Test exists/forall with element in set - expect success/failure
 
-eval exists(set,'eq(this,10)') success
-eval forall(set,'eq(this,10)') failure
+eval exists(set,'eq(this,10)') true
+eval forall(set,'eq(this,10)') false
 
 Test exists/forall with element not in set - expect failure/failure
 
-eval exists(set,'eq(this,40)') failure
-eval forall(set,'eq(this,40)') failure
+eval exists(set,'eq(this,40)') false
+eval forall(set,'eq(this,40)') false
 
 Test exists/forall with element not in set - expect failure/success
 
-eval exists(set,'eq(this,6)') failure
-eval forall(set,'ne(this,6)') success
+eval exists(set,'eq(this,6)') false
+eval forall(set,'ne(this,6)') true
 
 
 Test iter
@@ -35,14 +35,14 @@ Test iter
 ( iterator  start=1  finis=10  step=2 ) 
 
 expect success
-eval eq(#iter,5) success
+eval eq(#iter,5) true
 
 { iter  start=1  finis=10  step=2 } 
 expect success
-eval 5 ~ iter success
+eval 5 ~ iter true
 
 expect failure
-eval member(6,iter) failure
+eval member(6,iter) false
 
 { iter  start=25  finis=5  step=-5 } 
 ( iterator  start=25  finis=5  step=-5 ) 
@@ -53,20 +53,20 @@ Test Map
 
 Test map get - expect success/failure
 
-eval eq(get(map,'one'),1) success
-eval eq(get(map,'one'),6) failure
+eval eq(get(map,'one'),1) true
+eval eq(get(map,'one'),6) false
 
 
 Test exists/forall with element in map- expect success/failure
 
-eval exists(map,'eq(value(this),2)') success
-eval forall(map,'eq(value(this),2)') failure
+eval exists(map,'eq(value(this),2)') true
+eval forall(map,'eq(value(this),2)') false
 
 
 Test exists/forall with element not in - expect failure/failure
 
-eval exists(map,'eq(value(this),500)') failure
-eval forall(map,'eq(value(this),500)') failure
+eval exists(map,'eq(value(this),500)') false
+eval forall(map,'eq(value(this),500)') false
 
 
 Test visit()
@@ -78,7 +78,7 @@ visit set
 20
 25
 30
-eval visit(set,'show(this)') success
+eval visit(set,'show(this)') true
 
 visit map
 'forty':40
@@ -87,10 +87,10 @@ visit map
 'ten':10
 'thousand':1000
 'two':2
-eval visit(map,'show(this)') success
+eval visit(map,'show(this)') true
 
 visit iter
-eval visit(iter,'show(this)') success
+eval visit(iter,'show(this)') true
 
 
 new('map one:1 two:2 hundred:100 ten:10 million:1000000 eight:8')

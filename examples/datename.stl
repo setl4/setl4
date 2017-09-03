@@ -1,0 +1,12 @@
+        define('datename()s')                           :(datename.end)
+
+*       _Datename_ converts the current date in a form with no spaces,
+*       just dashes, that is suitable for use as part of a file name.
+
+datename
+
+        datename = replace(date(),'                     :/','---')
+        datename = substr(datename,12,8) '-' substr(datename,1,10)
+                                                        :(return)
+datename.end
+

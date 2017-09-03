@@ -374,7 +374,6 @@ the colon character enclosed in quotes would normally be used.
 -  checkout(filename)          Returns ('checks out') set or map defined by a text file from the libary
 -  compare(a,b)                Compares two integers or strings, returning -1 (less), 0 (equal), or +1 (greater).
 -  compose(a,b)                Returns composition of two maps or tables.
--  datename(date)              Returns string based on current time suitable for use as filename.
 -  defined(map,key)            Tests if a map is defined for a specified key.
 -  difference(a,b)             Returns set of members of set _a_ not in the set _b_.
 -  domain(map)                 Returns set of elements in the domain of a map.
@@ -392,14 +391,12 @@ the colon character enclosed in quotes would normally be used.
 -  integers(n)                 Returns set of integers 1 ... n.
 -  intersection(a,b)           Returns set of elements common to two sets.
 -  join(a,b)                   Joins two strings into a single string by concatenating them.
--  less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
 -  loop(set,this)              Set up iteration over _set_ using _next_. _this_ names variable updated during iteration.
 -  multiple(n,m)               Tests if _n_ is a multiple of _m_.
 -  odd(n)                      Tests if _n_ is odd.
 -  out(text1,text2)            Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null.
 -  pack(seq)                   Packs sequence of strings into single string.
 -  powerset(set)               Return the powerset of _set_, the set of all the subsets of _set_.
--  prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_.
 -  product(seq)                Returns (Cartesian) product of a sequence of sets.
 -  member(set,elem)            Tests if _elem_ is a member of _set_.
 -  new(str)                    Returns a new set specified by _str_.
@@ -427,7 +424,7 @@ the colon character enclosed in quotes would normally be used.
 -  show.text(v)                Same as _show()_, but strings are not enclosd in quotes.
 -  sorter(set,type)            Sorts a set, map or string according to _type_.
 -  slice(str,first,last)       Like SPITBOL substr to work for sequences and tuples.
--  split.line(line)            Splits line of blank-separated words into sequence.
+-  split(s)                    Splits line of whitespace-separated words in _s_ into sequence.
 -  square.root(n)              Returns integer square root on _n_
 -  subset(a,b)                 Tests if the set _b_  is a subset of set _a_
 -  this(set)                   Returns current iteration value for _set_.

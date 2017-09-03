@@ -501,7 +501,6 @@ setl4.size.end
 *-  checkout(filename)          Returns ('checks out') set or map defined by a text file from the libary
 *-  compare(a,b)                Compares two integers or strings, returning -1 (less), 0 (equal), or +1 (greater).
 *-  compose(a,b)                Returns composition of two maps or tables.
-*-  datename(date)              Returns string based on current time suitable for use as filename.
 *-  defined(map,key)            Tests if a map is defined for a specified key.
 *-  difference(a,b)             Returns set of members of set _a_ not in the set _b_.
 *-  domain(map)                 Returns set of elements in the domain of a map.
@@ -518,14 +517,12 @@ setl4.size.end
 *-  integers(n)                 Returns set of integers 1 ... n.
 *-  intersection(a,b)           Returns set of elements common to two sets.
 *-  join(a,b)                   Joins two strings into a single string by concatenating them.
-*-  less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
 *-  loop(set,this)              Set up iteration over _set_ using _next_. _this_ names variable updated during iteration.
 *-  multiple(n,m)               Tests if _n_ is a multiple of _m_.
 *-  odd(n)                      Tests if _n_ is odd.
 *-  out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null.
 *-  pack(seq)                   Packs sequence of strings into single string.
 *-  powerset(set)               Return the powerset of _set_, the set of all the subsets of _set_.
-*-  prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_.
 *-  product(seq)                Returns (Cartesian) product of a sequence of sets.
 *-  member(set,elem)            Tests if _elem_ is a member of _set_.
 *-  new(str)                    Returns a new set specified by _str_.
@@ -552,7 +549,7 @@ setl4.size.end
 *-  show.text(v)                Same as _show()_, but strings are not enclosd in quotes.
 *-  slice(str,first,last)       Like SPITBOL substr to work for sequences and tuples.
 *-  sorter(set,type)            Sorts a set, map or string according to _type_.
-*-  split.line(line)            Splits line of blank-separated words into sequence.
+*-  split(line)                 Splits line of whitespace-separated fields into sequence.
 *-  square.root(n)              Returns integer square root on _n_
 *-  subset(a,b)                 Tests if the set _b_  is a subset of set _a_
 *-  this(set)                   Returns current iteration value for _set_.
@@ -882,18 +879,6 @@ compose.table.next
         compose[i] = b[a[i]]                            :(compose.table.next)
 
 compose.end
-
-        define('datename()s')                           :(datename.end)
-
-*       _Datename_ converts the current date in a form with no spaces,
-*       just dashes, that is suitable for use as part of a file name.
-
-datename
-
-        datename = replace(date(),'                     :/','---')
-        datename = substr(datename,12,8) '-' substr(datename,1,10)
-                                                        :(return)
-datename.end
 
         define('defined(map,key)entry')                 :(defined.end)
 
@@ -1325,23 +1310,6 @@ join.string
         join = s1 (differ(s2) s2, '') (differ(s3) s3,''):(return)
 
 join.end
-
-        define('less(str,sub)before,after')             :(less.end)
-
-*       _Less_ removes the first instance of each character in _sub_ from _str_,
-*       where _sub_ is a substr of _str_.
-
-less
-
-        ident(str)                                      :s(return)
-        less = str
-
-less.ch
-        sub len(1) . ch =                               :f(return)
-        less break(ch) . before  ch rem . after
-        less = before after                             :(less.ch)
-
-less.end
 
         define('loop(set,thisname)iter')                :(loop.end)
 
@@ -1886,22 +1854,6 @@ powerset.j.done
         add(powerset,this)                              :(powerset.next.i)
 
 powerset.end
-        define('prefix(str,pre)word')                   :(prefix.end)
-
-*       _Prefix_ takes a list of the words in _str_, separated by spaces,
-*       and prefixes each with the str _pre_.
-
-prefix
-
-        str = str ' ';* so each word followed by space
-
-prefix.1
-
-        str break(' ') . word span(' ')  =              :f(return)
-        add1(.prefixcount)
-        prefix = append(prefix, pre word,'A')           :(prefix.1)
-
-prefix.end
 
         define('prime(n)')                              :(prime.end)
 
@@ -2701,25 +2653,25 @@ sorter.table.error
 
 sorter.table.end
 
-        define('split.line(line)word')                  :(split.line.end)
+        define('split(line)word')                       :(split.end)
 
-*       _Split.lines_ splits a line into a sequence of words, where words are separated by one of more spaces.
+*       _Split_ splits a line into a sequence of words, where words are separated by one of more spaces.
 
-split.line
+split
 
-        split.line = new('seq')
+        split = new('seq')
         line span(' ') =
         ident(line)                                     :s(return)
         line = line ' '
 
-split.line.next
+split.next
 
 *       Here to split line into a sequence of its words.
 
         line break(' ') . word span(' ') =              :f(return)
-        push(split.line, word)                          :(split.line.next)
+        push(split, word)                               :(split.line.next)
 
-split.line.end
+split.end
 
         define('square.root(n)')                        :(square.root.end)
 
