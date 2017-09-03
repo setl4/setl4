@@ -1,0 +1,68 @@
+        define('remove(set,elem)i,iter,this')           :(remove.end)
+
+*       _Remove_ removes the element _elem_  from the set _set_, or
+*       does nothing if _elem_ is not a member of the set.
+*       Note that _remove_ differs from _from_ in that modifies the set
+*       in place, while _from_ returns a new set with an element removed.
+
+*       If _elem_ is new, remove the most recently added element of a set or map.
+*       If _set_ is a set, then remove _elem_ from _set_ if it is a member.
+*       If _set_ is a map, remove the entry with key _value_.
+*       _Remove_ returns the element removed.
+
+remove
+
+        eq(#set)                                        :s(freturn)
+        ident(elem)                                     :s(remove.last)
+        remove = elem
+        ident(set.kind(set),'int')                      :s(remove.int)
+        ident(set.kind(set),'map')                      :s(remove.map)
+        ident(set.kind(set),'set')                      :s(remove.set)
+        error('remove not defined for set of kind ' set.kind(set))
+
+remove.int
+
+        error("remove from set of kind 'int' not yet implemented.")
+
+remove.last
+
+        remove = set.index(set)[#set]
+        #set = #set - 1                                 :(return)
+
+remove.map
+remove.set
+
+        ident(set.key(set)[elem])                       :s(return)
+
+*       Find the entry with key _elem_, assuming it's more likely
+*       to be a newer addition than one of the older elements.
+
+        iter = new('iter ' #set ' 1')
+        i = #set + 1
+
+remove.find
+
+        gt(i = i - 1)                                   :f(remove.error)
+        ident(set.index(set)[i],elem)                   :f(remove.find)
+
+*       Delete _elem_ from the key table, then move the entries
+*       in the index table following this one down one position.
+*       Nothing remains to be done if the set had only one element, or
+*       if the element was the last in the index table.
+
+        set.key(set)[elem] =
+        #set = #set - 1
+        eq(#set)                                        :s(return)
+
+remove.next
+
+        eq(i,#set)                                      :s(return)
+        set.index(set)[i] = set.index(set)[i + 1]
+        i = i + 1                                       :(remove.next)
+
+remove.error
+
+        error('remove.set unable to locate member')
+
+remove.end
+

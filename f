@@ -6,15 +6,13 @@
 
 -  add(set,elem)               Adds element to set.
 -  equal(a,b)                  Tests if two SETL4 objects are equal.
--  from(set,elem)              Returns set consisting of the members of a set except a specified member.
 -  member(elem,set)            Tests if _elem_ is a member of _set_.
 -  new(str)                    Returns a new set specified by _str_.
--  remove(set,elem)            Removes arbitary element from set, or most recent entry from map.
 -  set.size(s)                 Returns number of elements in set. Can also be written as _#set_.
 
 ### Output / Show
 
--  out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null.
+-  out(text1,text2)            Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null.
 -  show(v)                     Show value of _v_.
 
 ### Iteration
@@ -34,6 +32,7 @@
 -  intersection(a,b)           Returns set of elements common to two sets.
 -  powerset(set)               Return the powerset of _set_, the set of all the subsets of _set_.
 -  product(seq)                Returns (Cartesian) product of a sequence of sets.
+-  sorter(set,type)            Sorts a set, map or string according to _type_.
 -  subset(a,b)                 Tests if the set _b_  is a subset of set _a_
 -  union(a,b)                  Returns set consisting of all the members in two sets.
 -  visit(set,expr)             Visits each element of set _set_ and evaluates _expr_ for that element.
@@ -65,7 +64,6 @@
 ### Error handling
 
 -  assert(expr)                Tests that _expr_ is true, ends execution otherwise.
--  assert.type(obj,type)       Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise.
 -  error(s)                    Write out string _s_ and end execution.
 
 ### Numeric
@@ -78,6 +76,7 @@
 -  number(s)                   Returns integer defined by _s_.
 -  odd(n)                      Tests if _n_ is odd.
 -  prime(n)                    Tests if _n_ is prime.
+-  primes(n)                   Returns set of primes less than _n_.
 -  random(n)                   Returns random integer if _n_ is integer, else random element of set or map.
 -  random.seed()               Sets random number seed to initialize _random_.
 -  square.root(n)              Returns integer square root on _n_
@@ -85,18 +84,15 @@
 ### String
 
 -  append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then _w_
--  ascii(line)                 Returns the text of line with every ascii character identified
 -  begins(str,sub)             Tests if string _str_ begins with string _sub_.
 -  join(a,b)                   Joins two strings into a single string by concatenating them.
 -  less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
 -  pack(seq)                   Packs sequence of strings into single string.
 -  prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_.
 -  tolower(s)                  Returns _s_ with upper case letters replaced by lower case equivalent.
--  toupper(s)                  Returns _s_ with upper case letters replaced by lower case equivalent.
+-  toupper(s)                  Returns _s_ with lower case letters replaced by upper case equivalent.
 -  split.line(line)            Splits line of blank-separated words into sequence.
--  split.string(str)           Splits string into sequence of characters.
 -  tokens(line)                Returns sequence of the tokens in _line_.
--  unite(seq)                  Unites sequence of characters into single string.
 -  unpack(str)                 Unpacks string into sequence of its characters.
 -  words(line,w)               Returns sequence of words (defined by _w_) in _line_.
 
@@ -113,13 +109,10 @@
 -  compare(a,b)                Compares two integers or strings, returning -1 (less), 0 (equal), or +1 (greater).
 -  datename(date)              Returns string based on current time suitable for use as filename.
 -  frequency(s)                Returns frequency of values in sequence, map or string _s_.
--  is.plain(s)                 Tests if _s_ is plain type: integer, name, real, or string.
--  plain(v)                    Returns string representing a plain type, per is.plain().
 -  quicksort(seq)              Use Hoare's quicksort algorithm to sort a sequence.
 -  show.boolean(e)             Shows value of _b_ as boolean.
 -  show.eval(expr)             Evaluates _expr_, returns 'success' if true, else 'false'
--  show.plain(v)               Same as _show()_, but strings are not enclosd in quotes.
--  sorter(set,type)            Sorts a set, map or string according to _type_.
+-  show.test(v)                Same as _show()_, but strings are not enclosd in quotes.
 
 ### Internal: Debug / Tracing
 
@@ -128,7 +121,3 @@
 
 ### Delete (Move to examples directory) 
 
--  shortest(set)               Returns the shortest string in a set.
--  longest(set)                Returns the longest string in a set.
--  primes(n)                   Returns set of primes less than _n_.
--  thousands(s)                Returns _s_ with a comma every three spaces from the right.

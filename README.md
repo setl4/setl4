@@ -368,9 +368,7 @@ the colon character enclosed in quotes would normally be used.
 -  append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then _w_
 -  arbitrary(n)                Returns arbitary (randomly chosen) integer in 1 .. _n_.
 -  arbitrary(set)              Returns arbitary (randomly chosen) element of _set_.
--  ascii(line)                 Returns the text of line with every ascii character identified
 -  assert(expr)                Tests that _expr_ is true, ends execution otherwise.
--  assert.type(obj,type)       Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise.
 -  begins(str,sub)             Tests if string _str_ begins with string _sub_.
 -  binary(n)                   Returns string with value of _n_ in binary number.
 -  checkout(filename)          Returns ('checks out') set or map defined by a text file from the libary
@@ -389,21 +387,17 @@ the colon character enclosed in quotes would normally be used.
 -  filter(set,expr)            Returns set of elements in _set_ for which _expr_ is true.
 -  forall(set,expr)            Tests if an expression is true for every element of a set.
 -  frequency(s)                Returns frequency of values in sequence, map or string _s_.
--  from(set,elem)              Returns set consisting of the members of a set except a specified member.
 -  get(map,key)                Gets the value of map _map_ for _key_ for a map.
 -  int(n)                      Returns _n_ if n is integer or is string in exponential form
 -  integers(n)                 Returns set of integers 1 ... n.
 -  intersection(a,b)           Returns set of elements common to two sets.
--  is.plain(s)                 Tests if _s_ is plain type: integer, name, real, or string.
 -  join(a,b)                   Joins two strings into a single string by concatenating them.
 -  less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
--  longest(set)                Returns the longest string in a set.
 -  loop(set,this)              Set up iteration over _set_ using _next_. _this_ names variable updated during iteration.
 -  multiple(n,m)               Tests if _n_ is a multiple of _m_.
 -  odd(n)                      Tests if _n_ is odd.
--  out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null.
+-  out(text1,text2)            Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null.
 -  pack(seq)                   Packs sequence of strings into single string.
--  plain(v)                    Returns string representing a plain type, per is.plain().
 -  powerset(set)               Return the powerset of _set_, the set of all the subsets of _set_.
 -  prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_.
 -  product(seq)                Returns (Cartesian) product of a sequence of sets.
@@ -424,31 +418,27 @@ the colon character enclosed in quotes would normally be used.
 -  range(map)                  Returns set of elements in the range of a map.
 -  reader(filename,expr)       Returns sequence of lines in file _filename_, using _expr_ (if given).
 -  reader(str,delim)           Like _reader(filename..)_ but reads lines from a string with lines.
--  remove(set,elem)            Removes arbitary element from set, or most recent entry from map.
 -  set.size(s)                 Returns number of elements in set _set_.
 -  #set                        Same as _set.size(set)_
 -  show(v)                     Show value of _v_.
 -  show.boolean(e)             Shows value of _b_ as boolean.
 -  show.eval(expr)             Evaluates _expr_, returns 'success' if true, else 'false'
 -  show.lines(lines,number)    Shows a sequence of lines, with id if _number_ not null.
--  show.plain(v)               Same as _show()_, but strings are not enclosd in quotes.
--  slice(str,first,last)       Like SPITBOL substr to work for sequences and tuples.
+-  show.text(v)                Same as _show()_, but strings are not enclosd in quotes.
 -  sorter(set,type)            Sorts a set, map or string according to _type_.
+-  slice(str,first,last)       Like SPITBOL substr to work for sequences and tuples.
 -  split.line(line)            Splits line of blank-separated words into sequence.
--  split.string(str)           Splits string into sequence of characters.
 -  square.root(n)              Returns integer square root on _n_
 -  subset(a,b)                 Tests if the set _b_  is a subset of set _a_
 -  this(set)                   Returns current iteration value for _set_.
--  thousands(s)                Returns _s_ with a comma every three spaces from the right.
 -  tokens(line)                Returns sequence of the tokens in _line_.
 -  tolower(s)                  Returns _s_ with upper case letters replaced by lower case equivalent.
--  toupper(s)                  Returns _s_ with upper case letters replaced by lower case equivalent.
+-  toupper(s)                  Returns _s_ with lower case letters replaced by upper case equivalent.
 -  top(s)                      Returns top element of sequence viewed as stack.
 -  traceon()                   Turns on tracing.
 -  traceoff()                  Turns off tracing
 -  true(e)                     Tests if operand is true.
 -  union(a,b)                  Returns set consisting of all the members in two sets.
--  unite(seq)                  Unites sequence of characters into single string.
 -  unpack(str)                 Unpacks string into sequence of its characters.
 -  visit(set,expr)             Visits each element of set _set_ and evaluates _expr_ for that element.
 -  words(line,w)               Returns sequence of words (defined by _w_) in _line_.

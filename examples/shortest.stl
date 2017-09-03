@@ -1,0 +1,18 @@
+        define('shortest(set)this')                     :(shortest.end)
+
+*       Return shortest string in set.
+
+shortest
+
+        loop(set)
+
+shortest.next
+
+        next(set)                                       :f(return)
+        shortest = ident(shortest) this
+        ge(size(this),size(shortest))                   :s(shortest.next)
+        shortest = this
+                                                        :(shortest.next)
+
+shortest.end
+

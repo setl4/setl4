@@ -1,0 +1,12 @@
+        define('assert.type(obj,typ)')                  :(assert.type.end)
+
+*       _Assert.type_ tests that _obj_ has datatype _typ_, and ends execution if not.
+
+assert.type
+
+        assert(ident(datatype(obj),typ))                :s(return)
+        error('assertion on datatype failed ' typ )
+
+
+assert.type.end
+

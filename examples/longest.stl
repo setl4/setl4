@@ -1,0 +1,17 @@
+        define('longest(set)this')                      :(longest.end)
+
+*       Return longest string in set.
+
+longest
+
+        loop(set)
+
+longest.next
+
+        next(set)                                       :f(return)
+        le(size(this),size(longest))                    :s(longest.next)
+        longest = this
+                                                        :(longest.next)
+
+longest.end
+

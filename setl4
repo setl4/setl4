@@ -495,9 +495,7 @@ setl4.size.end
 *-  append(str,w,ch)            Appends _ch_ (or space if _ch_ is null) to _str_, then _w_
 *-  arbitrary(n)                Returns arbitary (randomly chosen) integer in 1 .. _n_.
 *-  arbitrary(set)              Returns arbitary (randomly chosen) element of _set_.
-*-  ascii(line)                 Returns the text of line with every ascii character identified
 *-  assert(expr)                Tests that _expr_ is true, ends execution otherwise.
-*-  assert.type(obj,type)       Tests that _obj_ has SPITBOL datatype _type_, ends execution otherwise.
 *-  begins(str,sub)             Tests if string _str_ begins with string _sub_.
 *-  binary(n)                   Returns string with value of _n_ in binary number.
 *-  checkout(filename)          Returns ('checks out') set or map defined by a text file from the libary
@@ -512,7 +510,6 @@ setl4.size.end
 *-  exists(set,expr)            Tests if an expression is true for at least one element in a set.
 *-  factorial(n)                Returns n!  = n * (n -1) * ... * 1.
 *-  frequency(s)                Returns frequency of values in sequence, map or string _s_.
-*-  from(set,elem)              Returns set consisting of the members of a set except a specified member.
 *-  get(map,key)                Gets the value of map _map_ for _key_ for a map.
 *-  get(set,i)                  Gets the i-th element in a set, or fails if no such element.
 *-  false(e)                    Tests if argument is false.
@@ -520,16 +517,13 @@ setl4.size.end
 *-  forall(set,expr)            Tests if an expression is true for every element of a set.
 *-  integers(n)                 Returns set of integers 1 ... n.
 *-  intersection(a,b)           Returns set of elements common to two sets.
-*-  is.plain(s)                 Tests if _s_ is plain type: integer, name, real, or string.
 *-  join(a,b)                   Joins two strings into a single string by concatenating them.
 *-  less(str,sub)               Removes the first instance of each character in _sub_ from _str_,
-*-  longest(set)                Returns the longest string in a set.
 *-  loop(set,this)              Set up iteration over _set_ using _next_. _this_ names variable updated during iteration.
 *-  multiple(n,m)               Tests if _n_ is a multiple of _m_.
 *-  odd(n)                      Tests if _n_ is odd.
 *-  out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null.
 *-  pack(seq)                   Packs sequence of strings into single string.
-*-  plain(v)                    Returns string representing a plain type, per is.plain().
 *-  powerset(set)               Return the powerset of _set_, the set of all the subsets of _set_.
 *-  prefix(str,pre)             Takes a list of space-separated words in _str_, prefixes each with _pre_.
 *-  product(seq)                Returns (Cartesian) product of a sequence of sets.
@@ -550,21 +544,18 @@ setl4.size.end
 *-  range(map)                  Returns set of elements in the range of a map.
 *-  reader(filename,expr)       Returns sequence of lines in file _filename_, using _expr_ (if given).
 *-  reader.str(str,delim)       Like _reader(filename..)_ but reads lines from a string with lines.
-*-  remove(set,elem)            Removes arbitary element from set, or most recent entry from map.
 *-  set.size(set)               Returns number of elements in set _set_.
 *-  #set                        Same as _set.size(set)_
 *-  show(v)                     Show value of _v_.
-*-  show.boolean(e)             Shows value of _b_ as boolean.
+*-  show.boolean(v)             Shows value of _v_ as boolean.
 *-  show.lines(lines,number)    Shows a sequence of lines, with id if _number_ not null.
-*-  show.plain(v)               Same as _show()_, but strings are not enclosd in quotes.
+*-  show.text(v)                Same as _show()_, but strings are not enclosd in quotes.
 *-  slice(str,first,last)       Like SPITBOL substr to work for sequences and tuples.
 *-  sorter(set,type)            Sorts a set, map or string according to _type_.
 *-  split.line(line)            Splits line of blank-separated words into sequence.
-*-  split.string(str)           Splits string into sequence of characters.
 *-  square.root(n)              Returns integer square root on _n_
 *-  subset(a,b)                 Tests if the set _b_  is a subset of set _a_
 *-  this(set)                   Returns current iteration value for _set_.
-*-  thousands(s)                Returns _s_ with a comma every three spaces from the right.
 *-  top(s)                      Returns top element of sequence viewed as stack.
 *-  tolower(s)                  Returns _s_ with upper case letters replaced by lower case equivalent.
 *-  traceon()                   Turns on tracing.
@@ -573,7 +564,7 @@ setl4.size.end
 *-  true(e)                     Tests if operand is true.
 *-  union(a,b)                  Returns set consisting of all the members in two sets.
 *-  unpack(str)                 Unpacks string into sequence of its characters.
-*-  toupper(s)                  Returns _s_ with upper case letters replaced by lower case equivalent.
+*-  toupper(s)                  Returns _s_ with lower case letters replaced by upper case equivalent.
 *-  visit(set,expr)             Visits each element of set _set_ and evaluates _expr_ for that element.
 *-  words(line,w)               Returns sequence of words (defined by _w_) in _line_.
 *-  writer(lines)               Writes sequence _lines_ to standard output.
@@ -666,123 +657,6 @@ arbitrary.iter
         arbitrary = iter.starbitraryitrary(iter) + (r - 1) * iter.step(iter):(return)
 
 arbitrary.end
-
-        define('ascii(line)c,n,name,nul,num,pos')       :(ascii.end)
-
-*       _Ascii_ returns the text of its argument string with every ascii character identified.
-
-ascii
-
-*       Check if this is first call, in which case initialize the needed maps.
-
-        differ(setl4.ascii.initialized)                 :s(ascii.initialized)
-        ascii.init()
-        setl4.ascii.initialized = 1
-
-ascii.initialized
-
-        nul = substr(&alphabet,1,1)
-
-ascii.next
-
-*       Add space after previous character if result not null.
-
-        ascii = differ(ascii) ascii ' '
-        c = substr(line,1,1)                            :f(ascii.done)
-        ident(c,nul)                                    :s(ascii.null)
-        line any('0123456789')                          :s(ascii.integer)
-        line any(&lcase &ucase)                         :s(ascii.letter)
-        line ' '                                        :s(ascii.space)
-
-*       Check for control character (code <=26)
-
-        &alphabet break(c) . pos                        :f(ascii.other)
-        pos = size(pos)
-        gt(pos,26)                                      :s(ascii.other)
-        ascii = ascii setl4.ascii.name[c] '(^'
-                   substr('ABCDEFGHIJKLMNOPQRSTUVWXYZ',pos,1) ')'
-        line len(1) =                                   :(ascii.next)
-
-ascii.integer
-
-        line span('0123456789') . text =
-        ascii = ascii  text                             :(ascii.next)
-
-ascii.letter
-
-        line span(&lcase &ucase) . text =
-        ascii = ascii  text                             :(ascii.next)
-
-ascii.null
-
-        ascii = ascii 'NUL'                             :(ascii.next)
-
-ascii.other
-
-*       Here if none of the other cases apply, so just list the ascii name.
-
-        ascii = ascii setl4.ascii.name[c]
-        line = substr(line,2)                           :(ascii.next)
-
-ascii.space
-
-        line span(' ') . text =
-
-        ascii =  ascii 'SPC'
-        ascii = gt(size(text),1) ascii 'SPC*' size(text)
-        ascii = ascii
-                                                        :(ascii.next)
-ascii.done
-
-        ascii = trim(ascii)                             :(return)
-
-ascii.end
-
-        define('ascii.init(init)entry,name,value')      :(ascii.init.end)
-
-*       _Ascii.init_ Initialize maps for use by _ascii_.
-*       Since space (ascii 32) prints as space, use the name SPC for 32.
-
-ascii.init
-
-
-        ascii.init = new('map '
-.          '0:NUL 16:DLE 32:SPC 48:0 64:@ 80:P  96:` 112:p '
-.          '1:SOH 17:DC1 33:!   49:1 65:A 81:Q  97:a 113:q '
-.          '2:STX 18:DC2 34:"   50:2 66:B 82:R  98:b 114:r '
-.          '3:ETX 19:DC3 35:#   51:3 67:C 83:S  99:c 115:s '
-.          '4:EOT 20 DC4 36:$   52:4 68:D 84:T 100:d 116:t '
-.          '5:ENQ 21:NAK 37:%   53:5 69:E 85:U 101:e 117:u '
-.          '6:ACK 22:SYN 38:&   54:6 70:F 86:V 102:f 118:v '
-.          "7:BEL 23:ETB 39:'   55:7 71:G 87:W 103:g 119:w "
-.          '8:BS  24:CAN 40:(   56:8 72:H 88:X 104:h 120:x '
-.          '9:HT  25:EM  41:)   57:9 73:I 89:Y 105:i 121:y '
-.          '10:LF 26:SUB 42:*   58:  74:J 90:Z 106:j 122:z '
-.          '11:VT 27:ESC 43:+   59:; 75:K 91:[ 107:k 123:{ '
-.          '12:FF 28:FS  44:,   60:< 76:L 92:\ 108:l 124:| '
-.          '13:CR 29:GS  45:-   61:= 77:M 93:] 109:m 125:} '
-.          '14:SO 30:RS  46:.   62:> 78:N 94:^ 110:n 126:~ '
-.          '15:SI 31:US  47:/   63:? 79:O 95:_ 111:o 127:DEL ')
-
-        setl4.ascii.name = new('map #128')
-        setl4.ascii.value = new('map #128')
-        loop(ascii.init)
-
-ascii.init.next
-
-        entry = setl4.l.next(ascii.init)                :(ascii.init.finis)
-*       Correct entry for 0 to be NUL, the NUL character
-        setl4.ascii.name[substr(&alphabet,+v + 1,1)] = name
-        setl4.ascii.value[name] = +value                :(ascii.init.next)
-        setl4.ascii.name[] = 'NUL'
-        setl4.ascii.value['NUL'] = 0
-        setl4.ascii.name[' '] = 'SPC'
-        setl4.ascii.value['SPC'] = 32
-        setl4.ascii.value['SPC'] = 32
-        setl4.ascii.name[char(58)] = char(58)
-        setl4.ascii.value[char(58)] = 58
-
-ascii.init.end
 
         define('assert(expr)')                          :(assert.end)
 
@@ -1303,7 +1177,7 @@ frequency
 *       Compute distribution for string by converting string to sequence
 *       and merging with code to find distribution for a map.
 
-        map = split.string(map)
+        map = unpack(map)
 
 frequency.map
 
@@ -1318,23 +1192,6 @@ frequency.next
         put(frequency,this,get(frequency,this) + 1)     :(frequency.next)
 
 frequency.end
-
-        define('from(set,elem)this')                    :(from.end)
-
-*       _From_ removes an element from a set, or returns a copy
-*       of the set if the given element is not a member of the set.
-
-from
-
-        from = new('set')
-        loop(set)
-
-from.next
-
-        this = next(set)                                :f(return)
-        differ(this,elem) add(from,this)                :(from.next)
-
-from.end
 
         define('get(map,key)val,entry')                 :(get.end)
 
@@ -1421,22 +1278,6 @@ intersection.next
 
 intersection.end
 
-        define('is.plain(v)')                           :(is.plain.end)
-
-*       Tests if _v_  has a plain type.
-*       The plain types are 'integer', 'name', 'real', and 'string'.
-
-is.plain
-
-        ident(v)                                        :s(return)
-        ident(datatype(v),'integer')                    :s(return)
-        ident(datatype(v),'name')                       :s(return)
-        ident(datatype(v),'real')                       :s(return)
-        ident(datatype(v),'string')                     :s(return)
-                                                        :(freturn)
-
-is.plain.end
-
         define('join(s1,s2,s3)i,this')                  :(join.end)
 
 *       _Join_ combines one of more sequences (strings) into a single sequence
@@ -1501,23 +1342,6 @@ less.ch
         less = before after                             :(less.ch)
 
 less.end
-
-        define('longest(set)this')                      :(longest.end)
-
-*       Return longest string in set.
-
-longest
-
-        loop(set)
-
-longest.next
-
-        next(set)                                       :f(return)
-        le(size(this),size(longest))                    :s(longest.next)
-        longest = this
-                                                        :(longest.next)
-
-longest.end
 
         define('loop(set,thisname)iter')                :(loop.end)
 
@@ -1956,16 +1780,15 @@ or
 
 or.end
 
-        define('out(text1,text2,text3)type1,type2')     :(out.end)
+        define('out(text1,text2)type1,type2')           :(out.end)
 
 *       _Out_ writes a line to standard output  conisting of _text1_,
-*       then _text2_ enclosed in brackets if _text2_ is not null, followed
-*       by _text3_ if _text3_ is not null.
+*       then _text2_ enclosed in brackets if _text2_ is not null.
 
 out
 
-        text2 = is.plain(text2) plain(text2)
-        output  = text1 (differ(text2) '[' text2 ']', '') (differ(text3) text3,''):(return)
+        text2 = setl4.is.plain(text2) setl4.plain(text2)
+        output  = text1 (differ(text2) '[' text2 ']', '') :(return)
 
 out.end
 
@@ -1992,53 +1815,6 @@ pack.next
         pack = pack value(next(seq))                    :s(pack.next)f(return)
 
 pack.end
-
-        define('plain(v,q)')                            :(plain.end)
-
-*       Tests if _v_ is a plain type, where the plain types are _entry_, _integer_,
-*       _pair_, _real_, and _string_. If _v_ is plain, then _plain_ returns its
-*       value as a string. Otherwise, _v_ is returned as the value.
-
-*       The value of a string is enclosed in quotes unless _q_ is not null.
-
-plain
-
-        ident(v)                                        :s(return)
-        plain = v
-        is.plain(v)                                     :f(return)
-        plain = integer(v) +v                           :s(return)
-
-*       Nothing to be done if argument is not string.
-
-        ident(datatype(v),'string')                     :s(plain.string)
-        error('unexpected input type to plain, ' datatype(v))
-
-plain.string
-
-*       Return string with no enclosing quotes if _q_ is not null.
-
-        ident(q)                                        :s(plain.quote)
-        plain = v                                       :(return)
-
-plain.quote
-
-*       Here to enclose string in quote characters.
-
-        plain '"'                                       :s(return)
-        plain "'"                                       :s(return)
-        v break("'")                                    :s(plain.double)
-
-*       Here if arguent does not contain a single quote, so use single quotes around it.
-
-        plain = "'" v "'"                               :(return)
-
-plain.double
-
-*       Here if arguent contains single quote, so use double quotes around it.
-
-        plain = '"' v '"'                               :(return)
-
-plain.end
 
         define('pop(stack)')                            :(pop.end)
 
@@ -2433,92 +2209,6 @@ reader.str.next
 
 reader.str.end
 
-        define('remove(set,elem)i,iter,this')           :(remove.end)
-
-*       _Remove_ removes the element _elem_  from the set _set_, or
-*       does nothing if _elem_ is not a member of the set.
-*       Note that _remove_ differs from _from_ in that modifies the set
-*       in place, while _from_ returns a new set with an element removed.
-
-*       If _elem_ is new, remove the most recently added element of a set or map.
-*       If _set_ is a set, then remove _elem_ from _set_ if it is a member.
-*       If _set_ is a map, remove the entry with key _value_.
-*       _Remove_ returns the element removed.
-
-remove
-
-        eq(#set)                                        :s(freturn)
-        ident(elem)                                     :s(remove.last)
-        remove = elem
-        ident(set.kind(set),'int')                      :s(remove.int)
-        ident(set.kind(set),'map')                      :s(remove.map)
-        ident(set.kind(set),'set')                      :s(remove.set)
-        error('remove not defined for set of kind ' set.kind(set))
-
-remove.int
-
-        error("remove from set of kind 'int' not yet implemented.")
-
-remove.last
-
-        remove = set.index(set)[#set]
-        #set = #set - 1                                 :(return)
-
-remove.map
-remove.set
-
-        ident(set.key(set)[elem])                       :s(return)
-
-*       Find the entry with key _elem_, assuming it's more likely
-*       to be a newer addition than one of the older elements.
-
-        iter = new('iter ' #set ' 1')
-        i = #set + 1
-
-remove.find
-
-        gt(i = i - 1)                                   :f(remove.error)
-        ident(set.index(set)[i],elem)                   :f(remove.find)
-
-*       Delete _elem_ from the key table, then move the entries
-*       in the index table following this one down one position.
-*       Nothing remains to be done if the set had only one element, or
-*       if the element was the last in the index table.
-
-        set.key(set)[elem] =
-        #set = #set - 1
-        eq(#set)                                        :s(return)
-
-remove.next
-
-        eq(i,#set)                                      :s(return)
-        set.index(set)[i] = set.index(set)[i + 1]
-        i = i + 1                                       :(remove.next)
-
-remove.error
-
-        error('remove.set unable to locate member')
-
-remove.end
-
-        define('shortest(set)this')                     :(shortest.end)
-
-*       Return shortest string in set.
-
-shortest
-
-        loop(set)
-
-shortest.next
-
-        next(set)                                       :f(return)
-        shortest = ident(shortest) this
-        ge(size(this),size(shortest))                   :s(shortest.next)
-        shortest = this
-                                                        :(shortest.next)
-
-shortest.end
-
         define('show(v,type,q)ara,i,kind,elem,entry,key,line,hdr,n,this,str,value'):(show.end)
 
 *       _Show_ displays the value of its first argument in a form that is hopefully both
@@ -2537,7 +2227,7 @@ show
 
         ident(v)                                        :s(return)
 
-        is.plain(v)  show.out(plain(v,q))               :s(show.finis)
+        setl4.is.plain(v)  show.out(setl4.plain(v,q))   :s(show.finis)
 
         ident(datatype(v),'array')                      :s(show.array)
         ident(datatype(v),'entry')                      :s(show.entry)
@@ -2575,8 +2265,8 @@ show.array.done
 
 show.entry
 
-        is.plain(key(v)) is.plain(value(v))             :f(show.entry.notplain)
-        show.out(plain(key(v),q) char(58) plain(value(v),q)):s(show.finis)
+        setl4.is.plain(key(v)) setl4.is.plain(value(v)) :f(show.entry.notplain)
+        show.out(setl4.plain(key(v),q) char(58) setl4.plain(value(v),q)):s(show.finis)
 
 show.entry.notplain
 
@@ -2613,8 +2303,8 @@ show.set
 
 show.pair
 
-        is.plain(first(v)) is.plain(second(v))          :f(show.pair.notplain)
-        show.out('(' plain(first(v),q) ',' plain(second(v),q) ')'):(show.finis)
+        setl4.is.plain(first(v)) setl4.is.plain(second(v))    :f(show.pair.notplain)
+        show.out('(' setl4.plain(first(v),q) ',' setl4.plain(second(v),q) ')'):(show.finis)
 
 show.pair.notplain
 
@@ -2640,7 +2330,7 @@ show.compound
 show.compound.next
 
         elem = next(v)                                  :f(show.compound.done)
-        is.plain(elem)     show(plain(elem,q),,q)       :s(show.compound.next)
+        setl4.is.plain(elem) show(setl4.plain(elem,q),,q) :s(show.compound.next)
         ident(kind,'int')  show(elem,,q)                :s(show.compound.next)
         ident(kind,'iter') show(elem,,q)                :s(show.compound.next)
 
@@ -2790,16 +2480,16 @@ show.lines.next
 
 show.lines.end
 
-        define('show.plain(v)')                         :(show.plain.end)
+        define('show.text(v)')                          :(show.text.end)
 
-*       _Show.plain_ yields same results as _show_ except that strings
+*       _Setl4.show.text_ yields same results as _show_ except that strings
 *       are not enclosed in quotes.
 
-show.plain
+show.text
 
         show(v,,'NOQUOTE')                              :(return)
 
-show.plain.end
+show.text.end
 
         define('slice(v,start,n)')                      :(slice.end)
 
@@ -3031,25 +2721,6 @@ split.line.next
 
 split.line.end
 
-        define('split.string(str)c')                    :(split.string.end)
-
-*       _Split.str_ returns a sequence of the characters in _str_.
-
-split.string
-
-        split.string = new('seq')
-        str span(' ') =
-        ident(str)                                      :s(return)
-
-split.string.next
-
-*       Here to split.stringing into a sequence of its characters.
-
-        str len(1) . c =                                :f(return)
-        put(split.string,i = i + 1, c)                  :(split.string.next)
-
-split.string.end
-
         define('square.root(n)')                        :(square.root.end)
 
 *       _Square.root_ returns the square root of its argument, rounded up.
@@ -3086,18 +2757,6 @@ this
         this = iter.thisname(set)                       :(return)
 
 this.end
-
-        define('thousands(s)n')                         :(thousands.end)
-
-*       _Thousands_ formats its argument by inserting comma's every three digits from right.
-
-thousands
-
-        n = size(s)
-        thousands = le(n,3) s                           :s(return)
-        thousands = thousands(substr(s,1,n - 3)) ',' substr(s, n - 2, 3):(return)
-
-thousands.end
 
 *#  Tokens: Lexical Scanning
 
@@ -3329,21 +2988,6 @@ union.b.next
 
 union.end
 
-        define('unite(seq)this')                        :(unite.end)
-
-*       Unites a sequence of characters into a single string.
-
-unite
-
-        loop(seq)
-
-unite.next
-
-        this = next(seq)                                :f(return)
-        unite = unite this                              :(unite.next)
-
-unite.end
-
         define('unpack(str)seq,ch')                     :(unpack.end)
 
 *       Unpack string _str_ into sequence of its characters.
@@ -3433,13 +3077,75 @@ writer.end
 setl4.clear
 
         setl4.config.set.table.size = setl4.config.stack = setl4.config.set.table.size = setl4.config.int =
-.       setl4.ascii.initialized = setl4.ascii.name = setl4.config.int.init =
-.       setl4.ascii.value = setl4.random.initialized = setl4.any.digit = setl4.span.digits =
+.       setl4.config.int.init = setl4.random.initialized = setl4.any.digit = setl4.span.digits =
 .       setl4.break.digit = setl4.break.letter = setl4.any.letter =
 .       setl4.span.letters = setl4.span.spaces = setl4.break.space =
 .       setl4.any.word = setl4.span.word = setl.sorter.map = sorter.types =
                                                         :(return)
 setl4.clear.end
+
+        define('setl4.is.plain(v)')                     :(setl4.is.plain.end)
+
+*       Tests if _v_  has a plain type.
+*       The plain types are 'integer', 'name', 'real', and 'string'.
+
+setl4.is.plain
+
+        ident(v)                                        :s(return)
+        ident(datatype(v),'integer')                    :s(return)
+        ident(datatype(v),'name')                       :s(return)
+        ident(datatype(v),'real')                       :s(return)
+        ident(datatype(v),'string')                     :s(return)
+                                                        :(freturn)
+
+setl4.is.plain.end
+
+        define('setl4.plain(v,q)')                      :(setl4.plain.end)
+
+*       Tests if _v_ is a setl4.plain type, where the setl4.plain types are _entry_, _integer_,
+*       _pair_, _real_, and _string_. If _v_ is setl4.plain, then _setl4.plain_ returns its
+*       value as a string. Otherwise, _v_ is returned as the value.
+
+*       The value of a string is enclosed in quotes unless _q_ is not null.
+
+setl4.plain
+
+        ident(v)                                        :s(return)
+        setl4.plain = v
+        setl4.is.plain(v)                               :f(return)
+        setl4.plain = integer(v) +v                     :s(return)
+
+*       Nothing to be done if argument is not string.
+
+        ident(datatype(v),'string')                     :s(setl4.plain.string)
+        error('unexpected input type to setl4.plain, ' datatype(v))
+
+setl4.plain.string
+
+*       Return string with no enclosing quotes if _q_ is not null.
+
+        ident(q)                                        :s(setl4.plain.quote)
+        setl4.plain = v                                 :(return)
+
+setl4.plain.quote
+
+*       Here to enclose string in quote characters.
+
+        setl4.plain '"'                                 :s(return)
+        setl4.plain "'"                                 :s(return)
+        v break("'")                                    :s(setl4.plain.double)
+
+*       Here if arguent does not contain a single quote, so use single quotes around it.
+
+        setl4.plain = "'" v "'"                         :(return)
+
+setl4.plain.double
+
+*       Here if arguent contains single quote, so use double quotes around it.
+
+        setl4.plain = '"' v '"'                         :(return)
+
+setl4.plain.end
 
         define('setl4.show(set)iter')                   :(setl4.show.end)
 
@@ -3465,8 +3171,7 @@ setl4.show.set
 
         iter = set.iter(set)
                                             out('{')
-                                            out('  kind',     plain(set.kind(set)))
-        ne(#set)                   out('  size',     #set)
+                                            ne(#set) out('size',#set)
 
         differ(set.index(set)) differ(set.key(set))
 .                                           out('  has index and key tables')
@@ -3505,9 +3210,6 @@ Out.end
 *       variable SETL4PATH.
 
         setl4.path =
-        setl4.ascii.initialized =
-        setl4.ascii.name =
-        setl4.ascii.value =
         setl4.random.initialized =
         setl4.random.value = 2017
 

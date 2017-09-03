@@ -1,0 +1,117 @@
+        define('ascii(line)c,n,name,nul,num,pos')       :(ascii.end)
+
+*       _Ascii_ returns the text of its argument string with every ascii character identified.
+
+ascii
+
+*       Check if this is first call, in which case initialize the needed maps.
+
+        differ(setl4.ascii.initialized)                 :s(ascii.initialized)
+        ascii.init()
+        setl4.ascii.initialized = 1
+
+ascii.initialized
+
+        nul = substr(&alphabet,1,1)
+
+ascii.next
+
+*       Add space after previous character if result not null.
+
+        ascii = differ(ascii) ascii ' '
+        c = substr(line,1,1)                            :f(ascii.done)
+        ident(c,nul)                                    :s(ascii.null)
+        line any('0123456789')                          :s(ascii.integer)
+        line any(&lcase &ucase)                         :s(ascii.letter)
+        line ' '                                        :s(ascii.space)
+
+*       Check for control character (code <=26)
+
+        &alphabet break(c) . pos                        :f(ascii.other)
+        pos = size(pos)
+        gt(pos,26)                                      :s(ascii.other)
+        ascii = ascii setl4.ascii.name[c] '(^'
+                   substr('ABCDEFGHIJKLMNOPQRSTUVWXYZ',pos,1) ')'
+        line len(1) =                                   :(ascii.next)
+
+ascii.integer
+
+        line span('0123456789') . text =
+        ascii = ascii  text                             :(ascii.next)
+
+ascii.letter
+
+        line span(&lcase &ucase) . text =
+        ascii = ascii  text                             :(ascii.next)
+
+ascii.null
+
+        ascii = ascii 'NUL'                             :(ascii.next)
+
+ascii.other
+
+*       Here if none of the other cases apply, so just list the ascii name.
+
+        ascii = ascii setl4.ascii.name[c]
+        line = substr(line,2)                           :(ascii.next)
+
+ascii.space
+
+        line span(' ') . text =
+
+        ascii =  ascii 'SPC'
+        ascii = gt(size(text),1) ascii 'SPC*' size(text)
+        ascii = ascii
+                                                        :(ascii.next)
+ascii.done
+
+        ascii = trim(ascii)                             :(return)
+
+ascii.end
+
+        define('ascii.init(init)entry,name,value')      :(ascii.init.end)
+
+*       _Ascii.init_ Initialize maps for use by _ascii_.
+*       Since space (ascii 32) prints as space, use the name SPC for 32.
+
+ascii.init
+
+
+        ascii.init = new('map '
+.          '0:NUL 16:DLE 32:SPC 48:0 64:@ 80:P  96:` 112:p '
+.          '1:SOH 17:DC1 33:!   49:1 65:A 81:Q  97:a 113:q '
+.          '2:STX 18:DC2 34:"   50:2 66:B 82:R  98:b 114:r '
+.          '3:ETX 19:DC3 35:#   51:3 67:C 83:S  99:c 115:s '
+.          '4:EOT 20 DC4 36:$   52:4 68:D 84:T 100:d 116:t '
+.          '5:ENQ 21:NAK 37:%   53:5 69:E 85:U 101:e 117:u '
+.          '6:ACK 22:SYN 38:&   54:6 70:F 86:V 102:f 118:v '
+.          "7:BEL 23:ETB 39:'   55:7 71:G 87:W 103:g 119:w "
+.          '8:BS  24:CAN 40:(   56:8 72:H 88:X 104:h 120:x '
+.          '9:HT  25:EM  41:)   57:9 73:I 89:Y 105:i 121:y '
+.          '10:LF 26:SUB 42:*   58:  74:J 90:Z 106:j 122:z '
+.          '11:VT 27:ESC 43:+   59:; 75:K 91:[ 107:k 123:{ '
+.          '12:FF 28:FS  44:,   60:< 76:L 92:\ 108:l 124:| '
+.          '13:CR 29:GS  45:-   61:= 77:M 93:] 109:m 125:} '
+.          '14:SO 30:RS  46:.   62:> 78:N 94:^ 110:n 126:~ '
+.          '15:SI 31:US  47:/   63:? 79:O 95:_ 111:o 127:DEL ')
+
+        setl4.ascii.name = new('map #128')
+        setl4.ascii.value = new('map #128')
+        loop(ascii.init)
+
+ascii.init.next
+
+        entry = setl4.l.next(ascii.init)                :(ascii.init.finis)
+*       Correct entry for 0 to be NUL, the NUL character
+        setl4.ascii.name[substr(&alphabet,+v + 1,1)] = name
+        setl4.ascii.value[name] = +value                :(ascii.init.next)
+        setl4.ascii.name[] = 'NUL'
+        setl4.ascii.value['NUL'] = 0
+        setl4.ascii.name[' '] = 'SPC'
+        setl4.ascii.value['SPC'] = 32
+        setl4.ascii.value['SPC'] = 32
+        setl4.ascii.name[char(58)] = char(58)
+        setl4.ascii.value[char(58)] = 58
+
+ascii.init.end
+

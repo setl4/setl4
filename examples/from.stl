@@ -1,0 +1,17 @@
+        define('from(set,elem)this')                    :(from.end)
+
+*       _From_ removes an element from a set, or returns a copy
+*       of the set if the given element is not a member of the set.
+
+from
+
+        from = new('set')
+        loop(set)
+
+from.next
+
+        this = next(set)                                :f(return)
+        differ(this,elem) add(from,this)                :(from.next)
+
+from.end
+
