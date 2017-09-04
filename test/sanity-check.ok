@@ -4,26 +4,26 @@ Test set
 
 { 5 10 15 20 25 30 }
 
-test set equality - expect success
+test set equality - expect true
 eval equal(set,setu) true
 
 
-test membership- expect success/failure
+test membership- expect true/false
 
 eval 5 ~ set true
 eval member(6,set) false
 
-Test exists/forall with element in set - expect success/failure
+Test exists/forall with element in set - expect true/false
 
 eval exists(set,'eq(this,10)') true
 eval forall(set,'eq(this,10)') false
 
-Test exists/forall with element not in set - expect failure/failure
+Test exists/forall with element not in set - expect false/false
 
 eval exists(set,'eq(this,40)') false
 eval forall(set,'eq(this,40)') false
 
-Test exists/forall with element not in set - expect failure/success
+Test exists/forall with element not in set - expect false/true
 
 eval exists(set,'eq(this,6)') false
 eval forall(set,'ne(this,6)') true
@@ -34,14 +34,14 @@ Test iter
 { iter  start=1  finis=10  step=2 } 
 ( iterator  start=1  finis=10  step=2 ) 
 
-expect success
+expect true
 eval eq(#iter,5) true
 
 { iter  start=1  finis=10  step=2 } 
-expect success
+expect true
 eval 5 ~ iter true
 
-expect failure
+expect false
 eval member(6,iter) false
 
 { iter  start=25  finis=5  step=-5 } 
@@ -51,19 +51,19 @@ eval member(6,iter) false
 Test Map
 { 'forty':40 'hundred':100 'one':1 'ten':10 'thousand':1000 'two':2 }
 
-Test map get - expect success/failure
+Test map get - expect true/false
 
 eval eq(get(map,'one'),1) true
 eval eq(get(map,'one'),6) false
 
 
-Test exists/forall with element in map- expect success/failure
+Test exists/forall with element in map- expect true/false
 
 eval exists(map,'eq(value(this),2)') true
 eval forall(map,'eq(value(this),2)') false
 
 
-Test exists/forall with element not in - expect failure/failure
+Test exists/forall with element not in - expect false/false
 
 eval exists(map,'eq(value(this),500)') false
 eval forall(map,'eq(value(this),500)') false

@@ -31,7 +31,7 @@
 -  integers(n)              Returns set of integers 1 ... n.
 -  intersection(a,b)        Returns set of elements common to two sets.
 -  powerset(set)            Return the powerset of _set_, the set of all the subsets of _set_.
--  product(seq)             Returns (Cartesian) product of a sequence of sets.
+-  product(seq)             Returns (Cartesian) product of a sequence of sets or strings.
 -  sorter(set,type)         Sorts a set, map or string according to _type_.
 -  subset(a,b)              Tests if the set _b_  is a subset of set _a_
 -  union(a,b)               Returns set consisting of all the members in two sets.
@@ -83,22 +83,20 @@
 ### String
 
 -  append(str,w,ch)         Appends _ch_ (or space if _ch_ is null) to _str_, then _w_
--  begins(str,sub)          Tests if string _str_ begins with string _sub_.
--  join(a,b)                Joins two strings into a single string by concatenating them.
+-  join(a,b)                Joins several sequences/strings into one sequence/string
 -  pack(seq)                Packs sequence of strings into single string.
 -  tolower(s)               Returns _s_ with upper case letters replaced by lower case equivalent.
 -  toupper(s)               Returns _s_ with lower case letters replaced by upper case equivalent.
--  split(line)              Splits line of blank-separated words into sequence.
--  tokens(line)             Returns sequence of the tokens in _line_.
+-  split(s)                 Returns sequence of whitespace-separated words into _s_.
+-  tokens(s)                Returns sequence of the tokens in _s_.
 -  unpack(str)              Unpacks string into sequence of its characters.
--  words(line,w)            Returns sequence of words (defined by _w_) in _line_.
+-  words(s,w)               Returns sequence of words (defined by _w_) in _s_.
 
 ### Input / Output
 
 -  checkout(filename)       Returns ('checks out') set or map defined by a text file from the libary
 -  reader(filename,expr)    Returns sequence of lines in file _filename_, using _expr_ (if given).
 -  reader(str,delim)        Like _reader(filename..)_ but reads lines from a string with lines.
--  show.lines(lines,number) Shows a sequence of lines, with id if _number_ not null.
 -  writer(lines)            Writes sequence _lines_ to standard output.
 
 ### General

@@ -50,6 +50,24 @@
 
 *   Analyze the text of the sonnets.
 
+        define('show.lines(lines,number)i,line')        :(show.lines.end)
+
+*       Show a sequence of lines, including the line number if _number_ not null.
+
+show.lines
+
+        loop(lines)
+
+show.lines.next
+
+        line = next(lines)                              :f(return)
+        i = i + 1
+        gt(i,100) error('i too big')
+        ident(number)    out(line)                      :s(show.lines.next)
+        differ(number)   out(lpad(i,4) '  ' line)       :(show.lines.next)
+
+show.lines.end
+
     define('find(lines)id,line,lineno,sonnet')         :(find.end)
 
 *   _Find_ _loops through the lines of text, starting a new sonnet

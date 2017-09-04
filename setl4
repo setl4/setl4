@@ -496,7 +496,6 @@ setl4.size.end
 *-  arbitrary(n)                Returns arbitary (randomly chosen) integer in 1 .. _n_.
 *-  arbitrary(set)              Returns arbitary (randomly chosen) element of _set_.
 *-  assert(expr)                Tests that _expr_ is true, ends execution otherwise.
-*-  begins(str,sub)             Tests if string _str_ begins with string _sub_.
 *-  binary(n)                   Returns string with value of _n_ in binary number.
 *-  checkout(filename)          Returns ('checks out') set or map defined by a text file from the libary
 *-  compare(a,b)                Compares two integers or strings, returning -1 (less), 0 (equal), or +1 (greater).
@@ -516,14 +515,14 @@ setl4.size.end
 *-  forall(set,expr)            Tests if an expression is true for every element of a set.
 *-  integers(n)                 Returns set of integers 1 ... n.
 *-  intersection(a,b)           Returns set of elements common to two sets.
-*-  join(a,b)                   Joins two strings into a single string by concatenating them.
+*-  join(a,b,c)                 Joins several sequences/strings into one sequence/string.
 *-  loop(set,this)              Set up iteration over _set_ using _next_. _this_ names variable updated during iteration.
 *-  multiple(n,m)               Tests if _n_ is a multiple of _m_.
 *-  odd(n)                      Tests if _n_ is odd.
 *-  out(text1,text2,text3)      Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null.
 *-  pack(seq)                   Packs sequence of strings into single string.
 *-  powerset(set)               Return the powerset of _set_, the set of all the subsets of _set_.
-*-  product(seq)                Returns (Cartesian) product of a sequence of sets.
+*-  product(seq)                Returns (Cartesian) product of a sequence of sets or strings.
 *-  member(set,elem)            Tests if _elem_ is a member of _set_.
 *-  new(str)                    Returns a new set specified by _str_.
 *-  next(set)                   Returns next element in iteration defined by prevous _loop_, fails if no more elements.
@@ -545,11 +544,10 @@ setl4.size.end
 *-  #set                        Same as _set.size(set)_
 *-  show(v)                     Show value of _v_.
 *-  show.boolean(v)             Shows value of _v_ as boolean.
-*-  show.lines(lines,number)    Shows a sequence of lines, with id if _number_ not null.
 *-  show.text(v)                Same as _show()_, but strings are not enclosd in quotes.
 *-  slice(str,first,last)       Like SPITBOL substr to work for sequences and tuples.
 *-  sorter(set,type)            Sorts a set, map or string according to _type_.
-*-  split(line)                 Splits line of whitespace-separated fields into sequence.
+*-  split(s)                    Returns string of whitespace-separated fields into sequence.
 *-  square.root(n)              Returns integer square root on _n_
 *-  subset(a,b)                 Tests if the set _b_  is a subset of set _a_
 *-  this(set)                   Returns current iteration value for _set_.
@@ -557,13 +555,13 @@ setl4.size.end
 *-  tolower(s)                  Returns _s_ with upper case letters replaced by lower case equivalent.
 *-  traceon()                   Turns on tracing.
 *-  traceoff()                  Turns off tracing
-*-  tokens(line)                Returns sequence of the tokens in _line_.
+*-  tokens(s)                   Returns sequence of the tokens in string _s.
 *-  true(e)                     Tests if operand is true.
 *-  union(a,b)                  Returns set consisting of all the members in two sets.
 *-  unpack(str)                 Unpacks string into sequence of its characters.
 *-  toupper(s)                  Returns _s_ with lower case letters replaced by upper case equivalent.
 *-  visit(set,expr)             Visits each element of set _set_ and evaluates _expr_ for that element.
-*-  words(line,w)               Returns sequence of words (defined by _w_) in _line_.
+*-  words(s,w)                  Returns sequence of words (defined by _w_) in _s_.
 *-  writer(lines)               Writes sequence _lines_ to standard output.
 
 *       SETL4 Function Definitions
@@ -678,22 +676,6 @@ assert.type
 
 assert.type.end
 
-        define('begins(str,init)')                      :(begins.end)
-
-*       _Begin_ tests if string _str_ begins with string _init_.
-*       It returns _str_ on success, fails otherwise.
-
-begins
-
-        ident(str)                                      :s(freturn)
-        ident(init)                                     :s(freturn)
-        begins = str
-        ident(str,init)                                 :s(return)
-        gt(size(init),size(str))                        :s(freturn)
-        ident(substr(str,1,size(init)),init)            :s(return)f(freturn)
-
-begins.end
-
         define('binary(n)')                             :(binary.end)
 
 *       _Binary_returns a string with the value of _n_ as a binary number.
@@ -754,15 +736,15 @@ checkout.check
 *       See if _filename_ matches one of the available texts.
 
 
-        filename = begins('dictionary',filename)        :s(checkout.open)
-        filename = begins('enable1',filename)           :s(checkout.open)
-        filename = begins('genesis',filename)           :s(checkout.open)
-        filename = begins('hamlet',filename)            :s(checkout.open)
-        filename = begins('new-testament',filename)     :s(checkout.open)
-        filename = begins('old-testament',filename)     :s(checkout.open)
-        filename = begins('romeo-and-juliet',filename)  :s(checkout.open)
-        filename = begins('shakespeare',filename)       :s(checkout.open)
-        filename = begins('sonnets',filename)           :s(checkout.open)
+        filename = setl4.begins('dictionary',filename)        :s(checkout.open)
+        filename = setl4.begins('enable1',filename)           :s(checkout.open)
+        filename = setl4.begins('genesis',filename)           :s(checkout.open)
+        filename = setl4.begins('hamlet',filename)            :s(checkout.open)
+        filename = setl4.begins('new-testament',filename)     :s(checkout.open)
+        filename = setl4.begins('old-testament',filename)     :s(checkout.open)
+        filename = setl4.begins('romeo-and-juliet',filename)  :s(checkout.open)
+        filename = setl4.begins('shakespeare',filename)       :s(checkout.open)
+        filename = setl4.begins('sonnets',filename)           :s(checkout.open)
 
         out('Sorry, that text is not available.')
         out('Here is a list of the available texts:')   :(checkout.list)
@@ -1455,12 +1437,12 @@ new
         init = init ' '
         init break(' ') . kind span(' ') =
         kind = (gt,size(kind),3) substr(kind,1,3)
-        begins('integers',kind)                         :s(new.kind)
-        begins('iterator',kind)                         :s(new.kind)
-        begins('map',kind)                              :s(new.kind)
-        begins('seq',kind)                              :s(new.kind)
-        begins('set',kind)                              :s(new.kind)
-        begins('string',kind)                           :s(new.kind)
+        setl4.begins('integers',kind)                         :s(new.kind)
+        setl4.begins('iterator',kind)                         :s(new.kind)
+        setl4.begins('map',kind)                              :s(new.kind)
+        setl4.begins('seq',kind)                              :s(new.kind)
+        setl4.begins('set',kind)                              :s(new.kind)
+        setl4.begins('string',kind)                           :s(new.kind)
 
 *       If the kind is not given, then the kind is 'set' and _init_
 *       is not null, it gives the initial element(s) to add to the set.
@@ -2396,41 +2378,23 @@ show.boolean.end
 
         define('show.eval(expr)e')                      :(show.eval.end)
 
-*       _Show.eval_ evaluates its argument and returns 'success' if
-*       the evaluation succeeded, or 'failure' if not.
+*       _Show.eval_ evaluates its argument and returns 'true' if
+*       the evaluation succeeded, or 'false' if not.
 
 show.eval
 
         eval(expr)                                      :s(show.eval.success)
-        show.eval = 'failure'                           :(show.eval.finis)
+        show.eval = 'false'                             :(show.eval.finis)
 
 show.eval.success
 
-        show.eval = 'success'
+        show.eval = 'true'
 
 show.eval.finis
 
         out('eval ' expr ' ' show.eval)                 :(return)
 
 show.eval.end
-
-        define('show.lines(lines,number)i,line')        :(show.lines.end)
-
-*       Show a sequence of lines, including the line number if _number_ not null.
-
-show.lines
-
-        loop(lines)
-
-show.lines.next
-
-        line = next(lines)                              :f(return)
-        i = i + 1
-        gt(i,100) error('i too big')
-        ident(number)    out(line)                      :s(show.lines.next)
-        differ(number)   out(lpad(i,4) '  ' line)       :(show.lines.next)
-
-show.lines.end
 
         define('show.text(v)')                          :(show.text.end)
 
@@ -3020,6 +2984,22 @@ writer.end
 *       Their definitions and implmentations may change at any time, so use them
 *       directly at your own peril.
 
+
+        define('setl4.begins(str,init)')                      :(setl4.begins.end)
+
+*       _Begin_ tests if string _str_ setl4.begins with string _init_.
+*       It returns _str_ on success, fails otherwise.
+
+setl4.begins
+
+        ident(str)                                      :s(freturn)
+        ident(init)                                     :s(freturn)
+        setl4.begins = str
+        ident(str,init)                                 :s(return)
+        gt(size(init),size(str))                        :s(freturn)
+        ident(substr(str,1,size(init)),init)            :s(return)f(freturn)
+
+setl4.begins.end
 
         define('setl4.clear()')                         :(setl4.clear.end)
 

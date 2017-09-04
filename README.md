@@ -369,7 +369,6 @@ the colon character enclosed in quotes would normally be used.
 -  arbitrary(n)                Returns arbitary (randomly chosen) integer in 1 .. _n_.
 -  arbitrary(set)              Returns arbitary (randomly chosen) element of _set_.
 -  assert(expr)                Tests that _expr_ is true, ends execution otherwise.
--  begins(str,sub)             Tests if string _str_ begins with string _sub_.
 -  binary(n)                   Returns string with value of _n_ in binary number.
 -  checkout(filename)          Returns ('checks out') set or map defined by a text file from the libary
 -  compare(a,b)                Compares two integers or strings, returning -1 (less), 0 (equal), or +1 (greater).
@@ -390,14 +389,14 @@ the colon character enclosed in quotes would normally be used.
 -  int(n)                      Returns _n_ if n is integer or is string in exponential form
 -  integers(n)                 Returns set of integers 1 ... n.
 -  intersection(a,b)           Returns set of elements common to two sets.
--  join(a,b)                   Joins two strings into a single string by concatenating them.
+-  join(a,b)                   Joins several sequences/strings into one sequence/string.
 -  loop(set,this)              Set up iteration over _set_ using _next_. _this_ names variable updated during iteration.
 -  multiple(n,m)               Tests if _n_ is a multiple of _m_.
 -  odd(n)                      Tests if _n_ is odd.
 -  out(text1,text2)            Outputs _text1_, then _text2_ enclosed in '[]' if _text2_ not null.
 -  pack(seq)                   Packs sequence of strings into single string.
 -  powerset(set)               Return the powerset of _set_, the set of all the subsets of _set_.
--  product(seq)                Returns (Cartesian) product of a sequence of sets.
+-  product(seq)                Returns (Cartesian) product of a sequence of sets or strings.
 -  member(set,elem)            Tests if _elem_ is a member of _set_.
 -  new(str)                    Returns a new set specified by _str_.
 -  next(set)                   Returns next element in iteration defined by prevous _loop_, fails if no more elements.
@@ -420,15 +419,14 @@ the colon character enclosed in quotes would normally be used.
 -  show(v)                     Show value of _v_.
 -  show.boolean(e)             Shows value of _b_ as boolean.
 -  show.eval(expr)             Evaluates _expr_, returns 'success' if true, else 'false'
--  show.lines(lines,number)    Shows a sequence of lines, with id if _number_ not null.
 -  show.text(v)                Same as _show()_, but strings are not enclosd in quotes.
 -  sorter(set,type)            Sorts a set, map or string according to _type_.
 -  slice(str,first,last)       Like SPITBOL substr to work for sequences and tuples.
--  split(s)                    Splits line of whitespace-separated words in _s_ into sequence.
+-  split(s)                    Returns sequence of whitespace-separated words in _s_.
 -  square.root(n)              Returns integer square root on _n_
 -  subset(a,b)                 Tests if the set _b_  is a subset of set _a_
 -  this(set)                   Returns current iteration value for _set_.
--  tokens(line)                Returns sequence of the tokens in _line_.
+-  tokens(s)                   Returns sequence of the tokens in _s_.
 -  tolower(s)                  Returns _s_ with upper case letters replaced by lower case equivalent.
 -  toupper(s)                  Returns _s_ with lower case letters replaced by upper case equivalent.
 -  top(s)                      Returns top element of sequence viewed as stack.
@@ -438,6 +436,6 @@ the colon character enclosed in quotes would normally be used.
 -  union(a,b)                  Returns set consisting of all the members in two sets.
 -  unpack(str)                 Unpacks string into sequence of its characters.
 -  visit(set,expr)             Visits each element of set _set_ and evaluates _expr_ for that element.
--  words(line,w)               Returns sequence of words (defined by _w_) in _line_.
+-  words(s,w)                  Returns sequence of words (defined by _w_) in _s_.
 -  writer(lines)               Writes sequence _lines_ to standard output.
 
