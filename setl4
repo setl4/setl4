@@ -507,11 +507,11 @@ setl4.size.end
 *-  even(n)                     Tests if _n_ is even.
 *-  exists(set,expr)            Tests if an expression is true for at least one element in a set.
 *-  factorial(n)                Returns n!  = n * (n -1) * ... * 1.
+*-  reduce(proc,file)	Filters a file by applying proc to each line. Default file is standard input.
 *-  frequency(s)                Returns frequency of values in sequence, map or string _s_.
 *-  get(map,key)                Gets the value of map _map_ for _key_ for a map.
 *-  get(set,i)                  Gets the i-th element in a set, or fails if no such element.
 *-  false(e)                    Tests if argument is false.
-*-  filter(set,expr,n)          Returns set of elements in _set_ for which _expr_ is true.
 *-  forall(set,expr)            Tests if an expression is true for every element of a set.
 *-  integers(n)                 Returns set of integers 1 ... n.
 *-  intersection(a,b)           Returns set of elements common to two sets.
@@ -540,6 +540,7 @@ setl4.size.end
 *-  range(map)                  Returns set of elements in the range of a map.
 *-  reader(filename,expr)       Returns sequence of lines in file _filename_, using _expr_ (if given).
 *-  reader.str(str,delim)       Like _reader(filename..)_ but reads lines from a string with lines.
+*-  reduce(set,expr,n)          Returns set of elements in _set_ for which _expr_ is true.
 *-  set.size(set)               Returns number of elements in set _set_.
 *-  #set                        Same as _set.size(set)_
 *-  show(v)                     Show value of _v_.
@@ -1051,65 +1052,6 @@ false
 
 false.end
 
-        define('filter(set,expr,n)e,this')              :(filter.end)
-
-*       According to Paul Halmos, in his book "Naive Set Theory,"
-*       a major principle of set theory, often referred to by its
-*       German name _Aussonderungsaxiom_, is the Axiom of Specification:
-
-*       To every set _A_ and every condition _S(x)_ there corresponds
-*       a set _B_ whose elements are exactly those elements _x_ of _A_
-*       for which _S(x)_ holds.
-
-*       In SETL4 we say that the expression '_A_ @ _S_' "filters"
-*       _A_ by _S_. This can also be read as
-*               "the subset of _A_ such that _S_ is true"
-
-*       _Filter_ returns the subset of a set, map or sequence _set_
-*        for which the given expresion is true.
-
-*       _filter(s,e)_ can also be written using the operator symbol '@':
-*```
-            s @ e
-*```
-*       that is, "the elements in _s_ at which _e_ is true.
-
-*       If _n_ is not null, it gives an estimate of the size of the result.
-
-filter
-
-        ident(set.kind(set),'map')                      :s(filter.map)
-        ident(set.kind(set),'seq')                      :s(filter.seq)
-        filter = new('set' (eq(n) '', ' #' n))
-        loop(set)
-
-filter.set.next
-
-        this = next(set)                                :f(return)
-        eval(expr) add(filter,this)                     :(filter.set.next)
-
-filter.map
-
-        filter = new('map')
-        loop(set)
-
-filter.map.loop
-
-        this = next(set)                                :f(return)
-        eval(expr) push(filter,value(this))             :(filter.map.loop)
-
-filter.seq
-
-        filter = new('seq')
-        loop(set)
-
-filter.seq.loop
-
-        this = next(set)                                :f(return)
-        eval(expr) push(filter,this)                    :(filter.seq.loop)
-
-filter.end
-
         define('forall(set,expr)e')                     :(forall.end)
 
 *       _Forall_ tests if _expr_ is true for all elements of _set_.
@@ -1125,7 +1067,48 @@ forall.loop
 
 forall.end
 
+	define('filter(proc,file)channel,line,var')	:(filter.end)
 
+*	Filters the specified file by applying proc to each line in the file.
+*	If the file is not given, then standard input is used.
+*	Filter does not write to an output file, but returns the result
+*	of applying the filter procedure to each line in the sequence filter.lines.out.
+
+*	Globals:
+*
+*	filter.file.in 			Input file
+*	filter.line.in			Current line
+*	filter.line.out			Result of applying proc to filter.line.in
+*	filter.lines.in			All the lines in the file as a sequence
+*	filter.lines.out		All the filtered lines as a sequence
+*	filter.integer			Output variable set by the filter
+*	filter.string			Output variable set by the filter
+*	filter.data			Output datatype set by the filter
+
+filter
+	ident(filefile)			:s(filter.next)
+
+*	Here to open the input file
+
+	differ(file) open(.var,'filter.channel',file)	:f(filter.fail)
+	
+filter.next
+
+	line = differ(file) .var	:f(filter.eof)
+	filter.line = ident(file) input	:f(filter.eof)
+	filter.line.out = apply(proc(line)) 	:f(filter.fail)
+	filter.lines.in = join(filter.lines.in, filter.line.in)
+	filter.lines.out = join(filter.lines.out, filter.line.out)
+					:(filter.next)
+filter.fail
+
+filter.eof
+
+	differ(file) endfile('filter.channel')	:s(return)f(freturn)
+
+filter.end
+	
+*	
         define('frequency(map)this')                    :(frequency.end)
 
 *       _Frequency_ returns a frequency distribution for a map,
@@ -2142,6 +2125,66 @@ reader.str.next
         push(reader.str,line)                           :(reader.str.next)
 
 reader.str.end
+
+        define('reduce(set,expr,n)e,this')              :(reduce.end)
+
+*       According to Paul Halmos, in his book "Naive Set Theory,"
+*       a major principle of set theory, often referred to by its
+*       German name _Aussonderungsaxiom_, is the Axiom of Specification:
+
+*       To every set _A_ and every condition _S(x)_ there corresponds
+*       a set _B_ whose elements are exactly those elements _x_ of _A_
+*       for which _S(x)_ holds.
+
+*       In SETL4 we say that the expression '_A_ @ _S_' "reduces"
+*       _A_ by _S_. This can also be read as
+*               "the subset of _A_ such that _S_ is true"
+
+*       _Reduce_ returns the subset of a set, map or sequence _set_
+*        for which the given expresion is true.
+
+*       _reduce(s,e)_ can also be written using the operator symbol '@':
+*```
+            s @ e
+*```
+*       that is, "the elements in _s_ at which _e_ is true.
+
+*       If _n_ is not null, it gives an estimate of the size of the result.
+
+reduce
+
+        ident(set.kind(set),'map')                      :s(reduce.map)
+        ident(set.kind(set),'seq')                      :s(reduce.seq)
+        filter = new('set' (eq(n) '', ' #' n))
+        loop(set)
+
+reduce.set.next
+
+        this = next(set)                                :f(return)
+        eval(expr) add(filter,this)                     :(reduce.set.next)
+
+reduce.map
+
+        reduce = new('map')
+        loop(set)
+
+
+reduce.map.loop
+
+        this = next(set)                                :f(return)
+        eval(expr) push(reduce,value(this))             :(reduce.map.loop)
+
+reduce.seq
+
+        filter = new('seq')
+        loop(set)
+
+reduce.seq.loop
+
+        this = next(set)                                :f(return)
+        eval(expr) push(reduce,this)                    :(reduce.seq.loop)
+
+reduce.end
 
         define('show(v,type,q)ara,i,kind,elem,entry,key,line,hdr,n,this,str,value'):(show.end)
 
@@ -3215,5 +3258,4 @@ setl4.init
 setl4.init.end
 
         setl4.init()
-
 
